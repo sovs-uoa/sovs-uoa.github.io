@@ -1,0 +1,117 @@
+{
+	"title": "Gullstrand 1 Eye Relaxed",
+	"prescription": [{
+		"id": "0001",
+		"type": "index",
+		"description": "air",
+		"args": {
+			"index": 1.000
+		}
+	}, {
+		"id": "0002",
+		"type": "sphere",
+		"description": "anterior cornea",
+		"args": {
+			"radius": 7.7
+		}
+	}, {
+		"id": "0003",
+		"type": "index",
+		"description": "stroma",
+		"args": {
+			"index": 1.376,
+			"thickness": 0.5
+		}
+	}, {
+		"id": "0004",
+		"type": "sphere",
+		"description": "posterior cornea",
+		"args": {
+			"radius": 6.8
+		}
+	}, {
+		"id": "0005",
+		"type": "index",
+		"description": "aqueous",
+		"args": {
+			"index": 1.336,
+			"thickness": 3.100
+		}
+	}, {
+		"id": "0006",
+		"type": "sphere",
+		"description": "anterior lens",
+		"args": {
+			"radius": 10.0
+		}
+	}, {
+		"id": "0007",
+		"type": "index",
+		"description": "lens: cortex",
+		"args": {
+			"index": 1.386,
+			"thickness": 0.546
+		}
+	}, {
+		"id": "0008",
+		"type": "sphere",
+		"description": "anterior core",
+		"args": {
+			"radius": 7.911
+		}
+	}, {
+		"id": "0009",
+		"type": "index",
+		"description": "lens: core",
+		"args": {
+			"index": 1.406,
+			"thickness": 2.419
+		}
+	}, {
+		"id": "0010",
+		"type": "sphere",
+		"description": "posterior core",
+		"args": {
+			"radius": -5.760
+		}
+	}, {
+		"id": "0011",
+		"type": "index",
+		"description": "lens: cortex",
+		"args": {
+			"index": 1.386,
+			"thickness": 0.635
+		}
+	}, {
+		"id": "0012",
+		"type": "sphere",
+		"description": "posterior cortex",
+		"args": {
+			"radius": -6.000
+		}
+	}, {
+		"id": "0013",
+		"type": "index",
+		"description": "vitreous",
+		"args": {
+			"index": 1.336
+		}
+	}],
+	"objects": [{
+		"id": "0001",
+		"z": -10000,
+		"h": 1
+	}, {
+		"id": "0001",
+		"z": -20,
+		"h": 1
+	}, {
+		"id": "0002",
+		"z": -11,
+		"h": 2
+	}, {
+		"id": "0003",
+		"z": -3,
+		"h": 1
+	}]
+}

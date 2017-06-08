@@ -1,0 +1,43 @@
+<div class="panel-group">
+ {{#raysout}}
+  <div class="panel panel-default">
+      
+      <div class="panel-heading">
+        <div class="panel-title">          
+          <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapse{{id}}" aria-expanded="true" aria-controls="collapse{{id}}">
+          {{id}} / {{name}}
+          </a>
+          <span class="pull-left">          
+              <span class="glyphicon glyphicon-remove"></span>
+          </span>
+        </div>
+      </div>
+      
+      <div id="collapse{{id}}" class="panel-collpase collapse">
+       <div class="panel-body">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>angle</th>
+                <th>height</th>  
+                <th>position</th>                        
+              </tr>
+            </thead>
+            <tbody>
+            {{#list}} 
+             <tr>
+                <td>{{index}}</td>
+                <td>{{u | decimal : 7 }}</td>
+                <td>{{h | decimal : 7 }}</td> 
+                <td>{{z | decimal : 7 }}</td>                 
+              </tr>
+            {{/list}}
+            </tbody>
+          </table>         
+      </div>
+    </div>
+ 
+ </div>
+ {{/raysout}}
+</div>

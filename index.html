@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Information Panel</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src="js/mustache.min.js"></script>
+  <script src="js/mustache-wax.js"></script>  
+  <script src="js/math.js"></script>  
+  <script src="js/paraxial.js"></script>  
+</head>
+
+<!-- Templates -->
+<script id="lensTpl"    type="text/template" src="mustache/lens.mustache" ></script>
+<script id="conjugatesTpl"  type="text/template" src="mustache/conjugates.mustache" ></script>
+<script id="summaryTpl" type="text/template" src="mustache/summary.mustache"></script>
+<script id="raysoutTpl"  type="text/template" src="mustache/rays.mustache" ></script>
+
+ 
+<style>
+
+body {
+    background-color: lightblue;
+}
+
+.lens_table tr:hover {
+  padding: 10px;
+  background:#eeee; }
+
+.input_field {
+      border: none;      
+      width: 70px;
+ }
+
+ .cinput {
+      border: none;      
+      width: 70px;
+ }
+
+.center-panel {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.fixed-panel {
+  float: right;
+  min-height: 100px;
+  max-height: 800px;
+  min-width: 800px;
+  max-width: 800px;
+  overflow-y: auto;
+}
+
+.tab-content {
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    border-radius: 0px 0px 5px 5px;
+    padding: 10px;
+}
+
+.panel-heading .accordion-toggle:after {
+    /* symbol for "opening" panels */
+    font-family: 'Glyphicons Halflings';  /* essential for enabling glyphicon */
+    content: "\e114";    /* adjust as needed, taken from bootstrap.css */
+    float: right;        /* adjust as needed */
+    color: grey;         /* adjust as needed */
+}
+.panel-heading .accordion-toggle.collapsed:after {
+    /* symbol for "collapsed" panels */
+    content: "\e080";    /* adjust as needed, taken from bootstrap.css */
+}
+
+
+</style>
+
+
+
+<script>
+
+
+
+// ... check
+if (!String.prototype.trim) {
+  console.log('Creating string.prototype.trim');
+  String.prototype.trim = function () {
+    return this.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '');
+  };
+}
+
+
+//$('.input-field').bind('input', function(){
+//  console.log('this actually works');
+//});
+
+
+Mustache.Formatters = {
+        "decimal": function (num, dt) {                    
+                    var myval = math.round(num, dt);
+                    return  myval.toString();
+                }
+};
+
+
+</script>
+
+
+
+<script>
+
+ 
+
+// ADD: 1. toggle betwen object space and image space paraxial pairs 
+// ADD: 3. ray calculator to sources 
+// ADD: 4. marginal / pupil rays to summary 
+// ADD: 5. Change cardinal to Some general "Cardinal points"
+// ADD: 6. Front and Back Vertices to that table / Using a Type Indicator
+
+// ADD: STOP  
+// ADD: Exit/Extrance Pupil  (Magnifications)
+// ADD: Pupil Ray  
+// ADD: Marginal Ray
+
+
+
+// loadJSON file!!!
+function loadJSON(filename, callback) {   
+  var xobj = new XMLHttpRequest();
+      xobj.overrideMimeType("application/json");
+      xobj.open('GET', filename, true); 
+      // Replace 'my_data' with the path to your file
+      xobj.onreadystatechange = function () {
+        if (xobj.readyState == 4 && xobj.status == "200") {
+          // Required use of an anonymous callback 
+          // as .open() will NOT return a value but simply returns undefined in asynchronous mode
+          callback(xobj.responseText);
+        }
+  };
+  xobj.send(null);  
+}
+
+
+// templates 
+var lensTpl;
+var conjugatesTpl;
+var summaryTpl;
+var raysoutTpl;
+
+// stateobject
+var stateObject;
+
+function updatePrescriptionByField(id, newValue) {
+
+  // split into ID and field to update 
+  var res       = id.split('_');
+  var search_id = res[0];
+  var field_id  = res[1];
+  
+  // start searching  
+  console.log('full_string = ' + id + ' search=' + search_id + ' field='+field_id);
+  var len = systemObject.prescription.length;
+  for(var j = 0; j < systemObject.prescription.length ; j ++ ) {
+    var check_id = systemObject.prescription[j].id;
+
+    // theoretical update
+    if (check_id == search_id) { // ... information 
+        console.log('[UPDATE] element = '+search_id+' value='+newValue);
+        var arguments = systemObject.prescription[j].args;
+        arguments[field_id] = newValue;
+        return
+    }    
+  }
+  // no update occured 
+  console.log('[UPDATE] element = '+search_id+' NOT FOUND');
+}
+
+/* ----------------------------------------------------------------------------------------------------------------------------------------------
+
+UPDATE TABLES 
+
+ ----------------------------------------------------------------------------------------------------------------------------------------------*/
+
+function updateConjugatesTable() {
+    var html = Mustache.to_html(conjugatesTpl, systemObject); 
+    $('#conjugates').html(html);
+
+    console.log('[updateConjugatesTable] re-adding click function');
+    $('.cinput').change(function() { // information 
+           var id       = $(this).attr('id');
+           var newValue = $(this).val();
+            
+           var res  = id.split("_");
+           var code = res[1]; id = res[0];
+           updateConjugate(id, code, newValue);
+           updateConjugatesTable();
+     });
+}
+
+function updateSummaryTable() {
+    console.log('[updateSummaryTable] updating summaryTable with new data.');
+    var html = Mustache.to_html(summaryTpl, systemObject); 
+    $('#summary').html(html);    
+}
+
+function updateRaysoutTable() {
+    console.log('[updateRaysoutTable] updating raysoutTable with new data.');
+    var html = Mustache.to_html(raysoutTpl, systemObject); 
+    $('#raysout').html(html);    
+}
+
+function updateTables() {
+
+    updateSystemState();      // update the system Object
+
+    updateConjugatesTable();  // update conjugates table
+
+    updateSummaryTable();
+
+    updateRaysoutTable();
+
+}
+
+/* -------------------------------------------------------------------------------------------------------------------------------------------- */
+
+
+function initialize() {
+
+  console.log('initialized.');
+
+  loadJSON('lenses/gullstrand-1-eye-relaxed.lens', function(response) {
+
+    console.log('loaded lens file.');
+
+    // ... load the tempObject into the systemObject
+    tempObject = JSON.parse(response);
+
+/*    
+    systemObject = {      id : 0,
+                          n1 : 0,
+                          n2 : 0,                          
+                          title            : tempObject.title,
+                          visible          : tempObject.visible,
+                          objectRefIndex   : 1.0,
+                          imageRefIndex    : 1.0,                    
+                          currentSysMatrix : Matrix.I(2),                      
+                          totalSysMatrix   : Matrix.I(2),
+                          totalSysLength   : 0, 
+                          cardinals        : tempObject.cardinals,
+                          conjugates       : tempObject.conjugates,
+                          prescription     : tempObject.prescription,
+                          objects          : tempObject.objects
+                      };
+*/
+
+    // requires better parsing ...
+    systemObject = {      id : 0,
+                          n1 : 0,
+                          n2 : 0,                          
+                          title            : tempObject.title,
+                          objectRefIndex   : 1.0,
+                          imageRefIndex    : 1.0,                    
+                          currentSysMatrix : math.matrix([ [1, 0], [0, 1] ]),                      
+                          totalSysMatrix   : math.matrix([ [1, 0], [0, 1] ]),
+                          totalSysLength   : 0, 
+                          cumSysLength     : [], 
+                          arraySysMatrix   : [],
+                          prescription     : tempObject.prescription,
+                          objects          : tempObject.objects,
+                          cardinals        : [],
+                          conjugates       : [],
+                          visible          : [],
+                          rays             : [],
+                          raysout          : [],
+                          pupil            : []
+                      };
+
+
+    // table properties                  
+    systemObject.visible  = {  radius   : true,
+                               curvature : false,    
+                               power     : false,
+                               aperture  : true  };
+
+    // ... do the rays
+    systemObject.rays     = [{  id: "0001",
+                                name: "first ray from axial point",
+                                u: 0.1,
+                                h: 0,
+                                z: 10
+                              }, {
+                                id: "0002",
+                                name: "second ray from axial point",
+                                u: 0.2,
+                                h: 0.0,
+                                z: 20
+                               }, {
+                                id: "0003",
+                                name: "third ray from axial point",
+                                u: 0,
+                                h: 1.0,
+                                z: 50
+                               }]; 
+
+    updateSystemState();  
+
+    console.log(JSON.stringify(systemObject, null, '\t'));
+
+
+    $.get('./mustache/lens.mustache', function(mustacheTpl) {
+
+        console.log('read ... lens.mustache');
+        lensTpl = mustacheTpl;
+        $('#lensTpl').innerHTML = mustacheTpl;
+        var html = Mustache.to_html(mustacheTpl, systemObject); 
+        $('#lens').html(html);
+
+        console.log('adding ... click function to INPUT FIELDS');
+        $('.input_field').change(function() { // information 
+            var id       = $(this).attr('id');
+            var newValue = $(this).val();
+            
+            // new value determined 
+            console.log('id = ' + id + ' value = '+newValue);
+            updatePrescriptionByField(id, parseFloat(newValue)); // ... by ID maybe
+            updateSystemState();
+            updateTables();
+        });
+    });
+
+    $.get('mustache/conjugates.mustache', function(mustacheTpl) {
+      console.log('read ... conjugates.mustache');
+      conjugatesTpl = mustacheTpl;      
+      $('#conjugatesTpl').innerHTML = mustacheTpl;
+      var html = Mustache.to_html(mustacheTpl, systemObject); 
+      $('#conjugates-content').html(html);
+
+      console.log('adding ... click function to CONJUGATE INPUT FIELDS');
+        $('.cinput').change(function() { // information 
+            var id       = $(this).attr('id');
+            var newValue = $(this).val();
+            
+            var res  = id.split("_");
+            var code = res[1]; id = res[0];
+            updateConjugate(id, code, newValue);
+            updateConjugatesTable();
+        });
+
+
+    });
+
+    $.get('mustache/summary.mustache', function(mustacheTpl) {
+      console.log('read ... summary.mustache');
+      summaryTpl = mustacheTpl;      
+      $('#summaryTpl').innerHTML = mustacheTpl;
+      var html = Mustache.to_html(mustacheTpl, systemObject); 
+      $('#summary').html(html);
+    });
+
+    $.get('mustache/raysout.mustache', function(mustacheTpl) {
+      console.log('read ... raysout.mustache');
+      raysoutTpl = mustacheTpl;      
+      $('#raysoutTpl').innerHTML = mustacheTpl;
+      var html = Mustache.to_html(mustacheTpl, systemObject); 
+      $('#raysout-content').html(html);
+    });
+  
+  });
+
+  //sourceTpl   = $('#sourceTpl').innerHTML;
+  //summaryTpl  = $('#summaryTpl').innerHTML;    
+  // html        = Mustache.to_html(sourceTpl, data); $('#sources').html(html);
+  // html        = Mustache.to_html(summaryTpl, data); $('#summary').html(html);
+
+};
+
+
+// information 
+initialize();
+</script>
+
+
+<body bgcolor="#E6E6FA">
+
+<div class="panel panel-default fixed-panel center-panel">
+ <div class="panel-body">
+  <ul class="nav nav-tabs">
+    <li class="active"><a data-toggle="tab" href="#lens">Lenses</a></li>
+    <li><a data-toggle="tab" href="#conjugates">Conjugates</a></li>
+    <li><a data-toggle="tab" href="#summary">Summary</a></li>
+    <li><a data-toggle="tab" href="#raysout">Rays</a></li>
+    <li><a data-toggle="tab" href="#extra">Extra</a></li>    
+  </ul>
+
+  <div class="tab-content">
+    <div id="lens" class="tab-pane fade in active">
+      <p>lenses</p>
+    </div>
+    <div id="conjugates" class="tab-pane fade">
+      <div id="conjugates-content">
+        <p>conjugates</p>
+      </div>
+      <div class="center">
+        <button data-toggle="modal" data-target="#conjugateModal" class="btn btn-primary center-block">Add Conjugate Pair</button>
+       </div>
+    </div>
+    <div id="summary" class="tab-pane fade">
+      <p>summary</p>
+    </div>
+    <div id="raysout" class="tab-pane fade">
+      <div id="raysout-content">
+              <p>raysout</p>
+      </div>
+      <div class="center">        
+        <button data-toggle="modal" data-target="#raysModal" class="btn btn-primary center-block">Add Ray</button>
+       </div>
+
+    </div>
+    <div id="extra" class="tab-pane fade">
+      <div class="center"><button data-toggle="modal" data-target="#squarespaceModal" class="btn btn-primary center-block">Click Me</button></div>
+    </div>
+  </div>
+
+
+  <div class="panel-footer">
+  Jason Turuwhenua, Auckland Bioengineering Institute, The University of Auckland, New Zealand 
+  </div>
+
+ </div> 
+</div>
+
+
+
+<!-- Modal -->
+<div id="raysModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Add Ray</h4>
+      </div>
+      <div class="modal-body">
+
+        <!--- INFORMATION -->
+        <form>
+
+                  <div class="form-group">
+
+                       <!-- element name -->
+                       <div class="form-group">                    
+                         <label for="elementName">element name</label>
+                         <input type="password" class="form-control" id="elementName" placeholder="name"/>
+                       </div>
+
+
+                       <div class="form-group">
+                        <form action="">
+                          <input type="radio" name="raytype" value="manual" checked> manual
+                          <input type="radio" name="raytype" value="marginal"> marginal ray
+                          <input type="radio" name="raytype" value="pupil"> pupil ray
+                        </form>                    
+                       </div>
+
+                       <!-- manual ray -->
+                       <div id="manual" class="form-group">
+                        <label for="radiusValue">ray angle</label>
+                        <input type="password" class="form-control" id="radiusValue" placeholder="angle"></input>
+                        <label for="curvatureValue">ray height</label>
+                        <input type="password" class="form-control" id="curvatureValue" placeholder="height"></input>
+                        <label for="powerValue">ray distance</label>
+                        <input type="password" class="form-control" id="powerValue" placeholder="distance"></input>
+                      </div>
+
+                       <!-- marginal ray -->
+                       <div id="marginal" class="form-group">
+                        <label for="distanceValue">object position</label>
+                        <input type="password" class="form-control" id="radiusValue" placeholder="position">
+                       </div>
+
+                       <!-- pupil ray -->
+                       <div id="pupil" class="form-group">                    
+                      </div>
+
+                  </div>
+        </form>
+
+
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- Modal -->
+<div id="conjugateModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Add Conjugate Pair</h4>
+      </div>
+      <div class="modal-body">
+
+        <!--- INFORMATION -->
+        <form>
+
+                  <div class="form-group">
+
+                       <!-- element name -->
+                       <div class="form-group">                    
+                         <label for="elementName">element name</label>
+                         <input type="password" class="form-control" id="elementName" placeholder="name"/>
+                       </div>
+
+                       <div class="form-group">
+                        <form action="">
+                          <input type="radio" name="conjugatetype" value="byObject" checked> Object
+                          <input type="radio" name="conjugatetype" value="byImage"> Image
+                        </form>                    
+                       </div>
+
+                       <!-- manual ray -->
+                       <div id="byObject" class="form-group">
+                        <label for="objectDistValue">object distance</label>
+                        <input type="password" class="form-control" id="objectDistValue" placeholder="angle"></input>
+                        <label for="objectHeightValue">object height</label>
+                        <input type="password" class="form-control" id="objectHeightValue" placeholder="angle"></input>
+                       </div>
+
+                      <div id="byImage" class="form-group">
+                        <label for="imageDistValue">Image distance</label>
+                        <input type="password" class="form-control" id="imageDistValue" placeholder="angle"></input>
+                        <label for="imageHeightValue">Image height</label>
+                        <input type="password" class="form-control" id="imageHeightValue" placeholder="angle"></input>                        
+                       </div>
+
+                  </div>
+        </form>
+
+
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+
+<!-- LENS PRESCRIPTION MODAL -->
+<div class="modal fade" id="squarespaceModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+  <div class="modal-content">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+      <h3 class="modal-title" id="lineModalLabel">My Modal</h3>
+    </div>
+    <div class="modal-body">
+      
+            <!-- content goes here -->
+            <form>
+
+              <div class="form-group">
+
+              <div class="panel panel-default" >
+                <div class="panel-heading">Surface properties</div>
+                <div class="panel-body">
+
+
+                  <div class="form-group">
+                    <label for="exampleInputEmail1">Surface Type</label>
+                    <input type="email" class="form-control" id="exampleInputEmail1" placeholder="Enter email">
+                    <label for="exampleInputPassword1">Radius</label>
+                    <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
+                  </div>
+
+
+                </div>
+              </div>
+
+
+              <div class="panel panel-default" >
+                <div class="panel-heading">Refractive properties</div>
+                <div class="panel-body">
+
+                    <div class="form-group">
+                      <label for="exampleInputFile">Medium Name</label>
+                      <input type="password" class="form-control" id="exampleInputFile" placeholder="Description of medium">
+                      <label for="exampleInputFile">Refractive Index</label>
+                      <input type="password" class="form-control" id="exampleInputFile" placeholder="Refractive index of medium">
+                      <label for="exampleThickness">Thickness</label>
+                      <input type="password" class="form-control" id="exampleThickness" placeholder="Thickness of medium">
+                    </div>
+            
+
+                </div>
+              </div>
+
+
+            </form>
+
+    </div>
+    
+  </div>
+  </div>
+</div>
+
+
+<!-- Trigger the modal with a button -->
+
+<!-- RAYS MODAL -->
+<div class="modal fade" id="raysModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+  <div class="modal-content">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+      <h3 class="modal-title" id="lineModalLabel">My Modal</h3>
+    </div>
+    <div class="modal-body">
+      
+            <!-- content goes here -->
+            <form>
+
+              <div class="form-group">
+
+              <div class="panel panel-default" >
+                <div class="panel-heading">Surface properties</div>
+                <div class="panel-body">
+
+
+                  <div class="form-group">
+                    <label for="exampleInputEmail1">Surface Type</label>
+                    <input type="email" class="form-control" id="exampleInputEmail1" placeholder="Enter email">
+                    <label for="exampleInputPassword1">Radius</label>
+                    <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
+                  </div>
+
+
+                </div>
+              </div>
+
+
+              <div class="panel panel-default" >
+                <div class="panel-heading">Refractive properties</div>
+                <div class="panel-body">
+
+                    <div class="form-group">
+                      <label for="exampleInputFile">Medium Name</label>
+                      <input type="password" class="form-control" id="exampleInputFile" placeholder="Description of medium">
+                      <label for="exampleInputFile">Refractive Index</label>
+                      <input type="password" class="form-control" id="exampleInputFile" placeholder="Refractive index of medium">
+                      <label for="exampleThickness">Thickness</label>
+                      <input type="password" class="form-control" id="exampleThickness" placeholder="Thickness of medium">
+                    </div>
+            
+
+                </div>
+              </div>
+
+
+            </form>
+
+    </div>
+    
+  </div>
+  </div>
+</div>
+
+
+
+
+
+<!--   HTML AND CODE FOR THE RAYS INPUT BOX --> 
+
+<script>
+$(document).ready(function() {
+
+    // RAY-TYPE SELECTION 
+    $('#manual').show();
+    $('#marginal').hide();
+    $('#pupil').hide();
+
+    $('input[type=radio][name=raytype]').change(function() {
+        if (this.value == 'manual') {
+            //alert("Allot Thai Gayo Bhai");
+            $('#manual').show();
+            $('#marginal').hide();
+            $('#pupil').hide();
+        }
+        else if (this.value == 'marginal') {
+            //alert("Transfer Thai Gayo");
+            $('#manual').hide();
+            $('#marginal').show();
+            $('#pupil').hide();
+        }
+        else if (this.value == 'pupil') {
+            //alert("Transfer Thai Gayo");
+            $('#manual').hide();
+            $('#marginal').hide();
+            $('#pupil').show();
+        }
+
+    });
+
+    // CONJUGATE-PAIR-TYPE SELECTION 
+    $('#byObject').show();
+    $('#byImage').hide();
+
+    $('input[type=radio][name=conjugatetype]').change(function() {
+        if (this.value == 'byObject') {
+            $('#byObject').show();
+            $('#byImage').hide();
+        }
+        else if (this.value == 'byImage') {
+            $('#byObject').hide();
+            $('#byImage').show();
+        }
+
+    });
+
+
+
+});
+</script>
+
+
+
+
+
+</body>
+</html>

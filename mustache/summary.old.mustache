@@ -1,0 +1,142 @@
+<div class="panel-group">
+
+   <!-- Summary  -->
+   <div class="panel panel-default">
+      <div class="panel-heading">Summary</div>
+      <div class="panel-body">
+
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>name</th>
+              <th>value</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#summary}}
+            <tr>
+              <td>Object space ref. index</td><td>{{n1 | decimal : 5 }}</td>
+            </tr>
+            <tr>
+              <td>Image space ref. index</td><td>{{n2 | decimal : 5 }}</td>
+            </tr>
+            <tr>
+              <td>Equivalent power</td><td>{{F2 | decimal : 5 }}</td>
+            </tr>
+            <tr>
+              <td>Front vertex power</td><td>{{VF1 | decimal : 5 }}</td>
+            </tr>
+            <tr>
+              <td>Back vertex power</td><td>{{VF2 | decimal : 5 }}</td>
+            </tr>
+            <tr>
+              <td>System length (V2)</td><td>{{V2 | decimal : 5 }}</td>
+            </tr>      
+            {{/summary}}
+          </tbody>
+        </table>
+
+      </div>
+   </div>
+
+  <!-- Cardinal  -->
+  <div class="panel panel-default">
+      <div class="panel-heading">Cardinal points</div>
+      <div class="panel-body">
+
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Front</th>
+                <th>Back</th>        
+              </tr>
+            </thead>
+            <tbody>
+              {{#cardinals}}
+              <tr>
+                <td>Focal Point</td>
+                <td>{{PF1 | decimal : 3 }} (PF1)</td>
+                <td>{{PF2 | decimal : 3 }} (PF2)</td>
+              </tr>
+              <tr>  
+                <td>Principal Point</td>
+                <td>{{VP1 | decimal : 3 }} (VP1)</td>
+                <td>{{VP2 | decimal : 3 }} (VP2)</td>
+              </tr>
+              <tr>  
+                <td>Nodal Point</td>
+                <td>{{VN1 | decimal : 3 }} (VN1)</td>
+                <td>{{VN2 | decimal : 3 }} (VN2)</td>
+              </tr>
+              {{/cardinals}}
+            </tbody>
+          </table>
+
+     </div>
+  </div>
+
+
+  <!-- System  -->
+  <div class="panel panel-default">
+      <div class="panel-heading">System</div>
+      <div class="panel-body">
+
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>name</th>
+                <th>value</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#system}}
+              <tr>
+                <td>A</td><td>{{A | decimal : 3 }}</td>
+              </tr>
+              <tr>
+                <td>B</td><td>{{B | decimal : 3 }}</td>
+              </tr>
+              <tr>
+                <td>C</td><td>{{C | decimal : 3 }}</td>
+              </tr>
+              <tr>
+                <td>D</td><td>{{D | decimal : 3 }}</td>             
+              </tr>
+              {{/system}}
+            </tbody>
+          </table>
+
+    </div>
+  </div>
+
+  <!-- Pupils  -->
+  {{#pupil.hasStop}}
+
+  <div class="panel panel-default">
+      <div class="panel-heading">Pupils</div>
+      <div class="panel-body">
+
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Position</th>
+                <th>Pupil Mag.</th>        
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Entrance</td><td>{{pupil.VE1 | decimal : 3 }} (VE1)</td><td>{{pupil.ME1 | decimal : 3 }}</td>
+              </tr>
+              <tr>
+                <td>Exit</td><td>{{pupil.VE2 | decimal : 3 }} (VE2)</td><td>{{pupil.ME2 | decimal : 3 }}</td>
+              </tr>
+            </tbody>
+          </table>
+          {{/pupil.hasStop}}
+
+      </div>
+  </div>      
+
+</div>

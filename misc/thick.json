@@ -1,0 +1,44 @@
+{
+  "title": "thick lens prescription",
+  "prescription": [ {
+  			"id": "0001",
+  			"type": "index",
+  			"description": "air",
+  			"args": { "index"		: 1.000 } 
+  		},
+  		{
+  			"id": "0002",
+  			"type": "sphere",
+  			"description": "anterior cornea",
+  			"args": { 	"radius"	: 7.0 } 
+  		},
+  		{
+  			"id": "0003",
+  			"type": "index",
+  			"description": "medium",  			
+  			"args": {	"index"		: 1.3, 
+	  					"thickness"	: 1.0
+  			} 
+  		},
+  		{
+  			"id": "0004",
+  			"type": "sphere",
+  			"description": "posterior cornea",
+  			"args": { 	"radius" : -7 }
+  		},  	
+		{
+  			"id": "0005",
+  			"type": "index",
+  			"description": "air",
+  			"args": {	"index"     : 1.000 } 
+  		} ],
+  "objects": [ 	{ 	"id" : "0001",
+  					"z" : -20,
+  				 	"h" : 1 },
+				{ 	"id" : "0002",
+					"z" : -11,
+  				 	"h" : 2 },
+  				{ 	"id" : "0003",
+  					"z" : -3,
+  				 	"h" : 1 }  ]
+}

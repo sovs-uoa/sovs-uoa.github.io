@@ -1,0 +1,180 @@
+<div class="panel-group">
+
+   <!-- Summary  -->
+   <div class="panel panel-default">
+      <div class="panel-heading">
+
+        <div class="panel-title">          
+          <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseSummary" aria-expanded="true" aria-controls="collapseSummary">Summary</a>
+        </div>
+
+      </div>
+
+      <div id="collapseSummary" class="panel-collpase collapse">
+      <div class="panel-body">
+
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>name</th>
+              <th>value</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#summary}}
+            <tr>
+              <td>Object space ref. index</td><td>{{n1 | decimal : 5 }}</td>
+            </tr>
+            <tr>
+              <td>Image space ref. index</td><td>{{n2 | decimal : 5 }}</td>
+            </tr>
+            <tr>
+              <td>Equivalent power</td><td>{{F2 | decimal : 5 }}</td>
+            </tr>
+            <tr>
+              <td>Front vertex power</td><td>{{VF1 | decimal : 5 }}</td>
+            </tr>
+            <tr>
+              <td>Back vertex power</td><td>{{VF2 | decimal : 5 }}</td>
+            </tr>
+            <tr>
+              <td>System length (V2)</td><td>{{V2 | decimal : 5 }}</td>
+            </tr>      
+            {{/summary}}
+          </tbody>
+        </table>
+
+      </div>
+      </div>
+   </div>
+
+  <!-- Cardinal  -->
+  <div class="panel panel-default">
+      <div class="panel-heading">
+
+        <div class="panel-title">          
+          <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseCardinal" aria-expanded="true" aria-controls="collapseCardinal">Cardinal points</a>
+        </div>
+
+
+      </div>
+
+      <div id="collapseCardinal" class="panel-collpase collapse">
+      <div class="panel-body">
+
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Front</th>
+                <th>Back</th>        
+              </tr>
+            </thead>
+            <tbody>
+              {{#cardinals}}
+              <tr>
+                <td>Focal Point</td>
+                <td>{{PF1 | decimal : 3 }} (PF1)</td>
+                <td>{{PF2 | decimal : 3 }} (PF2)</td>
+              </tr>
+              <tr>  
+                <td>Principal Point</td>
+                <td>{{VP1 | decimal : 3 }} (VP1)</td>
+                <td>{{VP2 | decimal : 3 }} (VP2)</td>
+              </tr>
+              <tr>  
+                <td>Nodal Point</td>
+                <td>{{VN1 | decimal : 3 }} (VN1)</td>
+                <td>{{VN2 | decimal : 3 }} (VN2)</td>
+              </tr>
+              {{/cardinals}}
+            </tbody>
+          </table>
+
+     </div>
+     </div>
+
+  </div>
+
+
+  <!-- System  -->
+  <div class="panel panel-default">
+      <div class="panel-heading">
+        
+        <div class="panel-title">          
+          <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseSystem" aria-expanded="true" aria-controls="collapseSystem">System</a>
+        </div>
+
+      </div>
+
+      <div id="collapseSystem" class="panel-collpase collapse">
+      <div class="panel-body">
+
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>name</th>
+                <th>value</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#system}}
+              <tr>
+                <td>A</td><td>{{A | decimal : 3 }}</td>
+              </tr>
+              <tr>
+                <td>B</td><td>{{B | decimal : 3 }}</td>
+              </tr>
+              <tr>
+                <td>C</td><td>{{C | decimal : 3 }}</td>
+              </tr>
+              <tr>
+                <td>D</td><td>{{D | decimal : 3 }}</td>             
+              </tr>
+              {{/system}}
+            </tbody>
+          </table>
+
+    </div>
+    </div>
+  </div>
+
+  <!-- Pupils  -->
+  {{#pupil.hasStop}}
+
+  <div class="panel panel-default">
+      <div class="panel-heading">
+     
+        <div class="panel-title">          
+          <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapsePupils" aria-expanded="true" aria-controls="collapsePupils">Pupils</a>
+        </div>
+
+      </div>
+
+      <div id="collapsePupils" class="panel-collpase collapse">
+      <div class="panel-body">
+
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Position</th>
+                <th>Pupil Mag.</th>        
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Entrance</td><td>{{pupil.VE1 | decimal : 3 }} (VE1)</td><td>{{pupil.ME1 | decimal : 3 }}</td>
+              </tr>
+              <tr>
+                <td>Exit</td><td>{{pupil.VE2 | decimal : 3 }} (VE2)</td><td>{{pupil.ME2 | decimal : 3 }}</td>
+              </tr>
+            </tbody>
+          </table>
+          {{/pupil.hasStop}}
+
+      </div>
+      </div>
+  </div>      
+
+</div>

@@ -1,0 +1,51 @@
+<div class="source">
+
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th rowspan="2">name</th>
+              <th colspan="2">object</th>
+              <th colspan="2">image</th>
+              <th rowspan="2">mag</th>
+              <th rowspan="2"></th>
+            </tr>
+            <tr>
+              <th>distance</th>
+              <th>height</th>        
+              <th>distance</th>
+              <th>height</th>        
+            </tr>
+          </thead>
+          <tbody>
+            {{#conjugates}}
+            <tr>
+              <td>
+                  {{id}}
+              </td>
+              <td>
+                  <input type="text" class="cinput" id="{{id}}_VO" value="{{VO | decimal : 5 }}" />
+              </td>
+              <td>      
+                  <input type="text" class="cinput" id="{{id}}_OQ" value="{{OQ | decimal : 5 }}" />
+              </td> 
+              <td>
+                  <input type="text" class="cinput" id="{{id}}_VI" value="{{VI | decimal : 5 }}" />
+              </td>
+              <td>
+                  <input type="text" class="cinput" id="{{id}}_IQ" value="{{IQ | decimal : 5 }}" />
+              </td>
+              <td>
+                {{M | decimal : 5 }}
+              </td>    
+              <td>                
+          <span class="pull-right">
+            <a href="#">
+              <span class="glyphicon glyphicon-remove"></span>
+            </a>
+          </span>
+              </td>    
+            </tr>
+            {{/conjugates}}
+          </tbody>
+        </table>
+</div>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Page Title</title>
+</head>
+
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+<body>
+
+<!-- 
+"conjugates": [{
+    "id": "0001",
+    "VO": -20,
+    "PO": -20.391061452513966,
+    "OQ": 1,
+    "VI": 26.899563318777282,
+    "PI": 27.29062477129125,
+    "IQ": -1.3908296943231437,
+    "M": -1.3908296943231437
+-->
+
+<div class="container">
+  <h2>Object/Image Pairs</h2>
+            
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th rowspan="2">name</th>
+        <th colspan="2">object</th>
+        <th colspan="2">image</th>
+        <th rowspan="2">magnification</th>
+      </tr>
+      <tr>
+        <th>distance</th>
+        <th>height</th>        
+        <th>distance</th>
+        <th>height</th>        
+      </tr>
+    </thead>
+    <tbody>
+      {{#conjugates}}
+      <tr>
+        <td>
+            <input type="text" id="{{id}}_name" value="{{id}}" />
+        </td>
+        <td>
+            <input type="text" id="{{id}}_VO" value="{{VO}}" />
+        </td>
+        <td>      
+            <input type="text" id="{{id}}_OQ" value="{{OQ}}" />
+        </td> 
+        <td>
+            <input type="text" id="{{id}}_VI" value="{{VI}}" />
+        </td>
+        <td>
+            <input type="text" id="{{id}}_IQ" value="{{IQ}}" />
+        </td>
+        <td>
+            <input type="text" id="{{id}}_M" value="{{M}}" />
+        </td>        
+      </tr>
+      {{/conjugates}}
+    </tbody>
+  </table>
+</div>
+
+</body>
+</html>

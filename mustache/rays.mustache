@@ -1,0 +1,29 @@
+<div class="source">
+  <h2>Rays</h2>
+ {{#raysout}}
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th colspan="3">
+          {{name}}
+        </th>
+      </tr>
+      <tr>
+        <th>#</th>
+        <th>u</th>
+        <th>h</th>        
+      </tr>
+    </thead>
+    <tbody>
+    {{#list}} 
+     <tr>
+        <td>{{index}}</td>
+        <td>{{u}}</td>
+        <td>{{h}}</td> 
+      </tr>
+    {{/list}}
+    </tbody>
+  </table>
+  <p>
+{{/raysout}}
+</div>

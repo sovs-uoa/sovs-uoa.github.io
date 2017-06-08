@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Information Panel</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src="js/mustache.min.js"></script>
+  <script src="js/math.js"></script>  
+  <script src="js/paraxial.js"></script>  
+</head>
+
+<script>
+$(document).ready(function() {
+
+    $('#lens_information').show();
+    $('#surface_information').hide();
+    $('#index_information').hide();
+
+
+    $('input[type=radio][name=lenstype]').change(function() {
+        if (this.value == 'lens') {
+            //alert("Allot Thai Gayo Bhai");
+            $('#lens_information').show();
+            $('#surface_information').hide();
+            $('#index_information').hide();
+        }
+        else if (this.value == 'surface') {
+            //alert("Transfer Thai Gayo");
+            $('#lens_information').hide();
+            $('#surface_information').show();
+            $('#index_information').hide();
+        }
+        else if (this.value == 'index') {
+            //alert("Transfer Thai Gayo");
+            $('#lens_information').hide();
+            $('#surface_information').hide();
+            $('#index_information').show();
+        }
+
+    });
+});
+</script>
+
+<body>
+
+
+<!-- line modal -->
+  <div class="modal-dialog">
+  <div class="modal-content">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal"><span aria-hidden="false">×</span><span class="sr-only">Close</span></button>
+      <h3 class="modal-title" id="lineModalLabel">Element Entry</h3>
+    </div>
+    <div class="modal-body">
+      
+            <!-- content goes here -->
+      <form>
+
+              <div class="form-group">
+
+<!--
+              <div class="panel panel-default" >
+                <div class="panel-heading">Element properties</div>
+                <div class="panel-body">
+-->
+
+                   <div class="form-group">
+                    <form action="">
+                      <input type="radio" name="lenstype" value="lens" checked > thin lens
+                      <input type="radio" name="lenstype" value="surface"> surface
+                      <input type="radio" name="lenstype" value="index"> index
+                    </form>                    
+                   </div>
+
+                   <!-- element name -->
+                   <div class="form-group">                    
+                     <label for="elementName">element name</label>
+                     <input type="password" class="form-control" id="elementName" placeholder="name">
+                   </div>
+
+                   <!-- radius information -->
+                   <div id="surface_information" class="form-group">
+                    <label for="radiusValue">surface radius</label>
+                    <input type="password" class="form-control" id="radiusValue" placeholder="radius">
+                    <label for="curvatureValue">surface curvature</label>
+                    <input type="password" class="form-control" id="curvatureValue" placeholder="curvature">
+                    <label for="powerValue">surface power</label>
+                    <input type="password" class="form-control" id="powerValue" placeholder="power">
+                    <label for="apertureValue">surface aperture</label>
+                    <input type="password" class="form-control" id="apertureValue" placeholder="aperture">
+                    <div class="checkbox">
+                      <label for="checkValue">
+                      <input type="checkbox" class="form-control" id="checkValue" placeholder="stop">stop flag
+                      </label>
+                    </div>
+                  </div>
+
+                   <!-- radius information -->
+                   <div  id="lens_information" class="form-group">
+                    <label for="powerValue">thin lens power</label>
+                    <input type="password" class="form-control" id="powerValue" placeholder="power">
+                    <label for="powerValue">surface aperture</label>
+                    <input type="password" class="form-control" id="powerValue" placeholder="aperture">
+                    <div class="checkbox">
+                      <label for="checkValue">
+                      <input type="checkbox" class="form-control" id="checkValue" placeholder="stop">stop flag
+                      </label>
+                    </div>
+                  </div>
+
+                    <!-- index -->
+                    <div id="index_information" class="form-group">
+                      <label for="exampleInputFile">refractive index</label>
+                      <input type="password" class="form-control" id="exampleInputFile" placeholder="index">
+                      <label for="exampleThickness">thickness</label>
+                      <input type="password" class="form-control" id="exampleThickness" placeholder="thickness">
+                    </div>
+
+<!--
+                </div>
+              </div>
+-->
+
+        </form>
+
+    </div>
+    <div class="modal-footer">
+      <div class="btn-group btn-group-justified" role="group" aria-label="group button">
+        <div class="btn-group" role="group">
+          <button type="button" class="btn btn-default" data-dismiss="modal"  role="button">Cancel</button>
+        </div>
+        <div class="btn-group btn-delete hidden" role="group">
+          <button type="button" id="delImage" class="btn btn-default btn-hover-red" data-dismiss="modal"  role="button">Delete</button>
+        </div>
+        <div class="btn-group" role="group">
+          <button type="button" id="saveImage" class="btn btn-default btn-hover-green" data-action="save" role="button">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+
+
+
+
+
+</body>
+</html>

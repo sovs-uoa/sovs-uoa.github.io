@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>cardinal points and system matrix</title>
+</head>
+
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+<body>
+
+<div class="container">
+
+
+  <!-- Summary  -->
+  <h1>Summary</h1>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>name</th>
+        <th>value</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#summary}}
+      <tr>
+        <td>Object space ref. index</td><td>{{n1}}</td>
+      </tr>
+      <tr>
+        <td>Image space ref. index</td><td>{{n2}}</td>
+      </tr>
+      <tr>
+        <td>Equivalent power</td><td>{{F2}}</td>
+      </tr>
+      <tr>
+        <td>Front vertex power</td><td>{{VF1}}</td>
+      </tr>
+      <tr>
+        <td>Back vertex power</td><td>{{VF2}}</td>
+      </tr>
+      {{/summary}}
+    </tbody>
+  </table>
+
+
+  <!-- Cardinal  -->
+  <h1>Cardinal points</h1>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>name</th>
+        <th>value</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#cardinals}}
+      <tr>
+        <td>Front Focal Point (PF1)</td><td>{{PF1}}</td>
+      </tr>
+      <tr>  
+        <td>Back Focal Point (PF2)</td><td>{{PF2}}</td>
+      </tr>
+      <tr>  
+        <td>Front Principal Point (VP1)</td><td>{{VP1}}</td>
+      </tr>
+      <tr>  
+        <td>Back Principal Point (VP2)</td><td>{{VP2}}</td>
+      </tr>
+      <tr>  
+        <td>Front Nodal Point (VN1)</td><td>{{VN1}}</td>
+      </tr>
+      <tr>  
+        <td>Back Nodal Point (VN2)</td><td>{{VN2}}</td>
+      </tr>
+      {{/cardinals}}
+    </tbody>
+  </table>
+
+
+  <!-- System  -->
+  <h1>System</h1>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>name</th>
+        <th>value</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#system}}
+      <tr>
+        <td>A</td><td>{{A}}</td>
+      </tr>
+      <tr>
+        <td>B</td><td>{{B}}</td>
+      </tr>
+      <tr>
+        <td>C</td><td>{{C}}</td>
+      </tr>
+      <tr>
+        <td>D</td><td>{{D}}</td>             
+      </tr>
+      {{/system}}
+    </tbody>
+  </table>
+
+</div>
+
+</body>
+</html>
