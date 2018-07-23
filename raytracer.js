@@ -63,13 +63,13 @@ var Matrix = require('matrixmath/Matrix');
 
 // current state  
 var systemObject = { id : 0,
-                    n1 : 0,
-                    n2 : 0,
-                    objectRefIndex   : 1.0,
-                    imageRefIndex    : 1.0,                    
-                    currentSysMatrix : new Matrix(2, 2).setIdentityData(),                      
-                    totalSysMatrix   : new Matrix(2, 2).setIdentityData(),
-                    totalSysLength   : 0 
+                     n1 : 0,
+                     n2 : 0,
+                     objectRefIndex   : 1.0,
+                     imageRefIndex    : 1.0,                    
+                     currentSysMatrix : new Matrix(2, 2).setIdentityData(),                      
+                     totalSysMatrix   : new Matrix(2, 2).setIdentityData(),
+                     totalSysLength   : 0 
                   };
 
 var prescription = {};                 
@@ -249,7 +249,6 @@ if (program.paraxial) {
      // basic element templates 
      var output       = JSON.parse(fs.readFileSync('thick.json', 'utf8'));
      var prescription = output.prescription;
-
      updateSystemState(output);  // from prescription object
 
 

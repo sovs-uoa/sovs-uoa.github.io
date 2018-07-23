@@ -14,9 +14,9 @@
 		"type": "sphere",
 		"description": "anterior cornea",
 		"args": {
-			"radius": 7,
-			"curvature": 7,
-			"power": 7			
+			"radius": 70,
+			"curvature": 70,
+			"power": 70			
 		}
 	}, {
 		"id": "0003",
@@ -31,9 +31,9 @@
 		"type": "sphere",
 		"description": "posterior cornea",
 		"args": {
-			"radius": -7,
-			"curvature": -7,
-			"power": 7			
+			"radius": -70,
+			"curvature": -70,
+			"power": 70			
 		}
 	}, {
 		"id": "0005",

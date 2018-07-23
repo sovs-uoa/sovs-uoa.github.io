@@ -1,0 +1,52 @@
+body {
+    background-color: lightblue;
+}
+
+.lens_table tr:hover {
+  padding: 10px;
+  background:#eeee; }
+
+.input_field {
+      border: none;      
+      width: 70px;
+ }
+
+ .cinput {
+      border: none;      
+      width: 70px;
+ }
+
+.center-panel {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.fixed-panel {
+  float: right;
+  min-height: 100px;
+  max-height: 800px;
+  min-width: 800px;
+  max-width: 800px;
+  overflow-y: auto;
+}
+
+.tab-content {
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    border-radius: 0px 0px 5px 5px;
+    padding: 10px;
+}
+
+.panel-heading .accordion-toggle:after {
+    /* symbol for "opening" panels */
+    font-family: 'Glyphicons Halflings';  /* essential for enabling glyphicon */
+    content: "\e114";    /* adjust as needed, taken from bootstrap.css */
+    float: right;        /* adjust as needed */
+    color: grey;         /* adjust as needed */
+}
+.panel-heading .accordion-toggle.collapsed:after {
+    /* symbol for "collapsed" panels */
+    content: "\e080";    /* adjust as needed, taken from bootstrap.css */
+}

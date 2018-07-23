@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Optical bench</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/4.7.0/pixi.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="css/optics.css">
+</head>
+
+<!-- Templates -->
+
+<script>
+
+	function setmovemode() {
+		dragMode = 1;
+		document.getElementById("move_button").disabled   = true;
+		document.getElementById("orient_button").disabled = false;
+		document.getElementById("delete_button").disabled = false;		
+	}
+
+	function setorientmode() {
+		dragMode = 0;
+		document.getElementById("move_button").disabled   = false;
+		document.getElementById("orient_button").disabled = true;
+		document.getElementById("delete_button").disabled = false;		
+	}
+
+	function setdeletemode() {
+		dragMode = 2;
+		document.getElementById("move_button").disabled   = false;
+		document.getElementById("orient_button").disabled = false;
+		document.getElementById("delete_button").disabled = true;		
+	}
+
+	function setlens() {
+		itemMode = 0;
+		document.getElementById("lens_button").disabled  = true;
+		document.getElementById("ruler_button").disabled = false;		
+	}
+
+	function setruler() {
+		itemMode = 1;
+		document.getElementById("lens_button").disabled  = false;
+		document.getElementById("ruler_button").disabled = true;		
+	}
+
+
+
+	$( document ).ready(function() {
+    	console.log( "ready!" );
+    	setmovemode();
+    	setlens();
+
+    	// add a lens 
+    	//console.log(mylens);
+
+
+
+		showGrid(50);
+
+		var ruler;
+		app.stage.interactive = true;
+		app.stage.buttonMode  = false;
+		app.stage
+			.on('pointerdown', onStartObject); 
+
+		app.stage.scale.x = app.stage.scale.y = 1;
+ 
+
+		var item = new Lens(100,100,"lenses/gullstrand-1-eye-relaxed.lens");   
+		item.interactive = true;
+		item.buttonMode  = true;		
+		item 	
+		   .on('mousedown',			onDragStart)
+		   .on('touchstart',		onDragStart)
+		   .on('mouseup', 			onDragEnd)
+		   .on('mouseupoutside', 	onDragEnd)
+		   .on('touchend', 			onDragEnd)
+		   .on('touchendoutside', 	onDragEnd)
+		   .on('mousemove', 		onDragMove)
+		   .on('touchmove', 		onDragMove);
+
+
+    	console.log("Add to STAGE.");
+    	app.stage.addChild(item);
+		console.log('done.');
+
+	});
+
+</script>	
+
+<body>
+
+
+<div class="btn-group" role="group" aria-label="Basic example">
+  <button id="move_button" type="button"   class="btn btn-secondary" onclick="setmovemode();">Move</button>
+  <button id="orient_button" type="button" class="btn btn-secondary" onclick="setorientmode();">Orient</button>
+  <button id="delete_button" type="button" class="btn btn-secondary" onclick="setdeletemode();">Delete</button>
+</div>
+
+<div class="btn-group" role="group" aria-label="Basic example">
+  <button id="lens_button" type="button"   class="btn btn-secondary" onclick="setlens();">Lens</button>
+  <button id="ruler_button" type="button" class="btn btn-secondary" onclick="setruler();">Ruler</button>
+</div>
+
+
+</body>
+
+
+
+<script src="js/renderer.js"></script>
+<script src="js/lens.js"></script>
+<script src="js/convex-hull.js"></script>
+
+
+</html>

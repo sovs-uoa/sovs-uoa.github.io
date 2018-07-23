@@ -8,7 +8,6 @@
 	A lens file should actually only need description and objects.
 
  ------------------------------------------------------------------------------------------------------- */
-
 {
 	"title": "Gullstrand 1 Eye Relaxed",
 	"visible": { 	"radius_curvature": true,
