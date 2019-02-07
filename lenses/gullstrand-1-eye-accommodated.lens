@@ -1,5 +1,11 @@
 {
-	"title": "Gullstrand 1 Eye Relaxed",
+	"title": "Gullstrand 1 eye accommodated",
+	"visible": { 	"radius": true,
+				 	"power":true,
+				 	"curvature":true,
+				 	"aperture":true },	
+	"objects": 	[ 	{ "type": "object", "VO" : -10, "OQ" : 10 },
+	 				{ "type": "image",  "VI" : -20, "IQ" : 10 } ],				 	
 	"prescription": [{
 		"id": "0001",
 		"type": "index",
@@ -96,22 +102,5 @@
 		"args": {
 			"index": 1.336
 		}
-	}],
-	"objects": [{
-		"id": "0001",
-		"z": -10000,
-		"h": 1
-	}, {
-		"id": "0001",
-		"z": -20,
-		"h": 1
-	}, {
-		"id": "0002",
-		"z": -11,
-		"h": 2
-	}, {
-		"id": "0003",
-		"z": -3,
-		"h": 1
 	}]
 }

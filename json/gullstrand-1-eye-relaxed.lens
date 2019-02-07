@@ -10,8 +10,10 @@
  ------------------------------------------------------------------------------------------------------- */
 {
 	"title": "Gullstrand 1 Eye Relaxed",
-	"visible": { 	"radius_curvature": true,
-				 	"power":true },
+	"visible": { 	"radius": true,
+				 	"power":true,
+				 	"curvature":true,
+				 	"aperture":true },	
 	"prescription": [
 	{
 		"id": "0001",

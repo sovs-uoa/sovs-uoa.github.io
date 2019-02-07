@@ -18,9 +18,8 @@
 		"args": {
 			"index": 1.000
 		}
-	}, {		
+	}, {
 		"id": "0002",
-		"group": "cornea",
 		"type": "sphere",
 		"description": "anterior cornea",
 		"args": {
@@ -29,7 +28,6 @@
 		}
 	}, {
 		"id": "0003",
-		"group": "cornea",
 		"type": "index",
 		"description": "stroma",
 		"args": {
@@ -38,7 +36,6 @@
 		}
 	}, {
 		"id": "0004",
-		"group": "cornea",		
 		"type": "sphere",
 		"description": "posterior cornea",
 		"args": {
@@ -55,7 +52,6 @@
 		}
 	}, {
 		"id": "0006",
-		"group": "lens",
 		"type": "sphere",
 		"description": "anterior lens",
 		"args": {
@@ -66,7 +62,6 @@
 		}
 	}, {
 		"id": "0007",
-		"group": "lens",
 		"type": "index",
 		"description": "lens: cortex",
 		"args": {
@@ -75,7 +70,6 @@
 		}
 	}, {
 		"id": "0008",
-		"group": "lens",
 		"type": "sphere",
 		"description": "anterior core",
 		"args": {
@@ -84,7 +78,6 @@
 		}
 	}, {
 		"id": "0009",
-		"group": "lens",		
 		"type": "index",
 		"description": "lens: core",
 		"args": {
@@ -93,7 +86,6 @@
 		}
 	}, {
 		"id": "0010",
-		"group": "lens",		
 		"type": "sphere",
 		"description": "posterior core",
 		"args": {
@@ -102,7 +94,6 @@
 		}
 	}, {
 		"id": "0011",
-		"group": "lens",		
 		"type": "index",
 		"description": "lens: cortex",
 		"args": {
@@ -111,7 +102,6 @@
 		}
 	}, {
 		"id": "0012",
-		"group": "lens",		
 		"type": "sphere",
 		"description": "posterior cortex",
 		"args": {

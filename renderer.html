@@ -39,28 +39,71 @@
 	function setlens() {
 		itemMode = 0;
 		document.getElementById("lens_button").disabled  = true;
-		document.getElementById("ruler_button").disabled = false;		
+		document.getElementById("ruler_button").disabled = false;	
+		document.getElementById("prescription_button").disabled = false;				
 	}
 
 	function setruler() {
 		itemMode = 1;
 		document.getElementById("lens_button").disabled  = false;
 		document.getElementById("ruler_button").disabled = true;		
+		document.getElementById("prescription_button").disabled = false;				
 	}
 
+	function setprescription() {
+		itemMode = 1;
+		document.getElementById("lens_button").disabled  = false;
+		document.getElementById("ruler_button").disabled = false;		
+		document.getElementById("prescription_button").disabled = true;				
+	}
+
+
+	function setupfileread() {
+		document.getElementById("filetoread").addEventListener("change",function(){
+		        var file = this.files[0];	
+		        lensTable.readFile(file);	        
+		    },false);		
+	}
+
+
+	function setupupdater () {
+		$( "input[type*='text']" ).change( function (evt) {			
+			console.log('updated underlying json object.');
+			var res = evt.target.id.split("_");			
+			var locationIndex = getIndexOfObject(lensInfo.prescription, "id", res[0]); 
+			lensInfo.prescription[locationIndex].args[res[1]] = Number(evt.target.value);
+			lensOptic.update();
+
+			// update the Lens with the prescription !!!!
+			//console.log(evt);
+			//console.log(locationIndex);
+			//console.log(lensInfo.prescription[locationIndex]);
+			//console.log(lensInfo.prescription[locationIndex].args[res[1]]);
+		});
+
+	}
+
+
+	var lensTable;
+	var lensOptic;
+	var lensInfo;
+	var lensRayTracer;
+	var lensPoints;
 
 
 	$( document ).ready(function() {
     	console.log( "ready!" );
     	setmovemode();
     	setlens();
+    	setupfileread();
+
 
     	// add a lens 
     	//console.log(mylens);
 
 
 
-		showGrid(50);
+		showGrid(25);
 
 		var ruler;
 		app.stage.interactive = true;
@@ -71,10 +114,16 @@
 		app.stage.scale.x = app.stage.scale.y = 1;
  
 
-		var item = new Lens(100,100,"lenses/gullstrand-1-eye-relaxed.lens");   
-		item.interactive = true;
-		item.buttonMode  = true;		
-		item 	
+		lensInfo = readJSON("lenses/gullstrand-1-eye-relaxed.lens");
+		console.log("lensPrescription = ");
+		console.log(lensInfo);
+
+
+		// graphical respresentation 
+		lensOptic = new Lens(400,100, lensInfo.prescription);   
+		lensOptic.interactive = true;
+		lensOptic.buttonMode  = true;		
+		lensOptic  	
 		   .on('mousedown',			onDragStart)
 		   .on('touchstart',		onDragStart)
 		   .on('mouseup', 			onDragEnd)
@@ -84,10 +133,40 @@
 		   .on('mousemove', 		onDragMove)
 		   .on('touchmove', 		onDragMove);
 
-
     	console.log("Add to STAGE.");
-    	app.stage.addChild(item);
+    	app.stage.addChild(lensOptic);
 		console.log('done.');
+
+		// graphical respresentation as table 
+		lensTable = new LensTable ("#lens-table","mustache/lens-latest.mustache");
+		lensTable.readArray(lensInfo);
+		setupupdater(); // this could go inside the lesnsTable class
+
+
+		// conjugate information
+		console.log('raytracer');
+		console.log(lensInfo.prescription);
+		lensRayTracer = new SimpleRayTracer (lensInfo.prescription);
+		lensRayTracer.conjugate(lensInfo.objects); // updates the handle !!
+		
+
+		// graphical respresentation as table 		
+		// calculate conjugates 
+		conjugateTable = new LensTable ("#conjugates-table","mustache/conjugates-latest.mustache");
+		conjugateTable.readArray(lensInfo);
+
+
+		for (var i in lensInfo.objects) {
+			// graphical representation
+			console.log('Input information.');
+			console.log(lensInfo.objects[i]);
+
+			var conjugatePoint = new LensPoints(400, 100, lensInfo.objects[i]); // lensOptic); 
+    		app.stage.addChild(conjugatePoint);
+		}
+
+
+
 
 	});
 
@@ -105,8 +184,106 @@
 <div class="btn-group" role="group" aria-label="Basic example">
   <button id="lens_button" type="button"   class="btn btn-secondary" onclick="setlens();">Lens</button>
   <button id="ruler_button" type="button" class="btn btn-secondary" onclick="setruler();">Ruler</button>
+  <button id="prescription_button" type="button" class="btn btn-secondary" onclick="setprescription();">Prescripion</button>  
 </div>
 
+
+
+<div class="panel panel-default fixed-panel center-panel">
+ <div class="panel-body">
+
+  <!-- LENS VIEW -->
+  <div id = "lens-view"></div>	
+
+
+  <ul class="nav nav-tabs">
+    <li class="active"><a data-toggle="tab" href="#lens">Lenses</a></li>
+    <li><a data-toggle="tab" href="#conjugates">Conjugates</a></li>
+    <li><a data-toggle="tab" href="#summary">Summary</a></li>
+    <li><a data-toggle="tab" href="#raysout">Rays</a></li>
+    <li><a data-toggle="tab" href="#extra">Extra</a></li>    
+  </ul>
+
+  <div class="tab-content">
+    
+    <div id="lens" class="tab-pane fade in active">
+
+
+		 <div>
+		    <h4>title goes here</h4>    
+		 </div>
+
+		<!-- LENS TABLE -->
+		<div id="lens-table">
+		</div>
+
+		<!-- LENS CONTROLSs -->
+		<div id="lens-table-controls">
+	 		<input id="filetoread" type="file" name="myFile"><br><br>
+	 		<input type="submit">
+		</div>	    
+    </div>
+
+    <!-- CONJUGATES TAB -->    
+    <div id="conjugates" class="tab-pane fade">
+      <div id="conjugates-content">
+        <p>conjugates here.</p>
+
+		<!-- LENS TABLE -->
+		<div id="conjugates-table">
+		</div>
+
+
+      </div>
+      <div class="center">
+        <button data-toggle="modal" data-target="#conjugateModal" class="btn btn-primary center-block">Add Conjugate Pair</button>
+       </div>
+    </div>
+
+    <!-- SUMMARY TAB -->    
+    <div id="summary" class="tab-pane fade">
+      <p>summary</p>
+    </div>
+
+    <!-- RAYS TAB -->    
+    <div id="raysout" class="tab-pane fade">
+      <div id="raysout-content">
+              <p>raysout</p>
+      </div>
+      <div class="center">        
+        <button data-toggle="modal" data-target="#raysModal" class="btn btn-primary center-block">Add Ray</button>
+       </div>
+    </div>
+
+    <!-- EXTRA TAB -->
+    <div id="extra" class="tab-pane fade">
+      <div class="center"><button data-toggle="modal" data-target="#squarespaceModal" class="btn btn-primary center-block">Click Me</button></div>
+    </div>
+
+  </div>
+
+
+  <div class="panel-footer">
+  Jason Turuwhenua, Auckland Bioengineering Institute, The University of Auckland, New Zealand 
+  </div>
+
+ </div> 
+</div>
+
+
+
+
+
+
+<div id = "lens-container">
+
+	<!-- LENS VIEW -->
+
+
+	<!-- LENS TABLE -->
+	<div id="lens-table">
+	</div>
+</div>	
 
 </body>
 
@@ -115,6 +292,13 @@
 <script src="js/renderer.js"></script>
 <script src="js/lens.js"></script>
 <script src="js/convex-hull.js"></script>
+<script src="js/mustache.min.js"></script>
+<script src="js/mustache-wax.js"></script>
+<script src="js/lenstable.js"></script>
+<script src="js/searchjson.js"></script>
+<script src="js/math.js"></script>  
+<script src="js/paraxial-sequential.js"></script>
+
 
 
 </html>

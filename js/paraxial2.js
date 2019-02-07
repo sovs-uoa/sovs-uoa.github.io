@@ -1,6 +1,6 @@
 /**************************************************************************************************************
  *
- * PARAXIAL.JS
+ * PARAXIAL2.JS
  *
  *************************************************************************************************************/
 
@@ -16,12 +16,13 @@
 --------------------------------------------------------------------------------*/
 
 
+// apply list of transformations to the rays 
 function applyTransformList(rays, transformList) {
 
     // ... initial translation
     input_rays = [];
     for (var i=0; i < rays.length; i++ ) {        
-            translation = math.matrix([[1, 0],[rays[i].z,1]]);        
+            translation   = math.matrix([[1, 0],[rays[i].z,1]]);        
             input_rays[i] = math.multiply(translation, rays[i]);
     }
 
@@ -39,6 +40,7 @@ function applyTransformList(rays, transformList) {
 }
 
 
+// get the transformation list 
 function transformList = getLensTransformList(prescription) {
     var transformList = [];
     for (var i = 1; i < prescription.length-1; ++i) {
@@ -46,6 +48,7 @@ function transformList = getLensTransformList(prescription) {
     }
 }
 
+// returns a lens matrix 
 function getLensElementTransform(elem, index) {
 
     // update prescription 
@@ -320,6 +323,7 @@ function updateSystemState() {
         console.log('found - magnification.');
         console.log(systemObject.pupil.exitSys);
 
+        // get the axial image 
         var myimage = getAxialImage(systemObject.pupil.exitSys); 
         systemObject.pupil.VE2    = myimage.z;
         systemObject.pupil.ME2    = myimage.u;                   

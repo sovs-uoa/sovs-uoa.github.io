@@ -1,6 +1,6 @@
 /**************************************************************************************************************
  *
- * PARAXIAL.JS
+ * PARAXIAL-SEQUENTIAL.JS
  *
  *************************************************************************************************************/
 
@@ -36,10 +36,8 @@
 %
 --------------------------------------------------------------------------------*/
 
-// console.log(Matrix);
 
-
-// current state  
+// NOTE: THIS GLOBAL SYSTEM OBJECT SHOULD BE ABSORBED INTO SEQUENTIALRAYTRACER   
 var systemObject = { id : 0,
                      n1 : 0,
                      n2 : 0,
@@ -60,6 +58,61 @@ var systemObject = { id : 0,
                   };
 
 
+
+/* SIMPLERAYTRACER Sequential paraxial ray-tracing */
+
+class SimpleRayTracer { 
+
+
+    constructor(prescription) {
+
+      console.log('starting sequential ray-tracer.');
+      console.log(prescription);
+      this.prescription = prescription;
+      this.update ();
+    }
+
+
+    update () {
+      updateSystemState(this.prescription);
+    }
+
+    conjugate(rayInfo) {
+
+      console.log('rays struct ... ');
+      console.log(rayInfo);
+
+      var N = rayInfo.length;
+      if (N == 0) return;
+
+      var newinfo = new Array(N);
+      for (var i in rayInfo) {
+
+        if (rayInfo[i].type == 'object') {          
+          rayInfo[i] = computeImageByConjugate(rayInfo[i]);
+        } else if (rayInfo[i].type == 'image') {
+          rayInfo[i] = computeObjectByConjugate(rayInfo[i]);
+        } else {
+          console.log('invalid ray-info.');
+        }
+
+
+      }
+
+      console.log('output rays struct ... ');
+      console.log(rayInfo);
+      //sreturn newInfo;
+    }
+
+
+}
+
+
+
+
+
+
+
 // console.log('Current System Matrix');
 // console.log(systemObject.currentSysMatrix);
 // console.log('Total System Matrix');
@@ -71,7 +124,7 @@ var systemObject = { id : 0,
 // var conjugates   = [];
      
 
-
+// get axial object relative to the front vertex of the entire system
 function getAxialObject(M) {
           // pos.z = 10; pos.h = 1; // .... from the vertex position
           var u  = 1; h = 0;
@@ -88,6 +141,271 @@ function getAxialImage(M) {
           console.log('VE2 = ' + Z+ ' U = '+u);
           return  { z:Z, u:Y[0] };
 }
+
+
+
+/* ---------------------------------------------------------------------------------------------------------
+  determineImages 
+--------------------------------------------------------------------------------------------------------- */
+
+function computeImageByConjugate(myConjugate) {
+
+/* --------------------------------------------------------------------------------------------------------- 
+          systemObject.conjugates[index] = {  id  : systemObject.objects[index].id,
+                                              VO  : z,
+                                              PO  : -systemObject.cardinals.VP1 + z, 
+                                              OQ  : h,
+                                              VI  : zd,
+                                              PI  : -systemObject.cardinals.VP2 + zd, 
+                                              IQ  : mag*h, 
+                                              M   : mag };         
+--------------------------------------------------------------------------------------------------------- */
+
+          var n1        = systemObject.n1;
+          var n2        = systemObject.n2;
+
+          var z         = myConjugate.VO;
+          var hObject   = myConjugate.OQ;
+                    
+
+          var h   = 1; 
+          var u   = -h/z;
+          
+          var M   = systemObject.totalSysMatrix.toArray();          
+          var ud  = M[0][0]*u + M[0][1]*h; //M.e(1,1)*u + M.e(1,2); 
+          var hd  = M[1][0]*u + M[1][1]*h; //M.e(1,1)*u + M.e(1,2);           
+          var zd  = -hd/ud; //-M.e(2,1)/ud;
+          var mag = (n1*u)/(n2*ud);
+
+          myConjugate.VI = zd;
+          myConjugate.PI = -systemObject.cardinals.VP2 + zd;
+          myConjugate.IQ = mag*hObject;
+          myConjugate.M  = mag;
+
+          //console.log('[computeImageByConjugate] updated the conjugate');                                              
+          //console.log(systemObject.conjugates[index]);          
+          return myConjugate;
+                                    
+
+}
+
+
+function computeObjectByConjugate(myConjugate) {
+
+/* --------------------------------------------------------------------------------------------------------- 
+          systemObject.conjugates[index] = {  id  : systemObject.objects[index].id,
+                                              VO  : z,
+                                              PO  : -systemObject.cardinals.VP1 + z, 
+                                              OQ  : h,
+                                              VI  : zd,
+                                              PI  : -systemObject.cardinals.VP2 + zd, 
+                                              IQ  : mag*h, 
+                                              M   : mag };         
+--------------------------------------------------------------------------------------------------------- */
+
+          var n1        = systemObject.n1;
+          var n2        = systemObject.n2;
+          //var myImage   = systemObject.conjugates[index];
+          
+          var hImage    = myConjugate.IQ;
+          var zd        = myConjugate.VI; 
+          var hd        = 1;
+          var ud        = -hd/zd;
+
+          var B         = math.inv(systemObject.totalSysMatrix).toArray();          
+          var u         = B[0][0]*ud + B[0][1]*hd; //M.e(1,1)*u + M.e(1,2); 
+          var h         = B[1][0]*ud + B[1][1]*hd; //M.e(1,1)*u + M.e(1,2); 
+          var z         = -h/u; //-M.e(2,1)/ud;          
+          var mag       = (n1*u)/(n2*ud);
+
+          myConjugate.VO = z;
+          myConjugate.PO = -systemObject.cardinals.VP1 + z, 
+          myConjugate.OQ = hImage/mag ;
+          myConjugate.M  = mag; 
+
+          return myConjugate;
+}
+
+
+
+
+
+function determineImages() {
+
+      // refractive indices 
+      var n1            = parseFloat(systemObject.summary.n1);
+      var n2            = parseFloat(systemObject.summary.n2);
+
+      for (var i = 0; i < systemObject.objects.length ;  i++ ) {
+
+          // axial ray gives axial image point 
+          var z   = systemObject.objects[i].z; 
+          var h   = systemObject.objects[i].h;
+          var M   = systemObject.totalSysMatrix.toArray();
+          var u   = -1/z;
+          var ud  = M[0][0]*u + M[0][1]; //M.e(1,1)*u + M.e(1,2); 
+          var hd  = M[1][0]*u + M[1][1]; //M.e(1,1)*u + M.e(1,2); 
+          var zd  = -hd/ud; //-M.e(2,1)/ud;
+          var mag = (n1*u)/(n2*ud);
+
+          // information            
+          systemObject.conjugates[i] = {  id  : systemObject.objects[i].id,
+                                          VO  : z,
+                                          PO  : -systemObject.cardinals.VP1 + z, 
+                                          OQ  : h,
+                                          VI  : zd,
+                                          PI  : -systemObject.cardinals.VP2 + zd, 
+                                          IQ  : mag*h, 
+                                          M   : mag };                 
+
+      }
+}
+
+
+function updateConjugate(id, code, newValue) {
+
+    for (var i = 0; i < systemObject.conjugates.length ;  i++ ) {
+
+        var currid = systemObject.conjugates[i].id;
+        if (currid == id) {
+            console.log('[updateConjugate] found conjugate pair to update.');
+
+            // ... information 
+            switch(code) {
+                case 'VO':
+                    console.log('[updateConjugate] VO changed to ... ' + newValue);
+                    systemObject.conjugates[i].VO = Number(newValue);
+                    computeImageByConjugate(i);
+                    return;
+                
+                case 'OQ':
+                    console.log('[updateConjugate] OQ changed to ... ' + newValue + ' from ' + systemObject.conjugates[i].OQ );
+                    systemObject.conjugates[i].OQ = Number(newValue);
+                    console.log(systemObject.conjugates[i]);
+                    computeImageByConjugate(i);
+                    console.log(systemObject.conjugates[i]);
+                    return;
+                
+                case 'VI':
+                    console.log('[updateConjugate] VI changed to ... ' + newValue);
+                    systemObject.conjugates[i].VI = Number(newValue);
+                    computeObjectByConjugate(i);
+                    return;
+                
+                case 'IQ':
+                    console.log('[updateConjugate] IQ changed to ... ' + newValue);
+                    systemObject.conjugates[i].IQ = Number(newValue);
+                    computeObjectByConjugate(i);
+                    return;                    
+                
+                default:
+                    console.log('Unknown option.');
+            }
+
+
+        };
+
+
+    }
+
+}
+
+
+
+/* ---------------------------------------------------------------------------------------------------------
+  update systemObject based on the current prescription 
+--------------------------------------------------------------------------------------------------------- */
+
+function updateSystemState(prescription) {
+      
+  console.log('updating ... ');
+  console.log(prescription);
+
+  //var prescription = systemObject.prescription;
+  systemObject.objectRefIndex = parseFloat(prescription[0].args.index);
+  systemObject.imageRefIndex  = parseFloat(prescription[prescription.length-1].args.index);
+  systemObject.totalSysMatrix = math.eye(2); // math.matrix([ [1, 0], [0, 1] ]);
+  systemObject.pupil.hasStop  = false;
+
+  // build the system matrix
+  for (var i = 1; i < prescription.length ;  i += 2 ) {
+       updateSystemMatrix(prescription, i);
+  }
+
+  // results! 
+  var x = systemObject.totalSysMatrix.toArray();  
+  var A = x[0][0]; var B = x[0][1];
+  var C = x[1][0]; var D = x[1][1];
+
+  console.log('A = ' + A); console.log('B = ' + B);
+  console.log('C = ' + C); console.log('D = ' + D);
+
+  systemObject.cardinals  = { PF1: D*A/B-C,
+                              PF2: -1/B,
+                              VN1: (A-1)/B,
+                              VN2: D*(A-1)/B-C,
+                              VP1: C+(1-D)*A/B,
+                              VP2: (1-D)/B,
+                              VF1: A/B,
+                              VF2: -D/B };
+  systemObject.system     = { A:   A, 
+                              B:   B,
+                              C:   C,
+                              D:   D,
+                              V2:  systemObject.totalSysLength };  
+  systemObject.summary    = { n1:  systemObject.objectRefIndex,
+                              n2:  systemObject.imageRefIndex,
+                              F1:  -systemObject.objectRefIndex/systemObject.cardinals.PF1,
+                              F2:  systemObject.imageRefIndex/systemObject.cardinals.PF2,
+                              VF1: -systemObject.objectRefIndex/systemObject.cardinals.VF1,
+                              VF2: -systemObject.objectRefIndex/systemObject.cardinals.VF2,
+                              V2: systemObject.totalSysLength
+                            };
+
+  if (systemObject.pupil.hasOwnProperty('hasStop')) {
+
+        // ... information (EXIT PUPIL IS ON THE IMAGE SIDE OF THE SURFACE)
+        console.log('found - magnification.');
+        console.log(systemObject.pupil.exitSys);
+
+        var myimage = getAxialImage(systemObject.pupil.exitSys); 
+        systemObject.pupil.VE2    = myimage.z;
+        systemObject.pupil.ME2    = myimage.u;                   
+
+        var n1 = systemObject.objectRefIndex;
+        var n2 = systemObject.pupil.entRefIndex;
+        systemObject.pupil.ME1    = n2/(systemObject.pupil.ME1*n1);
+
+
+
+        var n1 = systemObject.pupil.exitRefIndex;
+        var n2 = systemObject.imageRefIndex;
+        systemObject.pupil.ME2    = n1/(systemObject.pupil.ME2*n2);
+   }
+
+  if (systemObject.hasOwnProperty('objects')) {
+         console.log('found objects - images.');
+         determineImages();
+   }
+
+  if (systemObject.hasOwnProperty('rays')) {
+         console.log('found objects - rays.');
+         determineRays();
+
+   }
+
+
+}
+
+
+
+
+/* ---------------------------------------------------------------------------------------------------------
+  updateSyetmMatrix 
+
+
+--------------------------------------------------------------------------------------------------------- */
+
 
 
 // ... system matrix information 
@@ -201,258 +519,6 @@ function updateSystemMatrix(elem, index) {
       
       console.log('n2 = ' + n2);    
     };
-
-}
-
-/* ---------------------------------------------------------------------------------------------------------
-  determineImages 
---------------------------------------------------------------------------------------------------------- */
-
-function computeImageByConjugate(index) {
-
-/* --------------------------------------------------------------------------------------------------------- 
-          systemObject.conjugates[index] = {  id  : systemObject.objects[index].id,
-                                              VO  : z,
-                                              PO  : -systemObject.cardinals.VP1 + z, 
-                                              OQ  : h,
-                                              VI  : zd,
-                                              PI  : -systemObject.cardinals.VP2 + zd, 
-                                              IQ  : mag*h, 
-                                              M   : mag };         
---------------------------------------------------------------------------------------------------------- */
-
-          var n1        = systemObject.n1;
-          var n2        = systemObject.n2;
-          var myObject  = systemObject.conjugates[index];
-
-
-          var z       = myObject.VO;
-          var hObject = myObject.OQ;
-          var h   = 1; 
-          var u   = -h/z;
-          
-          var M   = systemObject.totalSysMatrix.toArray();          
-          var ud  = M[0][0]*u + M[0][1]*h; //M.e(1,1)*u + M.e(1,2); 
-          var hd  = M[1][0]*u + M[1][1]*h; //M.e(1,1)*u + M.e(1,2);           
-          var zd  = -hd/ud; //-M.e(2,1)/ud;
-          var mag = (n1*u)/(n2*ud);
-
-          systemObject.conjugates[index].VI = zd;
-          systemObject.conjugates[index].PI = -systemObject.cardinals.VP2 + zd;
-          systemObject.conjugates[index].IQ = mag*hObject;
-          systemObject.conjugates[index].M  = mag;
-
-          console.log('[computeImageByConjugate] updated the conjugate');                                              
-          console.log(systemObject.conjugates[index]);                                              
-
-}
-
-
-function computeObjectByConjugate(index) {
-
-/* --------------------------------------------------------------------------------------------------------- 
-          systemObject.conjugates[index] = {  id  : systemObject.objects[index].id,
-                                              VO  : z,
-                                              PO  : -systemObject.cardinals.VP1 + z, 
-                                              OQ  : h,
-                                              VI  : zd,
-                                              PI  : -systemObject.cardinals.VP2 + zd, 
-                                              IQ  : mag*h, 
-                                              M   : mag };         
---------------------------------------------------------------------------------------------------------- */
-
-          var n1        = systemObject.n1;
-          var n2        = systemObject.n2;
-          var myImage   = systemObject.conjugates[index];
-          var hImage    = myImage.IQ;
-          var zd        = myImage.VI; 
-          var hd        = 1;
-          var ud        = -hd/zd;
-
-
-          var B         = math.inv(systemObject.totalSysMatrix).toArray();          
-
-
-          var u         = B[0][0]*ud + B[0][1]*hd; //M.e(1,1)*u + M.e(1,2); 
-          var h         = B[1][0]*ud + B[1][1]*hd; //M.e(1,1)*u + M.e(1,2); 
-          var z         = -h/u; //-M.e(2,1)/ud;          
-          var mag       = (n1*u)/(n2*ud);
-
-          systemObject.conjugates[index].VO = z;
-          systemObject.conjugates[index].PO = -systemObject.cardinals.VP1 + z, 
-          systemObject.conjugates[index].OQ = hImage/mag ;
-          systemObject.conjugates[index].M  = mag; 
-
-}
-
-
-
-
-
-function determineImages() {
-
-      // refractive indices 
-      var n1            = parseFloat(systemObject.summary.n1);
-      var n2            = parseFloat(systemObject.summary.n2);
-
-      for (var i = 0; i < systemObject.objects.length ;  i++ ) {
-
-          // axial ray gives axial image point 
-          var z   = systemObject.objects[i].z; 
-          var h   = systemObject.objects[i].h;
-          var M   = systemObject.totalSysMatrix.toArray();
-          var u   = -1/z;
-          var ud  = M[0][0]*u + M[0][1]; //M.e(1,1)*u + M.e(1,2); 
-          var hd  = M[1][0]*u + M[1][1]; //M.e(1,1)*u + M.e(1,2); 
-          var zd  = -hd/ud; //-M.e(2,1)/ud;
-          var mag = (n1*u)/(n2*ud);
-
-          // information            
-          systemObject.conjugates[i] = {  id  : systemObject.objects[i].id,
-                                          VO  : z,
-                                          PO  : -systemObject.cardinals.VP1 + z, 
-                                          OQ  : h,
-                                          VI  : zd,
-                                          PI  : -systemObject.cardinals.VP2 + zd, 
-                                          IQ  : mag*h, 
-                                          M   : mag };                 
-
-      }
-}
-
-
-function updateConjugate(id, code, newValue) {
-
-    for (var i = 0; i < systemObject.conjugates.length ;  i++ ) {
-
-        var currid = systemObject.conjugates[i].id;
-        if (currid == id) {
-            console.log('[updateConjugate] found conjugate pair to update.');
-
-            // ... information 
-            switch(code) {
-                case 'VO':
-                    console.log('[updateConjugate] VO changed to ... ' + newValue);
-                    systemObject.conjugates[i].VO = Number(newValue);
-                    computeImageByConjugate(i);
-                    return;
-                
-                case 'OQ':
-                    console.log('[updateConjugate] OQ changed to ... ' + newValue + ' from ' + systemObject.conjugates[i].OQ );
-                    systemObject.conjugates[i].OQ = Number(newValue);
-                    console.log(systemObject.conjugates[i]);
-                    computeImageByConjugate(i);
-                    console.log(systemObject.conjugates[i]);
-                    return;
-                
-                case 'VI':
-                    console.log('[updateConjugate] VI changed to ... ' + newValue);
-                    systemObject.conjugates[i].VI = Number(newValue);
-                    computeObjectByConjugate(i);
-                    return;
-                
-                case 'IQ':
-                    console.log('[updateConjugate] IQ changed to ... ' + newValue);
-                    systemObject.conjugates[i].IQ = Number(newValue);
-                    computeObjectByConjugate(i);
-                    return;                    
-                
-                default:
-                    console.log('Unknown option.');
-            }
-
-
-        };
-
-
-    }
-
-}
-
-
-
-/* ---------------------------------------------------------------------------------------------------------
-  update systemObject based on the current prescription 
---------------------------------------------------------------------------------------------------------- */
-
-function updateSystemState() {
-      
-  var prescription = systemObject.prescription;
-  systemObject.objectRefIndex = parseFloat(prescription[0].args.index);
-  systemObject.imageRefIndex  = parseFloat(prescription[prescription.length-1].args.index);
-  systemObject.totalSysMatrix = math.eye(2); // math.matrix([ [1, 0], [0, 1] ]);
-  systemObject.pupil.hasStop  = false;
-
-  console.log(systemObject.totalSysMatrix);
-
-  for (var i = 1; i < prescription.length ;  i += 2 ) {
-       updateSystemMatrix(prescription, i);
-  }
-
-
-
-  // results! 
-  var x = systemObject.totalSysMatrix.toArray();  
-  var A = x[0][0]; var B = x[0][1];
-  var C = x[1][0]; var D = x[1][1];
-
-  console.log('A = ' + A); console.log('B = ' + B);
-  console.log('C = ' + C); console.log('D = ' + D);
-
-  systemObject.cardinals  = { PF1: D*A/B-C,
-                              PF2: -1/B,
-                              VN1: (A-1)/B,
-                              VN2: D*(A-1)/B-C,
-                              VP1: C+(1-D)*A/B,
-                              VP2: (1-D)/B,
-                              VF1: A/B,
-                              VF2: -D/B };
-  systemObject.system     = { A:   A, 
-                              B:   B,
-                              C:   C,
-                              D:   D,
-                              V2:  systemObject.totalSysLength };  
-  systemObject.summary    = { n1:  systemObject.objectRefIndex,
-                              n2:  systemObject.imageRefIndex,
-                              F1:  -systemObject.objectRefIndex/systemObject.cardinals.PF1,
-                              F2:  systemObject.imageRefIndex/systemObject.cardinals.PF2,
-                              VF1: -systemObject.objectRefIndex/systemObject.cardinals.VF1,
-                              VF2: -systemObject.objectRefIndex/systemObject.cardinals.VF2,
-                              V2: systemObject.totalSysLength
-                            };
-
-  if (systemObject.pupil.hasOwnProperty('hasStop')) {
-
-        // ... information (EXIT PUPIL IS ON THE IMAGE SIDE OF THE SURFACE)
-        console.log('found - magnification.');
-        console.log(systemObject.pupil.exitSys);
-
-        var myimage = getAxialImage(systemObject.pupil.exitSys); 
-        systemObject.pupil.VE2    = myimage.z;
-        systemObject.pupil.ME2    = myimage.u;                   
-
-        var n1 = systemObject.objectRefIndex;
-        var n2 = systemObject.pupil.entRefIndex;
-        systemObject.pupil.ME1    = n2/(systemObject.pupil.ME1*n1);
-
-
-
-        var n1 = systemObject.pupil.exitRefIndex;
-        var n2 = systemObject.imageRefIndex;
-        systemObject.pupil.ME2    = n1/(systemObject.pupil.ME2*n2);
-   }
-
-  if (systemObject.hasOwnProperty('objects')) {
-         console.log('found objects - images.');
-         determineImages();
-   }
-
-  if (systemObject.hasOwnProperty('rays')) {
-         console.log('found objects - rays.');
-         determineRays();
-
-   }
-
 
 }
 

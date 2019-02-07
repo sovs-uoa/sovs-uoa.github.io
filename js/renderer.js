@@ -1,5 +1,5 @@
-var app = new PIXI.Application(800, 600, { antialias: true });
-document.body.appendChild(app.view);
+var app = new PIXI.Application(1200, 400, { antialias: true });
+document.getElementById("lens-view").appendChild(app.view);
 
 
 // gloal variables 

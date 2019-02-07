@@ -1,0 +1,86 @@
+<div class="lens">
+
+<!--
+  <div>
+    <span class="glyphicon glyphicon-open"></span>
+    <span class="glyphicon glyphicon-download"></span>
+    <h4>{{title}}</h4>    
+  </div>
+-->
+
+  <table id="lens-table">
+    <thead>
+      <tr>
+        <th>Description</th>
+        <th>Ref. index</th>
+        {{#visible.radius}}
+        <th>Surf. R</th>
+        {{/visible.radius}}
+        {{#visible.curvature}}
+        <th>Surf. C</th>
+        {{/visible.curvature}}
+        {{#visible.power}}
+        <th>Surf. Power</th>
+        {{/visible.power}}
+        <th>Thickness</th>
+        {{#visible.aperture}}
+        <th>Ap. Diameter</th>
+        {{/visible.aperture}}
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#prescription}}
+      <tr>  
+        <td>{{description}}</td>
+        {{#args}}
+        <td>
+          {{#index}}
+            <input  type="text" id="{{id}}_index" value="{{index | decimal : 5 }}" />
+          {{/index}}
+        </td>
+        {{#visible.radius}}
+        <td>
+          {{#radius}}
+            <input   type="text" id="{{id}}_radius" value="{{radius | decimal : 5 }}" />
+          {{/radius}}
+        </td>
+        {{/visible.radius}}
+        {{#visible.curvature}}
+        <td>
+          {{#curvature}}
+            <input  type="text" id="{{id}}_curvature" value="{{curvature | decimal : 5 }}" />
+          {{/curvature}}
+        </td>
+        {{/visible.curvature}}
+        {{#visible.power}}
+        <td>      
+          {{#power}}
+            <input  type="text" id="{{id}}_power" value="{{power | decimal : 5 }}" />
+          {{/power}}
+        </td> 
+        {{/visible.power}}
+        <td>
+          {{#thickness}}
+            <input  type="text" id="{{id}}_thickness" value="{{thickness | decimal : 5 }}" />
+           {{/thickness}}
+        </td>
+        {{#visible.aperture}}        
+        <td>      
+          {{#aperture}}
+            <input  type="text" id="{{id}}_aperture" value="{{aperture | decimal : 5 }}" />
+          {{/aperture}}
+        </td> 
+        {{/visible.aperture}}        
+        <td>
+          {{#stop}}
+            <span class="label label-info">STOP</span>
+          {{/stop}}
+        </td>     
+
+        {{/args}}
+      </tr>
+      {{/prescription}}
+    </tbody>
+  </table>
+</div>
