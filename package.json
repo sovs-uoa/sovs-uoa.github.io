@@ -1,0 +1,26 @@
+{
+  "name": "optics",
+  "version": "1.0.0",
+  "description": "optics functions ",
+  "main": "optics.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jtur044/paraxial-optics.git"
+  },
+  "keywords": [
+    "paraxial",
+    "optics"
+  ],
+  "author": "Jason Turuwhenua",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jtur044/paraxial-optics/issues"
+  },
+  "homepage": "https://github.com/jtur044/paraxial-optics#readme"
+}

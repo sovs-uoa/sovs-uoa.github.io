@@ -320,16 +320,10 @@ var drawAxis = function (r, grid, offset) {
   }
 
 
-  function drawPoint(x, y, color) {
-    paper.circle(x, y, 0.3).attr({"fill": color, "fill-opacity": 1.0, "stroke": "#000000", "stroke-width": "1"});
-  } 
-
-
-
 
   /* ---------------------------------------------------------------------------------------------------------------
 
-    renderRays - render the finite object / image conjugates given a processed pointList
+    draggable points - render the finite object / image conjugates given a processed pointList
 
     TO DO:
 
@@ -341,21 +335,85 @@ var drawAxis = function (r, grid, offset) {
   
    --------------------------------------------------------------------------------------------------------------- */
 
+
+   var ox, oy, lx, ly; 
+
+
+    //Pane
+   dragPointStart = function (e) {
+
+        console.log("point dragger start");
+
+        // storing original coordinates
+        this.ox = this.attr("x");
+        this.oy = this.attr("y");
+
+    };
+
+  dragPointMove = function (dx, dy) {
+        
+        console.log("point dragger move");
+
+        nowX = this.ox + dx;
+        nowY = this.oy + dy;
+        this.attr({ X: nowX, y: nowY });
+
+    };
+
+  dragPointUp = function () {
+
+        console.log("point dragger up");
+
+    };
+
+
+
+
+  function drawPoint(x, y, color) {
+  
+    var c = paper.circle(x, y, 0.5).attr({"fill": color, "fill-opacity": 1.0, "stroke": "#000000", "stroke-width": "1"});
+    c.drag(dragPointMove, dragPointStart, dragPointUp);
+    
+    // c.drag(dragPointMove, dragPointStart, dragPointUp);
+    return c;
+  } 
+
+
+
+
+  /* ---------------------------------------------------------------------------------------------------------------
+
+    renderCardinalRays - render the finite object / image conjugates given a processed pointList
+
+    TO DO:
+
+    dataOption - ignore intermediate object/image points 
+               - intermediate rays 
+
+
+    displayOptions : { showAll : true }               
+  
+   --------------------------------------------------------------------------------------------------------------- */
+
+
   function renderCardinalRays(lens, conjObject, displayOptions) {
 
-     console.log(lens);
+     // console.log(lens);
+
+     cd_set.remove ();
+     cd_set = paper.set();
 
 
      var N1 = lens.cardinal.VN1;
      var N2 = lens.L + lens.cardinal.VN2;
-
      var P1 = lens.cardinal.VP1;
      var P2 = lens.L + lens.cardinal.VP2;
-
      var F1 = lens.cardinal.VF1;
      var F2 = lens.L + lens.cardinal.VF2;
 
-     // object (X1, Y1) / image (X2, Y2)
+     // check if the system is AFOCAL 
+
+
      var X1 = conjObject.X1;
      var Y1 = conjObject.Y1;
      var X2 = conjObject.X2;
@@ -364,13 +422,13 @@ var drawAxis = function (r, grid, offset) {
      // display the nodal rays (Obect => N1 N2 => Image )
 
      var attributes = { "fill": "gray", "stroke-opacity": 0.5, "stroke": "black", "stroke-width": "1" };
+     var virtual    = { "fill": "gray", "stroke-opacity": 0.5, "stroke": "black", "stroke-width": "1", "stroke-dasharray":"--" };
+     var real       = { "fill": "gray", "stroke-opacity": 0.5, "stroke": "black", "stroke-width": "1" };
+     var extend     = { "fill": "red", "stroke-opacity": 0.5, "stroke": "red", "stroke-width": "1" };
 
 
-     var virtual = { "fill": "gray", "stroke-opacity": 0.5, "stroke": "black", "stroke-width": "1", "stroke-dasharray":"--" };
-     var real    = { "fill": "gray", "stroke-opacity": 0.5, "stroke": "black", "stroke-width": "1" };
-     var extend  = { "fill": "red", "stroke-opacity": 0.5, "stroke": "red", "stroke-width": "1" };
 
-
+     // FINITE INFORMATION 
 
      var X1_attributes; 
      var X2_attributes;
@@ -379,25 +437,30 @@ var drawAxis = function (r, grid, offset) {
      var N1_attributes, N2_attributes; 
      N1_attributes = (X1 <= N1) ? real : virtual;
      N2_attributes = (N2 <= X2) ? real : virtual;
-     paper.path( ["M", X1, Y1, "L", N1, 0 ] ).attr(N1_attributes);
-     paper.path( ["M", X2, Y2, "L", N2, 0 ] ).attr(N2_attributes);
-
+     p1 = paper.path( ["M", X1, Y1, "L", N1, 0 ] ).attr(N1_attributes);
+     p2 = paper.path( ["M", X2, Y2, "L", N2, 0 ] ).attr(N2_attributes);
+     cd_set.push(p1, p2);
 
 
      var P2_attributes, F2_attributes; 
      P2_attributes = (X1 <= P2) ? real : virtual;
      F2_attributes = (P2 <= F2) ? real : virtual;
      X2_attributes = (F2 <= X2) ? real : virtual;
-     paper.path( ["M", X1, Y1, "L", P2, Y1] ).attr(P2_attributes);
-     paper.path( ["M", P2, Y1, "L", F2, 0 ] ).attr(F2_attributes); // should apss through F2
+
+     p3 = paper.path( ["M", X1, Y1, "L", P2, Y1] ).attr(P2_attributes);
+     p4 = paper.path( ["M", P2, Y1, "L", F2, 0 ] ).attr(F2_attributes); // should apss through F2
+     cd_set.push(p3, p4);
+
 
      if (F2 <= X2) { 
         // real image  
-        paper.path( ["M", F2, 0, "L", X2, Y2 ] ).attr(X2_attributes); // should apss through F2
+        p = paper.path( ["M", F2, 0, "L", X2, Y2 ] ).attr(X2_attributes); // should apss through F2
+        cd_set.push (p);
      } else {
 
         // virtual image 
-        paper.path( ["M", P2, Y1, "L", X2, Y2 ] ).attr(X2_attributes); // should apss through F2
+        p = paper.path( ["M", P2, Y1, "L", X2, Y2 ] ).attr(X2_attributes); // should apss through F2
+        cd_set.push (p);
 
      }
 
@@ -407,9 +470,10 @@ var drawAxis = function (r, grid, offset) {
      P1_attributes = (F1 <= P1) ? real : virtual;
      X2_attributes = (P1 <= X2) ? real : virtual;
 
-     paper.path( ["M", X1, Y1, "L", F1, 0 ] ).attr(F1_attributes);
-     paper.path( ["M", X1, Y1,  "L", P1, Y2 ] ).attr(P1_attributes); // this one needs to be modified 
-     paper.path( ["M", P1, Y2, "L", X2, Y2 ] ).attr(X2_attributes);
+     p1 = paper.path( ["M", X1, Y1, "L", F1, 0 ] ).attr(F1_attributes);
+     p2 = paper.path( ["M", X1, Y1,  "L", P1, Y2 ] ).attr(P1_attributes); // this one needs to be modified 
+     p3 = paper.path( ["M", P1, Y2, "L", X2, Y2 ] ).attr(X2_attributes);
+     cd_set.push(p1, p2, p3);
 
 
      // add extension rays for virtual images  
@@ -419,16 +483,18 @@ var drawAxis = function (r, grid, offset) {
 
         // F1 ray         
         var m = (Y2-0)/(X2-F2);
-        paper.path( ["M", F2, 0, "L",  F2 + 20, 0 + m*20 ] ).attr(extend); // should apss through F2
+        p = paper.path( ["M", F2, 0, "L",  F2 + 20, 0 + m*20 ] ).attr(extend); // should apss through F2
+        cd_set.push(p);
 
         // F2 ray 
-        paper.path( ["M", P1, Y2, "L",  P1 + 20, Y2 ] ).attr(extend); // should apss through F2
-
+        p = paper.path( ["M", P1, Y2, "L",  P1 + 20, Y2 ] ).attr(extend); // should apss through F2
+        cd_set.push(p);
+        
         // N2 ray 
         var m = (Y2-0)/(X2-N2);
         console.log("m = " + m);
-        paper.path( ["M", N2, 0, "L",  N2 + 20, 0 + m*20 ] ).attr(extend); // should apss through F2
-
+        p = paper.path( ["M", N2, 0, "L",  N2 + 20, 0 + m*20 ] ).attr(extend); // should apss through F2
+        cd_set.push(p);
 
      }
 
@@ -458,16 +524,21 @@ var drawAxis = function (r, grid, offset) {
   
    --------------------------------------------------------------------------------------------------------------- */
 
+
   function renderPointToPoint(data, dataOptions) {
 
+    ps.remove ();
+    ps = paper.set();
 
+    // show the object points for all points 
     for (var i = 0; i < data.length; i++ ) {
 
         var X1 = data[i].X1;
         var Y1 = data[i].Y1;
         if (isFinite(X1) & isFinite(Y1)) {
           console.log('X1 = ' + X1 + ' Y1 = '+ Y1);
-          drawPoint(X1, Y1, "cyan");          
+          c = drawPoint(X1, Y1, "cyan");         
+          ps.push(c); 
         }
    }
 
@@ -475,7 +546,8 @@ var drawAxis = function (r, grid, offset) {
    var Y2 = data[data.length-1].Y2;
    if (isFinite(X2) & isFinite(Y2)) {
       console.log('X2 = ' + X2 + ' Y2 = '+ Y2);
-      drawPoint(X2, Y2, "cyan");          
+      c = drawPoint(X2, Y2, "cyan");          
+      ps.push(c); 
     }
 
 
@@ -532,7 +604,7 @@ var drawAxis = function (r, grid, offset) {
 
   /* ---------------------------------------------------------------------------------------------------------------
 
-    MOUSE-HANDLER  
+    MOUSE-HANDLER FOR SETTING UP THE SYSTEM 
 
     Setup and show the system  
   
@@ -644,9 +716,13 @@ var drawAxis = function (r, grid, offset) {
         event.returnValue = false;
     }
 
+
+
+
     /** Initialization code. 
      * If you use your own event management code, change it as required.
      */
+
     if (window.addEventListener) {
 
 
@@ -656,9 +732,6 @@ var drawAxis = function (r, grid, offset) {
       window.onmousewheel = document.onmousewheel = wheel;
 
 
-   
 
-
-    };
-    
+    };  
 

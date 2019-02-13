@@ -1,0 +1,15 @@
+{
+  "name": "optics",
+  "version": "1.0.0",
+  "description": "optics functions ",
+  "main": "optics.js",
+  "scripts": {
+    "test": "test.js"
+  },
+  "keywords": [
+    "optics",
+    "paraxial"
+  ],
+  "author": "Jason Turuwhenua",
+  "license": "ISC"
+}

@@ -390,7 +390,6 @@ function updateSystemState() {
   }
 
 
-
   // results! 
   var x = systemObject.totalSysMatrix.toArray();  
   var A = x[0][0]; var B = x[0][1];

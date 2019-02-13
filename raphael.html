@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Prescription Loader</title>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/json5/0.5.1/json5.js"></script>
+
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+
+
+  <!-- snap -->
+  <script src="js/optics/optics.js"></script>
+  <script src="js/optics/renderer.js"></script>  
+  <script src="js/utils.js"></script>  
+
+
+  <style type="text/css">
+    #canvas_container {
+        width: 1000px;
+        height: 500px;
+        border: 1px solid #aaa;
+    }
+
+    #host {
+        width: 1000px;
+        height: 500px;
+    }
+
+
+    path, circle, text {
+
+      vector-effect: non-scaling-stroke;
+      stroke-width: 2px;
+
+    }
+
+
+  </style>
+</head>
+
+<script>
+
+
+  /* ---------------------------------------------------------------------------------------------------------------
+
+    MAIN 
+
+    Setup and show the system  
+  
+   --------------------------------------------------------------------------------------------------------------- */
+
+  var c, dot;
+  var objectPoint;      // this should be a list or hash-table
+  var renderableLens;
+  var lensTable;
+  var ps, cd_set;
+
+
+  function move (dx, dy) {
+
+      kx = viewBoxWidth/paper.width;
+      ky = viewBoxHeight/paper.height;
+
+      nowX = this.ox + kx*dx;
+      nowY = this.oy + ky*dy;
+      this.attr({ cx: nowX, cy: nowY });
+  
+      // we should recalculate all the points 
+      objectPoint  = [ { id: 1, z: nowX, h: nowY } ];
+      updateRays();
+  }
+
+  function start () {
+
+      console.log("start");  
+
+      // storing original coordinates
+      this.ox = this.attr("cx");
+      this.oy = this.attr("cy");
+
+  }
+
+  function up () {
+      
+      console.log("up");    
+
+  }
+
+
+  function updateRays () {
+
+      var PointToPointList  = Optics.calculatePointToPoint(renderableLens.total, objectPoint);
+      p2p = PointToPointList[0];            
+      renderCardinalRays(renderableLens.total, p2p, displayOptions);
+      renderPointToPoint(PointToPointList); // overall system
+
+  }
+
+
+
+
+
+  window.addEventListener('DOMContentLoaded', function(){
+
+
+        // create the canvas
+        paper = new Raphael(document.getElementById('canvas_container'), 1200, 600);
+
+        ps = paper.set();
+        cd_set = paper.set();
+
+        axis_set = paper.set(); 
+
+        //viewBoxWidth  = paper.width;
+        //viewBoxHeight = paper.height;
+        
+        viewBoxWidth  = 80;
+        viewBoxHeight = 40;
+        oWidth = viewBoxWidth, oHeight = viewBoxHeight;
+        var oX = -40, oY = -20, oWidth = viewBoxWidth, oHeight = viewBoxHeight;        
+        viewBox   = paper.setViewBox(oX, oY, viewBoxWidth, viewBoxHeight);
+        viewBox.X = oX; viewBox.Y = oY;
+
+
+        // draw the axis 
+        drawAxis(paper, true,0);
+  
+
+        // draw lens  
+        loadJSON5('lenses/legrand-relaxed-schematic-eye.lens', function(response) {
+
+            // console.log('loaded');
+
+            // load and show the optical system  
+            lensTable      = Optics.parse(response.prescription);
+            renderableLens = Optics.analyze(lensTable);
+            renderOptics(renderableLens);  
+
+            // add an object point that is draggable   
+            objectPoint       = [ { id: 1, z: -25, h: 10 } ];
+            var PointToPointList  = Optics.calculatePointToPoint(renderableLens.total, objectPoint);
+            p2p = PointToPointList[0]; // from the object point             
+            renderCardinalRays(renderableLens.total, p2p, displayOptions);
+            renderPointToPoint(PointToPointList); // overall system
+
+
+            // add a draggable point  
+            var dot = paper.circle(-10, -10, 2).attr({
+                        fill: "#FF0000",
+                        stroke: "#000099",
+                        "stroke-width": 3
+                    });
+
+            dot.drag(move, start, up);
+
+
+
+ 
+          }); 
+   });
+   
+</script>
+
+
+
+<body>
+
+
+<!--
+  <div id="canvas_container"  style="position: absolute; left: 0; top: 0; z-index: 2;"></div>
+-->
+
+  <div id="canvas_container"  style="position: absolute; left: 0; top: 0; z-index: 2;" onmousedown="dragStart(event);" onmousemove="dragMove(event);" onmouseup="dragEnd(event);" ></div>
+  </div>
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.2.7/raphael.js" integrity="sha256-MPXjTSEImVJI1834JAHubdK7Lts1VTUPJmCQ9zKAjyA=" crossorigin="anonymous"></script>  
+
+
+
+<!--
+
+  <div id="canvas_container"  style="position: absolute; left: 0; top: 0; z-index: 2;" onmousedown="dragStart(event);" onmousemove="dragMove(event);" onmouseup="dragEnd(event);" ></div>
+  </div>
+
+-->
+
+<!--
+  <script src="js/snap.js"></script>  
+-->
+
+</body>
+
+
+</html>

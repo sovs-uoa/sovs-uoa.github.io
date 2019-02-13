@@ -1,0 +1,129 @@
+/*--------------------------------------------
+
+ Gullstrand 1 Eye Relaxed 
+
+----------------------------------------------*/
+{
+	"title": "Gullstrand 1 eye relaxed",
+	"visible": { 	"radius": true,
+				 	"power":true,
+				 	"curvature":true,
+				 	"aperture":true },		
+	"objects": 	[ 	{ "type": "object", "VO" : -1, "OQ" : 1 },
+	 				{ "type": "image",  "VI" : 3, "IQ" : -1 } ],				 					 	
+	"prescription": [{
+		"id": "0001",
+		"type": "index",
+		"description": "air",
+		"args": {
+			"index": 1.000
+		}
+	}, {		
+		"id": "0002",
+		"group": "cornea",
+		"type": "sphere",
+		"description": "anterior cornea",
+		"args": {
+			"radius": 7.700,
+			"height": 12
+		}
+	}, {
+		"id": "0003",
+		"group": "cornea",
+		"type": "index",
+		"description": "stroma",
+		"args": {
+			"index": 1.376,
+			"thickness": 0.5
+		}
+	}, {
+		"id": "0004",
+		"group": "cornea",		
+		"type": "sphere",
+		"description": "posterior cornea",
+		"args": {
+			"radius": 6.800,
+			"height": 12
+		}
+	}, {
+		"id": "0005",
+		"type": "index",
+		"description": "aqueous",
+		"args": {
+			"index": 1.336,
+			"thickness": 3.100
+		}
+	}, {
+		"id": "0006",
+		"group": "lens",
+		"type": "sphere",
+		"description": "anterior lens",
+		"args": {
+			"radius"   : 10.000,
+			"stop"     : true,
+			"height"   : 12.0,			
+			"aperture" : 1
+		}
+	}, {
+		"id": "0007",
+		"group": "lens",
+		"type": "index",
+		"description": "lens: cortex",
+		"args": {
+			"index": 1.386,
+			"thickness": 0.546
+		}
+	}, {
+		"id": "0008",
+		"group": "lens",
+		"type": "sphere",
+		"description": "anterior core",
+		"args": {
+			"radius": 7.911,
+			"height": 9
+		}
+	}, {
+		"id": "0009",
+		"group": "lens",		
+		"type": "index",
+		"description": "lens: core",
+		"args": {
+			"index": 1.406,
+			"thickness": 2.419
+		}
+	}, {
+		"id": "0010",
+		"group": "lens",		
+		"type": "sphere",
+		"description": "posterior core",
+		"args": {
+			"radius": -5.760,
+			"height": 10
+		}
+	}, {
+		"id": "0011",
+		"group": "lens",		
+		"type": "index",
+		"description": "lens: cortex",
+		"args": {
+			"index": 1.386,
+			"thickness": 0.635
+		}
+	}, {
+		"id": "0012",
+		"group": "lens",		
+		"type": "sphere",
+		"description": "posterior cortex",
+		"args": {
+			"radius": -6.000,
+			"height": 13.0
+		}
+	}, {
+		"id": "0013",
+		"type": "index",
+		"description": "vitreous",
+		"args": {
+			"index": 1.336
+		}
+	}]
+}

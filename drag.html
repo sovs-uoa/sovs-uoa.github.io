@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>drag exanple</title>
+    </head>
+    <body>
+        <div id="container"></div>
+        <script src="http://cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
+        <script>
+
+
+
+  window.addEventListener('DOMContentLoaded', function(){
+
+
+        var paper = Raphael("container", 500, 300);
+
+        var dot = paper.circle(250, 150, 10).attr({
+                fill: "#FF0000",
+                stroke: "#000099",
+                "stroke-width": 3
+            });
+
+        dot.drag(move, start, up);
+
+        console.log(dot);
+
+        function move (dx, dy) {
+
+            console.log("dx = " + dx + " dy = " + dy);
+
+            nowX = this.ox + dx;
+            nowY = this.oy + dy;
+            this.attr({ cx: nowX, cy: nowY });
+
+
+        }
+
+        function start () {
+
+
+            // storing original coordinates
+            this.ox = this.attr("cx");
+            this.oy = this.attr("cy");
+
+            console.log("start");    
+
+
+        }
+
+        function up () {
+            
+            console.log("up");    
+
+        }
+
+
+
+
+
+ });
+
+
+
+
+
+
+
+        </script>
+    </body>
+</html>

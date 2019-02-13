@@ -1,0 +1,87 @@
+/*--------------------------------------------
+
+ Gullstrand 1 Eye Relaxed 
+
+----------------------------------------------*/
+{
+	"title": "Gullstrand 1 eye relaxed",
+    "prescription": [{
+		"id": "0001",
+		"type": "index",
+		"description": "air",
+		"args": {
+			"index": 1.000
+		}
+	}, {		
+		"id": "0002",
+		"group": "cornea",
+		"type": "sphere",
+		"description": "anterior cornea",
+		"args": {
+			"radius": 7.800,
+			"height": 12
+		}
+	}, {
+		"id": "0003",
+		"group": "cornea",
+		"type": "index",
+		"description": "cornea",
+		"args": {
+			"index": 1.3771,
+			"thickness": 0.55
+		}
+	}, {
+		"id": "0004",
+		"group": "cornea",		
+		"type": "sphere",
+		"description": "posterior cornea",
+		"args": {
+			"radius": 6.500,
+			"height": 12
+		}
+	}, {
+		"id": "0005",
+		"type": "index",
+		"description": "aqueous",
+		"args": {
+			"index": 1.3374,
+			"thickness": 3.05
+		}
+	}, {
+		"id": "0006",
+		"group": "lens",
+		"type": "sphere",
+		"description": "anterior lens",
+		"args": {
+			"radius"   : 10.200,
+			"stop"     : true,
+			"height"   : 12.0,			
+			"aperture" : 1
+		}
+	}, {
+		"id": "0007",
+		"group": "lens",
+		"type": "index",
+		"description": "lens",
+		"args": {
+			"index": 1.4200,
+			"thickness": 4.000
+		}
+	}, {
+		"id": "0012",
+		"group": "lens",		
+		"type": "sphere",
+		"description": "posterior lens",
+		"args": {
+			"radius": -6.000,
+			"height": 13.0
+		}
+	}, {
+		"id": "0013",
+		"type": "index",
+		"description": "vitreous",
+		"args": {
+			"index": 1.336
+		}
+	}]
+}
