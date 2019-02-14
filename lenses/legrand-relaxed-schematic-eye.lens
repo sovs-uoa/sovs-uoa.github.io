@@ -4,6 +4,19 @@
 
 ----------------------------------------------*/
 {
+
+
+	// points 
+
+
+	"points" : [ { 	"id" : 1, 
+					"type" : "object",
+					"z": -15, 
+					"h": 10 } ],
+
+
+	// lens prescription 
+
 	"title": "Gullstrand 1 eye relaxed",
     "prescription": [{
 		"id": "0001",
