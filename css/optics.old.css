@@ -3,14 +3,6 @@ body {
 }
 
 
-path, circle, text {
-
-      vector-effect: non-scaling-stroke;
-      stroke-width: 2px;
-
-}
-
-
 
 #lens-table {
     font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
@@ -64,15 +56,10 @@ path, circle, text {
 .fixed-panel {
   float: right;
   min-height: 100px;
-  max-height: 650px;
-  min-width: 1300px;
-  max-width: 1300px;
+  max-height: 800px;
+  min-width: 900px;
+  max-width: 100%px;
   overflow-y: auto;
-}
-
-.nav-item {
-    background-color: #ffffff;
-
 }
 
 .tab-content {
@@ -80,21 +67,8 @@ path, circle, text {
     border-right: 1px solid #ddd;
     border-bottom: 1px solid #ddd;
     border-radius: 0px 0px 5px 5px;
-    padding: 5px;
-    background-color: #ffffff;
-
+    padding: 10px;
 }
-
-.tab-pane {
-    border-left: 1px solid #ddd;
-    border-right: 1px solid #ddd;
-    border-bottom: 1px solid #ddd;
-    border-radius: 0px 0px 5px 5px;
-    background-color: #ffffff;
-    padding: 0px;
-}
-
-
 
 .panel-heading .accordion-toggle:after {
     /* symbol for "opening" panels */

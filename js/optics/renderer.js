@@ -13,24 +13,45 @@
                       } 
             };
 
-function arc(center, radius, startAngle, endAngle) {
-    angle = startAngle;
-    coords = toCoords(center, radius, angle);
-    path = "M " + coords[0] + " " + coords[1];
-    while(angle<=endAngle) {
-        coords = toCoords(center, radius, angle);
-        path += " L " + coords[0] + " " + coords[1];
-        angle += 1;
-    }
-    return path;
-}
 
-function toCoords(center, radius, angle) {
-    var radians = (angle/180) * Math.PI;
-    var x = center[0] + Math.cos(radians) * radius;
-    var y = center[1] + Math.sin(radians) * radius;
-    return [x, y];
-}
+
+  var paper; // store the paper here 
+  var viewBoxWidth  = 80;
+  var viewBoxHeight = 40;
+  var paperWidth    = 900;
+  var paperHeight   = 600;
+  var oX,oY;
+  var oWidth,oHeight;
+
+
+  var ps, cd_set, axis_set;
+  var cp_set, optics_set;
+
+
+  function startDrawing(canvasID) {
+
+        // create the canvas
+        paper = new Raphael(document.getElementById(canvasID), paperWidth, paperHeight);
+
+        // objects are stored in sets that are cleared  
+        ps          = paper.set();
+        cd_set      = paper.set();
+        axis_set    = paper.set(); 
+        cp_set      = paper.set();
+        optics_set  = paper.set();
+
+        
+        oWidth = viewBoxWidth, oHeight = viewBoxHeight;
+        var oX = -viewBoxWidth/2, oY = -viewBoxHeight/2, oWidth = viewBoxWidth, oHeight = viewBoxHeight;        
+        viewBox   = paper.setViewBox(oX, oY, viewBoxWidth, viewBoxHeight);
+        viewBox.X = oX; viewBox.Y = oY;
+
+        // draw the axis 
+        drawAxis(paper, true,0);
+
+  }
+
+
 
 
 /* draw axis on a raphael canvas
@@ -76,8 +97,6 @@ var drawAxis = function (r, grid, offset) {
   var startY = -divSize * divs;
   var endY   = +divSize * divs;
 
-  console.log('clossest grid div = ' + divSize);
-
 
   var grid_attributes   = { "stroke" : "gray", "stroke-width" : "5", 'stroke-opacity': 0.1 };
   var border_attributes = { "stroke" : "red", "stroke-width" : "5", 'stroke-opacity': 0.1 };
@@ -90,7 +109,10 @@ var drawAxis = function (r, grid, offset) {
 
       axis_set.remove();
       axis_set = paper.set();
-      axis_set.push( r.rect(left, top, width, height).attr(border_attributes) );
+      
+
+      // Draws a border 
+      // axis_set.push( r.rect(left, top, width, height).attr(border_attributes) );
 
       // grid vertical       
       X = 0; 
@@ -192,6 +214,15 @@ var drawAxis = function (r, grid, offset) {
 
   function drawCardinalPoints(x, y, systemPoints, displayOptions) {
 
+    console.log("Updated cardinal points.");
+
+
+    cp_set.remove();
+    cp_set = paper.set();
+
+    var cp;
+
+
     var v1 = x + 0;
     var v2 = x + systemPoints.L;
     var h  = displayOptions.height * 2.0;
@@ -213,11 +244,13 @@ var drawAxis = function (r, grid, offset) {
           var y1 = y - h/2;
           var y2 = y + h/2;
 
-          drawPoint(x1, y, "magenta");
-          drawPoint(x2, y, "magenta");
+          cp1 = drawPoint(x1, y, "magenta");
+          cp2 = drawPoint(x2, y, "magenta");
+          cp_set.push(cp1, cp2);
 
-          paper.path( ["M", x1, y1, "L", x1, y2 ] ).attr({"gray": "#000000", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
-          paper.path( ["M", x2, y1, "L", x2, y2 ] ).attr({"gray": "#000000", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
+          cp1 = paper.path( ["M", x1, y1, "L", x1, y2 ] ).attr({"gray": "#000000", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
+          cp2 = paper.path( ["M", x2, y1, "L", x2, y2 ] ).attr({"gray": "#000000", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
+          cp_set.push(cp1, cp2);
 
         }
 
@@ -227,16 +260,18 @@ var drawAxis = function (r, grid, offset) {
           var vn1 = systemPoints.cardinal.VN1;
           var vn2 = systemPoints.cardinal.VN2;
 
-          drawPoint(v1 + vn1, y, "blue");
-          drawPoint(v2 + vn2, y, "blue");
+          cp1 = drawPoint(v1 + vn1, y, "blue");
+          cp2 = drawPoint(v2 + vn2, y, "blue");
+          cp_set.push(cp1, cp2);
 
           var x1 = v1 + vn1;
           var x2 = v2 + vn2;
           var y1 = y - h/2;
           var y2 = y + h/2;
 
-          paper.path( ["M", x1, y1, "L", x1, y2 ] ).attr({"fill": "gray", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
-          paper.path( ["M", x2, y1, "L", x2, y2 ] ).attr({"fill": "gray", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
+          cp1 = paper.path( ["M", x1, y1, "L", x1, y2 ] ).attr({"fill": "gray", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
+          cp2 = paper.path( ["M", x2, y1, "L", x2, y2 ] ).attr({"fill": "gray", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
+          cp_set.push(cp1, cp2);
 
         }
 
@@ -246,32 +281,34 @@ var drawAxis = function (r, grid, offset) {
           var vp1 = systemPoints.cardinal.VP1;
           var vp2 = systemPoints.cardinal.VP2;
 
-          drawPoint(v1 + vp1, y, "red");
-          drawPoint(v2 + vp2, y, "red");
+          cp1 = drawPoint(v1 + vp1, y, "red");
+          cp2 = drawPoint(v2 + vp2, y, "red");
+          cp_set.push(cp1, cp2);
 
           var x1 = v1 + vp1;
           var x2 = v2 + vp2;
           var y1 = y - h/2;
           var y2 = y + h/2;
 
-          paper.path( ["M", x1, y1, "L", x1, y2 ] ).attr({"fill": "gray", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
-          paper.path( ["M", x2, y1, "L", x2, y2 ] ).attr({"fill": "gray", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
-
+          cp1 = paper.path( ["M", x1, y1, "L", x1, y2 ] ).attr({"fill": "gray", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
+          cp2 = paper.path( ["M", x2, y1, "L", x2, y2 ] ).attr({"fill": "gray", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
+          cp_set.push(cp1, cp2);
 
         }
 
         // vertices
         if (displayOptions.showVertices) {
 
-          drawPoint(v1 + vn1, y, "green");
-          drawPoint(v2 + vn2, y, "green");
-
+          cp1 = drawPoint(v1 + vn1, y, "green");
+          cp2 = drawPoint(v2 + vn2, y, "green");
+          cp_set.push(cp1, cp2);
 
           var y1 = y - h/2;
           var y2 = y + h/2;
 
-          paper.path( ["M", v1, y1, "L", v1, y2 ] ).attr({"fill": "gray", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
-          paper.path( ["M", v2, y1, "L", v2, y2 ] ).attr({"fill": "gray", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
+          cp1 = paper.path( ["M", v1, y1, "L", v1, y2 ] ).attr({"fill": "gray", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
+          cp2 = paper.path( ["M", v2, y1, "L", v2, y2 ] ).attr({"fill": "gray", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
+          cp_set.push(cp1, cp2);
 
         }
 
@@ -283,40 +320,50 @@ var drawAxis = function (r, grid, offset) {
 
   function drawThinLens(x, y, F, displayOptions) {
 
+    var lens = paper.set();
+
     // draw a path 
     var h = displayOptions.height; 
-    paper.path( ["M", x, y-h/2, "L", x, y+h/2  ] );
-    
+    c = paper.path( ["M", x, y-h/2, "L", x, y+h/2  ] );
+    lens.push(c);
 
 
     if (F < 0) {   // negative lens 
 
       y1 = y-h/2; y2 = y+h/2;
 
-      paper.path( ["M", x, y2, "L", x+h/30, y2+h/30  ] );
-      paper.path( ["M", x, y2, "L", x-h/30, y2+h/30  ] );
+      c1 = paper.path( ["M", x, y2, "L", x+h/30, y2+h/30  ] );
+      c2 = paper.path( ["M", x, y2, "L", x-h/30, y2+h/30  ] );
 
-      paper.path( ["M", x, y1, "L", x-h/30, y1-h/30  ] );
-      paper.path( ["M", x, y1, "L", x+h/30, y1-h/30  ] );
+      c3 = paper.path( ["M", x, y1, "L", x-h/30, y1-h/30  ] );
+      c4 = paper.path( ["M", x, y1, "L", x+h/30, y1-h/30  ] );
+
+      lens.push(c1, c2, c3, c4);
 
 
     } else if (F > 0) {   // positive lens
 
       y1 = y+h/2; y2 = y-h/2;
 
-      paper.path( ["M", x, y2, "L", x+h/30, y2+h/30  ] );
-      paper.path( ["M", x, y2, "L", x-h/30, y2+h/30  ] );
+      c1 = paper.path( ["M", x, y2, "L", x+h/30, y2+h/30  ] );
+      c2 = paper.path( ["M", x, y2, "L", x-h/30, y2+h/30  ] );
 
-      paper.path( ["M", x, y1, "L", x-h/30, y1-h/30  ] );
-      paper.path( ["M", x, y1, "L", x+h/30, y1-h/30  ] );
+      c3 = paper.path( ["M", x, y1, "L", x-h/30, y1-h/30  ] );
+      c4 = paper.path( ["M", x, y1, "L", x+h/30, y1-h/30  ] );
+
+      lens.push(c1, c2, c3, c4);
 
 
     } else { // afocal
-      paper.circle(x, y + h/2, 0.1);
-      paper.circle(x, y - h/2, 0.1);      
+      
+      c1 = paper.circle(x, y + h/2, 0.1);
+      c2 = paper.circle(x, y - h/2, 0.1);      
+
+      lens.push(c1, c2);
 
     }
 
+    return lens;
   }
 
 
@@ -396,9 +443,12 @@ var drawAxis = function (r, grid, offset) {
    --------------------------------------------------------------------------------------------------------------- */
 
 
-  function renderCardinalRays(lens, conjObject, displayOptions) {
+  function drawCardinalRays(lens, conjObject, displayOptions) {
 
      // console.log(lens);
+
+     console.log("draw cardinal rays.");
+
 
      cd_set.remove ();
      cd_set = paper.set();
@@ -421,11 +471,11 @@ var drawAxis = function (r, grid, offset) {
 
      // display the nodal rays (Obect => N1 N2 => Image )
 
-     var attributes = { "fill": "gray", "stroke-opacity": 0.5, "stroke": "black", "stroke-width": "1" };
-     var virtual    = { "fill": "gray", "stroke-opacity": 0.5, "stroke": "black", "stroke-width": "1", "stroke-dasharray":"--" };
-     var real       = { "fill": "gray", "stroke-opacity": 0.5, "stroke": "black", "stroke-width": "1" };
-     var extend     = { "fill": "red", "stroke-opacity": 0.5, "stroke": "red", "stroke-width": "1" };
-
+     var attributes     = { "fill": "gray", "stroke-opacity": 0.5, "stroke": "black", "stroke-width": "1" };
+     var virtual        = { "fill": "gray", "stroke-opacity": 0.5, "stroke": "black", "stroke-width": "1", "stroke-dasharray":"--" };
+     var real           = { "fill": "gray", "stroke-opacity": 0.5, "stroke": "black", "stroke-width": "1" };
+     var extend         = { "fill": "red", "stroke-opacity": 0.5, "stroke": "red", "stroke-width": "1" };
+     var extend_object  = { "fill": "green", "stroke-opacity": 0.5, "stroke": "green", "stroke-width": "1" };
 
 
      // FINITE INFORMATION 
@@ -452,16 +502,15 @@ var drawAxis = function (r, grid, offset) {
      cd_set.push(p3, p4);
 
 
-     if (F2 <= X2) { 
-        // real image  
-        p = paper.path( ["M", F2, 0, "L", X2, Y2 ] ).attr(X2_attributes); // should apss through F2
+     if (F2 <= X2) {  // real image  
+        
+        p = paper.path( ["M", F2, 0, "L", X2, Y2 ] ).attr(X2_attributes); // should pass through F2
         cd_set.push (p);
-     } else {
 
-        // virtual image 
+     } else { // virtual image 
+        
         p = paper.path( ["M", P2, Y1, "L", X2, Y2 ] ).attr(X2_attributes); // should apss through F2
         cd_set.push (p);
-
      }
 
      // first principal ray (goes thorugh F1)
@@ -471,13 +520,16 @@ var drawAxis = function (r, grid, offset) {
      X2_attributes = (P1 <= X2) ? real : virtual;
 
      p1 = paper.path( ["M", X1, Y1, "L", F1, 0 ] ).attr(F1_attributes);
+
+
+
      p2 = paper.path( ["M", X1, Y1,  "L", P1, Y2 ] ).attr(P1_attributes); // this one needs to be modified 
      p3 = paper.path( ["M", P1, Y2, "L", X2, Y2 ] ).attr(X2_attributes);
      cd_set.push(p1, p2, p3);
 
 
-     // add extension rays for virtual images  
-     if (X2 < P1) { // virtual 
+     // Virtual Image : extension rays for virtual images  
+     if (X2 < P2) { // virtual 
 
         // virtual image - add extension ray 
 
@@ -497,6 +549,32 @@ var drawAxis = function (r, grid, offset) {
         cd_set.push(p);
 
      }
+
+
+
+     // Virtual Object : extension rays for virtual objects   
+     if (X1 > P1) { // virtual 
+
+        // virtual image - add extension ray 
+
+        // F1 ray         
+        var m = (Y1-0)/(X1-F1);
+        p = paper.path( ["M", F1, 0, "L",  F1 - 20, 0 - m*20 ] ).attr(extend_object); // should pass through F1
+        cd_set.push(p);
+
+        // F2 ray 
+        p = paper.path( ["M", P2, Y1, "L",  P2 - 20, Y1 ] ).attr(extend_object);      // should apss through F2
+        cd_set.push(p);
+        
+        // N1 ray 
+        var m = (Y1-0)/(X1-N1);
+        console.log("m = " + m);
+        p = paper.path( ["M", N1, 0, "L",  N1 - 20, 0 - m*20 ] ).attr(extend_object); // (X1, Y1) => (N1,0)
+        cd_set.push(p);
+
+     }
+
+
 
 
 
@@ -525,7 +603,7 @@ var drawAxis = function (r, grid, offset) {
    --------------------------------------------------------------------------------------------------------------- */
 
 
-  function renderPointToPoint(data, dataOptions) {
+  function drawPointToPoint(data, dataOptions) {
 
     ps.remove ();
     ps = paper.set();
@@ -567,8 +645,10 @@ var drawAxis = function (r, grid, offset) {
    --------------------------------------------------------------------------------------------------------------- */
 
 
-  function renderOptics(data) {
+  function drawOptics(data) {
 
+    optics_set.remove();
+    optics_set = paper.set();
 
     displayOptions = { height               : 15, 
                        showCardinalPoints   : true,
@@ -589,14 +669,17 @@ var drawAxis = function (r, grid, offset) {
       cardinalPoints  = data.elem[i].cardinal; 
       equivalentPower = data.elem[i].F;
 
+
       // only thin lenses as of today 
-      drawThinLens(axialPosition, 0, equivalentPower, displayOptions);
+      l = drawThinLens(axialPosition, 0, equivalentPower, displayOptions);
+      optics_set.push(l);
 
     }
 
     // show the overall cardinal points not the individual ones 
-    systemPoints = data.total;
-    drawCardinalPoints (0, 0, systemPoints, displayOptions);
+    //systemPoints = data.total;
+    //c = drawCardinalPoints (0, 0, systemPoints, displayOptions);
+    //optics_set.push(c);
 
   }
 
@@ -734,4 +817,32 @@ var drawAxis = function (r, grid, offset) {
 
 
     };  
+
+
+/* --------------------------------------------------------------
+
+OLDER STUFF 
+
+------------------------------------------------------------------ */
+
+
+function arc(center, radius, startAngle, endAngle) {
+    angle = startAngle;
+    coords = toCoords(center, radius, angle);
+    path = "M " + coords[0] + " " + coords[1];
+    while(angle<=endAngle) {
+        coords = toCoords(center, radius, angle);
+        path += " L " + coords[0] + " " + coords[1];
+        angle += 1;
+    }
+    return path;
+}
+
+function toCoords(center, radius, angle) {
+    var radians = (angle/180) * Math.PI;
+    var x = center[0] + Math.cos(radians) * radius;
+    var y = center[1] + Math.sin(radians) * radius;
+    return [x, y];
+}
+
 

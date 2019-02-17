@@ -12,7 +12,7 @@ function loadJSON5(filename, callback) {
           callback(JSON5.parse(xobj.responseText));
         }
   };
-  xobj.send(null);  
+  xobj.send();  
 }
 
 

@@ -15,7 +15,7 @@
 %
 -------------------------------------------------------------------------------- */
 
-console.log("OPTICS");
+console.log("loaded ... optics.js");
 
 var Optics = {};
 
@@ -29,10 +29,6 @@ Optics.calculatePointToPoint = function (lensSystem, pointList) {
   return calculatePointToPoint (lensSystem, pointList)
 }
 
-
-Optics.parse = function (object) {
-  return convertToTable(object);
-}
 
 Optics.extractGroup = function (lens, group_name) {
 
@@ -87,8 +83,10 @@ function filterByGroup (lens, group_name) {
   return ret;
 }
 
+
+
 // Fill in a complete! [TEMPORARY]
-function convertToTable (response) {
+function convertToLensTable (response) {
 
     var lens_table = [];
     for (var i = 0; i < response.length; i++ ) {

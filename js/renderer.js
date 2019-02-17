@@ -1,4 +1,17 @@
-  var lens = { prescription: null, 
+var paper;
+  
+var viewBoxWidth;
+var viewBoxHeight;
+
+var canvasID = "#canvas_container";
+var viewBox;
+var startX, startY;
+var mousedown = false;
+var dX, dY;
+var gridLayer;
+
+
+var lens = { prescription: null, 
                tabledata : null,
                table : null,
                modal: { group:       "",
@@ -13,31 +26,37 @@
                       } 
             };
 
-function arc(center, radius, startAngle, endAngle) {
-    angle = startAngle;
-    coords = toCoords(center, radius, angle);
-    path = "M " + coords[0] + " " + coords[1];
-    while(angle<=endAngle) {
-        coords = toCoords(center, radius, angle);
-        path += " L " + coords[0] + " " + coords[1];
-        angle += 1;
-    }
-    return path;
-}
+var paperWidth  = 1200;
+var paperHeight = 600;
 
-function toCoords(center, radius, angle) {
-    var radians = (angle/180) * Math.PI;
-    var x = center[0] + Math.cos(radians) * radius;
-    var y = center[1] + Math.sin(radians) * radius;
-    return [x, y];
-}
 
+function startDrawing (canvasID) {
+
+        paper = new Raphael(document.getElementById(canvasID), paperWidth, paperHeight);
+
+        ps = paper.set();
+        cd_set = paper.set();
+
+        axis_set = paper.set(); 
+
+        
+        viewBoxWidth  = 80; viewBoxHeight = 40;
+        oWidth = viewBoxWidth, oHeight = viewBoxHeight;
+        var oX = -viewBoxWidth/2, oY = -viewBoxHeight/2, oWidth = viewBoxWidth, oHeight = viewBoxHeight;        
+        viewBox   = paper.setViewBox(oX, oY, viewBoxWidth, viewBoxHeight);
+        viewBox.X = oX; viewBox.Y = oY;
+
+};
+
+
+// draw the axis 
 
 /* draw axis on a raphael canvas
   r - the Raphael canvas to draw on
   grid - true/false draws a grid or not
   offset - how far from 0,0 to draw the axis - they show better at 2
 */
+
 
 var axis_set; 
 
@@ -539,15 +558,6 @@ var drawAxis = function (r, grid, offset) {
    --------------------------------------------------------------------------------------------------------------- */
 
 
-  var paper;
-  var viewBoxWidth;
-  var viewBoxHeight;
-  var canvasID = "#canvas_container";
-  var viewBox;
-  var startX, startY;
-  var mousedown = false;
-  var dX, dY;
-  var gridLayer;
 
 
     //Pane
@@ -660,5 +670,33 @@ var drawAxis = function (r, grid, offset) {
 
 
     };
+
+
+
+/* OLD DATA */
+
+
+
+function arc(center, radius, startAngle, endAngle) {
+    angle = startAngle;
+    coords = toCoords(center, radius, angle);
+    path = "M " + coords[0] + " " + coords[1];
+    while(angle<=endAngle) {
+        coords = toCoords(center, radius, angle);
+        path += " L " + coords[0] + " " + coords[1];
+        angle += 1;
+    }
+    return path;
+}
+
+function toCoords(center, radius, angle) {
+    var radians = (angle/180) * Math.PI;
+    var x = center[0] + Math.cos(radians) * radius;
+    var y = center[1] + Math.sin(radians) * radius;
+    return [x, y];
+}
+
+
+var 
     
 
