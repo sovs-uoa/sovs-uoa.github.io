@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>SOVS ray-tracer</title>
+  <title>Information Panel</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -27,11 +27,6 @@
   <script type="text/javascript" src="https://unpkg.com/tabulator-tables@4.1.4/dist/js/tabulator.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabulator/4.1.5/css/bootstrap/tabulator_bootstrap4.css" integrity="sha256-N36ogArERHqDaggYouT90GwTJ75LsbMbwBUAWuf66s4=" crossorigin="anonymous" />
 
-  <!-- Mustache -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/3.0.1/mustache.min.js"></script>
-
-  <!-- Mustache Extension -->
-  <script src="js/mustache-wax.js"></script>
 
 
   <!-- Other -->
@@ -56,15 +51,6 @@
   var lensTable;
   var ps, cd_set;
   const gridSnapSize = 0.01;
-  var summaryTemplate;
-
-
-  Mustache.Formatters = {
-      "decimal": function (value, decimals) {
-        return Number(Math.round(value+'e'+decimals)+'e-'+decimals);
-      }
-    }
-
 
 
   function move (dx, dy) {
@@ -128,7 +114,7 @@
     // read the lens table 
     console.log("updating prescription table");
     lensTable = lens.table.getData();    
-    renderableLens = Optics.analyze(lensTable); // create matrices / we should have group caridnals in here as well
+    renderableLens = Optics.analyze(lensTable); // create matrices 
 
     displayOptions = { height               : 15, 
                      showCardinalPoints   : true,
@@ -143,7 +129,6 @@
 
     // now update the points 
     // updatePointsView();
-    //updateSummary (); 
 
   }
 
@@ -155,33 +140,6 @@
     pointsList  = Optics.calculatePointToPoint(renderableLens.total, pointsTable);
     drawCardinalRays(renderableLens.total, pointsList[0], displayOptions);
     drawPointToPoint(pointsList);
-
-
-  }
-
-
-
-  function updateSummary () {
-
-    console.log ("now update the prescription summary");
-
-    var summary = document.getElementById("summary-tab");
-    
-    console.log(renderableLens.total);
-
-
-    summary.innerHTML = Mustache.render(summaryTemplate, renderableLens.total);
-    
-
-   // $('#summary-tab').append(Mustache.render(summaryTemplate, renderableLens.total));   
-
-    // renderableLens 
-
-
-    // Total Summary 
-
-
-    // Groups Summary 
 
 
   }
@@ -222,32 +180,14 @@
                   // initialize the prescription that will execite on change to table 
                   initializePrescriptionTable (response.prescription, 
 
-                        updatePrescriptionView,   // changes in lenses => full update 
+                        updatePrescriptionView,   // changes in lenses full update 
                         function () { 
 
                                 console.log("lens loading succeeded.");                       
                           
-
-                                // we can now load the prescription 
-                                $.get('mustache/summary-bootstrap-4-table.mustache', function(template) {
-                                    
-                                    summaryTemplate = template; 
-                                    updateSummary (); // this will summarize based on renderableLens
-
-                                });
-
-
                                 // initialized the points
                                 initializePointsTable (points, updatePointsView, function () {
                                       console.log("points loading succeeded.");
-
-
-
-
-
-
-
-
                                   });
                     });
 
@@ -295,180 +235,179 @@
 
 </script>
 
+<body bgcolor="#FFFFFF">
 
-<!-- Control the column width, and how they should appear on different devices -->
 
-<div class="container" >
 
-<!-- VIEW -->
-<div class="row">
-  <div class="col">
 
-<!--
-        <div class="tab-pane fade show active"  id="lens-tab" role="tabpanel" aria-labelledby = "lens-nav">
--->
+  <!---- 
 
-        <div id="lens-container" class="border border-dark"></div>
+    NAV TABS 
 
-  </div>
+  --->
+
+
+<ul class="nav nav-tabs" id="myTab" role="tablist">
+  <!-- lens tab -->
+  <li class="nav-item">
+    <a class="nav-link active" id="lens-nav" data-toggle="tab" href="#lens-tab" role="tab" aria-controls="home" aria-selected="true">View</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" id="prescription-nav" data-toggle="tab" href="#prescription-tab" role="tab" aria-controls="home" aria-selected="true">Lens Prescription</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" id="objects-images-nav" data-toggle="tab" href="#objects-images-tab" role="tab" aria-controls="profile" aria-selected="false">Objects and Images</a>
+  </li>
+  
+  <li class="nav-item">
+    <a class="nav-link" id="summary-nav" data-toggle="tab" href="#summary-tab" role="tab" aria-controls="contact" aria-selected="false">Summary</a>
+  </li>
+</ul>
+
+
+  <!---- 
+
+    STYLING OF EACH TAB 
+
+  --->
+
+
+
+<div class="tab-content" id="myTabContent" style="width:1500">
+
+  <!-- Lens addition tab -->
+  <div class="tab-pane fade show active"  id="lens-tab"           role="tabpanel" aria-labelledby = "lens-nav">
+
+  <!-- Prescription addition tab -->    
+  <div class="container">
+
+     <!-- viewer for the container -->
+     <div class="container">
+        <div id="lens-container"></div>
+     </div>
+
+     <!--
+
+     <div class="container">
+        <div class="btn-group" role="group" aria-label="Basic example">       
+           <div class="dropdown">
+              
+              <button class="btn btn-secondary dropdown-toggle" type="button" id="lens-table-add-row" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Add Element
+              </button>
+
+              <div class="dropdown-menu">
+                <a class="dropdown-item" href="#" onclick="lensTypeSelector(this.innerText); return false;">Index</a>
+                <a class="dropdown-item" href="#" onclick="lensTypeSelector(this.innerText); return false;">Sphere</a>
+                <a class="dropdown-item" href="#" onclick="lensTypeSelector(this.innerText); return false;">Thick</a>
+                <a class="dropdown-item" href="#" onclick="lensTypeSelector(this.innerText); return false;">Thin</a>
+              </div>            
+
+            </div>
+
+            <button id="lens-table-del-row" class="btn btn-secondary" >Delete Selected</button>
+            <button id="lens-table-clear" class="btn btn-secondary">Clear</button>
+            <button id="lens-table-reset" class="btn btn-secondary" >Reset</button>
+        </div>
+     </div>
+  -->
+
+    </div>
+  
 </div>
 
-<!-- CONTROLS -->
-<div class="row">
-  <div class="col" style="" >
 
-        <!--------------------------------------------------------------------------------------------------------------------------------------------- 
+  <!---- 
 
-          NAVIGATION TABS  
+    ACTUAL INFORMATION FOR EACH TAB!
 
-        ----------------------------------------------------------------------------------------------------------------------------------------------->
+  --->
 
-      <ul class="nav nav-pills" id="myTab" role="tablist">
+  <!-- Prescription addition tab -->
+  <div class="tab-pane fade" id="prescription-tab"   role="tabpanel" aria-labelledby = "prescription-nav">    
 
-<!--
-        <li class="nav-item">
-          <a class="nav-link active" id="lens-nav" data-toggle="tab" href="#lens-tab" role="tab" aria-controls="home" aria-selected="true">View</a>
-        </li>
--->        
-        <li class="nav-item">
-          <a class="nav-link active" id="prescription-nav" data-toggle="tab" href="#prescription-tab" role="tab" aria-controls="home" aria-selected="true">Lens Prescription</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" id="objects-images-nav" data-toggle="tab" href="#objects-images-tab" role="tab" aria-controls="profile" aria-selected="false">Objects and Images</a>
-        </li>
-        
-        <li class="nav-item">
-          <a class="nav-link" id="summary-nav" data-toggle="tab" href="#summary-tab" role="tab" aria-controls="contact" aria-selected="false">Summary</a>
-        </li>
-      </ul>
+      <!-- Prescription addition tab -->    
+      <div class="container">
+          <div id="lens-table" class="table-striped" ></div>        
+      </div>
 
 
-      <div class="tab-content" id="myTabContent" >
+      <!-- Buttons -->
+      <div class="container">
+        <div class="btn-group" role="group" aria-label="Basic example">
 
 
-        <!--------------------------------------------------------------------------------------------------------------------------------------------- 
+              <!--
 
-          VIEW TAB   
+              <button id="lens-table-add-row" class="btn btn-secondary" data-toggle="modal" data-target="#modalLoginForm">
+                Add Element
+              </button>
 
-        ----------------------------------------------------------------------------------------------------------------------------------------------->
+              -->
 
-<!--
+                <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="lens-table-add-row" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  Add Element
+                </button>
 
-        <div class="tab-pane fade show active"  id="lens-tab" role="tabpanel" aria-labelledby = "lens-nav">
-             <div class="container">
-                <div id="lens-container"></div>
-             </div>
-        </div>
--->
+                <div class="dropdown-menu">
+                  <a class="dropdown-item" href="#" onclick="lensTypeSelector(this.innerText); return false;">Index</a>
+                  <a class="dropdown-item" href="#" onclick="lensTypeSelector(this.innerText); return false;">Sphere</a>
+                  <a class="dropdown-item" href="#" onclick="lensTypeSelector(this.innerText); return false;">Thick</a>
+                  <a class="dropdown-item" href="#" onclick="lensTypeSelector(this.innerText); return false;">Thin</a>
+                </div>            
 
-        <!--------------------------------------------------------------------------------------------------------------------------------------------- 
-
-          PRESCRIPTION TAB   
-
-        ----------------------------------------------------------------------------------------------------------------------------------------------->
-
-        <!-- Prescription addition tab -->
-        <div class="tab-pane active" id="prescription-tab" role="tabpanel" aria-labelledby = "prescription-nav">    
-
-            <!-- Prescription addition tab -->    
-            <div class="container">
-                <div id="lens-table" class="table-striped" ></div>                        
-            </div>
-
-
-            <!-- Buttons -->
-            <div class="container">
-              <div class="btn-group" role="group" aria-label="Basic example">
-
-
-                    <!--
-
-                    <button id="lens-table-add-row" class="btn btn-secondary" data-toggle="modal" data-target="#modalLoginForm">
-                      Add Element
-                    </button>
-
-                    -->
-
-                      <div class="dropdown">
-                      <button class="btn btn-secondary dropdown-toggle" type="button" id="lens-table-add-row" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Add Element
-                      </button>
-
-                      <div class="dropdown-menu">
-                        <a class="dropdown-item" href="#" onclick="lensTypeSelector(this.innerText); return false;">Index</a>
-                        <a class="dropdown-item" href="#" onclick="lensTypeSelector(this.innerText); return false;">Sphere</a>
-                        <a class="dropdown-item" href="#" onclick="lensTypeSelector(this.innerText); return false;">Thick</a>
-                        <a class="dropdown-item" href="#" onclick="lensTypeSelector(this.innerText); return false;">Thin</a>
-                      </div>            
-
-                    </div>
-
-                    <button id="lens-table-del-row" class="btn btn-secondary" >Delete Selected</button>
-                    <button id="lens-table-clear" class="btn btn-secondary">Clear</button>
-                    <button id="lens-table-reset" class="btn btn-secondary" >Reset</button>
               </div>
-            </div>
+
+              <button id="lens-table-del-row" class="btn btn-secondary" >Delete Selected</button>
+              <button id="lens-table-clear" class="btn btn-secondary">Clear</button>
+              <button id="lens-table-reset" class="btn btn-secondary" >Reset</button>
         </div>
+      </div>
+  </div>
 
-        <!--------------------------------------------------------------------------------------------------------------------------------------------- 
-
-          OBJECTS AND IMAGES TAB   
-
-        ----------------------------------------------------------------------------------------------------------------------------------------------->
-
-        <div class="tab-pane fade" id="objects-images-tab" role="tabpanel" aria-labelledby = "objects-images-nav">
-          
-            <div class="container">
-                <div id="lens-points" class="table-striped" ></div>        
+  <!-- Objects and images tab -->
+  <div class="tab-pane fade"              id="objects-images-tab" role="tabpanel" aria-labelledby = "objects-images-nav">
+    
+      <div class="container">
+          <div id="lens-points" class="table-striped" ></div>        
 
 
 
-                <div class="btn-group" role="group" aria-label="Basic example">       
-                     <div class="dropdown">
-                        <button class="btn btn-secondary dropdown-toggle" type="button" id="lens-table-add-row" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                          Add Light
-                        </button>
+          <div class="btn-group" role="group" aria-label="Basic example">       
+               <div class="dropdown">
+                  <button class="btn btn-secondary dropdown-toggle" type="button" id="lens-table-add-row" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Add Light
+                  </button>
 
-                        <div class="dropdown-menu">
-                          <a class="dropdown-item" href="#" onclick="lensTypeSelector(this.innerText); return false;">Object/a>
-                          <a class="dropdown-item" href="#" onclick="lensTypeSelector(this.innerText); return false;">Image</a>
-                        </div>            
-                      </div>
+                  <div class="dropdown-menu">
+                    <a class="dropdown-item" href="#" onclick="lensTypeSelector(this.innerText); return false;">Object/a>
+                    <a class="dropdown-item" href="#" onclick="lensTypeSelector(this.innerText); return false;">Image</a>
+                  </div>            
+                </div>
 
-                      <button id="lens-table-del-row" class="btn btn-secondary" >Delete Selected</button>
-                      <button id="lens-table-clear" class="btn btn-secondary">Clear</button>
-                      <button id="lens-table-reset" class="btn btn-secondary" >Reset</button>
-               </div>
-
-            </div>
-        </div>
-
-        <!--------------------------------------------------------------------------------------------------------------------------------------------- 
-
-          SUMMARY TAB   
-
-        ----------------------------------------------------------------------------------------------------------------------------------------------->
-
-        <div class="tab-pane fade"  id="summary-tab"  role="tabpanel" aria-labelledby = "summary-tab">
-          Summary Information goes here!
-        </div>
-
+                <button id="lens-table-del-row" class="btn btn-secondary" >Delete Selected</button>
+                <button id="lens-table-clear" class="btn btn-secondary">Clear</button>
+                <button id="lens-table-reset" class="btn btn-secondary" >Reset</button>
+         </div>
 
       </div>
 
 
-    </div>
-   </div>
+  </div>
+
+  <!-- Summary tab -->
+  <div class="tab-pane fade"              id="summary-tab"        role="tabpanel" aria-labelledby = "summary-tab">Summary Tab</div>
 </div>
 
 
 
-<!--------------------------------------------------------------------------------------------------------------------------------------------- 
 
-  SUMMARY TAB   
+<!-- 
 
------------------------------------------------------------------------------------------------------------------------------------------------>
+      LENS DATA ENTRY 
 
+-->
 
 <div class="modal fade" id="modalLoginForm" tabindex="-1" role="dialog">
   <div class="modal-dialog" role="document">

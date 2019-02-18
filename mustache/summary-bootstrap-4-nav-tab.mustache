@@ -1,0 +1,143 @@
+<div>
+
+
+      <!-- TABS -->
+
+      <ul class="nav nav-tabs">
+        <li class="nav-item">
+          <a class="nav-link active" href="#powers">Powers</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#cardinal">Cardinal Points</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#pupils">Pupils</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#system">System</a>
+        </li>
+      </ul>
+
+
+      <div class="tab-content">
+
+
+        <!-- Powers -->
+        <div class="tab-pane active" id="powers" role="tabpanel" aria-labelledby="home-tab">          
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>name</th>
+              <th>value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Object space ref. index</td><td>{{n1 | decimal : 5 }}</td>
+            </tr>
+            <tr>
+              <td>Image space ref. index</td><td>{{n2 | decimal : 5 }}</td>
+            </tr>
+            <tr>
+              <td>Equivalent power</td><td>{{F | decimal : 5 }}</td>
+            </tr>
+            <tr>
+              <td>Front vertex power</td><td>{{cardinal.VF1 | decimal : 5 }}</td>
+            </tr>
+            <tr>
+              <td>Back vertex power</td><td>{{cardinal.VF2 | decimal : 5 }}</td>
+            </tr>
+            <tr>
+              <td>System length (L)</td><td>{{L | decimal : 5 }}</td>
+            </tr>      
+          </tbody>
+        </table>
+        </div>
+
+        <!-- Cardinal Points -->
+        <div class="tab-pane" id="cardinal" role="tabpanel" aria-labelledby="profile-tab">
+         <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Front</th>
+                <th>Back</th>        
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Focal Point</td>
+                <td>{{cardinal.PF1 | decimal : 3 }} (PF1)</td>
+                <td>{{cardinal.PF2 | decimal : 3 }} (PF2)</td>
+              </tr>
+              <tr>  
+                <td>Principal Point</td>
+                <td>{{cardinal.VP1 | decimal : 3 }} (VP1)</td>
+                <td>{{cardinal.VP2 | decimal : 3 }} (VP2)</td>
+              </tr>
+              <tr>  
+                <td>Nodal Point</td>
+                <td>{{cardinal.VN1 | decimal : 3 }} (VN1)</td>
+                <td>{{cardinal.VN2 | decimal : 3 }} (VN2)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        
+        <!-- Pupils -->        
+        <div class="tab-pane" id="pupils" role="tabpanel" aria-labelledby="contact-tab">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Position</th>
+                <th>Pupil Mag.</th>        
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Entrance</td><td>{{pupil.VE1 | decimal : 3 }} (VE1)</td><td>{{pupil.ME1 | decimal : 3 }}</td>
+              </tr>
+              <tr>
+                <td>Exit</td><td>{{pupil.VE2 | decimal : 3 }} (VE2)</td><td>{{pupil.ME2 | decimal : 3 }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <div class="tab-pane" id="system" role="tabpanel" aria-labelledby="contact-tab">
+  
+        <!-- System -->
+        <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>name</th>
+                <th>value</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>A</td><td>{{S.A | decimal : 3 }}</td>
+              </tr>
+              <tr>
+                <td>B</td><td>{{S.B | decimal : 3 }}</td>
+              </tr>
+              <tr>
+                <td>C</td><td>{{S.C | decimal : 3 }}</td>
+              </tr>
+              <tr>
+                <td>D</td><td>{{S.D | decimal : 3 }}</td>             
+              </tr>
+            </tbody>
+          </table>
+
+
+        </div>
+      </div>
+     </div>
+
+
+
+
+</div>          

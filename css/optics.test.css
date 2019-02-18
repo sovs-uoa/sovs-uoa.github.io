@@ -1,0 +1,133 @@
+
+
+
+#lens-table {
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+    height:300px;
+    overflow:auto;  
+}
+
+#lens-table td, #lens-table th {
+    border: 0px solid #ddd;
+    padding: 2px;
+}
+
+#lens-table tr:nth-child(even){background-color: #f2f2f2;}
+
+#lens-table tr:nth-child(odd){background-color: #e4e4e4;}
+
+#lens-table tr:hover {background-color: #ddd;}
+
+#lens-table th {
+    padding-top: 5px;
+    padding-bottom: 5px;
+    text-align: left;
+    background-color: #f2f2f2;
+    color: black;
+}
+
+.lens_table tr:hover {
+  padding: 0px;
+  background:#eeee; }
+
+.input_field {
+      padding: 0px;
+      border-style: solid;      
+      width: 70px;
+ }
+
+ .cinput {
+      padding: 0px;
+      border-style: none;      
+      width: 70px;
+ }
+
+.center-panel {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.fixed-panel {
+  float: right;
+  min-height: 100px;
+  max-height: 650px;
+  min-width: 1300px;
+  max-width: 1300px;
+  overflow-y: auto;
+}
+
+/* Start important CSS stuff */
+
+body {
+    background-color: lightgray;
+}
+
+
+path, circle, text {
+
+      vector-effect: non-scaling-stroke;
+      stroke-width: 2px;
+
+}
+
+
+.nav-item {
+    background-color: #ffffff;
+
+}
+
+.tab-content {
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    border-radius: 0px 0px 5px 5px;
+    padding: 5px;
+    background-color: #ffffff;
+
+}
+
+.tab-pane {
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+    border-radius: 0px 0px 5px 5px;
+    background-color: #ffffff;
+    padding: 0px;
+}
+
+
+.container {
+    background-color: #ff0000;
+    padding: 20px;
+}
+
+
+.row {
+    background-color: #00ffff;
+    padding: 0px;
+}
+
+
+.nav {
+    background-color: #0000ff;
+    padding: 10px;
+}
+
+
+/* End important CSS stuff */
+
+
+.panel-heading .accordion-toggle:after {
+    /* symbol for "opening" panels */
+    font-family: 'Glyphicons Halflings';  /* essential for enabling glyphicon */
+    content: "\e114";    /* adjust as needed, taken from bootstrap.css */
+    float: right;        /* adjust as needed */
+    color: grey;         /* adjust as needed */
+}
+.panel-heading .accordion-toggle.collapsed:after {
+    /* symbol for "collapsed" panels */
+    content: "\e080";    /* adjust as needed, taken from bootstrap.css */
+}

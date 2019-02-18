@@ -138,7 +138,7 @@ function initializePrescriptionTable(data, updatePrescriptionCallback, success) 
         updatePrescriptionCallback();
       },
       data:lensTable,
-      height:"600px",
+      height:"500px",
       addRowPos:"bottom",
       selectable:true, 
       movableRows:true,
@@ -243,7 +243,7 @@ function initializePointsTable(data, updatePointsCallback, success) {
         updatePointsCallback();
       },
       data:data,
-      height:"400px",
+      height:"200px",
       addRowPos:"bottom",
       selectable:false, 
       movableRows:false,
@@ -285,7 +285,6 @@ function initializePointsTable(data, updatePointsCallback, success) {
 
 
  }
-
 
 
 

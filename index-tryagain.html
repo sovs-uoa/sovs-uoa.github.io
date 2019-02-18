@@ -27,11 +27,6 @@
   <script type="text/javascript" src="https://unpkg.com/tabulator-tables@4.1.4/dist/js/tabulator.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabulator/4.1.5/css/bootstrap/tabulator_bootstrap4.css" integrity="sha256-N36ogArERHqDaggYouT90GwTJ75LsbMbwBUAWuf66s4=" crossorigin="anonymous" />
 
-  <!-- Mustache -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/3.0.1/mustache.min.js"></script>
-
-  <!-- Mustache Extension -->
-  <script src="js/mustache-wax.js"></script>
 
 
   <!-- Other -->
@@ -56,15 +51,6 @@
   var lensTable;
   var ps, cd_set;
   const gridSnapSize = 0.01;
-  var summaryTemplate;
-
-
-  Mustache.Formatters = {
-      "decimal": function (value, decimals) {
-        return Number(Math.round(value+'e'+decimals)+'e-'+decimals);
-      }
-    }
-
 
 
   function move (dx, dy) {
@@ -128,7 +114,7 @@
     // read the lens table 
     console.log("updating prescription table");
     lensTable = lens.table.getData();    
-    renderableLens = Optics.analyze(lensTable); // create matrices / we should have group caridnals in here as well
+    renderableLens = Optics.analyze(lensTable); // create matrices 
 
     displayOptions = { height               : 15, 
                      showCardinalPoints   : true,
@@ -143,7 +129,6 @@
 
     // now update the points 
     // updatePointsView();
-    //updateSummary (); 
 
   }
 
@@ -155,33 +140,6 @@
     pointsList  = Optics.calculatePointToPoint(renderableLens.total, pointsTable);
     drawCardinalRays(renderableLens.total, pointsList[0], displayOptions);
     drawPointToPoint(pointsList);
-
-
-  }
-
-
-
-  function updateSummary () {
-
-    console.log ("now update the prescription summary");
-
-    var summary = document.getElementById("summary-tab");
-    
-    console.log(renderableLens.total);
-
-
-    summary.innerHTML = Mustache.render(summaryTemplate, renderableLens.total);
-    
-
-   // $('#summary-tab').append(Mustache.render(summaryTemplate, renderableLens.total));   
-
-    // renderableLens 
-
-
-    // Total Summary 
-
-
-    // Groups Summary 
 
 
   }
@@ -222,32 +180,14 @@
                   // initialize the prescription that will execite on change to table 
                   initializePrescriptionTable (response.prescription, 
 
-                        updatePrescriptionView,   // changes in lenses => full update 
+                        updatePrescriptionView,   // changes in lenses full update 
                         function () { 
 
                                 console.log("lens loading succeeded.");                       
                           
-
-                                // we can now load the prescription 
-                                $.get('mustache/summary-bootstrap-4-table.mustache', function(template) {
-                                    
-                                    summaryTemplate = template; 
-                                    updateSummary (); // this will summarize based on renderableLens
-
-                                });
-
-
                                 // initialized the points
                                 initializePointsTable (points, updatePointsView, function () {
                                       console.log("points loading succeeded.");
-
-
-
-
-
-
-
-
                                   });
                     });
 
@@ -343,7 +283,7 @@
       </ul>
 
 
-      <div class="tab-content" id="myTabContent" >
+      <div class="tab-content" id="myTabContent" style="width:1200">
 
 
         <!--------------------------------------------------------------------------------------------------------------------------------------------- 
