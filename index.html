@@ -198,9 +198,9 @@
 
      // add points 
      var points = [ { "id"   : 1, 
-                  "type" : "object",
-                  "z"    : -10, 
-                  "h"    : 10 } ];  
+                      "type" : "object",
+                      "z"    : -10, 
+                      "h"    : 10 } ];  
 
 
       $.ajax({
@@ -242,6 +242,21 @@
                                       console.log("points loading succeeded.");
 
 
+                                      /* INITIALIZE THE VIEW */
+                                      //drawOptics(renderableLens);  
+
+                                      // add an object point that is draggable   
+                                      
+                                      // add a draggable point  
+                                      var dot = paper.circle(points[0].z, points[0].h, 1).attr({
+                                                  fill: "#FFFF00",
+                                                  stroke: "#000099",
+                                                  "stroke-width": 3
+                                              });
+
+                                      dot.id = points[0].id;
+                                      dot.drag(move, start, up);
+
 
 
 
@@ -251,23 +266,6 @@
                                   });
                     });
 
-
-                  /* INITIALIZE THE VIEW */
-                  //drawOptics(renderableLens);  
-
-                  // add an object point that is draggable   
-                  objectPoint = [ { id: 1, z: -25, h: 10 } ];
-                  
-
-                  // add a draggable point  
-                  var dot = paper.circle(objectPoint.z, objectPoint.h, 1).attr({
-                              fill: "#FFFF00",
-                              stroke: "#000099",
-                              "stroke-width": 3
-                          });
-
-                  dot.id = objectPoint[0].id;
-                  dot.drag(move, start, up);
 
 
             }
