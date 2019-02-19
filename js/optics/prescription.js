@@ -157,7 +157,7 @@ function initializePrescriptionTable(data, updatePrescriptionCallback, success) 
 
 
     // show it! 
-    updatePrescriptionCallback ();
+    // updatePrescriptionCallback ();
 
 
     /* JQuery */

@@ -143,7 +143,7 @@
 
     // now update the points 
     // updatePointsView();
-    //updateSummary (); 
+    updateSummary (); 
 
   }
 
@@ -165,11 +165,10 @@
 
     console.log ("now update the prescription summary");
 
+
+    console.log(summaryTemplate);
     var summary = document.getElementById("summary-tab");
-    
     console.log(renderableLens.total);
-
-
     summary.innerHTML = Mustache.render(summaryTemplate, renderableLens.total);
     
 
@@ -222,48 +221,52 @@
                   // initialize the prescription that will execite on change to table 
                   initializePrescriptionTable (response.prescription, 
 
-                        updatePrescriptionView,   // changes in lenses => full update 
-                        function () { 
+                        updatePrescriptionView,   // change in lenses information => full update 
+                        function () {  // success !!! 
 
                                 console.log("lens loading succeeded.");                       
                           
-
                                 // we can now load the prescription 
                                 $.get('mustache/summary-bootstrap-4-table.mustache', function(template) {
-                                    
+                          
+                                    console.log("successfully loaded the template");
+                                    console.log(summaryTemplate);
                                     summaryTemplate = template; 
-                                    updateSummary (); // this will summarize based on renderableLens
 
+                                    // this will show the prescription 
+                                    updatePrescriptionView ();
+
+                                    // initialized the points
+                                    initializePointsTable (points, updatePointsView, function () {
+                                          
+                                          console.log("points loading succeeded.");
+
+                                          /* INITIALIZE THE VIEW */
+                                          //drawOptics(renderableLens);  
+
+                                          // add an object point that is draggable   
+                                          
+                                          // add a draggable point  
+                                          var dot = paper.circle(points[0].z, points[0].h, 1).attr({
+                                                      fill: "#FFFF00",
+                                                      stroke: "#000099",
+                                                      "stroke-width": 3
+                                                  });
+
+                                          dot.id = points[0].id;
+                                          dot.drag(move, start, up);
+
+
+
+                                      });
+
+                                                                        
                                 });
 
 
-                                // initialized the points
-                                initializePointsTable (points, updatePointsView, function () {
-                                      console.log("points loading succeeded.");
-
-
-                                      /* INITIALIZE THE VIEW */
-                                      //drawOptics(renderableLens);  
-
-                                      // add an object point that is draggable   
-                                      
-                                      // add a draggable point  
-                                      var dot = paper.circle(points[0].z, points[0].h, 1).attr({
-                                                  fill: "#FFFF00",
-                                                  stroke: "#000099",
-                                                  "stroke-width": 3
-                                              });
-
-                                      dot.id = points[0].id;
-                                      dot.drag(move, start, up);
 
 
 
-
-
-
-
-                                  });
                     });
 
 
