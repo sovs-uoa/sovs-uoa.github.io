@@ -18,7 +18,7 @@
   var paper; // store the paper here 
   var viewBoxWidth  = 80;
   var viewBoxHeight = 40;
-  var paperWidth    = 1100;
+  var paperWidth    = 1200;
   var paperHeight   = 400;
   var oX,oY;
   var oWidth,oHeight;
@@ -38,7 +38,7 @@
         cd_set      = paper.set();
         axis_set    = paper.set(); 
         cp_set      = paper.set();
-        optics_set  = paper.set();11
+        optics_set  = paper.set();12
        4
         oWidth = viewBoxWidth, oHeight = viewBoxHeight;
         var oX = -viewBoxWidth/2, oY = -viewBoxHeight/2, oWidth = viewBoxWidth, oHeight = viewBoxHeight;        

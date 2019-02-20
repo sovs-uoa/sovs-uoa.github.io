@@ -36,7 +36,7 @@ path, circle, text {
 
 .container {
     background-color: #ffffff;
-    padding: 20px;
+    padding: 5px;
 }
 
 
@@ -48,12 +48,13 @@ path, circle, text {
 
 .nav {
     background-color: #ffffff;
-    padding: 10px;
+    padding: 5px;
 }
 
 
 .card {
-
+    min-width: 30%;
+    max-width: 30%;
     border: 1px solid #ff0000;
     margin: 0px;
 }

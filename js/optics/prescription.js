@@ -140,6 +140,7 @@ function initializePrescriptionTable(data, updatePrescriptionCallback, success) 
       data:lensTable,
       height:"500px",
       addRowPos:"bottom",
+      layout:"fitColumns",
       selectable:true, 
       movableRows:true,
       columns:[
@@ -256,6 +257,10 @@ function initializePointsTable(data, updatePointsCallback, success) {
           {title:"h",     field:"h",       width:200, editor:"input", headerSort:false},
       ],
     });
+
+
+    console.log("just called lems table");
+    console.log(lens.pointsTable);
 
 
     // show the points 
