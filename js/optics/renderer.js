@@ -31,7 +31,8 @@
   function startDrawing(canvasID) {
 
         // create the canvas
-        paper = new Raphael(document.getElementById(canvasID), paperWidth, paperHeight);
+        // paper = new Raphael(document.getElementById(canvasID), paperWidth, paperHeight);
+        paper = new Raphael(document.getElementById(canvasID), "100%", "100%");
 
         // objects are stored in sets that are cleared  
         ps          = paper.set();
