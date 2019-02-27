@@ -97,6 +97,7 @@ function convertToLensTable (response) {
                              type:        assignParameterValue(response[i].type, ""),
                              description: assignParameterValue(response[i].description, ""),
                              radius:      assignParameterValue(response[i].args.radius, ""),
+                             power:       assignParameterValue(response[i].args.power, ""),                             
                              height:      assignParameterValue(response[i].args.height, ""),
                              index:       assignParameterValue(response[i].args.index, ""),
                              thickness:   assignParameterValue(response[i].args.thickness, 0),

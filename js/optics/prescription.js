@@ -16,6 +16,7 @@ var lens = {  prescription : null,
                         type:        "",
                         description: "",
                         radius:      "",
+                        power:       "",
                         height:      "",
                         index:       "",
                         thickness:   "",
@@ -50,7 +51,7 @@ function lensTypeSelector(lensType) {
 
       case "Thin": // show those elements for the sphere 
         $("#lens-type-thin").show();        
-        console.log("sphere selected");
+        console.log("thin selected");
         lens.modal.type = lensType;
         break;
 
@@ -87,6 +88,7 @@ function lensTypeSelector(lensType) {
     lens.modal.index        = Number(document.getElementById("modal-lens-refractive-index").value);
     lens.modal.thickness    = Number(document.getElementById("modal-lens-thickness").value); 
     lens.modal.radius       = Number(document.getElementById("modal-lens-radius-of-curvature").value);
+    lens.modal.power        = Number(document.getElementById("modal-thin-power").value);
     lens.modal.aperture     = Number(document.getElementById("modal-lens-aperture-diameter").value);
 
     // add a row to the table 
@@ -126,7 +128,6 @@ function initializePrescriptionTable(data, updatePrescriptionCallback, success) 
         }
     }
 
-    // console.log(data);
 
     //  convert to standard form 
     lensTable      = convertToLensTable(data);  // fill in missing fields!
@@ -150,6 +151,7 @@ function initializePrescriptionTable(data, updatePrescriptionCallback, success) 
           {title:"Description",   field:"description",      width:200, editor:"input", headerSort:false},
           {title:"Ref. Index",    field:"index",            mutator:Number, width:100, align:"center", sorter:"number", editor:"input", headerSort:false},
           {title:"Surf. R.",      field:"radius",           mutator:Number, align:"center", width:100, editor:"input", headerSort:false},
+          {title:"Power",         field:"power",            mutator:Number, align:"center", width:100, editor:"input", headerSort:false},
           {title:"Thickness",     field:"thickness",        mutator:Number, align:"center", width:100, editor:"input", headerSort:false},
           {title:"Ap. Diameter",  field:"aperture",         align:"center", width:100, editor:"input", headerSort:false},
           {title:"Stop Flag",     field:"stop",             align:"center", width:100, sorter:"date", editor:"input", headerSort:false, formatter:apertureStop}
@@ -165,9 +167,7 @@ function initializePrescriptionTable(data, updatePrescriptionCallback, success) 
 
     //Add row on "Add Row" button click
     $("#lens-table-add-row").click(function(){
-
         // entry area here 
-
     });
 
     //Delete row on "Delete Row" button click
@@ -187,6 +187,7 @@ function initializePrescriptionTable(data, updatePrescriptionCallback, success) 
 
     // succeesed 
     success ();
+
 
 
  }
@@ -210,6 +211,7 @@ POINTS = OBJECTS + IMAGES TABLE
     lens.modal.index        = Number(document.getElementById("modal-lens-refractive-index").value);
     lens.modal.thickness    = Number(document.getElementById("modal-lens-thickness").value); 
     lens.modal.radius       = Number(document.getElementById("modal-lens-radius-of-curvature").value);
+    lens.modal.power        = Number(document.getElementById("modal-thin-power").value);    
     lens.modal.aperture     = Number(document.getElementById("modal-lens-aperture-diameter").value);
 
     // add a row to the table 
@@ -235,58 +237,57 @@ function initializePointsTable(data, updatePointsCallback, success) {
       },
 */
 
- 
-
-    //Build Tabulator
-    lens.pointsTable = new Tabulator("#lens-points", {
-       cellEdited:function(cell){
-        console.log("point edited - update the prescription");
-        updatePointsCallback();
-      },
-      data:data,
-      height:"200px",
-      addRowPos:"bottom",
-      selectable:false, 
-      movableRows:false,
-      layout:"fitColumns",
-      columns:[
-          {rowHandle:true, formatter:"handle", headerSort:false, frozen:true, width:30, minWidth:30},
-          {title:"id",    field:"id",      width:100, headerSort:false},                  
-          {title:"type",  field:"type",    width:100, headerSort:false},                  
-          {title:"z",     field:"z",       width:100, editor:"input", headerSort:false},                  
-          {title:"h",     field:"h",       width:200, editor:"input", headerSort:false},
-      ],
-    });
+      //Build Tabulator
+      lens.pointsTable = new Tabulator("#lens-points", {
+         cellEdited:function(cell){
+          console.log("point edited - update the prescription");
+          updatePointsCallback();
+        },
+        data:data,
+        height:"200px",
+        addRowPos:"bottom",
+        selectable:false, 
+        movableRows:false,
+        layout:"fitColumns",
+        columns:[
+            {rowHandle:true, formatter:"handle", headerSort:false, frozen:true, width:30, minWidth:30},
+            {title:"id",    field:"id",      width:100, headerSort:false},                  
+            {title:"type",  field:"type",    width:100, headerSort:false},                  
+            {title:"z",     field:"z",       width:100, editor:"input", headerSort:false},                  
+            {title:"h",     field:"h",       width:200, editor:"input", headerSort:false},
+        ],
+      });
 
 
-    console.log("just called lems table");
-    console.log(lens.pointsTable);
+      console.log("just called lems table");
+      console.log(lens.pointsTable);
 
 
-    // show the points 
-    updatePointsCallback ();
+      // show the points 
+      updatePointsCallback ();
 
-    //Add row on "Add Row" button click
-    $("#lens-points-add-point").click(function(){
-        // entry area here 
-    });
+      //Add row on "Add Row" button click
+      $("#lens-points-add-point").click(function(){
+          // entry area here 
+      });
 
-    //Delete row on "Delete Row" button click
-    $("#lens-points-del-row").click(function(){
-        lens.pointsTable.deleteRow(1);
-    });
+      //Delete row on "Delete Row" button click
+      $("#lens-points-del-row").click(function(){
+          lens.pointsTable.deleteRow(1);
+      });
 
-    //Clear table on "Empty the table" button click
-    $("#lens-table-clear").click(function(){
-        lens.pointsTable.clearData()
-    });
+      //Clear table on "Empty the table" button click
+      $("#lens-table-clear").click(function(){
+          lens.pointsTable.clearData()
+      });
 
-    //Reset table contents on "Reset the table" button click
-    $("#lens-table-reset").click(function(){
-        lens.pointsTable.setData(tabledata);
-    });
+      //Reset table contents on "Reset the table" button click
+      $("#lens-table-reset").click(function(){
+          lens.pointsTable.setData(tabledata);
+      });
 
-    success ();
+      success ();
+
 
 
  }

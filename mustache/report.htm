@@ -1,0 +1,75 @@
+<html>
+   <head>
+   <h2>Optics report</h2>
+   </head>
+<!--
+   <style>
+
+      path, circle, text {
+
+            vector-effect: non-scaling-stroke;
+            stroke-width: 2px;
+
+      }
+
+   </style>
+-->
+   <body>
+
+   <!--  SVG programming -->      
+   <h2>System view as SVG</h2>
+   {{{svg}}}
+
+
+   <h2>System view as SVG (Base64 coded)</h2>
+   <img style='display:block; width:200px;height:200px;' src='{{{svg}}}'/>
+
+
+   <!--  Lens prescription -->      
+   <h2>Lens Prescription</h2>
+
+   <table>
+   <thead>
+      <tr>
+         <th>id</th>
+         <th>type</th>
+         <th>radius</th>
+       </tr>      
+   </thead>
+   <tbody>
+   {{#lens}}
+      <tr>
+         <td>{{id}}</td>
+         <td>{{type}}</td>
+         <td>{{radius}}</td>
+      </tr>
+   {{/lens}}
+   </tbody>
+   </table>
+
+   <!--  System summary -->      
+   <h2>System sumnmary</h2>
+
+   <table>
+   <thead>   
+       <tr>
+         <th>Month</th>
+         <th>Savings</th>
+       </tr>            
+   </thead>
+   <tbody>
+   {{#summary}}
+      <tr>
+         <td></td>
+         <td></td>
+         <td></td>
+         <td></td>
+         <td></td>
+      </tr>
+   {{/summary}}
+   </tbody>
+   </table>
+
+
+   </body>
+</html>

@@ -28,6 +28,20 @@
   var cp_set, optics_set;
 
 
+
+  function setScaleFactor() {
+
+  // virtual unit / pixel unit 
+  paperWidth  = $("#lens-container").width(); 
+  paperHeight = $("#lens-container").height(); 
+  kx = viewBoxWidth/paperWidth;     // scaling to viewbox 
+  ky = viewBoxHeight/paperHeight;   // scaling to viewbox 
+
+
+  }
+
+
+
   function startDrawing(canvasID) {
 
         // create the canvas
@@ -48,6 +62,8 @@
 
         // draw the axis 
         drawAxis(paper, true,0);
+
+      
 
   }
 
@@ -216,7 +232,6 @@ var drawAxis = function (r, grid, offset) {
 
     console.log("Updated cardinal points.");
 
-
     cp_set.remove();
     cp_set = paper.set();
 
@@ -257,18 +272,18 @@ var drawAxis = function (r, grid, offset) {
         // nodal points
         if (displayOptions.showNodalPoints) {
           
+          // points           
           var vn1 = systemPoints.cardinal.VN1;
           var vn2 = systemPoints.cardinal.VN2;
-
           cp1 = drawPoint(v1 + vn1, y, "blue");
           cp2 = drawPoint(v2 + vn2, y, "blue");
           cp_set.push(cp1, cp2);
 
+          // lines 
           var x1 = v1 + vn1;
           var x2 = v2 + vn2;
           var y1 = y - h/2;
           var y2 = y + h/2;
-
           cp1 = paper.path( ["M", x1, y1, "L", x1, y2 ] ).attr({"fill": "gray", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
           cp2 = paper.path( ["M", x2, y1, "L", x2, y2 ] ).attr({"fill": "gray", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
           cp_set.push(cp1, cp2);
@@ -278,18 +293,18 @@ var drawAxis = function (r, grid, offset) {
         // nodal points
         if (displayOptions.showPrincipalPoints) {
 
+          // points 
           var vp1 = systemPoints.cardinal.VP1;
           var vp2 = systemPoints.cardinal.VP2;
-
           cp1 = drawPoint(v1 + vp1, y, "red");
           cp2 = drawPoint(v2 + vp2, y, "red");
           cp_set.push(cp1, cp2);
 
+          // lines 
           var x1 = v1 + vp1;
           var x2 = v2 + vp2;
           var y1 = y - h/2;
           var y2 = y + h/2;
-
           cp1 = paper.path( ["M", x1, y1, "L", x1, y2 ] ).attr({"fill": "gray", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
           cp2 = paper.path( ["M", x2, y1, "L", x2, y2 ] ).attr({"fill": "gray", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
           cp_set.push(cp1, cp2);
@@ -299,13 +314,14 @@ var drawAxis = function (r, grid, offset) {
         // vertices
         if (displayOptions.showVertices) {
 
+          // points 
           cp1 = drawPoint(v1 + vn1, y, "green");
           cp2 = drawPoint(v2 + vn2, y, "green");
           cp_set.push(cp1, cp2);
 
+          // lines 
           var y1 = y - h/2;
           var y2 = y + h/2;
-
           cp1 = paper.path( ["M", v1, y1, "L", v1, y2 ] ).attr({"fill": "gray", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
           cp2 = paper.path( ["M", v2, y1, "L", v2, y2 ] ).attr({"fill": "gray", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
           cp_set.push(cp1, cp2);
@@ -314,6 +330,15 @@ var drawAxis = function (r, grid, offset) {
 
     }
 
+
+  }
+
+
+  function updateCardinalPoints () {
+      // cycle through the cp_set if its not empty and alter all circles !
+      if (!Array.isArray(cp_set) || !cp_set.length) { // array does not exist, is not an array, or is empty
+        cp_set.attr({r: kx*4});
+      }
 
   }
 
@@ -418,7 +443,8 @@ var drawAxis = function (r, grid, offset) {
 
   function drawPoint(x, y, color) {
   
-    var c = paper.circle(x, y, 0.5).attr({"fill": color, "fill-opacity": 1.0, "stroke": "#000000", "stroke-width": "1"});
+    r = kx*4; // 4 pixels is the requested size
+    var c = paper.circle(x, y, r).attr({"fill": color, "fill-opacity": 1.0, "stroke": "#000000", "stroke-width": "1"});
     c.drag(dragPointMove, dragPointStart, dragPointUp);
     
     // c.drag(dragPointMove, dragPointStart, dragPointUp);
@@ -528,8 +554,8 @@ var drawAxis = function (r, grid, offset) {
      cd_set.push(p1, p2, p3);
 
 
-     // Virtual Image : extension rays for virtual images  
-     if (X2 < P2) { // virtual 
+     // Virtual Image = extension rays for virtual images  
+     if (X2 < P2 + etol) { // virtual 
 
         // virtual image - add extension ray 
 
@@ -553,7 +579,7 @@ var drawAxis = function (r, grid, offset) {
 
 
      // Virtual Object : extension rays for virtual objects   
-     if (X1 > P1) { // virtual 
+     if (X1 > P1 - etol) { // virtual 
 
         // virtual image - add extension ray 
 
@@ -628,7 +654,15 @@ var drawAxis = function (r, grid, offset) {
       ps.push(c); 
     }
 
+  }
 
+
+
+  function updatePointToPoint () {
+      // cycle through the cp_set if its not empty and alter all circles !
+      if (!Array.isArray(ps) || !ps.length) { // array does not exist, is not an array, or is empty
+        ps.attr({r: kx*4});
+      }
 
   }
 
@@ -769,6 +803,9 @@ var drawAxis = function (r, grid, offset) {
         paper.setViewBox(viewBox.X, viewBox.Y, viewBoxWidth, viewBoxHeight);
 
         drawAxis(paper, true,0);
+        setScaleFactor ();
+        updateCardinalPoints (); // if any
+        updatePointToPoint ();
 
     }
 

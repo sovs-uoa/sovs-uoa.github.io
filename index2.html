@@ -34,26 +34,15 @@
   <script src="js/mustache-wax.js"></script>
 
 
-  <!-- Required to convert named colors to RGB -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/canvg/1.4/rgbcolor.min.js"></script>
-  <!-- Optional if you want blur -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/stackblur-canvas/1.4.1/stackblur.min.js"></script>
-  <!-- Main canvg code -->
-  <script src="https://cdn.jsdelivr.net/npm/canvg@2.0.0-beta.0/dist/browser/canvg.min.js"></script>
-
-
   <!-- Other -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/json5/0.5.1/json5.js"></script>
   <script src="js/optics/optics.js"></script>
   <script src="js/optics/renderer.js"></script>  
   <script src="js/optics/prescription.js"></script>
-  <script src="js/optics/raphael.export.js"></script>
   <script src="js/utils.js"></script>  
 
 
   <link rel="stylesheet" type="text/css" href="css/optics.css">
-  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-
 
 </head>
 
@@ -61,16 +50,14 @@
 <script>
 
 
-  var   c, dot;
-  var   objectPoint;      // this should be a list or hash-table
-  var   renderableLens;
-  var   lensTable;
-  var   ps, cd_set;
+  var c, dot;
+  var objectPoint;      // this should be a list or hash-table
+  var renderableLens;
+  var lensTable;
+  var ps, cd_set;
   const gridSnapSize = 0.01;
-  var   summaryTemplate;
-  var   reportTamplate;
-  var   kx, ky;
-  var   etol = 5e-4;
+  var summaryTemplate;
+  var kx, ky;
 
 
   Mustache.Formatters = {
@@ -86,8 +73,7 @@
       setScaleFactor ();
 
 
-      // 
-      dx = kx*dx; 
+      dx = kx*dx;
       dy = ky*dy;
 
       nowX = this.ox + dx;
@@ -200,58 +186,6 @@
 
 
 
-  function Reporter () {
-
-      // add a style 
-      var svgElement = document.getElementsByTagName('svg')[0];
-      svgElement.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-      var svgStyle   = document.createElementNS("http://www.w3.org/2000/svg", "style");
-      style = "path,circle,text{vector-effect:non-scaling-stroke;stroke-width:2px;}";
-      // svgStyle.innerHTML = "\n/* <![CDATA[ */" + style + "/* ]]> */\n"
-      svgStyle.textContent = style;
-      // svgStyle.textContent = "<![CDATA[" + style + "]]>"
-      svgElement.appendChild(svgStyle);
-
-
-       //load a svg snippet in the canvas with id = 'drawingArea'
-       //var myCanvas = document.createElement("canvas");
-       //canvg(myCanvas, svgElement.outerHTML);
-       //var base64 = myCanvas.toDataURL("image/png");
-       //console.log(base64);
-
-/*
-      base64 = "";
-*/
-
-
-      reportData = {  svg    : "circle.svg",
-                      lens   : lens.table.getData (),
-                      points : lens.pointsTable.getData ()
-      };
-
-
-      console.log("Creating ... reporter.");
-      console.log(reportData);
-      console.log(reportTemplate);
-
-
-      // get this downloading ! 
-      downloadTxt = Mustache.render(reportTemplate, reportData);
-      var a  = window.document.createElement('a');
-      a.href = window.URL.createObjectURL(new Blob([downloadTxt], {type: 'text/html'}));
-      a.download = 'report.html';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-
-
-
-
-
-  }
-
-
-
    function initializeApp () {
 
 
@@ -271,39 +205,15 @@
      //$('#prescription-nav').click( function () { console.log("triggered prescription view update."); });
      //$('#summary-nav').click( function () { console.log("triggered summary nav view update.");  updateSummaryView(); });
      //$('#objects-images-nav').click( function () { console.log("triggered objects-images nav view."); lens.pointsTable.redraw(); });
+
      //$( "#summary-nav").trigger("click");
      // $( "#objects-images-nav").trigger("click"); // get this going 
+
      //( "#prescription-nav").trigger("click");
 
 
-    // report template 
-    $.get('mustache/report.htm', function (data) {
-        console.log('loaded ... reportTemplate');
-        reportTemplate = data;
-
-        /*
-        aperture    : ""
-        description : "air"
-        group       : ""
-        height      : ""
-        id          : 1
-        index       : 1
-        radius      : 0
-        stop        : false
-        tag_id      : "0001"
-        thickness.  : 0
-        type        : "index"
-        */
-
-    });
-
-
-
-
-
-
       $.ajax({
-            url : "./lenses/thick-lens.lens",
+            url : "./lenses/legrand-relaxed-schematic-eye.lens",
             dataType: "text",
             success : function (data) {
 
@@ -319,15 +229,15 @@
                    
                   // initialize the prescription that will execite on change to table 
                   initializePrescriptionTable (response.prescription, 
-
                         updatePrescriptionView,   // change in lenses information => full update 
-                        function () {  // success !!! 
+                        function () {  
 
-                                console.log("lens loading succeeded.");                       
-                          
-                                updatePrescriptionView();                 // show the lenses                                    
-                                // $( "#prescription-nav").trigger("click"); // show the table 
 
+                                // success !!! 
+                                console.log("lens loading succeeded.");                                                 
+                                updatePrescriptionView(); 
+
+                                
                                 // we can now load the prescription 
                                 $.get('mustache/summary-bootstrap-4-html.mustache', function(template) {
                           
@@ -415,34 +325,6 @@
 <!-- Control the column width, and how they should appear on different devices -->
 
 <div class="container" >
-
-<div class="row">
-  <div class="col">
-
-      <!-- Buttons -->
-        <button class="btn btn-secondary dropdown-toggle float-left" type="button" id="importer" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          Load
-        </button>
-
-        <div class="dropdown-menu">
-          <a class="dropdown-item" href="#" onclick="">Thin lens</a>
-          <a class="dropdown-item" href="#" onclick="">Single thin Lenses</a>
-          <a class="dropdown-item" href="#" onclick="">Multiple thin lenses</a>
-          <a class="dropdown-item" href="#" onclick="">Gullstrand Eye Model (Relaxed)</a>
-          <a class="dropdown-item" href="#" onclick="">Gullstrand Eye Model (Accommodated)</a>
-        </div>            
-
- 
-        <button class='btn btn-primary float-right' onclick='Reporter ();'' > 
-          <i class="fas fa-download"></i>Get Report
-        </button>
-
-
-   </div>
-</div>
-
-
-
 
 <!-- VIEW -->
 <div class="row">

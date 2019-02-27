@@ -383,11 +383,9 @@ var drawAxis = function (r, grid, offset) {
      // display the nodal rays (Obect => N1 N2 => Image )
 
      var attributes = { "fill": "gray", "stroke-opacity": 0.5, "stroke": "black", "stroke-width": "1" };
-
-
-     var virtual = { "fill": "gray", "stroke-opacity": 0.5, "stroke": "black", "stroke-width": "1", "stroke-dasharray":"--" };
-     var real    = { "fill": "gray", "stroke-opacity": 0.5, "stroke": "black", "stroke-width": "1" };
-     var extend  = { "fill": "red", "stroke-opacity": 0.5, "stroke": "red", "stroke-width": "1" };
+     var virtual    = { "fill": "gray", "stroke-opacity": 0.5, "stroke": "black", "stroke-width": "1", "stroke-dasharray":"--" };
+     var real       = { "fill": "gray", "stroke-opacity": 0.5, "stroke": "black", "stroke-width": "1" };
+     var extend     = { "fill": "red",  "stroke-opacity": 0.5, "stroke": "red", "stroke-width": "1" };
 
 
 
@@ -411,8 +409,10 @@ var drawAxis = function (r, grid, offset) {
      paper.path( ["M", P2, Y1, "L", F2, 0 ] ).attr(F2_attributes); // should apss through F2
 
      if (F2 <= X2) { 
+        
         // real image  
-        paper.path( ["M", F2, 0, "L", X2, Y2 ] ).attr(X2_attributes); // should apss through F2
+        paper.path( ["M", F2, 0, "L", X2, Y2 ] ).attr(X2_attributes); // should pass through F2
+
      } else {
 
         // virtual image 
@@ -427,7 +427,7 @@ var drawAxis = function (r, grid, offset) {
      X2_attributes = (P1 <= X2) ? real : virtual;
 
      paper.path( ["M", X1, Y1, "L", F1, 0 ] ).attr(F1_attributes);
-     paper.path( ["M", X1, Y1,  "L", P1, Y2 ] ).attr(P1_attributes); // this one needs to be modified 
+     paper.path( ["M", X1, Y1, "L", P1, Y2 ] ).attr(P1_attributes); // this one needs to be modified 
      paper.path( ["M", P1, Y2, "L", X2, Y2 ] ).attr(X2_attributes);
 
 
@@ -438,10 +438,10 @@ var drawAxis = function (r, grid, offset) {
 
         // F1 ray         
         var m = (Y2-0)/(X2-F2);
-        paper.path( ["M", F2, 0, "L",  F2 + 20, 0 + m*20 ] ).attr(extend); // should apss through F2
+        paper.path( ["M", F2, 0, "L",  F2 + 20, 0 + m*20 ] ).attr(extend); // should pass through F2
 
         // F2 ray 
-        paper.path( ["M", P1, Y2, "L",  P1 + 20, Y2 ] ).attr(extend); // should apss through F2
+        paper.path( ["M", P1, Y2, "L",  P1 + 20, Y2 ] ).attr(extend); // should pass through F2
 
         // N2 ray 
         var m = (Y2-0)/(X2-N2);
