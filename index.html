@@ -71,6 +71,8 @@
   var   reportTamplate;
   var   kx, ky;
   var   etol = 5e-4;
+  var   fileList  = [ { id: "0", filename: "./lenses/thick-lens-positive.lens" }, 
+                      { id: "1", filename: "./lenses/thick-lens-negative.lens" } ];
 
 
   Mustache.Formatters = {
@@ -351,12 +353,14 @@
 
 
 
+
    function initializeApp () {
 
 
      // try and load 
 
      console.log('initializeApp.');
+
 
 
     // report template 
@@ -389,6 +393,38 @@
 
     $( document ).ready(function() {      
 
+
+      // trigger on a selection
+      $('.file-selection').on('click', function () {
+
+
+        console.log("file selection made.");
+
+        var id  = $(this).data ("id"); // get the data id field 
+        var ndx = fileList.findIndex( function (element) { return element.id == id } );
+
+        console.log(ndx);
+        console.log(fileList[ndx]);
+          
+        // info.
+        if (ndx > -1) {
+
+          var txt = $(this).text(); // selection 
+          $("#filename_display").val(txt); // show it 
+          console.log(fileList[ndx].filename);
+
+          load(fileList[ndx].filename);
+
+        }
+
+        // console.log("file = " + fileList[ndx].filename);
+        // load(fileList[ndx].filename);
+
+
+      });
+
+
+
       initializeApp ();
 
 
@@ -403,15 +439,13 @@
 
 
 
-
-
 </script>
 
 <body>
 
 <!-- Control the column width, and how they should appear on different devices -->
 
-<div class="container" >
+<div class="container">
 
 <div class="row">
   <div class="col">
@@ -420,28 +454,28 @@
       <div class="input-group-prepend">
 
       <!-- Buttons -->
-        <button class="btn btn-secondary dropdown-toggle float-left" type="button" id="importer" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          Load
-        </button>
+        <button class="btn btn-secondary dropdown-toggle float-left" type="button" id="importer" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Load</button>
 
         <div class="dropdown-menu">
-          <a class="dropdown-item" href="#" onclick="load ('./lenses/thick-lens-positive.lens');">(Positive) Thick Lens in Air</a>
-          <a class="dropdown-item" href="#" onclick="load ('./lenses/thick-lens-negative.lens');">(Negative) Thick lens in Air</a>
-          <a class="dropdown-item" href="#" onclick="load (this);">Thin lens</a>
-          <a class="dropdown-item" href="#" onclick="load (this);">Single thin Lenses</a>
-          <a class="dropdown-item" href="#" onclick="load (this);">Multiple thin lenses</a>
-          <a class="dropdown-item" href="#" onclick="load (this);">Gullstrand Eye Model (Relaxed)</a>
-          <a class="dropdown-item" href="#" onclick="load (this);">Gullstrand Eye Model (Accommodated)</a>
+          <a class="dropdown-item file-selection" href="#" data-id="0" >(Positive) Thick Lens in Air</a>
+          <a class="dropdown-item file-selection"  href="#" data-id="1" >(Negative) Thick lens in Air</a>
+          <a class="dropdown-item file-selection"  href="#" data-id="2" >Thin lens</a>
+          <a class="dropdown-item file-selection"  href="#" data-id="3" >Single thin Lenses</a>
+          <a class="dropdown-item file-selection"  href="#" data-id="4" >Multiple thin lenses</a>
+          <a class="dropdown-item file-selection"  href="#" data-id="5" >Gullstrand Eye Model (Relaxed)</a>
+          <a class="dropdown-item file-selection"  href="#" data-id="6" >Gullstrand Eye Model (Accommodated)</a>
+          <div role="separator" class="dropdown-divider"></div>
+          <a class="dropdown-item file-selection"  href="#" data-id="7" >Empty</a>          
         </div>            
 
      </div>
-    <input type="text" class="form-control" aria-label="Text input with dropdown button">
-
+    <input id="filename_display" type="text" class="form-control" aria-label="Text input with dropdown button" readonly>
 
     <!--  Report button -->  
     <button class='btn btn-primary float-right' onclick='Reporter ();' > 
        <i class="fas fa-download"></i>Get Report
     </button>
+
 
    </div>
 

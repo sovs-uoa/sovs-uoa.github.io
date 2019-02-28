@@ -59,6 +59,12 @@ path, circle, text {
     margin: 0px;
 }
 
+
+.file-selection {
+
+    
+}
+
 table, th, td, tr {
     border-width : 0px;
     border  : 0px solid black;
