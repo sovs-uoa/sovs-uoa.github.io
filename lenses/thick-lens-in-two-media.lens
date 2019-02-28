@@ -50,9 +50,9 @@
 	}, {
 		"id": "0003",
 		"type": "index",
-		"description": "air",
+		"description": "water",
 		"args": {
-			"index": 1.0,
+			"index": 1.33,
 			"thickness": 1
 		}
 	} ]

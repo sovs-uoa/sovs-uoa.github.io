@@ -46,15 +46,29 @@
 
         // create the canvas
         // paper = new Raphael(document.getElementById(canvasID), paperWidth, paperHeight);
-        paper = new Raphael(document.getElementById(canvasID), "100%", "100%");
 
-        // objects are stored in sets that are cleared  
+        if(paper == null) {
+    
+           // do something
+           paper = new Raphael(document.getElementById(canvasID), "100%", "100%");
+
+          } else {
+
+           paper.clear ();
+
+        }
+
+
+
+       // objects are stored in sets that are cleared  
         ps          = paper.set();
         cd_set      = paper.set();
         axis_set    = paper.set(); 
         cp_set      = paper.set();
-        optics_set  = paper.set();12
-       4
+        optics_set  = paper.set();
+
+
+       
         oWidth = viewBoxWidth, oHeight = viewBoxHeight;
         var oX = -viewBoxWidth/2, oY = -viewBoxHeight/2, oWidth = viewBoxWidth, oHeight = viewBoxHeight;        
         viewBox   = paper.setViewBox(oX, oY, viewBoxWidth, viewBoxHeight);
@@ -254,15 +268,16 @@ var drawAxis = function (r, grid, offset) {
           var vp1 = systemPoints.cardinal.VP1;
           var vp2 = systemPoints.cardinal.VP2;
           
-          var x1 = v1 + vp1 + pf1;
-          var x2 = v2 + vp2 + pf2;
-          var y1 = y - h/2;
-          var y2 = y + h/2;
+          var x1 = v1 + vp1 + pf1;   // front focal point 
+          var x2 = v2 + vp2 + pf2;   // back focal poitn 
+          var y1 = y - h/2;          // principal point heights 
+          var y2 = y + h/2;          // principal point heights     
 
           cp1 = drawPoint(x1, y, "magenta");
           cp2 = drawPoint(x2, y, "magenta");
           cp_set.push(cp1, cp2);
 
+          // BARS
           cp1 = paper.path( ["M", x1, y1, "L", x1, y2 ] ).attr({"gray": "#000000", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
           cp2 = paper.path( ["M", x2, y1, "L", x2, y2 ] ).attr({"gray": "#000000", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
           cp_set.push(cp1, cp2);
@@ -489,9 +504,11 @@ var drawAxis = function (r, grid, offset) {
 
      // check if the system is AFOCAL 
 
-
+     // Object 
      var X1 = conjObject.X1;
-     var Y1 = conjObject.Y1;
+     var Y1 = conjObject.Y1;     
+
+     // Image 
      var X2 = conjObject.X2;
      var Y2 = conjObject.Y2;
 
@@ -499,9 +516,279 @@ var drawAxis = function (r, grid, offset) {
 
      var attributes     = { "fill": "gray", "stroke-opacity": 0.5, "stroke": "black", "stroke-width": "1" };
      var virtual        = { "fill": "gray", "stroke-opacity": 0.5, "stroke": "black", "stroke-width": "1", "stroke-dasharray":"--" };
-     var real           = { "fill": "gray", "stroke-opacity": 0.5, "stroke": "black", "stroke-width": "1" };
+     var real           = { "stroke": "magenta", "stroke-width": "1", "stroke-dasharray":"none"  };
+     var none           = { "stroke": "none", "stroke-width": "1" };
      var extend         = { "fill": "red", "stroke-opacity": 0.5, "stroke": "red", "stroke-width": "1" };
      var extend_object  = { "fill": "green", "stroke-opacity": 0.5, "stroke": "green", "stroke-width": "1" };
+
+
+     data   = { N1 : N1, N2 : N2, 
+                P1 : P1, P2 : P2, 
+                F1 : F1, F2 : F2,
+                X1 : X1, Y1 : Y1,
+                X2 : X2, Y2 : Y2  };
+
+
+  /*   -------------------------------------------------
+
+      ConstructObjectRays 
+
+  ------------------------------------------------------ */
+
+   function ConstructObjectRays(data) {
+
+
+      ret = {};
+      
+      if (data.X1 < data.P1) { // real object 
+
+          // O < F1 < P1    or F1 < O1 < P1
+          // O < F1 < P1    or F1 < O1 < P1
+          // O < P < N  or O < N < P
+
+          // F1 RAY O -> F1 -> P1
+          if ((data.X1 < data.F1) & (data.F1 < data.P1)) {        // O < F1 < P1
+
+              ret.F1 = { OF: real, FP: real, OP: none };
+
+          } else if ((data.X1 < data.P1) & (data.P1 < data.F1)) { // O < P1 < F1 
+
+              ret.F1 = { OF: none, FP: virtual, OP: real };
+
+          } else if ((data.F1 < data.X1) & (data.X1 < data.P1)) { // F1 < O < P1 
+
+              ret.F1 = { OF: none, FP: virtual, OP: real };
+
+
+          } else {
+
+             alert ("unmeasured");
+
+          }
+
+
+
+          // ... the region between P1 & P2 should be empty 
+          if (data.P1 < data.P2) {
+
+
+              // F2 RAY           
+              ret.F2 = { OP1: real, OP2: none };
+
+              // N1 RAY 
+              ret.N1 = { OP: real, PN: virtual }; // : { OP1: real, PN: virtual };
+
+              
+          } else {
+
+              // F2 RAY           
+              ret.F2 = { OP1: virtual, OP2: none };
+
+              // N1 RAY 
+              ret.N1 = { OP: real, PN: virtual }; // : { OP1: real, PN: virtual };
+
+          }
+
+
+
+
+      } else { // virtual object
+
+
+          // F1 RAY
+          // ret.F1 = (data.X1 < data.F1) ? { OF: real, OP: none, FP: real } : { OF: none, OP: virtual, FP: real };
+
+
+          // F1 RAY : 
+          if ((data.F1 < data.P1) & (data.P1 < data.X1)) {         // F1 < P1 < O
+
+              ret.F1 = { OF: none, FP: real, OP: virtual }; // positive lens 
+
+          } else if ((data.P1 < data.X1) & (data.X1 < data.F1)) {  // P1 < O < F1  
+
+              ret.F1 = { OF: none, FP: none, OP: virtual };
+
+          } else if ((data.P1 < data.X1) & (data.F1 < data.X1)) {  // P1 < F1 < O
+
+              ret.F1 = { OF: virtual, FP: virtual, OP: none };
+
+         } else {
+
+             alert ("unmeasured");
+
+          }
+
+
+
+          // F2 RAY 
+          // ... the region between P1 & P2 should be empty 
+          if (data.P1 < data.P2) {
+              
+              // F2 RAY  
+              ret.F2 = { OP1: none, OP2: virtual };
+
+              // N1 RAY 
+              ret.N1 = { OP: virtual, PN: real }; // : { OP1: real, PN: virtual };
+
+          } else {
+
+              // F2 RAY  
+              ret.F2 = { OP1: virtual, OP2: none };
+
+              // N1 RAY (ADDRESS THIS LATER)
+              ret.N1 = { OP: virtual, PN: none }; // : { OP1: real, PN: virtual };
+
+
+          }
+
+
+          // F1 < P1 < O  or P1 < F1 < O
+          // O < F1 < P1  or F1 < O1 < P1
+          // O < P < N  or O < N < P
+
+          //ret.F1 = (X1 < F1) { OF1: none, FP1: real, OP1: virtual } : { OF1: virtual, OP1: none, FP1: real };
+          //ret.F2 = (X1 < F1) { OF1: real, FP1: real, OP1: none } : { OF1: virtual, OP1: real, FP1: none };
+          //ret.N1 = (X1 < N1) { OP1: real, PN1: virtual } : { OP1: real, PN1: virtual };
+
+      }
+
+
+     // Nodal ray height at the principal plane  
+     // N1 RAY - ray through 1 to P1 
+     H1 = (0 - data.Y1) / (data.N1 - data.X1 ) * (data.P1 - data.X1) + data.Y1;
+     p1 = paper.path( ["M", data.X1, data.Y1, "L", data.P1, H1 ]);    // O  -> H1   (ray through F1)
+     p2 = paper.path( ["M", data.P1, H1,  "L", data.N1, 0]);    // H1 -> N1   (ray through F1)
+     p1.attr(ret.N1.OP);
+     p2.attr(ret.N1.PN); 
+     cd_set.push(p1, p2);
+
+     // F1 RAY - ray through F1 to P1 
+     p1 = paper.path( ["M", data.X1, data.Y1, "L", data.F1, 0 ]);        // O  -> F1   (ray through F1)
+     p2 = paper.path( ["M", data.F1, 0,  "L", data.P1, data.Y2]);        // F1 -> P1   (ray through F1)
+     p3 = paper.path( ["M", data.X1, data.Y1, "L", data.P1, data.Y2 ]);  // O  -> P1   (horizontal ray through F2)
+     p1.attr(ret.F1.OF);
+     p2.attr(ret.F1.FP); 
+     p3.attr(ret.F1.OP); 
+     cd_set.push(p1, p2, p3);
+
+    // F2 RAY - ray through P2 to F2 
+     p1 = paper.path( ["M", data.X1, data.Y1,  "L", data.P1, data.Y1 ]);   // O  -> P1   (ray through F1)
+     p2 = paper.path( ["M", data.P2, data.Y1,  "L", data.X1, data.Y1 ]);   // P2 -> O   (ray through F1)
+     p1.attr(ret.F2.OP1);
+     p2.attr(ret.F2.OP2); 
+     cd_set.push(p1, p2);
+
+
+
+      return ret;
+   }
+
+
+
+    function getFrontFocalRayStyle(X1, F1, P1, X2) {
+
+      /* ---------------------------------------------------
+
+          GETRAYSTYLE 
+
+          Appearance of the points 
+
+      ------------------------------------------------------- */ 
+
+          isExtend = (X1 > P1 - etol);
+
+          if (X1 < F1) {
+
+          // X1 -> F1 : real, F1 -> P1 : real, P1 => X2 : real 
+          ret = { X1P1   : none,
+                  X1F1   : real, 
+                  F1P1   : real, 
+                  P1X2   : real,        // deal with images separately 
+                  extend : isExtend };
+
+          } else if (X1 >=F1 & X1 <= P1 ) {
+
+          // X1 -> F1 : virtual, F1 -> P1 : real, P1 => X2 : real 
+          ret = { X1P1   : real,
+                  X1F1   : none, 
+                  F1P1   : none, 
+                  P1X2   : isExtend ? real : virtual };
+
+
+          } else if (X1 > P1 ) { 
+
+          // X1 -> F1 : real, F1 -> P1 : real, P1 => X2 : virtual            
+          ret = { X1P1   : virtual,
+                  X1F1   : none,
+                  F1P1   : real, 
+                  P1X2   : real };
+
+          } else {
+
+            throw "Error";
+          }
+
+
+          ret.Extended = isExtend;
+
+          return ret;
+      }
+
+
+
+    function getBackFocalRayStyle(X1, F1, P1, X2) {
+
+      /* ---------------------------------------------------
+
+          GETRAYSTYLE 
+
+          Appearance of the points 
+
+      ------------------------------------------------------- */ 
+
+          isExtend = (X1 > P1 - etol);
+
+          if (X1 < P1) {
+
+          // X1 -> F1 : real, F1 -> P1 : real, P1 => X2 : real 
+          ret = { X1P2   : real,
+                  P2X2   : real, 
+                  X2F2   : none,
+                  F2P2   : none, 
+                  extend : isExtend };
+
+          } else if (X1 >= F1 & X1 <= P1 ) {
+
+            // X1 -> F1 : real, F1 -> P1 : real, P1 => X2 : real 
+            ret = { X1P2   : real,
+                    P2X2   : virtual, 
+                    X2F2   : none,
+                    F2P2   : none, 
+                    extend : isExtend };
+
+          } else if (X1 > P1 ) { 
+
+          // X1 -> F1 : real, F1 -> P1 : real, P1 => X2 : virtual   
+          ret = { X1P2   : virtual,
+                  P2X2   : real, 
+                  X2F2   : none,
+                  F2P2   : none, 
+                  extend : isExtend };
+
+          } else {
+
+            throw "Error";
+          }
+
+
+          ret.Extended = isExtend;
+
+          return ret;
+      }
+
+
+
+
 
 
      // FINITE INFORMATION 
@@ -509,15 +796,20 @@ var drawAxis = function (r, grid, offset) {
      var X1_attributes; 
      var X2_attributes;
 
-     // nodal ray 
+/*
+
+     // NODAL RAY 
      var N1_attributes, N2_attributes; 
      N1_attributes = (X1 <= N1) ? real : virtual;
      N2_attributes = (N2 <= X2) ? real : virtual;
      p1 = paper.path( ["M", X1, Y1, "L", N1, 0 ] ).attr(N1_attributes);
      p2 = paper.path( ["M", X2, Y2, "L", N2, 0 ] ).attr(N2_attributes);
      cd_set.push(p1, p2);
+*/
 
 
+     // FOCAL RAY - F2
+/*     
      var P2_attributes, F2_attributes; 
      P2_attributes = (X1 <= P2) ? real : virtual;
      F2_attributes = (P2 <= F2) ? real : virtual;
@@ -528,33 +820,97 @@ var drawAxis = function (r, grid, offset) {
      cd_set.push(p3, p4);
 
 
-     if (F2 <= X2) {  // real image  
-        
+     if (F2 <= X2) {  
+
+        // real image          
         p = paper.path( ["M", F2, 0, "L", X2, Y2 ] ).attr(X2_attributes); // should pass through F2
         cd_set.push (p);
 
-     } else { // virtual image 
-        
+     } else { 
+
+        // virtual image 
         p = paper.path( ["M", P2, Y1, "L", X2, Y2 ] ).attr(X2_attributes); // should apss through F2
         cd_set.push (p);
      }
+*/
 
-     // first principal ray (goes thorugh F1)
+
+     // back focal stle 
+
+
+
+     ConstructObjectRays(data);
+
+
+/*     
+     p1.attr(objectRayStyle.X1P2);
+     p2.attr(objectRayStyle.F2P2); // should apss through F2
+     p3.attr(objectRayStyle.X2F2); // should pass through F2
+     p4.attr(objectRayStyle.P2X2); // should apss through F2
+     cd_set.push(p1, p2, p3, p4);
+
+     if (objectRayStyle.Extended) { 
+
+        // F2 ray 
+        p = paper.path( ["M", P2, Y1, "L",  P2 - 20, Y1 ] ).attr(extend_object); // should apss through F2
+        cd_set.push(p);
+        
+     };
+*/
+
+     /*
+     if (F2 <= X2) {  
+
+        // real image          
+        p = paper.path( ["M", F2, 0, "L", X2, Y2 ] ).attr(X2_attributes); // should pass through F2
+        cd_set.push (p);
+
+     } else { 
+
+        // virtual image 
+        p = paper.path( ["M", P2, Y1, "L", X2, Y2 ] ).attr(X2_attributes); // should apss through F2
+        cd_set.push (p);
+     }
+    */
+
+
+     // FOCAL RAY - F1
+
+     /*
      var P1_attributes, F1_attributes; 
      F1_attributes = (X1 <= F1) ? real : virtual;
      P1_attributes = (F1 <= P1) ? real : virtual;
      X2_attributes = (P1 <= X2) ? real : virtual;
-
-     p1 = paper.path( ["M", X1, Y1, "L", F1, 0 ] ).attr(F1_attributes);
-
-
-
-     p2 = paper.path( ["M", X1, Y1,  "L", P1, Y2 ] ).attr(P1_attributes); // this one needs to be modified 
-     p3 = paper.path( ["M", P1, Y2, "L", X2, Y2 ] ).attr(X2_attributes);
+     p1 = paper.path( ["M", X1, Y1, "L", F1, 0 ] ).attr(F1_attributes);   // F1 -> X1
+     p2 = paper.path( ["M", X1, Y1,  "L", P1, Y2 ] ).attr(P1_attributes); // X1 -> P1  this one needs to be modified 
+     p3 = paper.path( ["M", P1, Y2, "L", X2, Y2 ] ).attr(X2_attributes);  // P1 -> X2
      cd_set.push(p1, p2, p3);
+    */
 
+/*
+     p1 = paper.path( ["M", X1, Y1, "L", F1, 0 ] );   //.attr(objectRayStyle.X1F1);   // F1 -> X1
+     p2 = paper.path( ["M", F1, 0,  "L", P1, Y2 ] ); //.attr(objectRayStyle.F1P1); // X1 -> P1  this one needs to be modified 
+     p3 = paper.path( ["M", P1, Y2, "L", X2, Y2 ] );  //.attr(objectRayStyle.P1X2);  // P1 -> X2
+     p4 = paper.path( ["M", P1, Y2, "L", X1, Y1 ] );  //.attr(objectRayStyle.P1X2);  // P1 -> X2
 
-     // Virtual Image = extension rays for virtual images  
+     objectRayStyle = getFrontFocalRayStyle(X1, F1, P1, X2);
+     p1.attr(objectRayStyle.X1F1); // F1 -> X1
+     p2.attr(objectRayStyle.F1P1); // X1 -> P1  this one needs to be modified 
+     p3.attr(objectRayStyle.P1X2); // P1 -> X2
+     p4.attr(objectRayStyle.X1P1); // X1 -> P1          
+     cd_set.push(p1, p2, p3, p4);
+
+     if (objectRayStyle.Extended) { 
+        var m = (Y1-0)/(X1-F1);
+        p = paper.path( ["M", F1, 0, "L",  F1 - 20, 0 - m*20 ] ).attr(extend_object); // should pass through F1
+        cd_set.push(p);
+     };
+
+*/
+
+/*
+
+     // Virtual IMAGE = extension rays for virtual images  
      if (X2 < P2 + etol) { // virtual 
 
         // virtual image - add extension ray 
@@ -576,12 +932,15 @@ var drawAxis = function (r, grid, offset) {
 
      }
 
+*/
 
 
-     // Virtual Object : extension rays for virtual objects   
-     if (X1 > P1 - etol) { // virtual 
+     // VIRTUAL OBJECT : extension rays for virtual objects   
 
-        // virtual image - add extension ray 
+/*
+
+     if (objectRayStyle.Extended) { 
+
 
         // F1 ray         
         var m = (Y1-0)/(X1-F1);
@@ -589,7 +948,7 @@ var drawAxis = function (r, grid, offset) {
         cd_set.push(p);
 
         // F2 ray 
-        p = paper.path( ["M", P2, Y1, "L",  P2 - 20, Y1 ] ).attr(extend_object);      // should apss through F2
+        p = paper.path( ["M", P2, Y1, "L",  P2 - 20, Y1 ] ).attr(extend_object); // should apss through F2
         cd_set.push(p);
         
         // N1 ray 
@@ -600,9 +959,7 @@ var drawAxis = function (r, grid, offset) {
 
      }
 
-
-
-
+*/
 
       // display the two focal rays 
       // 
@@ -610,13 +967,13 @@ var drawAxis = function (r, grid, offset) {
       // F1: (Object => PF1 PF1 => Image )
       //
 
-
-
-
   }
 
 
 
+
+
+  
   /* ---------------------------------------------------------------------------------------------------------------
 
     renderPointToPoint - render the finite object / image conjugates given a processed pointList

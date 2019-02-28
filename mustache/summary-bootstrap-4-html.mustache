@@ -1,7 +1,9 @@
 <div class="container">
 
-<h4>Powers</h4>
-              <!-- Powers -->
+
+<h4>Summary</h4>
+
+              <!-- Summary -->
               <table class="table">
                 <thead>
                   <tr>
@@ -17,6 +19,23 @@
                     <td>Image space ref. index</td><td>{{n2 | decimal : 5 }}</td>
                   </tr>
                   <tr>
+                    <td>System length</td><td>{{L | decimal : 5 }}</td>
+                  </tr>
+                </tbody>
+              </table>
+
+<h4>Powers</h4>
+
+              <!-- Powers -->
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>name</th>
+                    <th>value</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
                     <td>Equivalent power</td><td>{{F | decimal : 5 }}</td>
                   </tr>
                   <tr>
@@ -25,9 +44,6 @@
                   <tr>
                     <td>Back vertex power</td><td>{{cardinal.VF2 | decimal : 5 }}</td>
                   </tr>
-                  <tr>
-                    <td>System length (L)</td><td>{{L | decimal : 5 }}</td>
-                  </tr>      
                 </tbody>
               </table>
 

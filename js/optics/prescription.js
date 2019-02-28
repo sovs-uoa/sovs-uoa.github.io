@@ -129,6 +129,20 @@ function initializePrescriptionTable(data, updatePrescriptionCallback, success) 
     }
 
 
+    var  updateCellProperties = function(value, data, cell, row, options, formatterParams){
+
+          //value - the value of the cell
+          //data - the data for the row the cell is in
+          //cell - the DOM element of the cell
+          //row - the DOM element of the row
+          //options - the options set for this tabulator
+          //formatterParams - parameters set for the column
+          return "<div></div>"; // must return the html or jquery element of the html for the contents of the cell;
+      }
+
+
+
+
     //  convert to standard form 
     lensTable      = convertToLensTable(data);  // fill in missing fields!
 

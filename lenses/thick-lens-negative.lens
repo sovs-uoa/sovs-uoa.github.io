@@ -28,7 +28,7 @@
 		"type": "sphere",
 		"description": "front surface",
 		"args": {
-			"radius": 8,
+			"radius": -8,
 			"height": 12
 		}
 	}, {
@@ -44,7 +44,7 @@
 		"type": "sphere",
 		"description": "back surface",
 		"args": {
-			"radius": -8,
+			"radius": +8,
 			"height": 12
 		}
 	}, {

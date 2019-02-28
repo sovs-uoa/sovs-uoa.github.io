@@ -424,7 +424,7 @@ function getCardinalPoints (S){
   var A = S.A; var B = S.B;  
   var C = S.C; var D = S.D;
   
-  // information 
+  // key distances 
   ret = {  PF1  : D*A/B-C,
            PF2  : -1/B,
            VN1  : (A-1)/B,
@@ -436,6 +436,9 @@ function getCardinalPoints (S){
 
   return ret;
 }
+
+
+
 
 
 // This will grab system matrix information for a refracting element 
@@ -493,8 +496,8 @@ function getLensElementInfo(elem, index) {
         F = 0;
         S   = refractionMatrix (n1, n2, F);            
         return { S: S, cardinal: getCardinalPoints (S) }; 
-
-        case "index" :
+      
+      case "index" :
         n   = input_elem.index;
         d   = input_elem.thickness;
         S   = translationMatrix (d);            
@@ -522,7 +525,7 @@ function getTotalLensSystemInfo (lensTable) {
                           total : { S        : identitySystem,
                                     X        : normalizedRefractionMatrix(identitySystem, first.index, last.index),
                                     cardinal : null,
-                                    n1 : first.index, n2: last.index,
+                                    n1       : first.index, n2: last.index,
                                     F        : null,
                               } 
                         };

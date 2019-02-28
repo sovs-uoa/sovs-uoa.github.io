@@ -251,59 +251,10 @@
   }
 
 
-
-   function initializeApp () {
-
-
-     // try and load 
-
-     console.log('loader');
-
-
-     // add points 
-     var points = [ { "id"   : 1, 
-                      "type" : "object",
-                      "z"    : -10, 
-                      "h"    : 10 } ];  
-
-
-     // add some handlers
-     //$('#prescription-nav').click( function () { console.log("triggered prescription view update."); });
-     //$('#summary-nav').click( function () { console.log("triggered summary nav view update.");  updateSummaryView(); });
-     //$('#objects-images-nav').click( function () { console.log("triggered objects-images nav view."); lens.pointsTable.redraw(); });
-     //$( "#summary-nav").trigger("click");
-     // $( "#objects-images-nav").trigger("click"); // get this going 
-     //( "#prescription-nav").trigger("click");
-
-
-    // report template 
-    $.get('mustache/report.htm', function (data) {
-        console.log('loaded ... reportTemplate');
-        reportTemplate = data;
-
-        /*
-        aperture    : ""
-        description : "air"
-        group       : ""
-        height      : ""
-        id          : 1
-        index       : 1
-        radius      : 0
-        stop        : false
-        tag_id      : "0001"
-        thickness.  : 0
-        type        : "index"
-        */
-
-    });
-
-
-
-
-
+    function load (filename) {
 
       $.ajax({
-            url : "./lenses/thick-lens.lens",
+            url : filename,
             dataType: "text",
             success : function (data) {
 
@@ -338,6 +289,13 @@
 
 
                                      // when the objects and images tab becomes visible we need to initialize it !!
+
+
+                                    // add points 
+                                    var points  = [ { "id"   : 1, 
+                                                      "type" : "object",
+                                                      "z"    : -10, 
+                                                      "h"    : 10 } ]; 
 
                                      
                                      // initialized the points
@@ -386,6 +344,45 @@
 
       });
 
+
+
+
+    }
+
+
+
+   function initializeApp () {
+
+
+     // try and load 
+
+     console.log('initializeApp.');
+
+
+    // report template 
+    $.get('mustache/report.htm', function (data) {
+        console.log('loaded ... reportTemplate');
+        reportTemplate = data;
+
+        /* ------------------------------------------------
+        aperture    : ""
+        description : "air"
+        group       : ""
+        height      : ""
+        id          : 1
+        index       : 1
+        radius      : 0
+        stop        : false
+        tag_id      : "0001"
+        thickness.  : 0
+        type        : "index"
+        -------------------------------------------------------- */
+
+    });
+
+    var  myfilename = "./lenses/thick-lens-negative.lens";
+    load (myfilename);
+
     }
 
 
@@ -419,24 +416,37 @@
 <div class="row">
   <div class="col">
 
+    <div class="input-group mb-3">
+      <div class="input-group-prepend">
+
       <!-- Buttons -->
         <button class="btn btn-secondary dropdown-toggle float-left" type="button" id="importer" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           Load
         </button>
 
         <div class="dropdown-menu">
-          <a class="dropdown-item" href="#" onclick="">Thin lens</a>
-          <a class="dropdown-item" href="#" onclick="">Single thin Lenses</a>
-          <a class="dropdown-item" href="#" onclick="">Multiple thin lenses</a>
-          <a class="dropdown-item" href="#" onclick="">Gullstrand Eye Model (Relaxed)</a>
-          <a class="dropdown-item" href="#" onclick="">Gullstrand Eye Model (Accommodated)</a>
+          <a class="dropdown-item" href="#" onclick="load ('./lenses/thick-lens-positive.lens');">(Positive) Thick Lens in Air</a>
+          <a class="dropdown-item" href="#" onclick="load ('./lenses/thick-lens-negative.lens');">(Negative) Thick lens in Air</a>
+          <a class="dropdown-item" href="#" onclick="load (this);">Thin lens</a>
+          <a class="dropdown-item" href="#" onclick="load (this);">Single thin Lenses</a>
+          <a class="dropdown-item" href="#" onclick="load (this);">Multiple thin lenses</a>
+          <a class="dropdown-item" href="#" onclick="load (this);">Gullstrand Eye Model (Relaxed)</a>
+          <a class="dropdown-item" href="#" onclick="load (this);">Gullstrand Eye Model (Accommodated)</a>
         </div>            
 
- 
-        <button class='btn btn-primary float-right' onclick='Reporter ();'' > 
-          <i class="fas fa-download"></i>Get Report
-        </button>
+     </div>
+    <input type="text" class="form-control" aria-label="Text input with dropdown button">
 
+
+    <!--  Report button -->  
+    <button class='btn btn-primary float-right' onclick='Reporter ();' > 
+       <i class="fas fa-download"></i>Get Report
+    </button>
+
+   </div>
+
+
+    
 
    </div>
 </div>
@@ -582,7 +592,7 @@
 
         ----------------------------------------------------------------------------------------------------------------------------------------------->
 
-        <div class="tab-pane"  id="summary-tab"  role="tabpanel" aria-labelledby = "summary-nav">
+        <div class="tab-pane"  id="summary-tab"  role="tabpanel" aria-labelledby = "summary-nav" style="overflow-y:scroll;" >
           Summary Information goes here!
         </div>
 
