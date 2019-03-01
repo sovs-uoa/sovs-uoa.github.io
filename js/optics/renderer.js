@@ -67,12 +67,14 @@
         cp_set      = paper.set();
         optics_set  = paper.set();
 
-
        
         oWidth = viewBoxWidth, oHeight = viewBoxHeight;
         var oX = -viewBoxWidth/2, oY = -viewBoxHeight/2, oWidth = viewBoxWidth, oHeight = viewBoxHeight;        
         viewBox   = paper.setViewBox(oX, oY, viewBoxWidth, viewBoxHeight);
         viewBox.X = oX; viewBox.Y = oY;
+
+
+        setScaleFactor ();
 
         // draw the axis 
         drawAxis(paper, true,0);
@@ -165,81 +167,11 @@ var drawAxis = function (r, grid, offset) {
 
  }
 
-/*
-var drawAxis = function (r, grid, offset) {
-  var g = grid || false;
-  var o = offset || 0.1;
-
-  var viewBox = r._viewBox;
-
-  var left    = viewBox[0];
-  var top     = viewBox[1];  
-  var width   = viewBox[2];
-  var height  = viewBox[3];
-  var bottom  = top + height;
-  var right   = left + width;
-
-
-  //r.path("M"+-w+","+o+"L0,"+o+"L"+o+","+h).attr("stroke", "red");
-  //r.path("M"+w+","+o+"L"+(w-5)+",5").attr("stroke", "red");
-  //r.path("M"+o+","+h+"L5,"+(h-5)).attr("stroke", "red");
-  //console.log("left = " + left + " top="+top);
-
-  if (grid) {
-
-      var s = 1;
-
-      // grid vertical 
-      for (var i = left; i<= (left + width); i=i+s) {
-        r.path("M"+i+","+top+"L"+i+","+bottom).attr({ "stroke" : "gray", "stroke-width" : "5", 'stroke-opacity': 0.1 });
-        // if(i%2 == 0) r.text(i*50-10,10,i*50).attr("fill", "blue");
-
-        // minor ticks 
-        r.path("M"+i+",0.05 L"+i+",-0.05").attr({ "stroke" : "black", "stroke-width" : "5", 'stroke-opacity': 0.25 });
-
-        if (i % 5 == 0) {          
-        r.path("M"+i+",0.2 L"+i+",-0.2").attr({ "stroke" : "black", "stroke-width" : "5", 'stroke-opacity': 0.25 });
-        r.text(i, +0.75, i).attr({fill: 'gray', 'font-size':1, "stroke-opacity": 0.1 }).scale(0.75);
-        }
-
-      }
-
-      // grid horizontal 
-      for (var i = top; i<= top + height; i=i+s) {
-        r.path("M"+left+","+i+"L"+right+","+i).attr({ "stroke" : "gray", "stroke-width" : "5", 'stroke-opacity': 0.1 });
-        //if(i%2 == 0) r.text(10,i*50-10,i*50).attr("fill", "blue");
-
-        r.path("M-0.05,"+i+" L0.05,"+i).attr({ "stroke" : "black", 'stroke-opacity': 0 });
-        if (i % 5 == 0) {          
-          r.path("M-0.2,"+i+" L0.2,"+i).attr({ "stroke" : "black", 'stroke-opacity': 0 });
-          r.text(-0.75, i, i).attr({fill: 'gray', 'font-size':1, "stroke-opacity": 0.1 }).scale(0.75);
-
-        }
-
-      }
-
-      // line horizontal 
-      r.path("M"+left+",0 L"+right+",0").attr({ "stroke" : "black", "stroke-width" : "5", 'stroke-opacity': 0.25 });
-
-      // minor ticks 
-
-
-      // major ticks 
-
-
-      // line vertical 
-      r.path("M0,"+top+" L0,"+bottom).attr({ "stroke" : "black", "stroke-width" : "5", 'stroke-opacity': 0.25 });
-
-      // minor ticks 
-
-      // major ticks 
 
 
 
+  /* THESE ARE DRAWING FUNCTIONS */
 
-  }
-}
-*/
 
 
   function drawCardinalPoints(x, y, systemPoints, displayOptions) {
@@ -358,6 +290,11 @@ var drawAxis = function (r, grid, offset) {
   }
 
 
+
+  /* DRAW LENS TYPES   */
+
+
+
   function drawThinLens(x, y, F, displayOptions) {
 
     var lens = paper.set();
@@ -374,7 +311,6 @@ var drawAxis = function (r, grid, offset) {
 
       c1 = paper.path( ["M", x, y2, "L", x+h/30, y2+h/30  ] );
       c2 = paper.path( ["M", x, y2, "L", x-h/30, y2+h/30  ] );
-
       c3 = paper.path( ["M", x, y1, "L", x-h/30, y1-h/30  ] );
       c4 = paper.path( ["M", x, y1, "L", x+h/30, y1-h/30  ] );
 
@@ -457,16 +393,77 @@ var drawAxis = function (r, grid, offset) {
 
 
   function drawPoint(x, y, color) {
-  
+
+    console.log('drawing at X:' +x +',Y:'+y + 'KX:' + kx);
+
     r = kx*4; // 4 pixels is the requested size
+
+
     var c = paper.circle(x, y, r).attr({"fill": color, "fill-opacity": 1.0, "stroke": "#000000", "stroke-width": "1"});
-    c.drag(dragPointMove, dragPointStart, dragPointUp);
-    
+
+    // \c.drag(dragPointMove, dragPointStart, dragPointUp);    
     // c.drag(dragPointMove, dragPointStart, dragPointUp);
     return c;
   } 
 
+/* ---------------------------------------------------------------------------------------------------------------
 
+    DRAWCONJUGATES Conjugates are intended to be left draggable on the canvas. 
+
+    Deleting or adding a conjugate should require a refresh call !!!
+  
+   --------------------------------------------------------------------------------------------------------------- */
+
+  function drawConjugates(data, dataOptions) {
+
+    console.log("-- draw conjugates");
+
+    // var dataOptions = this.dataOptions;
+
+    var X1 = data.X1;
+    var Y1 = data.Y1;
+    if (isFinite(X1) & isFinite(Y1)) {
+      // console.log('X1 = ' + X1 + ' Y1 = '+ Y1);
+      
+
+      console.log("---- added point id = " + data.id + " (object)");
+      // object points are draggable 
+      var c = drawPoint(X1, Y1, "green");               
+      c.id = "point-" + data.id + "-object";
+      c.data("info", { id : data.id, type : "object" });
+      c.drag(move, start, up);
+
+/*      
+      c.click (function () {
+        //console.log(this);
+        //console.log(e);
+        console.log("clicked object point = " + this.id);
+        //select (this.id);
+      });
+*/
+
+      //this.ps_set.push(c); 
+    } else {
+      error("undefined object!");
+    };
+
+   var X2 = data.X2;
+   var Y2 = data.Y2;
+   if (isFinite(X2) & isFinite(Y2)) {
+      
+      // image points are draggable 
+      console.log("---- added point id = " + data.id + " (image)");
+      var c = drawPoint(X2, Y2, "cyan");         
+      c.id = "point-" + data.id + "-image";
+      c.data("info",{ id : data.id, type : "image" });
+      c.drag(move, start, up);
+      //this.ps_set.push(c); 
+
+    } else {
+    error("undefined object!");
+    }
+
+  }
 
 
   /* ---------------------------------------------------------------------------------------------------------------

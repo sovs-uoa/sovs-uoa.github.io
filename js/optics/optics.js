@@ -26,7 +26,7 @@ Optics.analyze = function (lensTable) {
 }
 
 Optics.calculatePointToPoint = function (lensSystem, pointList) {
-  return calculatePointToPoint (lensSystem, pointList)
+  return calculateFwdPointToPoint (lensSystem, pointList)
 }
 
 
@@ -185,9 +185,13 @@ function rayMultiply (S, r) {
 };
 
 
+
+
+
+
 /* -----------------------------------------------------------------------
 
-CALCULATEPOINTOTPOINT Elementwise point-to-point calcuulation
+CALCULATEPOINTOTPOINT Elementwise point-to-point calcuulation (DEPRECATED)
 
   points are specified relative to the origin of the coorinate system
 
@@ -198,7 +202,7 @@ CALCULATEPOINTOTPOINT Elementwise point-to-point calcuulation
 
 --------------------------------------------------------------------------- */
 
-function calculatePointToPoint(systemInfo, pointList) {
+function calculateFwdPointToPoint(systemInfo, pointList) {
 
       total = [];
 
@@ -214,13 +218,13 @@ function calculatePointToPoint(systemInfo, pointList) {
 
           // axial ray gives axial image point 
           var id  = pointList[j].id;
-          var z   = pointList[j].z; // relative to front vertex (0,0)          
+          var z   = pointList[j].zo; // relative to front vertex (0,0)          
           var h; var X1; var Y1;
 
           if (isFinite(z)) { // finite object distance 
 
               // find a point 
-              h  = pointList[j].h;
+              h  = pointList[j].ho;
               X1 = z;
               Y1 = h;
                   
@@ -271,7 +275,7 @@ function calculatePointToPoint(systemInfo, pointList) {
          } else { // infinite object distance => finite image
 
             var curr_point = pointList[j];
-            th     = curr_point.th;
+            th     = curr_point.tho;
             
             result = {  id  : id,     
                         VO  : z,

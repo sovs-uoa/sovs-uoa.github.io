@@ -251,6 +251,8 @@ function initializePointsTable(data, updatePointsCallback, success) {
       },
 */
 
+      console.log('points table ... initializing.');
+
       //Build Tabulator
       lens.pointsTable = new Tabulator("#lens-points", {
          cellEdited:function(cell){
@@ -265,16 +267,18 @@ function initializePointsTable(data, updatePointsCallback, success) {
         layout:"fitColumns",
         columns:[
             {rowHandle:true, formatter:"handle", headerSort:false, frozen:true, width:30, minWidth:30},
-            {title:"id",    field:"id",      width:100, headerSort:false},                  
-            {title:"type",  field:"type",    width:100, headerSort:false},                  
-            {title:"z",     field:"z",       width:100, editor:"input", headerSort:false},                  
-            {title:"h",     field:"h",       width:200, editor:"input", headerSort:false},
+            {title:"id",     field:"id",      width:100, headerSort:false},                  
+            {title:"type",   field:"type",    width:100, headerSort:false},                  
+            {title:"zo",     field:"zo",       width:100, editor:"input", headerSort:false},                  
+            {title:"ho",     field:"ho",       width:200, editor:"input", headerSort:false},
+            {title:"zi",     field:"zi",       width:100, editor:"input", headerSort:false},                  
+            {title:"hi",     field:"hi",       width:200, editor:"input", headerSort:false}
         ],
       });
 
 
-      console.log("just called lems table");
-      console.log(lens.pointsTable);
+      //console.log("just called lems table");
+      //console.log(lens.pointsTable);
 
 
       // show the points 
