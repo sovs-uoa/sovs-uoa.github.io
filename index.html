@@ -49,6 +49,7 @@
   <script src="js/optics/RayConstruction.js"></script>    
   <script src="js/optics/prescription.js"></script>
   <script src="js/optics/raphael.export.js"></script>
+  <script src="js/optics/AnglePicker.js"></script>  
   <script src="js/utils.js"></script>  
 
 
@@ -62,6 +63,7 @@
 <script>
 
 
+  var   ap;
 
   var   SelectedObjectPointId;
   var   totalConjList = [];
@@ -482,6 +484,8 @@
                                           // conjugate points are draggable controllers 
                                           showConjugates();
 
+
+                                          ap = new AnglePicker (0, 0, 5, 45);
 
                                           /* INITIALIZE THE VIEW */
                                           //drawOptics(renderableLens);  

@@ -394,7 +394,7 @@ var drawAxis = function (r, grid, offset) {
 
   function drawPoint(x, y, color) {
 
-    console.log('drawing at X:' +x +',Y:'+y + 'KX:' + kx);
+    console.log('drawing at X:' +x +',Y:'+y + ' KX:' + kx);
 
     r = kx*4; // 4 pixels is the requested size
 
