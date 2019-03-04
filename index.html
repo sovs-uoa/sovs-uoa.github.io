@@ -50,6 +50,7 @@
   <script src="js/optics/prescription.js"></script>
   <script src="js/optics/raphael.export.js"></script>
   <script src="js/optics/AnglePicker.js"></script>  
+  <script src="js/optics/PrincipalRayConstruction.js"></script>  
   <script src="js/utils.js"></script>  
 
 
@@ -93,6 +94,37 @@
         return Number(Math.round(value+'e'+decimals)+'e-'+decimals);
       }
     }
+
+
+/* -------------------------------------------------------------------------------
+
+getConjuugateTo
+
+------------------------------------------------------------------------------- */
+
+  function getConjugateTo (which, eachPoint, lens) {
+
+    // updates the conjugate end point in the table
+    pointInfo   = Optics.calculatePointToPoint(lens, [ eachPoint ]);
+
+    switch (which) {
+
+      case "object":
+      return pointInfo[0];
+      
+      case "image":
+      error("not implemented!"); // need to change the "calculatePointToPoint"
+      break;
+
+
+      default:
+        error ("dont know this one!");
+
+    }
+  }
+
+
+
 
 
   /* -----------------------------------------------------------------------------
@@ -257,7 +289,7 @@
     }
   }
 
-  function getConjTo (which, eachPoint) {
+  function getConjTo (which, eachPoint, lens) {
 
     // updates the conjugate end point in the table
     totalLens   = renderableLens.total;    
@@ -320,6 +352,13 @@
 
   }
 
+
+  function updateConstruction () {
+
+    console.log("update construction.");
+
+
+  }
 
 
   function updateSummaryView () {
@@ -421,7 +460,10 @@
                         function () {  // success !!! 
 
                                 console.log("loaded a prescription ...");                                                 
-                                updatePrescriptionView();                 // show the lenses                                    
+                                updatePrescriptionView();            
+
+
+                                // show the lenses                                    
                                 // $( "#prescription-nav").trigger("click"); // show the table 
 
                                 // we can now load the prescription 
@@ -447,13 +489,15 @@
                                                       "which": "object",
                                                       "z"    : -20, 
                                                       "h"    : -10
-                                                      }, 
+                                                      }];
+
+  /*                                                      
                                                       { "id" : 3, 
                                                       "type" : "parallel",
                                                       "which": "object",
                                                       "th"   : 30, 
                                                       }]; 
-
+*/
 
                                     // information 
                                     function converterPoints(points) {
@@ -523,18 +567,21 @@
 
                                      
                                      // initialized the points
-                                    initializePointsTable (converterPoints(points), updatePointsView, function () {
+                                    initializePointsTable (converterPoints(points), updateConstruction, function () {
                                           
 
-                                          console.log("loaded points table ...");
+                                          // ... code runs after successful loading of the table 
+                                          var conjugates = lens.pointsTable.getData ();
+                                          conjugates.forEach( eachPoint => {
+                                              totalLens      = renderableLens.total;
+                                              pairDescription = getConjugateTo("object", eachPoint, totalLens); // only works in fwd direction 
+                                              lens.raphael.constructions.push( new PrincipalRayConstruction (totalLens, pairDescription));                                          
+                                          });
 
 
                                           // conjugate points are draggable controllers 
-                                          showConjugates();
-
-
-
-                                          ap = new AnglePicker (0, 0, 5, 45);
+                                          //showConjugates();
+                                          //ap = new AnglePicker (0, 0, 5, 45);
 
                                           /* INITIALIZE THE VIEW */
                                           //drawOptics(renderableLens);  

@@ -77,7 +77,11 @@ function moveConstruction (dx, dy) {
       this.attr({ cx: nowX, cy: nowY });
   
       var thisPoint = this.data("data-attr");
-      updateConjugateTo (thisPoint);  // conjugate points 
+      updateConjugateTo (thisPoint);  // update the raphael paper + lens table 
+      
+
+      // redraw depends on type of object 
+
 
       // update the location of the rays !!!!
       // updatePointsView ();
@@ -120,6 +124,8 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
 
        this.data   = data;
        this.lens   = lens;
+
+       this.addPrincipalRayConstruction ();
     }
 
 
@@ -141,7 +147,7 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
     addPrincipalRayConstruction () {
 
 
-        drawRayConstruction (); // this requires the lens prescription 
+        this.drawRayConstruction (); // this requires the lens prescription 
 
 
         // conjugate data (in laboratory frame!)
@@ -151,7 +157,7 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
         // draggable construction points s
         this.objectPoint = drawPoint(X1, Y1, "red");  // object  
         this.objectPoint.drag (moveConstruction, startConstruction, upConstruction);        
-        this.objectPoint.attr("data-attr", { "element-id" : "point-" + this.data.id + "-object", "id" : this.data.id});
+        this.objectPoint.attr("data-attr", { "element-id" : "point-" + this.data.id + "-object", "id" : this.data.id });
 
         this.imagePoint  = drawPoint(X2, Y2, "green"); // image  
         this.imagePoint.drag (moveConstruction, startConstruction, upConstruction);
@@ -164,7 +170,7 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
 
   /* ---------------------------------------------------------------------------------------------------------------
 
-    renderCardinalRays - render the finite object / image conjugates given a processed pointList
+    drawRayConstruction() - render the finite object / image conjugates given a processed pointList
 
     TO DO:
 
@@ -177,7 +183,7 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
    --------------------------------------------------------------------------------------------------------------- */
 
 
-  drawRayConstruction(lens, conjObject) {
+  drawRayConstruction() {
 
      // console.log(lens);
 
@@ -186,6 +192,7 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
      displayOptions = this.displayOptions;
 
      // position of points in the lab frame
+     var lens = this.lens;
      var N1 = lens.cardinal.VN1;
      var N2 = lens.L + lens.cardinal.VN2;
      var P1 = lens.cardinal.VP1;
@@ -194,39 +201,43 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
      var F2 = lens.L + lens.cardinal.VF2;
 
      // Object 
-     var X1 = this.data.X1;
-     var Y1 = this.data.Y1;     
-     var X2 = this.data.X2;
-     var Y2 = this.data.Y2;
+     var data = this.data;
+     var X1 = data.X1;
+     var Y1 = data.Y1;     
+     var X2 = data.X2;
+     var Y2 = data.Y2;
 
     // 
-    ret = getObjectStyle(this.data);
-
+    ret = getObjectStyle({ N1 : N1, N2: N2, 
+                           P1 : P1, P2: P2,
+                           F1 : F1, F2: F2,
+                           X1 : X1, X2: X2,
+                           Y1 : Y1, Y2: Y2 });
 
     this.cd_set.remove ();
     this.cd_set = paper.set();
 
 	  // Nodal ray height at the principal plane  
 	  // N1 RAY - ray through 1 to P1 
-	  var H1 = (0 - data.Y1) / (data.N1 - data.X1 ) * (data.P1 - data.X1) + data.Y1;
-	  var p1 = paper.path( ["M", data.X1, data.Y1, "L", data.P1, H1 ]);    // O  -> H1   (ray through F1)
-	  var p2 = paper.path( ["M", data.P1, H1,  "L", data.N1, 0]);    // H1 -> N1   (ray through F1)
+	  var H1 = (0 - Y1) / (N1 - X1 ) * (P1 - X1) + Y1;
+	  var p1 = paper.path( ["M", X1, Y1, "L", P1, H1 ]);    // O  -> H1   (ray through F1)
+	  var p2 = paper.path( ["M", P1, H1,  "L", N1, 0]);    // H1 -> N1   (ray through F1)
 	  p1.attr(ret.N1.OP);
 	  p2.attr(ret.N1.PN); 
 	  this.cd_set.push(p1, p2);
 
 	  // F1 RAY - ray through F1 to P1 
-	  p1 = paper.path( ["M", data.X1, data.Y1, "L", data.F1, 0 ]);        // O  -> F1   (ray through F1)
-	  p2 = paper.path( ["M", data.F1, 0,  "L", data.P1, data.Y2]);        // F1 -> P1   (ray through F1)
-	  var p3 = paper.path( ["M", data.X1, data.Y1, "L", data.P1, data.Y2 ]);  // O  -> P1   (horizontal ray through F2)
+	  p1 = paper.path( ["M", X1, Y1, "L", F1, 0 ]);        // O  -> F1   (ray through F1)
+	  p2 = paper.path( ["M", F1, 0,  "L", P1, Y2]);        // F1 -> P1   (ray through F1)
+	  var p3 = paper.path( ["M", X1, Y1, "L", P1, Y2 ]);  // O  -> P1   (horizontal ray through F2)
 	  p1.attr(ret.F1.OF);
 	  p2.attr(ret.F1.FP); 
 	  p3.attr(ret.F1.OP); 
 	  this.cd_set.push(p1, p2, p3);
 
 	  // F2 RAY - ray through P2 to F2 
-	  p1 = paper.path( ["M", data.X1, data.Y1,  "L", data.P1, data.Y1 ]);   // O  -> P1   (ray through F1)
-	  p2 = paper.path( ["M", data.P2, data.Y1,  "L", data.X1, data.Y1 ]);   // P2 -> O   (ray through F1)
+	  p1 = paper.path( ["M", X1, Y1,  "L", P1, Y1 ]);   // O  -> P1   (ray through F1)
+	  p2 = paper.path( ["M", P2, Y1,  "L", X1, Y1 ]);   // P2 -> O   (ray through F1)
 	  p1.attr(ret.F2.OP1);
 	  p2.attr(ret.F2.OP2); 
 	  this.cd_set.push(p1, p2);

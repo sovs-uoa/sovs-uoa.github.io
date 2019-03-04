@@ -12,6 +12,8 @@ var lens = {  prescription : null,
               points       : null,
               pointsTable  : null,
 
+              raphael : { constructions: [] },              
+
               modal: { group:       "",
                         type:        "",
                         description: "",
