@@ -254,11 +254,7 @@
           console.log("showing .... conjugate pair id = " + elem.id);
           drawConjugates(elem, displayOptions);
         } );
-
-
     }
-
-
   }
 
   function getConjTo (which, eachPoint) {
@@ -441,31 +437,84 @@
 
                                     // add points 
                                     var points  = [ { "id"   : 1, 
-                                                      "type" : "object",
+                                                      "type" : "finite",
+                                                      "which": "object",
                                                       "z"    : -10, 
                                                       "h"    : 10,
                                                        }, 
-                                                      { "id"   : 2, 
-                                                      "type" : "object",
+                                                      { "id" : 2, 
+                                                      "type" : "finite",
+                                                      "which": "object",
                                                       "z"    : -20, 
                                                       "h"    : -10
-                                                    } ]; 
+                                                      }, 
+                                                      { "id" : 3, 
+                                                      "type" : "parallel",
+                                                      "which": "object",
+                                                      "th"   : 30, 
+                                                      }]; 
 
 
+                                    // information 
                                     function converterPoints(points) {
                                         out = [];
                                         points.forEach( each => {
-                                            if (each.type === "object") {
-                                                // add a new point
-                                                out.push({ id : each.id,
-                                                           zo : each.z,
-                                                           ho : each.h,
-                                                           zi : null,
-                                                           hi : null });
-                                            } else if (each.type === "image" ) {
-                                                // not implemented yet
-                                                error ("not implemented ");
-                                            };
+
+                                            switch (each.type) {
+
+                                               /* ------------------------------------
+
+                                                FINITE RAYS 
+
+                                               ---------------------------------------- */
+
+                                                case "finite":
+
+                                                 data  = {    id  : each.id,
+                                                             type : each.type,
+                                                             which: each.which };
+
+                                                 switch (data.which) {
+                                                    case "object":
+                                                      data.zo  = each.z;
+                                                      data.ho  = each.h;
+                                                      data.zi  = null;
+                                                      data.hi  = null;
+                                                      break;
+
+                                                    case "image":
+                                                      data.zi  = each.z;
+                                                      data.hi  = each.h;
+                                                      data.zo  = null;
+                                                      data.ho  = null;
+                                                      break;
+                                                 }
+
+                                               out.push(data); 
+                                               break; 
+
+                                               /* ------------------------------------
+
+                                                PARALLEL RAYS 
+
+                                               ---------------------------------------- */
+
+
+                                                case "parallel":
+
+                                                  out.push({ id   : each.id,
+                                                             type : each.type,
+                                                             tho  : each.th,
+                                                             zi   : null,
+                                                             hi   : null });
+                                                  break;
+
+                                                default:
+                                                  error ("not iplemented.");
+                                                  break;
+
+                                            }
+
                                         });
                                         return out;
                                     }
@@ -480,9 +529,9 @@
                                           console.log("loaded points table ...");
 
 
-
                                           // conjugate points are draggable controllers 
                                           showConjugates();
+
 
 
                                           ap = new AnglePicker (0, 0, 5, 45);
