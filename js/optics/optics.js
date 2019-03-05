@@ -55,10 +55,8 @@ Optics.extractGroup = function (lens, group_name) {
   console.log(ret);
   console.log(lens.length);
   console.log(lastIndex);
-
   return ret;
 }
-
 
 
 
@@ -67,6 +65,18 @@ Optics.extractGroup = function (lens, group_name) {
 % CONVERSION FUNCTIONS  
 %
 --------------------------------------------------------------------------------*/
+
+
+function polar2cartesian (r, theta) {
+        x = r * Math.cos(theta); let y = r * Math.sin(theta);
+        return { x: x, y: y};
+}
+
+function deg2rad (theta) {
+        theta = theta * Math.PI / 180;
+        return theta;
+}
+
 
 
 
@@ -272,11 +282,13 @@ function calculateFwdPointToPoint(systemInfo, pointList) {
               }
 
 
-         } else { // infinite object distance => finite image
+         } else { 
 
+
+            // infinite object distance => finite image
             var curr_point = pointList[j];
-            th     = curr_point.tho;
-            
+            th_deg         = curr_point.tho;  // in radians            
+            th             = deg2rad(curr_point.tho);  // in radians            
             result = {  id  : id,     
                         VO  : z,
                         PO  : undefined, 
@@ -289,7 +301,8 @@ function calculateFwdPointToPoint(systemInfo, pointList) {
                         Y1  : undefined,
                         X2  : Z + L + curr.cardinal.VF2,  // zd is a vertex distance 
                         Y2  : n1 * th / curr.F,
-                        TH  : th
+                        T1  : th_deg,
+                        T2  : undefined
                       };
 
         }

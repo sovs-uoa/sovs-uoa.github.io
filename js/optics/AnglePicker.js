@@ -1,14 +1,4 @@
 
-function polar2cartesian (r, theta) {
-        x = r * Math.cos(theta); let y = r * Math.sin(theta);
-        return { x: x, y: y};
-}
-
-function deg2rad (theta) {
-        theta = theta * Math.PI / 180;
-        return theta;
-}
-
 /* -------------------------------------------------------------------------------
 
 */

@@ -51,6 +51,7 @@
   <script src="js/optics/raphael.export.js"></script>
   <script src="js/optics/AnglePicker.js"></script>  
   <script src="js/optics/PrincipalRayConstruction.js"></script>  
+  <script src="js/optics/ParallelBeamConstruction.js"></script>  
   <script src="js/utils.js"></script>  
 
 
@@ -489,6 +490,11 @@ getConjuugateTo
                                                       "which": "object",
                                                       "z"    : -20, 
                                                       "h"    : -10
+                                                      },
+                                                      { "id" : 3, 
+                                                      "type" : "parallel",
+                                                      "which": "object",
+                                                      "th"   : -30 
                                                       }];
 
   /*                                                      
@@ -520,19 +526,24 @@ getConjuugateTo
 
                                                  switch (data.which) {
                                                     case "object":
-                                                      data.zo  = each.z;
-                                                      data.ho  = each.h;
-                                                      data.zi  = null;
-                                                      data.hi  = null;
+                                                      data.zo   = each.z;
+                                                      data.ho   = each.h;
+                                                      data.tho  = null;
+                                                      data.zi   = null;
+                                                      data.hi   = null;
+                                                      data.thi  = null;
                                                       break;
 
                                                     case "image":
-                                                      data.zi  = each.z;
-                                                      data.hi  = each.h;
-                                                      data.zo  = null;
-                                                      data.ho  = null;
+                                                      data.zi   = each.z;
+                                                      data.hi   = each.h;
+                                                      data.thi  = null;
+                                                      data.zo   = null;
+                                                      data.ho   = null;
+                                                      data.tho  = null;
                                                       break;
                                                  }
+
 
                                                out.push(data); 
                                                break; 
@@ -546,11 +557,15 @@ getConjuugateTo
 
                                                 case "parallel":
 
-                                                  out.push({ id   : each.id,
-                                                             type : each.type,
-                                                             tho  : each.th,
-                                                             zi   : null,
-                                                             hi   : null });
+                                                  out.push({ id    : each.id,
+                                                             type  : each.type,
+                                                             which : each.which,                                                              
+                                                             tho   : each.th,
+                                                             zo    : -Infinity, // OBJECT 
+                                                             ho    : null,
+                                                             zi    : null,
+                                                             hi    : null,
+                                                             thi   : null });
                                                   break;
 
                                                 default:
@@ -571,11 +586,26 @@ getConjuugateTo
                                           
 
                                           // ... code runs after successful loading of the table 
-                                          var conjugates = lens.pointsTable.getData ();
-                                          conjugates.forEach( eachPoint => {
-                                              totalLens      = renderableLens.total;
-                                              pairDescription = getConjugateTo("object", eachPoint, totalLens); // only works in fwd direction 
-                                              lens.raphael.constructions.push( new PrincipalRayConstruction (totalLens, pairDescription));                                          
+                                          var points = lens.pointsTable.getData ();
+                                          points.forEach( eachPoint => {
+                                              totalLens  = renderableLens.total;
+                                              pairData   = getConjugateTo("object", eachPoint, totalLens); // only works in fwd direction 
+                                              
+                                              switch (eachPoint.type) {
+
+                                                    case "finite":   // finite placed beam 
+                                                      lens.raphael.constructions.push( new PrincipalRayConstruction (totalLens, pairData));
+                                                      break;
+
+                                                    case "parallel": // infinitely placed beam 
+                                                      lens.raphael.constructions.push( new ParallelBeamConstruction (totalLens, pairData));
+                                                      break;
+
+                                                    default: 
+
+                                              }
+
+                                          
                                           });
 
 
