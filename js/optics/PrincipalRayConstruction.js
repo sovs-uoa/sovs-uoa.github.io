@@ -1,5 +1,4 @@
 
-
 var attributes      = { "fill": "gray", "stroke-opacity": 0.5, "stroke": "black", "stroke-width": "1" };
 var virtual         = { "fill": "gray", "stroke-opacity": 0.5, "stroke": "black", "stroke-width": "1", "stroke-dasharray":"--" };
 var real            = { "stroke": "magenta", "stroke-width": "1", "stroke-dasharray":"none"  };
@@ -7,14 +6,16 @@ var none            = { "stroke": "none", "stroke-width": "1" };
 var extend          = { "fill": "red", "stroke-opacity": 0.5, "stroke": "red", "stroke-width": "1" };
 var extend_object   = { "fill": "green", "stroke-opacity": 0.5, "stroke": "green", "stroke-width": "1" };
 var picker_extender = { "stroke": "red", "stroke-width": 1, "stroke-dasharray":"--"  };
+var changed         = { "stroke": "blue", "stroke-width": 1, "stroke-dasharray":"--"  };
 
+var globalElem;
 
 
 /*   -------------------------------------------------
 
-UPDATECONJUGATETO Update conjugate point 
+UPDATECONJUGATETO Update conjugate point in table and on-screen 
 
- - Called on change to point
+ - Should be called on change to point
 
 ------------------------------------------------------ */
 
@@ -22,26 +23,27 @@ UPDATECONJUGATETO Update conjugate point
 function updateConjugateTo (myPoint) {
 
 
+
       // lens is global !
 
       switch (myPoint.type) {
 
-          case "object" :
+          case "object" : // update the conjugate [point]
             
             // update the lens table
             lens.pointsTable.updateData([ { "id": myPoint.id, "zo": nowX, "ho": nowY } ]);
             pt = getConjTo (myPoint.type, { id:0, zo: nowX, ho: nowY }); // this only works in the forward direction
             lens.pointsTable.updateData([ { "id": myPoint.id, "zi": pt.X2, "hi": pt.Y2 } ]); // change this for vertex 
-            c = paper.getById(myPoint.element_id);
+            c = paper.getById(myPoint.conjugate_id);
             c.attr({ cx: pt.X2, cy: pt.Y2 });
             break;
 
           case "image" :
             error("error!");
-            lens.pointsTable.updateData([ { "id": eleminfo.id, "zi": nowX, "hi": nowY } ]);
+            lens.pointsTable.updateData([ { "id": myPoint.id, "zi": nowX, "hi": nowY } ]);
             pt = getConjTo (myPoint.type, { id:0, zo: nowX, ho: nowY });   // this only works in the forward direction
             lens.pointsTable.updateData([ { "id": myPoint.id, "zi": pt.X1, "hi": pt.Y1 } ]);
-            c = paper.getById(myPoint.element_id);
+            c = paper.getById(myPoint.conjugate_id);
             c.attr({ cx: pt.X1, cy: pt.Y1 });
             break;
 
@@ -50,6 +52,8 @@ function updateConjugateTo (myPoint) {
 
       }
 
+
+    return pt;
 }
 
 /* ------------------------------------------------------
@@ -74,15 +78,19 @@ function moveConstruction (dx, dy) {
       nowX = Math.round(nowX / gridSnapSize) * gridSnapSize;
       nowY = Math.round(nowY / gridSnapSize) * gridSnapSize;
 
+      // update the point 
       this.attr({ cx: nowX, cy: nowY });
-  
+
+      // 4pairDescription = getConjugateTo("object", eachPoint, totalLens); // only works in fwd direction 
+
+      // update the conjugate 
       var thisPoint = this.data("data-attr");
-      updateConjugateTo (thisPoint);  // update the raphael paper + lens table 
-      
+      pairData = updateConjugateTo (thisPoint);  // update the Raphael paper + lens table + return a pairData object
+      thisPoint.parent.setPairData(pairData);
+      thisPoint.parent.drawRayConstruction ();
+
 
       // redraw depends on type of object 
-
-
       // update the location of the rays !!!!
       // updatePointsView ();
    }
@@ -125,6 +133,9 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
        this.data   = data;
        this.lens   = lens;
 
+       this.imagePoint;
+       this.objectPoint;
+
        this.addPrincipalRayConstruction ();
     }
 
@@ -156,15 +167,37 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
 
         // draggable construction points s
         this.objectPoint = drawPoint(X1, Y1, "red");  // object  
-        this.objectPoint.drag (moveConstruction, startConstruction, upConstruction);        
-        this.objectPoint.attr("data-attr", { "element-id" : "point-" + this.data.id + "-object", "id" : this.data.id });
+        this.objectPoint.drag (moveConstruction, startConstruction, upConstruction);      
+        this.objectPoint.id = "point-" + this.data.id + "-object";          
+        this.objectPoint.data("data-attr", {  "element_id"   : "point-" + this.data.id + "-object",
+                                              "conjugate_id" : "point-" + this.data.id + "-image",
+                                              "id"           : this.data.id, 
+                                              "type"         : "object", 
+                                              "parent"       : this });
+
 
         this.imagePoint  = drawPoint(X2, Y2, "green"); // image  
         this.imagePoint.drag (moveConstruction, startConstruction, upConstruction);
-        this.objectPoint.attr("data-attr", { "element-id" : "point-" + this.data.id + "-image", "id" : this.data.id});
+        this.imagePoint.id = "point-" + this.data.id + "-image";
+        this.imagePoint.data("data-attr", {  "element_id"     : "point-" + this.data.id + "-image",
+                                              "conjugate_id"  : "point-" + this.data.id + "-object",
+                                              "id"            : this.data.id, 
+                                              "type"          : "image",
+                                              "parent"        : this });
+
+
+
+
+        // this.imagePoint.data("data-attr", { "element-id" : "point-" + this.data.id + "-image", "id" : this.data.id, "type" : "image"});
+
 
         //this.imagePoint.data("data-attr");
 
+    }
+
+
+    setPairData (data) {
+      this.data = data;
     }
 
 
@@ -182,10 +215,15 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
   
    --------------------------------------------------------------------------------------------------------------- */
 
+   remove () {
+      this.cd_set.remove ();
+   }
+
 
   drawRayConstruction() {
 
      // console.log(lens);
+
 
      console.log("-- draw ray construction.");
 
@@ -215,7 +253,7 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
                            Y1 : Y1, Y2: Y2 });
 
     this.cd_set.remove ();
-    this.cd_set = paper.set();
+    //this.cd_set = paper.set();
 
 	  // Nodal ray height at the principal plane  
 	  // N1 RAY - ray through 1 to P1 
@@ -242,6 +280,8 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
 	  p2.attr(ret.F2.OP2); 
 	  this.cd_set.push(p1, p2);
 
+    
+    //this.cd_set = paper.set();
 
  }
 
