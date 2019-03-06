@@ -528,19 +528,19 @@ getConjuugateTo
                                                     case "object":
                                                       data.zo   = each.z;
                                                       data.ho   = each.h;
-                                                      data.tho  = null;
+                                                      data.to   = null;
                                                       data.zi   = null;
                                                       data.hi   = null;
-                                                      data.thi  = null;
+                                                      data.ti   = null;
                                                       break;
 
                                                     case "image":
                                                       data.zi   = each.z;
                                                       data.hi   = each.h;
-                                                      data.thi  = null;
+                                                      data.ti   = null;
                                                       data.zo   = null;
                                                       data.ho   = null;
-                                                      data.tho  = null;
+                                                      data.to   = null;
                                                       break;
                                                  }
 
@@ -560,12 +560,12 @@ getConjuugateTo
                                                   out.push({ id    : each.id,
                                                              type  : each.type,
                                                              which : each.which,                                                              
-                                                             tho   : each.th,
+                                                             to    : each.th,
                                                              zo    : -Infinity, // OBJECT 
                                                              ho    : null,
                                                              zi    : null,
                                                              hi    : null,
-                                                             thi   : null });
+                                                             ti    : null });
                                                   break;
 
                                                 default:

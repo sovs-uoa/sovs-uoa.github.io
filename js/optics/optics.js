@@ -78,6 +78,11 @@ function deg2rad (theta) {
 }
 
 
+function rad2deg (theta) {
+        theta = theta * 180 / Math.PI;
+        return theta;
+}
+
 
 
 //Function to assign the default values for the staircase parameters
@@ -287,8 +292,8 @@ function calculateFwdPointToPoint(systemInfo, pointList) {
 
             // infinite object distance => finite image
             var curr_point = pointList[j];
-            th_deg         = curr_point.tho;  // in radians            
-            th             = deg2rad(curr_point.tho);  // in radians            
+            th_deg         = curr_point.to;  // in radians            
+            th             = deg2rad(curr_point.to);  // in radians            
             result = {  id  : id,     
                         VO  : z,
                         PO  : undefined, 

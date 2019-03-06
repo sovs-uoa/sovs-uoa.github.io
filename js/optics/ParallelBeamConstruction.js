@@ -13,15 +13,40 @@ var globalElem;
 
 /*   -------------------------------------------------
 
-UPDATECONJUGATETO Update conjugate point in table and on-screen 
-
- - Should be called on change to point
+These functions are called as the picker is dragged 
 
 ------------------------------------------------------ */
 
+function onstart ()   { console.log("onstart picker"); };
 
-function updateConjugateTo (myPoint) {
+function onmove (th)  { 
 
+      // AnglePicker
+      console.log("onmove picker");
+      console.log(this.parent);                     
+      this.parent.data.T1 = th;  // updates the angle 
+      this.parent.remove(); 
+      this.parent.drawBeamConstruction(); 
+
+
+      c = this.data("data-attrib");
+            
+      // update the conjugate point in table !!
+      updateBeamConjugate (c.conjugate_id, this.parent.data);
+
+};
+
+function onup ()      { console.log("onup picker"); };
+
+
+/*   -----------------------------------------------------------------
+
+UPDATE BEAM CONJUGATE Update conjugate point in table and on-screen 
+
+--------------------------------------------------------------------- */
+
+
+function updateBeamConjugate (id, myPoint) {
 
 
       // lens is global !
@@ -31,20 +56,20 @@ function updateConjugateTo (myPoint) {
           case "object" : // update the conjugate [point]
             
             // update the lens table
-            lens.pointsTable.updateData([ { "id": myPoint.id, "zo": nowX, "ho": nowY } ]);
-            pt = getConjTo (myPoint.type, { id:0, zo: nowX, ho: nowY }); // this only works in the forward direction
-            lens.pointsTable.updateData([ { "id": myPoint.id, "zi": pt.X2, "hi": pt.Y2 } ]); // change this for vertex 
-            c = paper.getById(myPoint.conjugate_id);
-            c.attr({ cx: pt.X2, cy: pt.Y2 });
+            lens.pointsTable.updateData([ { "id": id, "to": myPoint.T1 } ]);
+            pairData = getConjTo (myPoint.type, { id:0, zo:-Infinity, to: myPoint.T1 }); // this only works in the forward direction
+            lens.pointsTable.updateData([ { "id": id, "zi": pairData.X2, "hi": pairData.Y2 } ]); // not afocal 
+            c = paper.getById(id);
+            c.attr({ cx: pt.X2, cy: pt.Y2 }); // update the image point 
             break;
 
           case "image" :
             error("error!");
-            lens.pointsTable.updateData([ { "id": myPoint.id, "zi": nowX, "hi": nowY } ]);
-            pt = getConjTo (myPoint.type, { id:0, zo: nowX, ho: nowY });   // this only works in the forward direction
-            lens.pointsTable.updateData([ { "id": myPoint.id, "zi": pt.X1, "hi": pt.Y1 } ]);
-            c = paper.getById(myPoint.conjugate_id);
-            c.attr({ cx: pt.X1, cy: pt.Y1 });
+            lens.pointsTable.updateData([ { "id": id, "ti": myPoint.T1 } ]);
+            pairData = getConjTo (myPoint.type, { id:0, zi:+Infinity, ti:myPoint.T1 }); // this only works in the forward direction
+            lens.pointsTable.updateData([ { "id": myPoint.id, "zo": pairData.X1, "ho": pairData.Y1 } ]); // not afocal 
+            c = paper.getById(id);
+            c.attr({ cx: pt.X1, cy: pt.Y1 }); // update the object point 
             break;
 
           default:
@@ -58,7 +83,7 @@ function updateConjugateTo (myPoint) {
 
 /* ------------------------------------------------------
 
-CONSTRUCTION EVENT HANDLERS 
+UNUSED - A BEAM IS NOT DRAGGABLE !!!!
 
 ---------------------------------------------------------- */
 
@@ -85,9 +110,10 @@ function moveBeam (dx, dy) {
 
       // update the conjugate 
       var thisPoint = this.data("data-attr");
-      pairData = updateConjugateTo (thisPoint);  // update the Raphael paper + lens table + return a pairData object
+      pairData = updateBeamConjugate (thisPoint);  // update the Raphael paper + lens table + return a pairData object
       thisPoint.parent.setPairData(pairData);
-      thisPoint.parent.drawRayConstruction ();
+      thisPoint.parent.remove ();      
+      thisPoint.parent.drawBeamConstruction ();
 
 
       // redraw depends on type of object 
@@ -137,6 +163,7 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
        this.imagePoint;
        this.objectPoint;
        this.anglePicker;
+       this.BeamWidth    = 10;
 
        this.addBeamConstruction ();
     }
@@ -160,16 +187,18 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
     addBeamConstruction () {
 
 
-        // this.drawBeamConstruction (); // this requires the lens prescription 
+        this.drawBeamConstruction (); // this requires the lens prescription 
 
 
         // conjugate data (in laboratory frame!)
         var X1 = this.data.X1; var X2 = this.data.X2;        
         var Y1 = this.data.Y1; var Y2 = this.data.Y2;
         var T1 = this.data.T1; var T2 = this.data.T2;
+        //var N1 = this.data.N1; var T2 = this.data.N2;
 
-        this.imagePoint  = drawPoint(X2, Y2, "green"); // image  
-        this.imagePoint.drag (moveBeam, startBeam, upBeam);
+
+        this.imagePoint  = drawPoint(X2, Y2, "cyan"); // image  
+        //this.imagePoint.drag (moveBeam, startBeam, upBeam); // actually its not draggable !!!!
         this.imagePoint.id = "point-" + this.data.id + "-image";
         this.imagePoint.data("data-attr", {  "element_id"     : "point-" + this.data.id + "-image",
                                               "id"            : this.data.id, 
@@ -177,8 +206,21 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
                                               "parent"        : this });
 
 
+        //. default beam anchor 
+        var lens = this.lens;
+        var N1 = lens.cardinal.VN1;
+        var N2 = lens.L + lens.cardinal.VN2;
+
         // this will add an anglePicker 
         this.anglePicker = new AnglePicker (0, 0, 10, T1);
+        this.anglePicker.setAnchor(N1, 0);
+        this.anglePicker.data("data-attr", {  "conjugate_id"  : "point-" + this.data.id + "-image",
+                                              "id"            : this.data.id, 
+                                              "type"          : "object",
+                                              "parent"        : this });
+        this.anglePicker.parent = this;
+        this.anglePicker.drag(onmove, onstart, onup);
+
 
 
         // this.imagePoint.data("data-attr", { "element-id" : "point-" + this.data.id + "-image", "id" : this.data.id, "type" : "image"});
@@ -247,20 +289,33 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
 
     console.log(T1);
 
-	  // RAY HEIGHT AT THE 1st PRINCIPAL PLANE  
-    var Y1 = 1; Y2 = -Y1; X = - P1 - 100;
-	  var H1 = Math.tan(T1) * (DX) + Y1;
-    var H2 = Math.tan(T1) * (DX) + Y2;
-    var H3 = Math.tan(T1) * (DX) + 0;
 
-	  var p1 = paper.path( ["M", P1, Y1,  "L", X, H1 ]);    // O  -> H1   (ray through F1)
-	  var p2 = paper.path( ["M", P1, Y2,  "L", X, H2 ]);    // H1 -> N1   (ray through F1)
-    var p3 = paper.path( ["M", N1, 0,   "L", X, H3 ]);    // H1 -> N1   (ray through F1)
+    // beam aimed at N1 points / located on the front principal plane 
+    var bw = this.BeamWidth;
+    var dx = P1 - N1; // position translated to P1 
+	  var y1 = Math.tan(deg2rad(T1)) * dx + bw/2 / Math.sin(deg2rad(90 - T1)); // upper height on N1 
+    var y2 = Math.tan(deg2rad(T1)) * dx - bw/2 / Math.sin(deg2rad(90 - T1)); // lower height on N1
+    var y3 = Math.tan(deg2rad(T1)) * dx + 0;                   // height from the N1 itself 
+
+    // infinity 
+    var X   = -1000;
+    var dx  = X - P1; // effective infinity 
+    var i1  = Math.tan(deg2rad(T1)) * dx + y1; // upper height on N1 
+    var i2  = Math.tan(deg2rad(T1)) * dx - y2; // lower height on N1
+    var i3  = Math.tan(deg2rad(T1)) * dx + y3; // height from the N1 itself 
+
+	  var p1 = paper.path( ["M", P1, y1,  "L", X, i1 ]);    // O  -> H1   (ray through F1)
+	  var p2 = paper.path( ["M", P1, y2,  "L", X, i2 ]);    // H1 -> N1   (ray through F1)
+    var p3 = paper.path( ["M", P1, y3,  "L", X, i3 ]);    // H1 -> N1   (ray through F1)
 
 	  p1.attr(ret.F1);
 	  p2.attr(ret.F2);
     p3.attr(ret.N1); 
-	  this.cd_set.push(p1, p2);
+
+
+    //console.log("(x1 =" + ", y1 =" + "z1 = ");
+
+	  this.cd_set.push(p1, p2, p3);
 
  }
 

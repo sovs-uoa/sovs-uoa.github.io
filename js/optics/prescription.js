@@ -274,7 +274,9 @@ function initializePointsTable(data, updatePointsCallback, success) {
             {title:"zo",     field:"zo",       width:100, editor:"input", headerSort:false},                  
             {title:"ho",     field:"ho",       width:200, editor:"input", headerSort:false},
             {title:"zi",     field:"zi",       width:100, editor:"input", headerSort:false},                  
-            {title:"hi",     field:"hi",       width:200, editor:"input", headerSort:false}
+            {title:"hi",     field:"hi",       width:200, editor:"input", headerSort:false},
+            {title:"to",     field:"to",       width:100, editor:"input", headerSort:false},                  
+            {title:"ti",     field:"ti",       width:200, editor:"input", headerSort:false}
         ],
       });
 

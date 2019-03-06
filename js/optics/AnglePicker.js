@@ -6,12 +6,14 @@
 function startPicker() {
 
       console.log("--- called start picker id = " + this.id);  
-
-      console.log(this.data("myset"));
-
-      // storing original coordinates
       this.ox = this.attr("cx");
       this.oy = this.attr("cy");
+
+      a = this.data("internal-data-attr");     
+      anchorX = a.anchorX;
+      anchorY = a.anchorY;
+      a.parent.angle = rad2deg(Math.atan2(this.ox-anchorY, this.ox-anchorX));
+      a.parent.startFunc();
 }
 
 function movePicker(dx,dy) {
@@ -26,44 +28,42 @@ function movePicker(dx,dy) {
     dx = kx*dx; 
     dy = ky*dy;
 
-    var mydata   = this.data("data-attr");
-    var extender = this.data("data-extender");
 
     nowX = this.ox + dx;
     nowY = this.oy + dy;
+    this.attr({ cx: nowX, cy: nowY }); // call the circle 
     
     //nowX = Math.round(nowX / gridSnapSize) * gridSnapSize;
     //nowY = Math.round(nowY / gridSnapSize) * gridSnapSize;
-
-    console.log(extender);
-    console.log(mydata);
-
-    this.attr({ cx: nowX, cy: nowY }); // call the circle 
-    extender.attr("path", ["M", mydata.anchorX, mydata.anchorY, "L", nowX, nowY ]);  
+    //console.log(extender);
+    //console.log(mydata);
 
 
+    var a        = this.data("internal-data-attr");
+    var extender = this.data("data-extender");
+ 
+    anchorX = a.anchorX; anchorY = a.anchorY;
+    extender.attr("path", ["M", anchorX, anchorY, "L", nowX, nowY ]);  
 
-     // update the path !4 
-    //this.attr({ cx: nowX, cy: nowY });
-
+    th = rad2deg(Math.atan2(nowY-anchorY, nowX-anchorY));    
+    a.parent.angle = th;
+    a.parent.moveFunc(th);
 }
 
 
 function upPicker() {
 
-      console.log("--- called up picker id = " + this.id);  
+    console.log("--- called up picker id = " + this.id);  
+    var a       = this.data("internal-data-attr");
+    anchorX     = a.anchorX;
+    anchorY     = a.anchorY;
 
-    anchorX  = this.anchorX;
-    anchorY  = this.anchorY;
-    distance = this.distance;
-    angle    = this.angle;
+    // information 
+    a.parent.upFunc();
 
 
 }
 
-/*------------------------------------------------------------------------------- 
-
- ------------------------------------------------------------------------------- */
 
 
 
@@ -143,14 +143,48 @@ class AnglePicker { // create a ray construction using raphael.js
         this.extender; // an extension from the clicker 
         this.anchorX;
         this.anchorY;
+        this.angle = theta;        
         // this.myset = paper.set();
 
+        this.startFunc = function () { console.log("angle picker start."); };
+        this.moveFunc  = function (th) { console.log("angle picker move = " + th); };
+        this.upFunc    = function () { console.log("angle picker end."); };
+
         this.addAnglePicker (anchorX, anchorY, radius, theta);
-        // this.myset.data("myset", this.myset);
-        this.clicker.data("data-attr", { anchorX : anchorX, anchorY: anchorY });
+        this.clicker.data("internal-data-attr", { anchorX : anchorX, anchorY: anchorY, parent:this });      
 
     }
 
+
+    data (name, value) {
+        this.clicker.data(name, value); 
+    }
+
+/*
+        "data-attr", {  "conjugate_id"  : "point-" + this.data.id + "-image",
+                                                "id"            : this.data.id, 
+                                                "type"          : "object",
+                                                "parent"        : this });
+*/
+  
+
+
+    drag(onmove, onstart, onup) {
+
+        this.startFunc = onstart;
+        this.moveFunc  = onmove;
+        this.upFunc    = onup;
+
+    }
+
+
+    setAnchor (anchorX, anchorY) {
+      this.anchorX = anchorX;
+      this.anchorY = anchorY;
+      var cx = this.clicker.attr("cx");
+      var cy = this.clicker.attr("cy");      
+      this.extender.attr({path: ["M", anchorX, anchorY, "L", cx, cy ] })
+    }
 
 
     addAnglePicker(anchorX, anchorY, radius, theta) {
@@ -162,11 +196,10 @@ class AnglePicker { // create a ray construction using raphael.js
       this.extender = paper.path(["M", anchorX, anchorY, "L", x, y ]);
       this.extender.attr({ "stroke-dasharray":"--" });
 
-      // show the clicker and exteender  
+      // baseic dragger information on the clicke   
       this.clicker    = drawPoint (x, y, "green");
       this.clicker.data("data-extender", this.extender);
       this.clicker.drag(movePicker, startPicker, upPicker);
-
 
       //this.myset.push(extender, clicker);      
       //this.myset.drag(movePicker, startPicker, upPicker);
