@@ -188,7 +188,13 @@ class AnglePicker { // create a ray construction using raphael.js
       this.anchorY = anchorY;
       var cx = this.clicker.attr("cx");
       var cy = this.clicker.attr("cy");      
-      this.extender.attr({path: ["M", anchorX, anchorY, "L", cx, cy ] })
+      this.extender.attr("path", ["M", anchorX, anchorY, "L", cx, cy ]);
+
+      console.log("set anchor called ...");
+      console.log("cx = " + cx);
+      console.log("cy = " + cy);
+      console.log("anchorX = " + anchorX);
+      console.log("anchorY = " + anchorY);
     }
 
 
