@@ -24,15 +24,15 @@ function onmove (th)  {
       // AnglePicker
       console.log("onmove picker");
       console.log(this.parent);                     
-      this.parent.data.T1 = th;  // updates the angle 
+      this.parent.data.T1 = th;  // receives the present angle  
       this.parent.remove(); 
       this.parent.drawBeamConstruction(); 
 
-
-      c = this.data("data-attrib");
-            
       // update the conjugate point in table !!
-      updateBeamConjugate (c.conjugate_id, this.parent.data);
+      myinfo = this.data("data-attr-info"); // from the angle picker 
+      updateBeamConjugate (myinfo, this.parent.data);
+
+      // ... might be better way to do it!
 
 };
 
@@ -46,27 +46,33 @@ UPDATE BEAM CONJUGATE Update conjugate point in table and on-screen
 --------------------------------------------------------------------- */
 
 
-function updateBeamConjugate (id, myPoint) {
+function updateBeamConjugate (d, myPoint) {
 
 
       // lens is global !
 
-      switch (myPoint.type) {
+      console.log("beam conjugate");
+      console.log(d);
+      id     = d.conjugate_id;
+      mytype = d.type;
+
+      switch (mytype) {
 
           case "object" : // update the conjugate [point]
             
             // update the lens table
-            lens.pointsTable.updateData([ { "id": id, "to": myPoint.T1 } ]);
-            pairData = getConjTo (myPoint.type, { id:0, zo:-Infinity, to: myPoint.T1 }); // this only works in the forward direction
-            lens.pointsTable.updateData([ { "id": id, "zi": pairData.X2, "hi": pairData.Y2 } ]); // not afocal 
+            lens.pointsTable.updateData([ { "id": myPoint.id, "to": myPoint.T1 } ]);
+            pairData = getConjTo (d.type, { id:0, zo:-Infinity, to: myPoint.T1 }); // this only works in the forward direction
+            lens.pointsTable.updateData([ { "id": myPoint.id, "zi": pairData.X2, "hi": pairData.Y2 } ]); // not afocal 
+
             c = paper.getById(id);
-            c.attr({ cx: pt.X2, cy: pt.Y2 }); // update the image point 
+            c.attr({ cx: pairData.X2, cy: pairData.Y2 }); // update the image point 
             break;
 
           case "image" :
             error("error!");
             lens.pointsTable.updateData([ { "id": id, "ti": myPoint.T1 } ]);
-            pairData = getConjTo (myPoint.type, { id:0, zi:+Infinity, ti:myPoint.T1 }); // this only works in the forward direction
+            pairData = getConjTo (d.type, { id:0, zi:+Infinity, ti:myPoint.T1 }); // this only works in the forward direction
             lens.pointsTable.updateData([ { "id": myPoint.id, "zo": pairData.X1, "ho": pairData.Y1 } ]); // not afocal 
             c = paper.getById(id);
             c.attr({ cx: pt.X1, cy: pt.Y1 }); // update the object point 
@@ -78,7 +84,7 @@ function updateBeamConjugate (id, myPoint) {
       }
 
 
-    return pt;
+    return pairData;
 }
 
 /* ------------------------------------------------------
@@ -214,10 +220,10 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
         // this will add an anglePicker 
         this.anglePicker = new AnglePicker (0, 0, 10, T1);
         this.anglePicker.setAnchor(N1, 0);
-        this.anglePicker.data("data-attr", {  "conjugate_id"  : "point-" + this.data.id + "-image",
-                                              "id"            : this.data.id, 
-                                              "type"          : "object",
-                                              "parent"        : this });
+        this.anglePicker.data("data-attr-info", {  "conjugate_id"  : "point-" + this.data.id + "-image",
+                                                   "id"            : this.data.id, 
+                                                   "type"          : "object",
+                                                   "parent"        : this });
         this.anglePicker.parent = this;
         this.anglePicker.drag(onmove, onstart, onup);
 

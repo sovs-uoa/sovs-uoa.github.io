@@ -156,8 +156,13 @@ class AnglePicker { // create a ray construction using raphael.js
     }
 
 
-    data (name, value) {
-        this.clicker.data(name, value); 
+    data (...args) {
+
+        console.log(args);
+        console.log("data AnglePicker stored");
+        console.log("name = " + args[0] + " value = " + args[1]);
+        console.log(args[1]);
+        return this.clicker.data(...args); 
     }
 
 /*
