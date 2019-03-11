@@ -591,14 +591,21 @@ getConjuugateTo
                                               totalLens  = renderableLens.total;
                                               pairData   = getConjugateTo("object", eachPoint, totalLens); // only works in fwd direction 
                                               
+                                              // update the points table with these data
+                                              console.log("read point");
+                                              console.log(eachPoint);
+                                              console.log(pairData);
+
                                               switch (eachPoint.type) {
 
                                                     case "finite":   // finite placed beam 
                                                       lens.raphael.constructions.push( new PrincipalRayConstruction (totalLens, pairData));
+                                                      lens.pointsTable.updateData([{ "id": eachPoint.id, "zi": pairData.VI, "hi": pairData.IQ }]); 
                                                       break;
 
                                                     case "parallel": // infinitely placed beam 
                                                       lens.raphael.constructions.push( new ParallelBeamConstruction (totalLens, pairData));
+                                                      lens.pointsTable.updateData([{ "id": eachPoint.id, "zi": pairData.VI, "hi": pairData.IQ }]); 
                                                       break;
 
                                                     default: 

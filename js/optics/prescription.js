@@ -155,7 +155,7 @@ function initializePrescriptionTable(data, updatePrescriptionCallback, success) 
         updatePrescriptionCallback();
       },
       data:lensTable,
-      height:"500px",
+      height:"300px",
       addRowPos:"bottom",
       layout:"fitColumns",
       selectable:true, 
@@ -243,6 +243,22 @@ POINTS = OBJECTS + IMAGES TABLE
 
 
 
+function decimalPlaces(cell, formatterParams, onRendered){
+    //cell - the cell component
+    //formatterParams - parameters set for the column
+    //onRendered - function to call when the formatter has been rendered
+
+    var val = cell.getValue();    
+
+    if (val == null) {
+      return "---";
+    };
+
+    return Number(val).toFixed(formatterParams.precision);
+ 
+}
+
+
 // lens information 
 function initializePointsTable(data, updatePointsCallback, success) {
 
@@ -269,14 +285,14 @@ function initializePointsTable(data, updatePointsCallback, success) {
         layout:"fitColumns",
         columns:[
             {rowHandle:true, formatter:"handle", headerSort:false, frozen:true, width:30, minWidth:30},
-            {title:"id",     field:"id",      width:100, headerSort:false},                  
-            {title:"type",   field:"type",    width:100, headerSort:false},                  
-            {title:"zo",     field:"zo",       width:100, editor:"input", headerSort:false},                  
-            {title:"ho",     field:"ho",       width:200, editor:"input", headerSort:false},
-            {title:"zi",     field:"zi",       width:100, editor:"input", headerSort:false},                  
-            {title:"hi",     field:"hi",       width:200, editor:"input", headerSort:false},
-            {title:"to",     field:"to",       width:100, editor:"input", headerSort:false},                  
-            {title:"ti",     field:"ti",       width:200, editor:"input", headerSort:false}
+            {title:"id",     field:"id",       width:100, headerSort:false},                  
+            {title:"type",   field:"type",     width:100, headerSort:false},                  
+            {title:"zo",     field:"zo",       width:100, editor:"input", headerSort:false, formatter: decimalPlaces, formatterParams:{ precision: 2} },                  
+            {title:"ho",     field:"ho",       width:200, editor:"input", headerSort:false, formatter: decimalPlaces, formatterParams:{ precision: 2} },
+            {title:"zi",     field:"zi",       width:100, editor:"input", headerSort:false, formatter: decimalPlaces, formatterParams:{ precision: 2} },                  
+            {title:"hi",     field:"hi",       width:200, editor:"input", headerSort:false, formatter: decimalPlaces, formatterParams:{ precision: 2} },
+            {title:"to",     field:"to",       width:100, editor:"input", headerSort:false, formatter: decimalPlaces, formatterParams:{ precision: 2} },                  
+            {title:"ti",     field:"ti",       width:200, editor:"input", headerSort:false, formatter: decimalPlaces, formatterParams:{ precision: 2} }
         ],
       });
 
