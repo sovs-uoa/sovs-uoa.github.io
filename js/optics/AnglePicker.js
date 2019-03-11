@@ -42,8 +42,8 @@ function movePicker(dx,dy) {
     var a        = this.data("internal-data-attr");
     var extender = this.data("data-extender");
  
-    anchorX = a.anchorX; anchorY = a.anchorY;
-    extender.attr("path", ["M", anchorX, anchorY, "L", nowX, nowY ]);  
+    anchorX = a.parent.anchorX; anchorY = a.parent.anchorY;
+    a.parent.extender.attr("path", ["M", anchorX, anchorY, "L", nowX, nowY ]);  
 
     th = rad2deg(Math.atan2(nowY-anchorY, nowX-anchorY));    
     a.parent.angle = th;
@@ -188,7 +188,9 @@ class AnglePicker { // create a ray construction using raphael.js
       this.anchorY = anchorY;
       var cx = this.clicker.attr("cx");
       var cy = this.clicker.attr("cy");      
-      this.extender.attr("path", ["M", anchorX, anchorY, "L", cx, cy ]);
+      this.extender.attr({ "path": ["M", anchorX, anchorY, "L", cx, cy ]});
+
+      console.log(this.extender);
 
       console.log("set anchor called ...");
       console.log("cx = " + cx);

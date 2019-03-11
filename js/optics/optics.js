@@ -460,6 +460,18 @@ function getCardinalPoints (S){
 }
 
 
+// This will grab power information from cardinal point information from the system matrix 
+function getPowers (data, n1, n2){
+
+
+  ret = {   F  : n2/data.PF2, 
+            Fv1: n2/data.VF2,
+            Fv2: -n1/data.VF1 };
+
+  return ret;
+}
+
+
 
 
 
@@ -501,23 +513,31 @@ function getLensElementInfo(elem, index) {
     var F           = 0;
     var S           = {};
 
+
     switch (input_elem.type) {
 
       case "sphere" :
         var R   = input_elem.radius; 
         F   = (n2-n1)/R;    
         S   = refractionMatrix (n1, n2, F);    
-        return { S: S, X: normalizedRefractionMatrix(S, n1, n2), cardinal: getCardinalPoints (S), n1: n1, n2: n2, F: F, L : 0 }; 
+
+        elemCardinalPoints = getCardinalPoints(S);
+        elemPowers = getPowers (elemCardinalPoints, n1, n2);
+        return { S: S, X: normalizedRefractionMatrix(S, n1, n2), cardinal: elemCardinalPoints, powers: elemPowers, n1: n1, n2: n2, F: F, L : 0 }; 
 
       case "thin" :
         F   = input_elem.power;
         S   = refractionMatrix (n1, n2, F);   
-        return { S: S, cardinal: getCardinalPoints (S), n1: n1, n2: n2, F: F, L : 0 }; 
+        elemCardinalPoints = getCardinalPoints(S);
+        elemPowers = getPowers (elemCardinalPoints, n1, n2);        
+        return { S: S, cardinal: elemCardinalPoints, powers: elemPowers,  n1: n1, n2: n2, F: F, L : 0 }; 
 
       case "plane" :
         F = 0;
         S   = refractionMatrix (n1, n2, F);            
-        return { S: S, cardinal: getCardinalPoints (S) }; 
+        elemCardinalPoints = getCardinalPoints(S);
+        elemPowers = getPowers (elemCardinalPoints, n1, n2);
+        return { S: S, cardinal: elemCardinalPoints, powers: elemPowers }; 
       
       case "index" :
         n   = input_elem.index;
@@ -577,10 +597,19 @@ function getTotalLensSystemInfo (lensTable) {
     totalSystem.total.S = systemMultiply(totalSystem.total.S, eachElementInfo.S);
   }
 
-  totalSystem.total.cardinal = getCardinalPoints(totalSystem.total.S);
+  S = totalSystem.total.S;
+  totalCardinalPoints = getCardinalPoints(S);
+  totalPowers = getPowers (totalCardinalPoints, first.index, last.index);
+  
+
+  console.log("Total Powers");
+  console.log(totalPowers);
+
+  totalSystem.total.cardinal = totalCardinalPoints;
   totalSystem.total.Z        = 0; // start gere 
-  totalSystem.total.X        = normalizedRefractionMatrix(totalSystem.total.S, first.index, last.index);
+  totalSystem.total.X        = normalizedRefractionMatrix(S, first.index, last.index);
   totalSystem.total.L        = Z;  
   totalSystem.total.F        = totalSystem.total.n2/totalSystem.total.cardinal.PF2;
+  totalSystem.total.powers   = totalPowers;
   return totalSystem;
 }
