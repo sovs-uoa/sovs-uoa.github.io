@@ -26,11 +26,13 @@ function onmove (th)  {
       console.log(this.parent);                     
       this.parent.data.T1 = th;  // receives the present angle  
       this.parent.remove(); 
-      this.parent.drawBeamConstruction(); 
 
       // update the conjugate point in table !!
       myinfo = this.data("data-attr-info"); // from the angle picker 
-      updateBeamConjugate (myinfo, this.parent.data);
+      this.parent.data = updateBeamConjugate (myinfo, this.parent.data);
+      this.parent.drawBeamConstruction(); 
+
+      
 
       // ... might be better way to do it!
 
@@ -214,8 +216,8 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
 
         //. default beam anchor 
         var lens = this.lens;
-        var N1   = lens.cardinal.VN1;
-        var N2   = lens.L + lens.cardinal.VN2;
+        var N1   = lens.cardinal.VN1;             // primary nodal point 
+        var N2   = lens.L + lens.cardinal.VN2;    // secondary nodal point 
 
         // this will add an anglePicker 
         this.anglePicker = new AnglePicker (0, 0, 10, T1);
@@ -280,6 +282,9 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
      // Object 
      var data = this.data;
      var T1 = data.T1;     
+     var X2 = data.X2;
+     var Y2 = data.Y2;
+
 
      // X1_1, Y1_1, X1_2, Y1_2 
 
@@ -319,9 +324,53 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
     p3.attr(ret.N1); 
 
 
-    //console.log("(x1 =" + ", y1 =" + "z1 = ");
+    this.cd_set.push(p1, p2, p3);
 
-	  this.cd_set.push(p1, p2, p3);
+    console.log("adding the image space construction");
+
+    // Image space beams 
+
+    ret = getBeamImageStyle({ N1 : N1, N2: N2, 
+                              P1 : P1, P2: P2,
+                              F1 : F1, F2: F2,
+                              T1 : T1,
+                              X2 : X2, Y2: Y2 });
+
+    var p4 = paper.path( ["M", P2, y1,  "L", X2, Y2 ]);    // O  -> H1   (ray through F1)
+    var p5 = paper.path( ["M", P2, y2,  "L", X2, Y2 ]);    // H1 -> N1   (ray through F1)
+    var p6 = paper.path( ["M", P2, y3,  "L", X2, Y2 ]);    // H1 -> N1   (ray through F1)
+
+    p4.attr(ret.F1);
+    p5.attr(ret.F2);
+    p6.attr(ret.N1); 
+
+	  this.cd_set.push(p4, p5, p6);
+
+    if (ret.extend) { // extended rays 
+
+      var X = 1000;
+      var dx  = X - P2; // effective infinity 
+
+      var t1 = (Y2 - y1)/(X2 - P2);
+      var t2 = (Y2 - y2)/(X2 - P2);
+      var t3 = (Y2 - y3)/(X2 - P2);
+      
+
+      var i1  = t1 * dx + y1; // upper height on N1 
+      var i2  = t2 * dx - y2; // lower height on N1
+      var i3  = t3 * dx + y3; // height from the N1 itself 
+
+      var p7 = paper.path( ["M", P2, y1,  "L", X, i1 ]);    // O  -> H1   (ray through F1)
+      var p8 = paper.path( ["M", P2, y2,  "L", X, i2 ]);    // H1 -> N1   (ray through F1)
+      var p9 = paper.path( ["M", P2, y3,  "L", X, i3 ]);    // H1 -> N1   (ray through F1)
+
+      p7.attr(ret.xF1);
+      p8.attr(ret.xF2);
+      p9.attr(ret.xN1); 
+
+      this.cd_set.push(p7, p8, p9);
+
+    }
 
  }
 
@@ -465,4 +514,52 @@ GETOBJECTSTYLE return an apprpriate obejct style.
       return ret;
 
    }
+
+
+
+/*   -------------------------------------------------
+
+GETOBJECTSTYLE return an apprpriate obejct style.
+
+
+  F1
+    OF 
+    FP
+    OP
+
+  F2
+    OP1
+    OP2
+
+  N1
+    OP
+    PN
+
+------------------------------------------------------ */
+
+   function getBeamImageStyle(data) {
+
+      // beam style information 
+      var ret =  { F1: none, N1 : none, F2: none  }; 
+
+      if (data.X2 > data.P2) { // focal point to the right of P2
+
+          ret = { F1: real , N1 : real , F2: real, xF1: none, xN1: none, xF2: none, extend: false  }; 
+
+
+      } else if (data.X2 < data.P2 ) {
+
+          ret = { F1: virtual , N1 : virtual , F2: virtual, xF1: real, xN1: real, xF2: real, extend: true   };
+      
+      } else {
+
+          ret = { F1: none, N1 : none, F2: none, xF1: none, xN1: none, xF2: none, extend: false  }; 
+
+      }
+
+
+      return ret;
+   }
+
+
 
