@@ -80,7 +80,9 @@
   var   kx, ky;
   var   etol = 5e-4;
   var   fileList  = [ { id: "0", filename: "./lenses/thick-lens-positive.lens" }, 
-                      { id: "1", filename: "./lenses/thick-lens-negative.lens" } ];
+                      { id: "1", filename: "./lenses/thick-lens-negative.lens" },
+                      { id: "2", filename: "./lenses/thin-lens-positive.lens" },
+                      { id: "3", filename: "./lenses/thin-lens-negative.lens" } ];
 
 
     displayOptions = { height               : 15, 
@@ -699,7 +701,7 @@ getConjuugateTo
 
     });
 
-    var  myfilename = "./lenses/thick-lens-negative.lens";
+    var  myfilename = "./lenses/thin-lens-positive.lens";
     load (myfilename);
 
     }
@@ -772,10 +774,10 @@ getConjuugateTo
         <button class="btn btn-secondary dropdown-toggle float-left" type="button" id="importer" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Load</button>
 
         <div class="dropdown-menu">
-          <a class="dropdown-item file-selection" href="#" data-id="0" >(Positive) Thick Lens in Air</a>
-          <a class="dropdown-item file-selection"  href="#" data-id="1" >(Negative) Thick lens in Air</a>
-          <a class="dropdown-item file-selection"  href="#" data-id="2" >Thin lens</a>
-          <a class="dropdown-item file-selection"  href="#" data-id="3" >Single thin Lenses</a>
+          <a class="dropdown-item file-selection" href="#" data-id="0" >Thick Lens in Air (Positive)</a>
+          <a class="dropdown-item file-selection"  href="#" data-id="1" >Thick lens in Air (Negative)</a>
+          <a class="dropdown-item file-selection"  href="#" data-id="2" >Thin lens in Air (Positive)</a>
+          <a class="dropdown-item file-selection"  href="#" data-id="3" >Thin Lens in Air (Negative)</a>
           <a class="dropdown-item file-selection"  href="#" data-id="4" >Multiple thin lenses</a>
           <a class="dropdown-item file-selection"  href="#" data-id="5" >Gullstrand Eye Model (Relaxed)</a>
           <a class="dropdown-item file-selection"  href="#" data-id="6" >Gullstrand Eye Model (Accommodated)</a>

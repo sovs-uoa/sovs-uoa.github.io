@@ -425,7 +425,7 @@ GETOBJECTSTYLE return an apprpriate obejct style.
       if (data.X1 < data.P1) { // real object 
 
 
-          // different cases 
+          // different cases (F1 - primary)
           if ((data.X1 < data.F1) & (data.F1 < data.P1)) {        // O < F1 < P1
 
               ret.F1 = { OF: real, FP: real, OP: none };
@@ -447,7 +447,7 @@ GETOBJECTSTYLE return an apprpriate obejct style.
 
 
           // ... the region between P1 & P2 should be empty 
-          if (data.P1 < data.P2) {
+          if (data.P1 <= data.P2) {
 
 
               // F2 RAY           

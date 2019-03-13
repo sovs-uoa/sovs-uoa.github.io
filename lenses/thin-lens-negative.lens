@@ -1,0 +1,43 @@
+/*--------------------------------------------
+
+ Thin Lens in Air 
+
+----------------------------------------------*/
+
+{
+
+	// points 
+
+
+	"points" : [ { 	"id" : 1, 
+					"type" : "object",
+					"z": -15, 
+					"h": 10 } ],
+
+	// lens prescription 
+	"title": "Thin Lens",
+    "prescription": [{
+		"id": "0001",
+		"type": "index",
+		"description": "air",
+		"args": {
+			"index": 1.000
+		}
+	}, {		
+		"id": "0002",
+		"type": "thin",
+		"description": "thin lens",
+		"args": {
+			"power": -0.5,
+			"height": 12
+		}
+	}, {
+		"id": "0003",
+		"type": "index",
+		"description": "air",
+		"args": {
+			"index": 1.0,
+			"thickness": 0
+		}
+	}]
+}
