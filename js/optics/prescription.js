@@ -152,7 +152,8 @@ function initializePrescriptionTable(data, updatePrescriptionCallback, success) 
     lens.table = new Tabulator("#lens-table", {
       cellEdited:function(cell){
         console.log("lens edited - update the prescription");
-        updatePrescriptionCallback();
+        console.log(cell);
+        updatePrescriptionCallback(cell);
       },
       data:lensTable,
       height:"300px",
@@ -167,7 +168,7 @@ function initializePrescriptionTable(data, updatePrescriptionCallback, success) 
           {title:"Description",   field:"description",      width:200, editor:"input", headerSort:false},
           {title:"Ref. Index",    field:"index",            mutator:Number, width:100, align:"center", sorter:"number", editor:"input", headerSort:false},
           {title:"Surf. R.",      field:"radius",           mutator:Number, align:"center", width:100, editor:"input", headerSort:false},
-          {title:"Power",         field:"power",            mutator:Number, align:"center", width:100, editor:"input", headerSort:false},
+          {title:"Power",         field:"power",            mutator:Number, align:"center", width:100, editor:true, headerSort:false},
           {title:"Thickness",     field:"thickness",        mutator:Number, align:"center", width:100, editor:"input", headerSort:false},
           {title:"Ap. Diameter",  field:"aperture",         align:"center", width:100, editor:"input", headerSort:false},
           {title:"Stop Flag",     field:"stop",             align:"center", width:100, sorter:"date", editor:"input", headerSort:false, formatter:apertureStop}
@@ -275,7 +276,7 @@ function initializePointsTable(data, updatePointsCallback, success) {
       lens.pointsTable = new Tabulator("#lens-points", {
          cellEdited:function(cell){
           console.log("point edited - update the prescription");
-          updatePointsCallback();
+          updatePointsCallback (cell);
         },
         data:data,
         height:"200px",

@@ -177,6 +177,34 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
     }
 
 
+
+  /* ---------------------------------------------------------------------------------------------------------------
+
+    Generic functions 
+
+   --------------------------------------------------------------------------------------------------------------- */
+
+    getId () {
+      return this.data.id;
+    }
+
+
+   remove () {
+      this.cd_set.remove ();
+   }
+
+    setPairData (data) {
+      this.data = data;
+    }
+
+
+   draw () {
+      drawBeamConstruction ();
+
+   }
+
+
+
   /* ---------------------------------------------------------------------------------------------------------------
 
     addPrincipalRayConstruction  - render the finite object / image conjugates given a processed pointList
@@ -237,9 +265,6 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
     }
 
 
-    setPairData (data) {
-      this.data = data;
-    }
 
 
   /* ---------------------------------------------------------------------------------------------------------------

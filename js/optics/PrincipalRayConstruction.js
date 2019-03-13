@@ -142,6 +142,39 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
 
   /* ---------------------------------------------------------------------------------------------------------------
 
+    Generic functions 
+
+   --------------------------------------------------------------------------------------------------------------- */
+
+    getId () {
+      return this.data.id;
+    }
+
+
+   remove () {
+      this.cd_set.remove ();
+   }
+
+
+    setPairData (data) {
+      this.data = data;
+    }
+
+
+   draw () {
+      this.drawRayConstruction ();
+
+      // conjugate data (in laboratory frame!)
+      var X1 = this.data.X1; var X2 = this.data.X2;        
+      var Y1 = this.data.Y1; var Y2 = this.data.Y2;
+      this.objectPoint.attr({ cx: X1, cy: Y1});
+      this.imagePoint.attr({ cx: X2, cy: Y2});
+
+   }
+
+
+  /* ---------------------------------------------------------------------------------------------------------------
+
     addPrincipalRayConstruction  - render the finite object / image conjugates given a processed pointList
 
     TO DO:
@@ -153,6 +186,8 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
     displayOptions : { showAll : true }               
   
    --------------------------------------------------------------------------------------------------------------- */
+
+
 
 
     addPrincipalRayConstruction () {
@@ -215,9 +250,7 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
   
    --------------------------------------------------------------------------------------------------------------- */
 
-   remove () {
-      this.cd_set.remove ();
-   }
+
 
 
   drawRayConstruction() {
@@ -447,7 +480,7 @@ GETOBJECTSTYLE return an apprpriate obejct style.
 
 
           // ... the region between P1 & P2 should be empty 
-          if (data.P1 <= data.P2) {
+          if (data.P1 < data.P2) {
 
 
               // F2 RAY           
