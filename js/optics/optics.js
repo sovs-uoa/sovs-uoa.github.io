@@ -137,6 +137,13 @@ function convertToLensTable (response) {
 
 identitySystem = { A: 1, B: 0, C: 0, D: 1 };
 
+
+function inverseMatrix2x2(S) {
+  det = 1/(S.A*S.D-S.B*S.C);
+  return { A: det*S.D B: -det*S.B, C: -det*C, D: det*A };
+
+}
+
 // construct a refraction matrix 
 function refractionMatrix(n1, n2, F) {
 
@@ -523,27 +530,27 @@ function getLensElementInfo(elem, index) {
 
         elemCardinalPoints = getCardinalPoints(S);
         elemPowers = getPowers (elemCardinalPoints, n1, n2);
-        return { S: S, X: normalizedRefractionMatrix(S, n1, n2), cardinal: elemCardinalPoints, powers: elemPowers, n1: n1, n2: n2, F: F, L : 0 }; 
+        return { S: S, invS: inverseMatrix2x2(S), X: normalizedRefractionMatrix(S, n1, n2), cardinal: elemCardinalPoints, powers: elemPowers, n1: n1, n2: n2, F: F, L : 0 }; 
 
       case "thin" :
         F   = input_elem.power;
         S   = refractionMatrix (n1, n2, F);   
         elemCardinalPoints = getCardinalPoints(S);
         elemPowers = getPowers (elemCardinalPoints, n1, n2);        
-        return { S: S, cardinal: elemCardinalPoints, powers: elemPowers,  n1: n1, n2: n2, F: F, L : 0 }; 
+        return { S: S, invS: inverseMatrix2x2(S), cardinal: elemCardinalPoints, powers: elemPowers,  n1: n1, n2: n2, F: F, L : 0 }; 
 
       case "plane" :
         F = 0;
         S   = refractionMatrix (n1, n2, F);            
         elemCardinalPoints = getCardinalPoints(S);
         elemPowers = getPowers (elemCardinalPoints, n1, n2);
-        return { S: S, cardinal: elemCardinalPoints, powers: elemPowers }; 
+        return { S: S, invS: inverseMatrix2x2(S), cardinal: elemCardinalPoints, powers: elemPowers }; 
       
       case "index" :
         n   = input_elem.index;
         d   = input_elem.thickness;
         S   = translationMatrix (d);            
-        return { S: S, X: normalizedTranslationMatrix(S, n) }; 
+        return { S: S, invS: inverseMatrix2x2(S), X: normalizedTranslationMatrix(S, n) }; 
 
       default:
         error("unknown element.");
@@ -552,7 +559,7 @@ function getLensElementInfo(elem, index) {
 
     // get the data object
     error("shouldnt be able to get here."); 
-    return { S: S, cardinal: getCardinalPoints (S) };
+    return { S: S, invS: inverseMatrix2x2(S), cardinal: getCardinalPoints (S) };
 };
 
 
@@ -565,6 +572,7 @@ function getTotalLensSystemInfo (lensTable) {
   // read it in 
   totalSystem         = { elem  : [], 
                           total : { S        : identitySystem,
+                                    invS     : inverseMatrix2x2(S), 
                                     X        : normalizedRefractionMatrix(identitySystem, first.index, last.index),
                                     cardinal : null,
                                     n1       : first.index, n2: last.index,
@@ -596,6 +604,7 @@ function getTotalLensSystemInfo (lensTable) {
     eachElementInfo     = getLensElementInfo(lensTable, i);
     totalSystem.total.S = systemMultiply(totalSystem.total.S, eachElementInfo.S);
   }
+  totalSystem.total.invS = inverseMatrix2x2(S);
 
   S = totalSystem.total.S;
   totalCardinalPoints = getCardinalPoints(S);
