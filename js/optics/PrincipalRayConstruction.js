@@ -32,7 +32,7 @@ function updateConjugateTo (myPoint) {
             
             // update the lens table
             lens.pointsTable.updateData([ { "id": myPoint.id, "zo": nowX, "ho": nowY } ]);
-            pt = getConjTo (myPoint.type, { id:0, zo: nowX, ho: nowY }); // this only works in the forward direction
+            pt = getConjTo (myPoint.type, { id:myPoint.id, zo: nowX, ho: nowY }); // this only works in the forward direction
             lens.pointsTable.updateData([ { "id": myPoint.id, "zi": pt.X2, "hi": pt.Y2 } ]); // change this for vertex 
             c = paper.getById(myPoint.conjugate_id);
             c.attr({ cx: pt.X2, cy: pt.Y2 });
@@ -41,7 +41,7 @@ function updateConjugateTo (myPoint) {
           case "image" :
             error("error!");
             lens.pointsTable.updateData([ { "id": myPoint.id, "zi": nowX, "hi": nowY } ]);
-            pt = getConjTo (myPoint.type, { id:0, zo: nowX, ho: nowY });   // this only works in the forward direction
+            pt = getConjTo (myPoint.type, { id:myPoint.id, zo: nowX, ho: nowY });   // this only works in the forward direction
             lens.pointsTable.updateData([ { "id": myPoint.id, "zi": pt.X1, "hi": pt.Y1 } ]);
             c = paper.getById(myPoint.conjugate_id);
             c.attr({ cx: pt.X1, cy: pt.Y1 });
@@ -480,7 +480,7 @@ GETOBJECTSTYLE return an apprpriate obejct style.
 
 
           // ... the region between P1 & P2 should be empty 
-          if (data.P1 < data.P2) {
+          if (data.P1 <= data.P2) {
 
 
               // F2 RAY           

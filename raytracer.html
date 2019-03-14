@@ -377,7 +377,7 @@ getConjuugateTo
     console.log("update the graphical end of the construction.");
 
     //console.log(e);
-    console.log(cell);
+    // console.log(cell);
 
 
     if (cell == null) {
@@ -405,16 +405,24 @@ getConjuugateTo
     }
 
 
+
     // need to find the construction corresponding to the point and then update it!
     for (var i = 0; i < lens.raphael.constructions.length; i++ ) {
 
         elem = lens.raphael.constructions[i];
+
+        console.log("compare: " + elem.getId() + " == " + aPoint.id);
+
         if (aPoint.id == elem.getId()) {
           elem.setPairData (pairData); // update 
           elem.remove ();
           elem.draw ();
+          return
         }
     }
+
+
+    console.log("construction not found!");
 
 /*
     var n = lens.raphael.constructions;
