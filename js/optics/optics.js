@@ -21,6 +21,7 @@ var Optics = {};
 
 Optics.analyze = function (lensTable) {
 
+
   // return a lensSystem
   return getTotalLensSystemInfo (lensTable); 
 }
@@ -28,6 +29,12 @@ Optics.analyze = function (lensTable) {
 Optics.calculatePointToPoint = function (lensSystem, pointList) {
   return calculateFwdPointToPoint (lensSystem, pointList)
 }
+
+
+Optics.calculateConjugatePairFrom = function(point, systemInfo) {
+  return calculateConjugatePairFrom (point, systemInfo)
+}
+
 
 
 Optics.extractGroup = function (lens, group_name) {
@@ -140,7 +147,7 @@ identitySystem = { A: 1, B: 0, C: 0, D: 1 };
 
 function inverseMatrix2x2(S) {
   det = 1/(S.A*S.D-S.B*S.C);
-  return { A: det*S.D B: -det*S.B, C: -det*C, D: det*A };
+  return { A: det*S.D, B: -det*S.B, C: -det*S.C, D: det*S.A };
 
 }
 
@@ -208,6 +215,332 @@ function rayMultiply (S, r) {
 
 
 
+/* -----------------------------------------------------------------------
+
+CALCULATECONJUGATEPAIRFROM Determine conjugate information for a point 
+
+  points are specified relative to the vertices of the system 
+
+  - elements : need to be zero thickness 
+  - finite rays not addressed 
+  - afocal system not addressed 
+
+--------------------------------------------------------------------------- */
+
+
+function calculateConjugatePairFrom(point, systemInfo) {
+
+          var curr   = systemInfo;   // current element 
+          var S      = curr.S;     // system matrix
+          var V1     = curr.Z;     // front vertex (from the first element)                       
+          var L      = curr.L;     // length of system (curr. system)
+          var V2     = V1 + L;
+          var n1     = curr.n1;    // object ref. index                       
+          var n2     = curr.n2;    // image ref. index 
+
+
+         switch (point.which) {
+
+            case "object":
+
+              // axial ray gives axial image point 
+              //var id  = point.id;
+              var X1  = point.z; 
+              var Y1  = point.h;    
+              var T1  = point.t;
+
+              // results are relative to back vertex
+              result    = calculatePairFromObject ({ z: X1-V1, h: Y1, t: T1 }, systemInfo); // distances assumed from vertices 
+
+              // add in global co-ordiates 
+              result.id = point.id;
+              result.X1 = X1; 
+              result.Y1 = Y1;
+              result.X2 = V2 + result.VI; 
+              result.Y2 = result.IQ;
+              return result;
+
+            break;
+
+            case "image":
+
+              // axial ray gives axial image point 
+              //var id  = point.id;
+              var X2  = point.z; 
+              var Y2  = point.h;
+              var T2  = point.t;
+
+              // results are relative to back vertex
+              result    = calculatePairFromImage ({ z: X2-V2, h: Y2, t: T2}, systemInfo); // distances assumed from vertices 
+
+              // add in global co-ordiates 
+              result.id = point.id;
+              result.X2 = X2; 
+              result.Y2 = Y2;
+              result.X1 = V1 + result.VO;
+              result.Y1 = result.OQ;
+              return result;
+
+            break;
+
+            default:
+            console.log("point ID error!");
+            console.log(point);
+            throw "The point was not an object or an image."
+
+          }
+
+}
+
+
+
+
+/* -----------------------------------------------------------------------
+
+CALCULATEPAIRFROMOBJECT Determine the conjugates from the object point 
+
+  points are specified relative to the vertices of the system 
+
+  - elements : need to be zero thickness 
+  - finite rays not addressed 
+  - afocal system not addressed 
+
+--------------------------------------------------------------------------- */
+
+function calculatePairFromObject (object, systemInfo) {
+
+
+          var z = object.z;
+          var h = object.h;
+          var t = object.t;
+
+
+          var curr   = systemInfo;   // current element 
+          var S      = curr.S;     // system matrix
+          var V1     = curr.Z;     // front vertex (from the first element)                       
+          var L      = curr.L;     // length of system (curr. system)
+          var n1     = curr.n1;    // object ref. index                       
+          var n2     = curr.n2;    // image ref. index 
+
+
+          if (isFinite(z)) { // finite object distance 
+                  
+              var ir  = { h: -1*z, u: 1 };    // ray @ front vertex 
+              var q   = rayMultiply(S, ir);    // ray @ back vertex          
+              var zd  = -q.h/q.u;              // distance from back vertex  
+
+              if (isFinite(zd)) { // => finite image distance 
+
+                  var mag = (n1*ir.u)/(n2*q.u); // magnification 
+
+                  result = {  id  : undefined,     
+                              VO  : z,
+                              PO  : -curr.cardinal.VP1 + z, 
+                              OQ  : h,
+                              VI  : zd,
+                              PI  : -curr.cardinal.VP2 + zd, 
+                              IQ  : mag*h,
+                              M   : mag,
+                              T1  : undefined,
+                              T2  : undefined }; //
+
+              } else { // => infinite image distance 
+
+                  result = {  id  : undefined,     
+                              VO  : z,
+                              PO  : -curr.cardinal.VP1 + zl, 
+                              OQ  : h,
+                              VI  : Infinity, // sign
+                              PI  : Infinity, 
+                              IQ  : Infinity, 
+                              M   : undefined,
+                              T1  : undefined,
+                              T2  : undefined,
+                              TH  : h/n1 * curr.F,                              
+                               }; // w.r.t. PF1 and PF2 
+
+                      throw "infinite image distance detected";              
+              }
+
+
+         } else { 
+
+           zp  = +n2/curr.F;  // PF            
+
+            // infinite object => finite image
+           result = {  id  : undefined,     
+                       VO  : z,
+                       PO  : -curr.cardinal.VP1 + z, 
+                       OQ  : undefined,
+                       VI  : curr.cardinal.VF2,
+                       PI  : curr.cardinal.PF2, 
+                       IQ  : n1 * deg2rad(t)/ curr.F,
+                       M   : undefined,
+                       T1  : t,
+                       T2  : undefined }; //
+
+        }
+
+  // information result 
+  return result;
+}
+
+
+
+
+/* -----------------------------------------------------------------------
+
+CALCULATEPAIRFROMIMAGE  Determine the conjugates from the image point 
+
+  points are specified relative to the vertices of the system 
+
+  - elements : need to be zero thickness 
+  - finite rays not addressed 
+  - afocal system not addressed 
+
+--------------------------------------------------------------------------- */
+
+function calculatePairFromImage (image, systemInfo) {
+
+
+          var zd = image.z;         
+          var hd = image.h;
+          var td = image.t;
+
+          var curr   = systemInfo;  // current element 
+          var S      = curr.invS;   // inverse system matrix
+          var V1     = curr.Z;      // front vertex (from the first element)                       
+          var L      = curr.L;      // length of system (curr. system)
+          var n1     = curr.n1;     // object ref. index                       
+          var n2     = curr.n2;     // image ref. index 
+
+
+          if (isFinite(zd)) { // finite image distance  
+                  
+              var ir  = { h: -1*zd, u: 1 };    // ray @ back vertex 
+              var q   = rayMultiply(S, ir);    // ray @ back vertex          
+              var zl  = -q.h/q.u;              // distance from back vertex  
+
+              if (isFinite(zl)) { // => finite object distance 
+
+                  var mag = (n1*q.u)/(n2*ir.u); // magnification 
+
+                  result = {  id  : undefined,     
+                              VO  : zl,
+                              PO  : -curr.cardinal.VP1 + zl, 
+                              OQ  : hd/mag,
+                              VI  : zd,
+                              PI  : -curr.cardinal.VP2 + zd, 
+                              IQ  : hd,
+                              M   : mag,
+                              T1  : undefined,
+                              T2  : undefined }; //
+
+              } else { // finite image => infinite object 
+
+                  result = {  id  : undefined,     
+                              VO  : -Infinity,
+                              PO  : -Infiniity, 
+                              OQ  : undefined,
+                              VI  : zd, // sign
+                              PI  : -curr.cardinal.VP2 + zd, 
+                              IQ  : hd, 
+                              M   : undefined,
+                              T1  : td,
+                              T2  : undefined,
+                              TH  : h/n1 * curr.F,                              
+                               }; // w.r.t. PF1 and PF2 
+
+                      throw "infinite image distance detected";              
+              }
+
+
+         } else { 
+
+           zp = -n1/curr.F;  // PF 
+
+            // infinite image => finite object
+           result = {  id  : undefined,     
+                       VO  : curr.cardinal.VP1 + zp,
+                       PO  : zp, 
+                       OQ  : undefined,
+                       VI  : +Infinity,
+                       PI  : +Infinity, 
+                       IQ  : +Infinity,
+                       M   : undefined,
+                       T1  : undefined,
+                       T2  : t }; //
+
+        }
+
+  // information result 
+  return result;
+}
+
+
+
+function calculateFwdPointToPoint(systemInfo, pointList) {
+
+      total = [];
+
+     
+      var V1 = systemInfo.Z; // need to both be w.r.t. lab FoR
+      var V2 = systemInfo.L; 
+
+
+      // refractive indices 
+      for (var j = 0; j < pointList.length ;  j++ ) {
+
+          
+
+          switch (pointList[j].which) {
+
+            case "object":
+
+              // axial ray gives axial image point 
+              var id  = pointList[j].id;
+              var X1  = pointList[j].zo; // relative to global system  (0,0)          
+              var Y1  = pointList[j].ho; // relative to front vertex (0,0)          
+
+              // results are relative to back vertex
+              result    = calculatePairFromObject (X1-V1, Y1, systemInfo);
+
+              // add in global co-ordiates 
+              result.X1 = X1; result.Y1 = Y1;
+              result.X2 = V1 + V2 + result.VI;
+              result.Y2 = result.IQ;
+
+            break;
+
+            case "image":
+
+              // axial ray gives axial image point 
+              var id  = pointList[j].id;
+              var X2  = pointList[j].zi; // <--- really should be X1, Y1          
+              var Y2  = pointList[j].hi; // relative to front vertex (0,0)          
+
+              // results are relative to back vertex
+              result    = calculatePairFromImage (X2-V2, Y2, systemInfo);
+
+              // add in global co-ordiates 
+              result.X2 = X2; result.Y2 = Y2;
+              result.X1 = V1 + result.VO;
+              result.Y1 = result.OQ;
+
+            break;
+
+            default:
+            throw "unknown error"
+
+          }
+
+          result.id = id; 
+          total.push(result);
+
+
+      }
+  return total;
+}
 
 
 
@@ -223,106 +556,6 @@ CALCULATEPOINTOTPOINT Elementwise point-to-point calcuulation (DEPRECATED)
   - afocal system not addressed 
 
 --------------------------------------------------------------------------- */
-
-function calculateFwdPointToPoint(systemInfo, pointList) {
-
-      total = [];
-
-      var curr   = systemInfo;   // current element 
-      var S      = curr.S;     // system matrix
-      var Z      = curr.Z;     // front vertex (from the first element)                       
-      var L      = curr.L;     // length of system (curr. system)
-      var n1     = curr.n1;    // object ref. index                       
-      var n2     = curr.n2;    // image ref. index 
-
-      // refractive indices 
-      for (var j = 0; j < pointList.length ;  j++ ) {
-
-          // axial ray gives axial image point 
-          var id  = pointList[j].id;
-          var z   = pointList[j].zo; // relative to front vertex (0,0)          
-          var h; var X1; var Y1;
-
-          if (isFinite(z)) { // finite object distance 
-
-              // find a point 
-              h  = pointList[j].ho;
-              X1 = z;
-              Y1 = h;
-                  
-              var zl  = z - Z;                 // relative to front vertex 
-              var ir  = { h: -1*zl, u: 1 };    // ray @ front vertex 
-              var q   = rayMultiply(S, ir);    // ray @ back vertex          
-              var zd  = -q.h/q.u;              // distance from back vertex  
-
-              if (isFinite(zd)) { // => finite image distance 
-
-                  var mag = (n1*ir.u)/(n2*q.u); // magnification 
-
-                  result = {  id  : id,     
-                              VO  : zl,
-                              PO  : -curr.cardinal.VP1 + z, 
-                              OQ  : h,
-                              VI  : zd,
-                              PI  : -curr.cardinal.VP2 + zd, 
-                              IQ  : mag*h, 
-                              M   : mag,
-                              X1  : X1,     
-                              Y1  : Y1,
-                              X2  : Z + L + zd,  // distance from the back vertex
-                              Y2  : mag*h , 
-                              TH  : undefined };
-
-              } else { // => infinite image distance 
-
-                  result = {  id  : id,     
-                              VO  : zl,
-                              PO  : -curr.cardinal.VP1 + z, 
-                              OQ  : h,
-                              VI  : Infinity, // sign
-                              PI  : Infinity, 
-                              IQ  : Infinity, 
-                              M   : undefined,
-                              X1  : X1,     
-                              Y1  : Y1,
-                              X2  : Infinity,  // distance from the back vertex
-                              Y2  : Infinity,
-                              TH  : h/n1 * curr.F }; // w.r.t. PF1 and PF2 
-
-                  throw "infinite image distance detected";
-              
-              }
-
-
-         } else { 
-
-
-            // infinite object distance => finite image
-            var curr_point = pointList[j];
-            th_deg         = curr_point.to;  // in radians            
-            th             = deg2rad(curr_point.to);  // in radians            
-            result = {  id  : id,     
-                        VO  : z,
-                        PO  : undefined, 
-                        OQ  : undefined,
-                        VI  : curr.cardinal.VF2,
-                        PI  : curr.cardinal.PF2, 
-                        IQ  : n1 * th / curr.F, 
-                        M   : undefined,
-                        X1  : undefined,     
-                        Y1  : undefined,
-                        X2  : Z + L + curr.cardinal.VF2,  // zd is a vertex distance 
-                        Y2  : n1 * th / curr.F,
-                        T1  : th_deg,
-                        T2  : undefined
-                      };
-
-        }
-
-        total.push(result);
-      }
-  return total;
-}
 
 
 function calculateElementPointToPoint(systemInfo, pointList) {
@@ -572,7 +805,7 @@ function getTotalLensSystemInfo (lensTable) {
   // read it in 
   totalSystem         = { elem  : [], 
                           total : { S        : identitySystem,
-                                    invS     : inverseMatrix2x2(S), 
+                                    invS     : identitySystem, 
                                     X        : normalizedRefractionMatrix(identitySystem, first.index, last.index),
                                     cardinal : null,
                                     n1       : first.index, n2: last.index,
@@ -604,7 +837,7 @@ function getTotalLensSystemInfo (lensTable) {
     eachElementInfo     = getLensElementInfo(lensTable, i);
     totalSystem.total.S = systemMultiply(totalSystem.total.S, eachElementInfo.S);
   }
-  totalSystem.total.invS = inverseMatrix2x2(S);
+  totalSystem.total.invS = inverseMatrix2x2(totalSystem.total.S);
 
   S = totalSystem.total.S;
   totalCardinalPoints = getCardinalPoints(S);

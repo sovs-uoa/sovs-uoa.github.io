@@ -20,40 +20,31 @@ UPDATECONJUGATETO Update conjugate point in table and on-screen
 ------------------------------------------------------ */
 
 
-function updateConjugateTo (myPoint) {
-
-
+function updateInterface (myPoint, pairData) {
 
       // lens is global !
-
       switch (myPoint.type) {
 
           case "object" : // update the conjugate [point]
             
             // update the lens table
             lens.pointsTable.updateData([ { "id": myPoint.id, "zo": nowX, "ho": nowY } ]);
-            pt = getConjTo (myPoint.type, { id:myPoint.id, zo: nowX, ho: nowY }); // this only works in the forward direction
-            lens.pointsTable.updateData([ { "id": myPoint.id, "zi": pt.X2, "hi": pt.Y2 } ]); // change this for vertex 
-            c = paper.getById(myPoint.conjugate_id);
-            c.attr({ cx: pt.X2, cy: pt.Y2 });
+            lens.pointsTable.updateData([ { "id": myPoint.id, "zi": pairData.X2, "hi": pairData.Y2 } ]); // change this for vertex             
+            //c = paper.getById(myPoint.conjugate_id);
+            //c.attr({ cx: pairData.X2, cy: pairData.Y2 });
             break;
 
           case "image" :
-            error("error!");
             lens.pointsTable.updateData([ { "id": myPoint.id, "zi": nowX, "hi": nowY } ]);
-            pt = getConjTo (myPoint.type, { id:myPoint.id, zo: nowX, ho: nowY });   // this only works in the forward direction
-            lens.pointsTable.updateData([ { "id": myPoint.id, "zi": pt.X1, "hi": pt.Y1 } ]);
-            c = paper.getById(myPoint.conjugate_id);
-            c.attr({ cx: pt.X1, cy: pt.Y1 });
+            lens.pointsTable.updateData([ { "id": myPoint.id, "zo": pairData.X1, "ho": pairData.Y1 } ]);
+            //c = paper.getById(myPoint.conjugate_id);
+            //c.attr({ cx: pairData.X1, cy: pairData.Y1 });
             break;
 
           default:
             error("unknown draggable");
 
       }
-
-
-    return pt;
 }
 
 /* ------------------------------------------------------
@@ -81,13 +72,19 @@ function moveConstruction (dx, dy) {
       // update the point 
       this.attr({ cx: nowX, cy: nowY });
 
-      // 4pairDescription = getConjugateTo("object", eachPoint, totalLens); // only works in fwd direction 
-
       // update the conjugate 
       var thisPoint = this.data("data-attr");
-      pairData = updateConjugateTo (thisPoint);  // update the Raphael paper + lens table + return a pairData object
+
+      console.log(thisPoint);
+
+      totalLens = renderableLens.total;  // I should make this local if I can
+      pairData  = Optics.calculateConjugatePairFrom({   id     : thisPoint.id, 
+                                                        which  : thisPoint.type, 
+                                                        z      : nowX, 
+                                                        h      : nowY }, totalLens);
+      updateInterface (thisPoint, pairData);  // update table (and conjugate points / will remove) 
       thisPoint.parent.setPairData(pairData);
-      thisPoint.parent.drawRayConstruction ();
+      thisPoint.parent.draw(); // drawRayConstruction ();
 
 
       // redraw depends on type of object 

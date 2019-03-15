@@ -558,6 +558,7 @@ getConjuugateTo
                                                       "which": "object",
                                                       "z"    : -10, 
                                                       "h"    : 10,
+                                                      "t"    : undefined
                                                        } ];
 
 /*                                                       
@@ -665,10 +666,13 @@ getConjuugateTo
                                           // this should setup the one
 
                                           // ... code runs after successful loading of the table 
-                                          var points = lens.pointsTable.getData ();
+                                          // var points = lens.pointsTable.getData ();
+                                          
                                           points.forEach( eachPoint => {
                                               totalLens  = renderableLens.total;
-                                              pairData   = getConjugateTo("object", eachPoint, totalLens); // only works in fwd direction 
+                                              pairData   = Optics.calculateConjugatePairFrom(eachPoint, totalLens);
+                                              
+                                              // pairData   = getConjugateTo("object", eachPoint, totalLens); // only works in fwd direction 
                                               
                                               // update the points table with these data
                                               console.log("read point");
