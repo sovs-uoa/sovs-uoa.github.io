@@ -348,7 +348,7 @@ function calculatePairFromObject (object, systemInfo) {
 
                   result = {  id  : undefined,     
                               VO  : z,
-                              PO  : -curr.cardinal.VP1 + zl, 
+                              PO  : -curr.cardinal.VP1 + z, 
                               OQ  : h,
                               VI  : Infinity, // sign
                               PI  : Infinity, 

@@ -198,6 +198,13 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
     }
 
 
+    setLens(lens) {
+
+      this.lens = lens;
+
+    }
+
+
    draw () {
       drawBeamConstruction ();
 

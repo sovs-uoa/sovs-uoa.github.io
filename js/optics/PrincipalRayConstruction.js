@@ -157,6 +157,12 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
       this.data = data;
     }
 
+    setLens(lens) {
+
+      this.lens = lens;
+
+    }
+
 
    draw () {
       this.drawRayConstruction ();
