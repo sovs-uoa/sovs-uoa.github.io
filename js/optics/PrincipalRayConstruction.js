@@ -316,8 +316,26 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
 	  p2.attr(ret.F2.OP2); 
 	  this.cd_set.push(p1, p2);
 
-    
-    //this.cd_set = paper.set();
+
+    ret = getImageStyle(data);  
+
+
+    // F1 RAY - ray through : (P2, Y1) to (F1, 0) 
+    p1 = paper.path( ["M", X2, Y2, "L", F2, 0 ]);        // O  -> F1   (ray through F1)
+    p2 = paper.path( ["M", F2, 0,  "L", P2, Y2]);        // F1 -> P1   (ray through F1)
+    var p3 = paper.path( ["M", X2, Y2, "L", P2, Y2 ]);   // I  -> P2   (horizontal ray through F2)
+    p1.attr(ret.F1.OF);
+    p2.attr(ret.F1.FP); 
+    p3.attr(ret.F1.OP); 
+    this.cd_set.push(p1, p2, p3);
+
+    // F2 RAY - ray through P2 to F2 
+    p1 = paper.path( ["M", X1, Y1,  "L", P1, Y1 ]);   // O  -> P1   (ray through F1)
+    p2 = paper.path( ["M", P2, Y1,  "L", X1, Y1 ]);   // P2 -> O   (ray through F1)
+    p1.attr(ret.F2.OP1);
+    p2.attr(ret.F2.OP2); 
+    this.cd_set.push(p1, p2);
+
 
  }
 
@@ -561,4 +579,87 @@ GETOBJECTSTYLE return an apprpriate obejct style.
       return ret;
 
    }
+
+
+
+
+/*   -------------------------------------------------
+
+GETIMAGESTYLE return an apprpriate obejct style.
+
+
+  F1
+    OF 
+    FP
+    OP
+
+  F2
+    OP1
+    OP2
+
+  N1
+    OP
+    PN
+
+------------------------------------------------------ */
+
+   function getImageStyle(data) {
+
+
+
+      ret = {};
+      
+      if (data.X2 < data.P2) { // VIRTUAL IMAGE 
+
+          if ((data.F2 < data.X2) & (data.X2 < data.P2)) {  // NEGATIVE LENS (F2 < X2 < P2)
+              ret.F1 = { FI: none, PI: virtual, FP: none, extend: true };
+              ret.F2 = { FI: none, PI: virtual, FP: none, extend: true };
+          } else if ((data.X2 < data.P2) & (data.P2 < data.F2)) {  // POSITIVE LENS (F2 < X2 < P2)
+              ret.F1 = { FI: none, PI: virtual, FP: none };
+              ret.F2 = { FI: none, PI: virtual, FP: real };
+          } else {
+
+             alert("image is on the focal point");              
+          }
+
+
+          // nodal ray (not sure whats possible here!)
+          if  (data.P2 < data.N2) {            
+              ret.N  = { IN: virtual, NP: none, IP : none, extend : true  };             
+          } else {
+              ret.N  = { IN: virtual, NP: none, extend : true }; 
+          }
+
+
+
+      } else {  // REAL IMAGE 
+
+
+          if ((data.P2 < data.F2) & (data.F2 < data.X2)) {          // P2 < F2 < I
+
+              // POSITIVE LENS 
+              ret.F1 = { PF: none, FI: none, PI: real };            
+              ret.F2 = { PF: none, FI: none, PI: real };      
+
+          } else if ((data.P2 < data.X2) & (data.X2 < data.F2)) {    // P2 < I < F2
+
+              // NEGATIVE LENS 
+              ret.F1 = { PF: none, FI: none, PI: real };            
+              ret.F2 = { PF: none, FI: none, PI: real };             
+          }
+
+          // nodal ray (not sure whats possible here!)
+          if (data.P2 < data.N2) {
+              ret.N  = { NP: virtual, PI: real, NP: none }; 
+          } else {
+              ret.N  = { NP: none, PI: none, NP: real }; 
+          }
+
+      }
+
+
+      return ret;
+
+   }
+
 
