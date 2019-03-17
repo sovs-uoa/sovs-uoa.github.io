@@ -1,10 +1,16 @@
 
 var attributes      = { "fill": "gray", "stroke-opacity": 0.5, "stroke": "black", "stroke-width": "1" };
 var virtual         = { "fill": "gray", "stroke-opacity": 0.5, "stroke": "black", "stroke-width": "1", "stroke-dasharray":"--" };
-var real            = { "stroke": "blue", "stroke-width": "1", "stroke-dasharray":"none"  };
+var real            = { "stroke": "black", "stroke-width": "1", "stroke-dasharray":"none"  };
 var none            = { "stroke": "none", "stroke-width": "1" };
 var extend          = { "fill": "red", "stroke-opacity": 0.5, "stroke": "red", "stroke-width": "1" };
-var extend_object   = { "fill": "green", "stroke-opacity": 0.5, "stroke": "green", "stroke-width": "1" };
+
+//var extend_object   = { "fill": "green", "stroke-opacity": 0.5, "stroke": "green", "stroke-width": "1" };
+//var extend_image    = { "fill": "red", "stroke-opacity": 0.5, "stroke": "red", "stroke-width": "1" };
+
+var extend_object   = { "fill": "black", "stroke-opacity": 0.5, "stroke": "black", "stroke-width": "1" };
+var extend_image    = { "fill": "black", "stroke-opacity": 0.5, "stroke": "black", "stroke-width": "1" };
+
 var picker_extender = { "stroke": "red", "stroke-width": 1, "stroke-dasharray":"--"  };
 var changed         = { "stroke": "blue", "stroke-width": 1, "stroke-dasharray":"--"  };
 
@@ -223,7 +229,7 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
                                               "parent"       : this });
 
 
-        this.imagePoint  = drawPoint(X2, Y2, "green"); // image  
+        this.imagePoint  = drawPoint(X2, Y2, "cyan"); // image  
         this.imagePoint.drag (moveConstruction, startConstruction, upConstruction);
         this.imagePoint.id = "point-" + this.data.id + "-image";
         this.imagePoint.data("data-attr", {  "element_id"     : "point-" + this.data.id + "-image",
@@ -311,7 +317,7 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
 	  // Nodal ray height at the principal plane  
 	  // N1 RAY - ray through 1 to P1 
 	  var H1 = (0 - Y1) / (N1 - X1 ) * (P1 - X1) + Y1;
-	  var p1 = paper.path( ["M", X1, Y1, "L", P1, H1 ]);    // O  -> H1   (ray through F1)
+	  var p1 = paper.path( ["M", X1, Y1, "L", P1, H1 ]);   // O  -> H1   (ray through F1)
 	  var p2 = paper.path( ["M", P1, H1,  "L", N1, 0]);    // H1 -> N1   (ray through F1)
 	  p1.attr(ret.N1.OP);
 	  p2.attr(ret.N1.PN); 
@@ -320,7 +326,7 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
 	  // F1 RAY - ray through F1 to P1 
 	  p1 = paper.path( ["M", X1, Y1, "L", F1, 0 ]);        // O  -> F1   (ray through F1)
 	  p2 = paper.path( ["M", F1, 0,  "L", P1, Y2]);        // F1 -> P1   (ray through F1)
-	  var p3 = paper.path( ["M", X1, Y1, "L", P1, Y2 ]);  // O  -> P1   (horizontal ray through F2)
+	  var p3 = paper.path( ["M", X1, Y1, "L", P1, Y2 ]);   // O  -> P1   (horizontal ray through F2)
 	  p1.attr(ret.F1.OF);
 	  p2.attr(ret.F1.FP); 
 	  p3.attr(ret.F1.OP); 
@@ -333,14 +339,31 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
 	  p2.attr(ret.F2.OP2); 
 	  this.cd_set.push(p1, p2);
 
+
+    console.log(ret);
+
     if (ret.extender) {
 
-      //p1 = paper.path( ["M", X1, Y1, "L", F1, 0 ]);        // O  -> F1   (ray through F1)
-      //p2 = paper.path( ["M", F1, 0,  "L", P1, Y2]);        // F1 -> P1   (ray through F1)
-      //var p3 = paper.path( ["M", X1, Y1, "L", P1, Y2 ]);  // O  -> P1   (horizontal ray through F2)
+
+      //p1 = paper.path( ["M", X1, Y1, "L", F1, 0 ]);       // O  -> F1   (ray through F1)
+      //p2 = paper.path( ["M", F1, 0,  "L", P1, Y2]);       // F1 -> P1   (ray through F1)
+      //p3 = paper.path( ["M", X1, Y1, "L", P1, Y2 ]);      // O  -> P1   (horizontal ray through F2)
+
+      dX = -100; dY = 0;
+      p1 = paper.path( ["M", P1, Y1, "L", P1 + dX, Y1 ]);     // Y2 -> inf   (ray through F1)
+      p1.attr(extend_object);
+
+      var m = (Y1-0)/(X1-N1);
+      p2 = paper.path( ["M", N1, 0,  "L", N1 + dX, m*dX]);    // N2 -> inf   (ray through F1)
+      p2.attr(extend_object);
+
+      var m = (Y2-0)/(P1-F1);
+      p3 = paper.path( ["M", P1, Y2, "L", P1 + dX, Y2 + m*dX ]);          // O  -> P1   (horizontal ray through F2)
+      p3.attr(extend_object);
+
+      this.cd_set.push(p1, p2, p3); //, p2, p3);
 
     }
-
 
 
 
@@ -360,6 +383,39 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
     p2.attr(ImageStyles.Y2I); 
     p3.attr(ImageStyles.N2I); 
     this.cd_set.push(p1,p2,p3);
+
+
+    if (ImageStyles.extender) {
+
+      //p1 = paper.path( ["M", X1, Y1, "L", F1, 0 ]);       // O  -> F1   (ray through F1)
+      //p2 = paper.path( ["M", F1, 0,  "L", P1, Y2]);       // F1 -> P1   (ray through F1)
+      //p3 = paper.path( ["M", X1, Y1, "L", P1, Y2 ]);      // O  -> P1   (horizontal ray through F2)
+
+      var dX = 100; 
+      // dX = Math.min([ 100, X2-P2 ]);
+
+      if (X2 > P2) {        
+        dX = X2 - P2;
+      }
+
+      dY = 0;
+      p1 = paper.path( ["M", P2, Y2, "L", P2 + dX, Y2 ]);     // Y2 -> inf   (ray through F1)
+      p1.attr(extend_image);
+      //p1.attr(real);
+
+      var m = (Y2-0)/(X2-N2);
+      p2 = paper.path( ["M", N2, 0,  "L", N2 + dX, m*dX]);    // N2 -> inf   (ray through F1)
+      p2.attr(extend_image);
+
+      var m = (Y1-0)/(P2-F2);
+      p3 = paper.path( ["M", P2, Y1, "L", P2 + dX, Y1 + m*dX ]);          // O  -> P1   (horizontal ray through F2)
+      p3.attr(extend_image);
+
+
+      this.cd_set.push(p1, p2, p3);
+
+    }
+
 
 
     this.cd_set.toBack();
@@ -527,6 +583,8 @@ GETOBJECTSTYLE return an apprpriate obejct style.
       if (data.X1 < data.P1) { // real object 
 
 
+          ret.extender = false;
+
           // different cases (F1 - primary)
           if ((data.X1 < data.F1) & (data.F1 < data.P1)) {        // O < F1 < P1
 
@@ -538,7 +596,8 @@ GETOBJECTSTYLE return an apprpriate obejct style.
 
           } else if ((data.F1 < data.X1) & (data.X1 < data.P1)) { // F1 < O < P1 
 
-              ret.F1 = { OF: none, FP: virtual, OP: real };
+//              ret.F1 = { OF: none, FP: virtual, OP: real };
+                ret.F1 = { OF: none, FP: none, OP: real };
 
           } else {
 
@@ -562,10 +621,10 @@ GETOBJECTSTYLE return an apprpriate obejct style.
           } else {
 
               // F2 RAY           
-              ret.F2 = { OP1: virtual, OP2: none };
+              ret.F2 = { OP1: virtual, OP2: none};
 
               // N1 RAY 
-              ret.N1 = { OP: real, PN: virtual }; // : { OP1: real, PN: virtual };
+              ret.N1 = { OP: real, PN: virtual}; // : { OP1: real, PN: virtual };
 
           }
 
@@ -577,6 +636,8 @@ GETOBJECTSTYLE return an apprpriate obejct style.
 
           // F1 RAY
           // ret.F1 = (data.X1 < data.F1) ? { OF: real, OP: none, FP: real } : { OF: none, OP: virtual, FP: real };
+
+          ret.extender = true;
 
 
           // F1 RAY : 
@@ -611,18 +672,18 @@ GETOBJECTSTYLE return an apprpriate obejct style.
           if (data.P1 < data.P2) {
               
               // F2 RAY  
-              ret.F2 = { OP1: none, OP2: virtual };
+              ret.F2 = { OP1: none, OP2: virtual, extender: true};
 
               // N1 RAY 
-              ret.N1 = { OP: virtual, PN: real }; // : { OP1: real, PN: virtual };
+              ret.N1 = { OP: virtual, PN: real, extender: true }; // : { OP1: real, PN: virtual };
 
           } else {
 
               // F2 RAY  
-              ret.F2 = { OP1: virtual, OP2: none };
+              ret.F2 = { OP1: virtual, OP2: none, extender: true };
 
               // N1 RAY (ADDRESS THIS LATER)
-              ret.N1 = { OP: virtual, PN: none }; // : { OP1: real, PN: virtual };
+              ret.N1 = { OP: virtual, PN: none, extender: true }; // : { OP1: real, PN: virtual };
 
 
           }
@@ -667,11 +728,21 @@ GETIMAGESTYLE return an apprpriate obejct style.
       
       if (data.X2 < data.P2) { // VIRTUAL IMAGE 
 
+/*
           if ((data.F2 < data.X2) & (data.X2 < data.P2)) {         // NEGATIVE LENS (F2 < X2 < P2)
               Styles = { Y1I: virtual, Y2I: virtual, N2I: virtual, IF2: none, Y2F2: real, extender: true };
           } else if ((data.X2 < data.P2) & (data.P2 < data.F2)) {  // POSITIVE LENS (F2 < X2 < P2)
               Styles = { Y1I: virtual, Y2I: virtual, N2I: virtual, IF2: none, Y2F2: real, extender: true };
           }          
+*/
+
+          if ((data.F2 < data.X2) & (data.X2 < data.P2)) {         // NEGATIVE LENS (F2 < X2 < P2)
+              Styles = { Y1I: virtual, Y2I: virtual, N2I: virtual, IF2: virtual, Y2F2: real, extender: true };
+          } else if ((data.X2 < data.P2) & (data.P2 < data.F2)) {  // POSITIVE LENS (F2 < X2 < P2)
+              Styles = { Y1I: virtual, Y2I: virtual, N2I: virtual, IF2: virtual, Y2F2: real, extender: true };
+          }          
+
+
 
       } else {  // REAL IMAGE (P2 <= X2)
 
