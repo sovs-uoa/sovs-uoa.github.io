@@ -28,7 +28,7 @@
 		"type": "thin",
 		"description": "thin lens",
 		"args": {
-			"power": -0.25,
+			"power": -0.1,
 			"height": 12
 		}
 	}, {

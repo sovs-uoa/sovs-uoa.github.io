@@ -7,7 +7,6 @@ body {
 
 
 path, circle, text {
-
       vector-effect: non-scaling-stroke;
       stroke-width: 2px;
 

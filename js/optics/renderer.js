@@ -211,6 +211,19 @@ var drawAxis = function (r, grid, offset) {
           cp2 = drawPoint(x2, y, "magenta");
           cp_set.push(cp1, cp2);
 
+          //cp1 = drawPoint(x1, y, "magenta");
+          //cp2 = drawPoint(x2, y, "magenta");
+          //cp_set.push(cp1, cp2);
+
+          cp1 = drawText(x1, y - 6*cp1.attr("r"), "F");
+          cp2 = drawText(x2, y - 6*cp2.attr("r"), "F'");
+          cp_set.push(cp1, cp2);
+
+          //cp1 = paper.text(x1, y, "F").attr({fill: '#000000'});
+          //cp2 = paper.text(x2, y, "F'").attr({fill: '#000000'});
+          //cp_set.push(cp1, cp2);
+
+
           // BARS
           cp1 = paper.path( ["M", x1, y1, "L", x1, y2 ] ).attr({"gray": "#000000", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
           cp2 = paper.path( ["M", x2, y1, "L", x2, y2 ] ).attr({"gray": "#000000", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
@@ -394,6 +407,38 @@ var drawAxis = function (r, grid, offset) {
     };
 
 
+
+/* ---------------------------------------------------------------------------------------------------------------
+
+    DRAWPOINT Points are on the canvas. 
+
+  
+   --------------------------------------------------------------------------------------------------------------- */
+
+
+  function drawText(x, y, text, color) {
+
+    console.log('drawing at X:' +x +',Y:'+y + ' KX:' + kx);
+
+    r = kx*4; // 4 pixels is the requested size
+
+    var c = paper.text(x, y, text);
+    c.attr({ "font-family": "arial", fill: "black", "font-size": 2, "text-anchor" : "middle" });
+
+    //.attr({"fill": color, "stroke": "#000000", "stroke-width": 1, "font-size": 1});
+
+    // \c.drag(dragPointMove, dragPointStart, dragPointUp);    
+    // c.drag(dragPointMove, dragPointStart, dragPointUp);
+    return c;
+  } 
+
+
+/* ---------------------------------------------------------------------------------------------------------------
+
+    DRAWPOINT Points are on the canvas. 
+
+  
+   --------------------------------------------------------------------------------------------------------------- */
 
 
   function drawPoint(x, y, color) {
@@ -1042,7 +1087,7 @@ var drawAxis = function (r, grid, offset) {
     optics_set.remove();
     optics_set = paper.set();
 
-    displayOptions = { height               : 15, 
+    displayOptions = { height               : 25, 
                        showCardinalPoints   : true,
                        showFocalPoints      : true,
                        showNodalPoints      : true, 
