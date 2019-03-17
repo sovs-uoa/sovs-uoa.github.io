@@ -1,7 +1,7 @@
 
 var attributes      = { "fill": "gray", "stroke-opacity": 0.5, "stroke": "black", "stroke-width": "1" };
 var virtual         = { "fill": "gray", "stroke-opacity": 0.5, "stroke": "black", "stroke-width": "1", "stroke-dasharray":"--" };
-var real            = { "stroke": "magenta", "stroke-width": "1", "stroke-dasharray":"none"  };
+var real            = { "stroke": "blue", "stroke-width": "1", "stroke-dasharray":"none"  };
 var none            = { "stroke": "none", "stroke-width": "1" };
 var extend          = { "fill": "red", "stroke-opacity": 0.5, "stroke": "red", "stroke-width": "1" };
 var extend_object   = { "fill": "green", "stroke-opacity": 0.5, "stroke": "green", "stroke-width": "1" };

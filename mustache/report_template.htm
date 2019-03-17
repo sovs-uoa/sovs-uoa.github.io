@@ -1,0 +1,125 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>SOVS optics bench</title>
+  <meta name="description" content="Output report for the SOVS optics bench">
+  <meta name="author" content="">
+</head>
+
+
+<style>
+h1 { font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif; font-size: 26px; font-style: normal; font-variant: normal; font-weight: bold; line-height: 28px; } 
+h3 { font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif; font-size: 16px; font-style: normal; font-variant: normal; font-weight: bold; line-height: 17px; } 
+p { font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif; font-size: 16px; font-style: normal; font-variant: normal; font-weight: 400; line-height: 22px; } 
+
+blockquote { font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif; font-size: 23px; font-style: normal; font-variant: normal; font-weight: 400; line-height: 32px; } 
+pre { font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif; font-size: 15px; font-style: normal; font-variant: normal; font-weight: 400; line-height: 20px; }
+ 
+body { font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif; font-size: 16px; font-style: normal; font-variant: normal; font-weight: bold; line-height: 17px; }
+
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+
+
+</style>
+
+<body>
+	<h1>Output Report SOVS optics bench</h1>
+
+
+	<h3>View</h3>
+
+	<div>
+		{{{svg}}}
+	</div>		
+
+
+	<hr>
+
+	<h3>Lens Prescription</h3>
+
+
+		<table>
+		  <thead>
+		  	<th>Id</th>
+		  	<th>Type</th>
+		  	<th>Description</th>
+		  	<th>Ref. Index</th>
+		  	<th>Surf. R.</th>
+		  	<th>Power</th>		  	
+		  	<th>Thickness</th>
+		  </thead>  	
+
+		  <tbody>
+		  
+		  {{#lens}}
+
+		  <tr>
+		    <td>{{id}}</td>
+		    <td>{{type}}</td>
+		    <td>{{description}}</td>
+		    <td>{{index}}</td>
+		    <td>{{radius}}</td>
+		    <td>{{power}}</td>
+		    <td>{{thickness}}</td>
+		  </tr>
+		  {{/lens}}
+
+		  </tbody>
+		</table>
+
+	<hr>
+
+
+	<h3>Objects and Images</h3>
+
+
+		<table>
+		  <thead>
+		  	<th>id</th>
+		  	<th>type</th>
+		  	<th>zo</th>
+		  	<th>ho</th>
+		  	<th>zi</th>
+		  	<th>hi</th>
+		  	<th>to</th>
+		  	<th>ti</th>
+		  </thead>  	
+
+
+		  <tbody>
+		  
+		  {{#object}}
+
+		  <tr>
+		    <td>{{id}}</td>
+		    <td>{{type}}</td>
+		    <td>{{zo}}</td>
+		    <td>{{ho}}</td>
+		    <td>{{zi}}</td>
+		    <td>{{hi}}</td>
+		    <td>{{to}}</td>
+		    <td>{{ti}}</td>
+		  </tr>
+		  {{/object}}
+
+		  </tbody>
+		</table>
+
+	<hr>
+
+	<h3>Summary</h3>
+
+		  {{{summary}}}
+
+
+</body>
+</html>

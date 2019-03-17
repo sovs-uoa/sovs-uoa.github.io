@@ -545,29 +545,84 @@ getConjuugateTo
 
 
 
-  function Reporter () {
-
-      // add a style 
-      var svgElement = document.getElementsByTagName('svg')[0];
-      svgElement.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-      var svgStyle   = document.createElementNS("http://www.w3.org/2000/svg", "style");
-      style = "path,circle,text{vector-effect:non-scaling-stroke;stroke-width:2px;}";
-      // svgStyle.innerHTML = "\n/* <![CDATA[ */" + style + "/* ]]> */\n"
-      svgStyle.textContent = style;
-      // svgStyle.textContent = "<![CDATA[" + style + "]]>"
-      svgElement.appendChild(svgStyle);
+  function downloadReport (which) {
 
 
-       //load a svg snippet in the canvas with id = 'drawingArea'
-       //var myCanvas = document.createElement("canvas");
-       //canvg(myCanvas, svgElement.outerHTML);
-       //var base64 = myCanvas.toDataURL("image/png");
-       //console.log(base64);
+      switch (which) {
+
+        case "picture":
+
+
+          // Add style to SVG and also some required information 
+          var svgElement = document.getElementsByTagName('svg')[0];
+          svgElement.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+          var svgStyle   = document.createElementNS("http://www.w3.org/2000/svg", "style");
+          style = "path,circle,text{vector-effect:non-scaling-stroke;stroke-width:2px;}";
+          svgStyle.textContent = style;
+          svgElement.appendChild(svgStyle);
+
+          var downloadTxt = svgElement.outerHTML;
+
+          // create an elelemnt to hold the data
+          var a  = window.document.createElement('a');
+          a.href = window.URL.createObjectURL(new Blob([downloadTxt], {type: 'image/svg+xml'}));
+          a.download = 'picture.svg';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          return;
+
+
+        case "report":
+
+
+          // Add style to SVG and also some required information 
+          var svgElement = document.getElementsByTagName('svg')[0];
+          svgElement.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+          var svgStyle   = document.createElementNS("http://www.w3.org/2000/svg", "style");
+          style = "path,circle,text{vector-effect:non-scaling-stroke;stroke-width:2px;}";
+          svgStyle.textContent = style;
+          svgElement.appendChild(svgStyle);
+
+          var svgTxt = svgElement.outerHTML;
+
+
+
+          var outputData = {};
+          outputData.svg     = svgTxt;           
+          outputData.lens    = lens.table.getData(); 
+          outputData.object  = lens.pointsTable.getData();
+          totalLens          = renderableLens.total;
+          outputData.summary = Mustache.render(summaryTemplate, totalLens); 
+          downloadTxt        = Mustache.render(reportTemplate, outputData);
+
+          // create an elelemnt to hold the data
+          var a  = window.document.createElement('a');
+          a.href = window.URL.createObjectURL(new Blob([downloadTxt], {type: 'text/html'}));
+          a.download = 'report.html';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+
+        default:
+          break;
+
+      }
+
+
+
+      //load a svg snippet in the canvas with id = 'drawingArea'
+      //var myCanvas = document.createElement("canvas");
+      //canvg(myCanvas, svgElement.outerHTML);
+      //var base64 = myCanvas.toDataURL("image/png");
+      //console.log(base64);
 
 /*
       base64 = "";
 */
 
+
+/*
 
       reportData = {  svg    : "circle.svg",
                       lens   : lens.table.getData (),
@@ -580,7 +635,7 @@ getConjuugateTo
       console.log(reportTemplate);
 
 
-      // get this downloading ! 
+      // Create a download link!
       downloadTxt = Mustache.render(reportTemplate, reportData);
       var a  = window.document.createElement('a');
       a.href = window.URL.createObjectURL(new Blob([downloadTxt], {type: 'text/html'}));
@@ -589,7 +644,7 @@ getConjuugateTo
       a.click();
       document.body.removeChild(a);
 
-
+*/
 
 
 
@@ -653,9 +708,16 @@ getConjuugateTo
     function load (id) {
 
 
+      // load the mustache report 
+      $.get('mustache/report_template.htm', function(template) {
+        console.log("loaded report template ... OK");
+        reportTemplate = template;
+      });
+
+
+
+
       found = findLensById(id);
-
-
       $.ajax({
             url : found.filename,
             dataType: "text",
@@ -692,7 +754,7 @@ getConjuugateTo
                                 // $( "#prescription-nav").trigger("click"); // show the table 
 
                                 // we can now load the prescription 
-                                $.get('mustache/summary-bootstrap-4-html.mustache', function(template) {
+                                $.get('mustache/summary_report_tables_html.mustache', function(template) {
                           
                                     console.log("loaded a summary template ...");
                                     summaryTemplate = template; 
@@ -893,19 +955,29 @@ getConjuugateTo
           
         // info.
         if (ndx > -1) {
-
-
-          // refresh everything 
           reload(id);
-          // load(id);
-
-
           var txt = $(this).text();             // selection 
           $("#filename_display").val(txt);      // show it 
         }
-
-
       });
+
+
+
+      // trigger on a selection
+      $('.report-selection').on('click', function () {
+        var id  = $(this).data ("id"); // get the data id field 
+        console.log("report selection made = " + id);
+        downloadReport(id);
+      });
+
+
+
+
+
+
+
+
+
 
 
 
@@ -958,13 +1030,29 @@ getConjuugateTo
      </div>
     <input id="filename_display" type="text" class="form-control" aria-label="Text input with dropdown button" placeholder="Load a prescription" readonly>
 
+
     <!--  Report button -->  
-    <button class='btn btn-primary float-right' onclick='Reporter ();' > 
-       <i class="fas fa-download"></i>Get Report
+
+    <div class="dropdown">
+    <button class='btn btn-primary dropdown-toggle float-right' data-toggle="dropdown" id="dropdownReportButton"' > 
+       <i class="fas fa-download"></i>Report
     </button>
+
+    <!-- TO DO: need to build this list fron the javascript array --> 
+    <div id="dropdown-report-menu" class="dropdown-menu"  aria-labelledby="dropdownReportButton">
+      <a class="dropdown-item report-selection"  href="#" data-id="report" >Report as HTML</a>
+      <a class="dropdown-item report-selection"  href="#" data-id="picture" >Picture as SVG</a>
+    </div>            
+    </div>
 
 
    </div>
+
+
+
+
+
+
 
 
     
