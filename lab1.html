@@ -79,10 +79,10 @@
   var   reportTamplate;
   var   kx, ky;
   var   etol = 5e-4;
-  var   fileList  = [ { id: "0", filename: "./lenses/thick-lens-positive.lens" }, 
-                      { id: "1", filename: "./lenses/thick-lens-negative.lens" },
-                      { id: "2", filename: "./lenses/thin-lens-positive.lens" },
-                      { id: "3", filename: "./lenses/thin-lens-negative.lens" } ];
+  var   fileList  = [ { id: "0", filename: "./lenses/thick-lens-positive.lens", title: "Thick lens in air (positive)" }, 
+                      { id: "1", filename: "./lenses/thick-lens-negative.lens", title: "Thick lens in air (negative)" },
+                      { id: "2", filename: "./lenses/thin-lens-positive.lens", title: "Thin lens in air (positive)"  },
+                      { id: "3", filename: "./lenses/thin-lens-negative.lens", title: "Thin lens in air (negative)"  } ];
 
 
     displayOptions = { height               : 15, 
@@ -268,12 +268,15 @@ getConjuugateTo
                      showVertices         : true };
 
 
-    drawOptics(renderableLens);
     drawCardinalPoints(0, 0, renderableLens.total, displayOptions); // (0,0) 
+    drawOptics(renderableLens);
 
     // now update the points 
-    // updatePointsView();
-    // updateSummary (); 
+    if (summaryTemplate !== undefined) {
+      console.log("Summary template!");
+      console.log(summaryTemplate);
+      updateSummaryView (); 
+    }
 
     // re-calculate all the constructions
     // refreshAllConstruction ();
@@ -284,6 +287,22 @@ getConjuugateTo
     }
 
   }
+
+
+
+
+  function updateSummaryView () {
+
+    console.log ("-- updating the summary");
+    //console.log(summaryTemplate);
+    var summary = document.getElementById("summary-tab");
+    summary.innerHTML = Mustache.render(summaryTemplate, renderableLens.total);
+
+    // renderableLens 
+    // Total Summary 
+    // Groups Summary 
+  }
+
 
 
   /* 
@@ -404,14 +423,12 @@ getConjuugateTo
 
   ----------------------------------------------------------------------------------------------------------------   */
 
+  // This should re-build all the constructions in the list 
   function refreshAllConstruction () {
 
-    // update assuming the object 
     totalLens   = renderableLens.total;
-    pointsTable = lens.pointsTable.getData();    
-    
+    pointsTable = lens.pointsTable.getData();            
     lens.raphael.constructions.forEach (elem => {
-
        aRow       = lens.pointsTable.getRow(elem.getId()).getData();
        aPoint     = { id: aRow.id, which: "object", z:aRow.zo, h:aRow.ho };
        pairData   = Optics.calculateConjugatePairFrom(aPoint, totalLens);
@@ -423,6 +440,55 @@ getConjuugateTo
     });
 
 
+  }
+
+
+  function addConstruction (aPoint) {
+
+     console.log("add construction called.");
+
+     totalLens  = renderableLens.total;
+     pairData   = Optics.calculateConjugatePairFrom(aPoint, totalLens);
+     lens.pointsTable.addRow([{  id: aPoint.id, 
+                                 type: aPoint.type }]);
+
+     console.log(lens.pointsTable.getData());
+
+     // update the points table with these data
+     switch (aPoint.type) {
+            case "finite": case "point":   // finite placed beam 
+              lens.raphael.constructions.push( new PrincipalRayConstruction (totalLens, pairData));
+              lens.pointsTable.updateData([{  id: aPoint.id, 
+                                              zo: pairData.VO, ho: pairData.OQ, 
+                                              zi: pairData.VI, hi: pairData.IQ }]);
+              break;
+
+            case "parallel": case "beam": // infinitely placed beam 
+              lens.raphael.constructions.push( new ParallelBeamConstruction (totalLens, pairData));
+              lens.pointsTable.updateData([{  id: aPoint.id, 
+                                              to: pairData.T1, ti: pairData.T2,  
+                                              zi: pairData.VI, hi: pairData.IQ }]);                                            
+              break;
+            
+            default: 
+              break;
+      }
+
+  }
+
+
+
+  function deleteConstruction (id) {
+    for(var i = 0; i < lens.raphael.constructions.length; i++ ) {
+        console.log("This constructions =>");
+        console.log(lens.raphael.constructions[i]);
+        if (lens.raphael.constructions[i].getId() == id) {
+            console.log("deleting object/image object id = " + id);
+            lens.raphael.constructions[i].delete();
+            lens.raphael.constructions.splice(i, 1);
+        } 
+
+    }
   }
 
 
@@ -473,29 +539,6 @@ getConjuugateTo
       lens.raphael.constructions[i].draw (); // should clear everything in the object and redraw it 
     }
 */
-
-
-  }
-
-
-  function updateSummaryView () {
-
-    console.log ("-- updating the prescription");
-    //console.log(summaryTemplate);
-    var summary = document.getElementById("summary-tab");
-    //console.log(renderableLens.total);
-    summary.innerHTML = Mustache.render(summaryTemplate, renderableLens.total);
-    
-
-   // $('#summary-tab').append(Mustache.render(summaryTemplate, renderableLens.total));   
-
-    // renderableLens 
-
-
-    // Total Summary 
-
-
-    // Groups Summary 
 
 
   }
@@ -553,10 +596,68 @@ getConjuugateTo
   }
 
 
-    function load (filename) {
+    function findLensById(id) {
+
+      found = fileList.find(function (elem) {
+          return elem.id == id;
+      });
+
+      if (found == undefined) {
+        throw "Couldnt find the requested file in the configuration."
+      }
+
+      return found;
+    }
+
+
+
+    function reload (id) {
+
+          
+     // clear the prescription table and re-populate it 
+     found = findLensById(id);
 
       $.ajax({
-            url : filename,
+            url : found.filename,
+            dataType: "text",
+            success : function (data) {
+
+
+                  response = JSON5.parse(data);
+                  // ("lens-container"); // uses paper 
+                   
+                  // initialize the prescription that will execite on change to table 
+                  initializePrescriptionTable (response.prescription, 
+
+                        updatePrescriptionView,   // change in lenses information => full update 
+                        function () {  // success !!! 
+
+                                console.log("reloaded a prescription ...");       
+
+                                // We can update the filename now !!
+                                $("#filename_display").val(found.title);
+
+
+                                // trigger a summary re-write and also a construction refresh
+                                updatePrescriptionView();            
+
+
+                      });
+
+            }});
+    };      
+
+
+
+
+    function load (id) {
+
+
+      found = findLensById(id);
+
+
+      $.ajax({
+            url : found.filename,
             dataType: "text",
             success : function (data) {
 
@@ -576,7 +677,14 @@ getConjuugateTo
                         updatePrescriptionView,   // change in lenses information => full update 
                         function () {  // success !!! 
 
-                                console.log("loaded a prescription ...");                                                 
+                                console.log("loaded a prescription ...");       
+
+                                // We can update the filename now !!
+
+                                $("#filename_display").val(found.title);
+                                // console.log(found);
+
+
                                 updatePrescriptionView();            
 
 
@@ -625,120 +733,56 @@ getConjuugateTo
                                                       }]; 
 */
 
-                                    // information 
-                                    function converterPoints(points) {
-                                        out = [];
-                                        points.forEach( each => {
-
-                                            switch (each.type) {
-
-                                               /* ------------------------------------
-
-                                                FINITE RAYS 
-
-                                               ---------------------------------------- */
-
-                                                case "finite":
-
-                                                 data  = {    id  : each.id,
-                                                             type : each.type,
-                                                             which: each.which };
-
-                                                 switch (data.which) {
-                                                    case "object":
-                                                      data.zo   = each.z;
-                                                      data.ho   = each.h;
-                                                      data.to   = null;
-                                                      data.zi   = null;
-                                                      data.hi   = null;
-                                                      data.ti   = null;
-                                                      break;
-
-                                                    case "image":
-                                                      data.zi   = each.z;
-                                                      data.hi   = each.h;
-                                                      data.ti   = null;
-                                                      data.zo   = null;
-                                                      data.ho   = null;
-                                                      data.to   = null;
-                                                      break;
-                                                 }
-
-
-                                               out.push(data); 
-                                               break; 
-
-                                               /* ------------------------------------
-
-                                                PARALLEL RAYS 
-
-                                               ---------------------------------------- */
-
-
-                                                case "parallel":
-
-                                                  out.push({ id    : each.id,
-                                                             type  : each.type,
-                                                             which : each.which,                                                              
-                                                             to    : each.th,
-                                                             zo    : -Infinity, // OBJECT 
-                                                             ho    : null,
-                                                             zi    : null,
-                                                             hi    : null,
-                                                             ti    : null });
-                                                  break;
-
-                                                default:
-                                                  error ("not iplemented.");
-                                                  break;
-
-                                            }
-
-                                        });
-                                        return out;
-                                    }
 
 
 
                                      
-                                     // initialized the points
-                                    initializePointsTable (converterPoints(points), updateConstruction, function () {
+                                    // initialized the points
+                                    // initializePointsTable ([]converterPoints(points), updateConstruction, function () {
+
+                                    initializePointsTable ([], updateConstruction, function () {
                                           
 
-                                          // this should setup the one
+                                          /* ------------------------------------------
 
-                                          // ... code runs after successful loading of the table 
-                                          // var points = lens.pointsTable.getData ();
+                                          SETUP EVENT HANDLERS FOR THE METHOD 
                                           
-                                          points.forEach( eachPoint => {
-                                              totalLens  = renderableLens.total;
-                                              pairData   = Optics.calculateConjugatePairFrom(eachPoint, totalLens);
+                                          ---------------------------------------------- */
 
-                                              // pairData   = getConjugateTo("object", eachPoint, totalLens); // only works in fwd direction 
-                                              
-                                              // update the points table with these data
-                                              console.log("read point");
-                                              console.log(eachPoint);
-                                              console.log(pairData);
 
-                                              switch (eachPoint.type) {
-
-                                                    case "finite":   // finite placed beam 
-                                                      lens.raphael.constructions.push( new PrincipalRayConstruction (totalLens, pairData));
-                                                      lens.pointsTable.updateData([{ "id": eachPoint.id, "zi": pairData.VI, "hi": pairData.IQ }]); 
-                                                      break;
-
-                                                    case "parallel": // infinitely placed beam 
-                                                      lens.raphael.constructions.push( new ParallelBeamConstruction (totalLens, pairData));
-                                                      lens.pointsTable.updateData([{ "id": eachPoint.id, "zi": pairData.VI, "hi": pairData.IQ }]); 
-                                                      break;
-
-                                                    default: 
-
-                                              }
-
-                                          
+                                          //delete the row on "Delete Row" button click
+                                          $("#lens-points-del-row").click(function(){
+                                              console.log("request to delete sources...");
+                                              selectedData = lens.pointsTable.getSelectedData(); 
+                                              selectedData.forEach(elem => {
+                                                  lens.pointsTable.deleteRow(elem.id);
+                                                  deleteConstruction (elem.id);                                                  
+                                              });
                                           });
+
+
+                                          //Add row on "Add Row" button click
+                                          $("#lens-points-add-point").click(function(){                                          
+                                              console.log("request to add source...");
+                                          });
+
+                                          
+                                          /* ------------------------------------------
+
+                                          LOAD DATA MANUALLY 
+                                          
+                                          ---------------------------------------------- */
+
+
+                                          points.forEach( eachPoint => {
+                                              console.log("eachPoint");
+                                              console.log(eachPoint);
+                                              addConstruction (eachPoint);
+                                          });
+
+
+
+
 
 
                                           // conjugate points are draggable controllers 
@@ -825,8 +869,11 @@ getConjuugateTo
     });
 
     //var  myfilename = "./lenses/thin-lens-positive.lens";
-    var  myfilename = "./lenses/thin-lens-negative.lens";
-    load (myfilename);
+    //var  myfilename = "./lenses/thin-lens-negative.lens";
+    //load (myfilename);
+
+    load ("3"); // 2 = thin lens (positive)
+
 
     }
 
@@ -835,31 +882,27 @@ getConjuugateTo
     $( document ).ready(function() {      
 
 
+
+
       // trigger on a selection
       $('.file-selection').on('click', function () {
 
-
         console.log("file selection made.");
-
         var id  = $(this).data ("id"); // get the data id field 
         var ndx = fileList.findIndex( function (element) { return element.id == id } );
-
-        console.log(ndx);
-        console.log(fileList[ndx]);
           
         // info.
         if (ndx > -1) {
 
-          var txt = $(this).text(); // selection 
-          $("#filename_display").val(txt); // show it 
-          console.log(fileList[ndx].filename);
 
-          load(fileList[ndx].filename);
+          // refresh everything 
+          reload(id);
+          // load(id);
 
+
+          var txt = $(this).text();             // selection 
+          $("#filename_display").val(txt);      // show it 
         }
-
-        // console.log("file = " + fileList[ndx].filename);
-        // load(fileList[ndx].filename);
 
 
       });
@@ -897,7 +940,8 @@ getConjuugateTo
       <!-- Buttons -->
         <button class="btn btn-secondary dropdown-toggle float-left" type="button" id="importer" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Load</button>
 
-        <div class="dropdown-menu">
+        <!-- TO DO: need to build this list fron the javascript array --> 
+        <div id="dropdown-lens-menu" class="dropdown-menu">
           <a class="dropdown-item file-selection"  href="#" data-id="2" >Thin lens in Air (Positive)</a>
           <a class="dropdown-item file-selection"  href="#" data-id="3" >Thin Lens in Air (Negative)</a>
 <!--          
@@ -1010,7 +1054,7 @@ getConjuugateTo
             <div class="container">
               <div class="btn-group" role="group" aria-label="Basic example">
                       <div class="dropdown">
-                        <button class="btn btn-secondary dropdown-toggle" type="button" id="lens-table-add-row" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="lens-table-add-row" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" disabled>
                           New
                         </button>
 
@@ -1022,9 +1066,9 @@ getConjuugateTo
                         </div>            
                       </div>
 
-                    <button id="lens-table-del-row" class="btn btn-secondary" >Delete Selected</button>
-                    <button id="lens-table-clear" class="btn btn-secondary">Clear</button>
-                    <button id="lens-table-reset" class="btn btn-secondary" >Reset</button>
+                    <button id="lens-table-del-row" class="btn btn-secondary"  disabled>Delete Selected</button>
+                    <button id="lens-table-clear" class="btn btn-secondary" disabled>Clear</button>
+                    <button id="lens-table-reset" class="btn btn-secondary" disabled>Reset</button>
               </div>
         
           </div>
@@ -1045,19 +1089,19 @@ getConjuugateTo
             <div class="container">
                 <div class="btn-group" role="group" aria-label="Basic example">       
                      <div class="dropdown">
-                        <button class="btn btn-secondary dropdown-toggle" type="button" id="lens-table-add-row" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="lens-points-add-row" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                           New 
                         </button>
 
                         <div class="dropdown-menu">
-                          <a class="dropdown-item" href="#" onclick="lensTypeSelector(this.innerText); return false;">Point</a>
-                          <a class="dropdown-item" href="#" onclick="lensTypeSelector(this.innerText); return false;">Beam</a>
+                          <a class="dropdown-item" href="#" data-short-id="point" onclick="lensObjectSelector(this); return false;">Point pair (principal rays)</a>
+                          <a class="dropdown-item" href="#" data-short-id="beam" onclick="lensObjectSelector(this); return false;">Beam (from infinity)</a>
                         </div>            
                       </div>
 
-                      <button id="lens-table-del-row" class="btn btn-secondary" >Delete Selected</button>
-                      <button id="lens-table-clear" class="btn btn-secondary">Clear</button>                    
-                      <button id="lens-table-reset" class="btn btn-secondary" >Reset</button>
+                      <button id="lens-points-del-row" class="btn btn-secondary" >Delete Selected</button>
+                      <button id="lens-points-clear" class="btn btn-secondary">Clear</button>                    
+                      <button id="lens-points-reset" class="btn btn-secondary" disabled>Reset</button>
                </div>
             </div>
             
@@ -1228,7 +1272,7 @@ getConjuugateTo
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Add Object or Image</h5>
+        <h5 class="modal-title">Add Source</h5>
         
 
         <!-- Details for the type  -->
@@ -1241,32 +1285,48 @@ getConjuugateTo
 
         <!-- Lens Type Selector -->
         <div class="input-group mb-3">
-          <input id="point-type-text-readonly" type="text" class="form-control" aria-label="Text input with dropdown button" placeholder="Select whether you want to add object or image point." >
+          <input id="point-type-text-readonly" type="text" class="form-control" placeholder="Select whether you want to add object or image point." >
         </div>
 
-        <!-- Lens Description -->
-        <div class="input-group mb-3">
+        
+        <!-- Lens Description -->        
+        <div class="input-group mb-3" style="display:none;" >
           <input id="modal-point-id" type="text" class="form-control" aria-label="Description" placeholder="Enter the id" >
         </div>
 
-
-        <!-- Z -->
-        <div id = "point-location"  style="display:none;">
-
+        <!-- Point Input Form -->
+        <div id = "lens-type-point" style="display:none;">
+          Object distance 
           <div class="input-group mb-3">
-              <input id="modal-point-z"  type="text" class="form-control" aria-label="Description" placeholder="Enter the axial distance." >
+              <input id="modal-point-z"  type="text" class="form-control" aria-label="Description" placeholder="Enter the axial distance." value="20">
           </div>
 
+          Object height
           <div class="input-group mb-3">
-              <input id="modal-point-h"  type="text" class="form-control" aria-label="Description" placeholder="Enter the height." >
+              <input id="modal-point-h"  type="text" class="form-control" aria-label="Description" placeholder="Enter the height." value="10">
           </div>
-
         </div>
+
+
+        <!-- Beam Input Form -->
+        <div id = "lens-type-beam" style="display:none;">
+
+          Object beam angle 
+          <div class="input-group mb-3">
+              <input id="modal-beam-angle"  type="text" class="form-control" aria-label="Description" placeholder="Enter the beam angle." value="30" >
+          </div>
+
+          Object beam width
+          <div class="input-group mb-3">
+              <input id="modal-beam-width"  type="text" class="form-control" aria-label="Description" placeholder="Enter the beam width." value="20" >
+          </div>
+        </div>
+
 
 
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-primary" onclick="addModalInfoToPointsTable();" >Add</button>
+        <button type="submit" class="btn btn-primary" onclick="addModalInfoToPointsTable();" >Add</button>
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
       </div>
     </div>

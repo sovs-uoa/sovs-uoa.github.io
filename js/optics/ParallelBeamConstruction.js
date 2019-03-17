@@ -21,20 +21,25 @@ function onstart ()   { console.log("onstart picker"); };
 
 function onmove (th)  { 
 
-      // AnglePicker
-      console.log("onmove picker");
-      console.log(this.parent);                     
-      this.parent.data.T1 = th;  // receives the present angle  
+      // this => AnglePicker
+      console.log("angle picker passed angle = " + th);
+
+
+      // update the graphic + associated table 
+      myPoint   = { id:this.parent.getId(), type: "beam", which: "object", t: th };
+      totalLens = renderableLens.total;    
+      PairData  = Optics.calculateConjugatePairFrom(myPoint, totalLens); 
+      this.parent.setPairData(PairData);
+
+      // update the table for the beam  
+      lens.pointsTable.updateData([ { id: myPoint.id, 
+                                      to: PairData.T1, 
+                                      zi: PairData.X2, "hi": PairData.Y2 } ]);
+
+      //myinfo = this.data("data-attr-info"); 
+
       this.parent.remove(); 
-
-      // update the conjugate point in table !!
-      myinfo = this.data("data-attr-info"); // from the angle picker 
-      this.parent.data = updateBeamConjugate (myinfo, this.parent.data);
-      this.parent.drawBeamConstruction(); 
-
-      
-
-      // ... might be better way to do it!
+      this.parent.draw();
 
 };
 
@@ -46,17 +51,24 @@ function onup ()      { console.log("onup picker"); };
 UPDATE BEAM CONJUGATE Update conjugate point in table and on-screen 
 
 --------------------------------------------------------------------- */
+/*
 
-
-function updateBeamConjugate (d, myPoint) {
-
+function updateBeamConjugate (info, myPoint) {
 
       // lens is global !
-
       console.log("beam conjugate");
       console.log(d);
-      id     = d.conjugate_id;
-      mytype = d.type;
+
+      id     = info.conjugate_id; // conugate point 
+      mytype = info.type;
+
+
+
+
+      myPoint   = { id:, type:, which: , t: };
+      totalLens = renderableLens.total;    
+      pairData  = Optics.calculateConjugatePairFrom(myPoint, totalLens); 
+      
 
       switch (mytype) {
 
@@ -88,6 +100,7 @@ function updateBeamConjugate (d, myPoint) {
 
     return pairData;
 }
+*/
 
 /* ------------------------------------------------------
 
@@ -193,6 +206,15 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
       this.cd_set.remove ();
    }
 
+   delete () {
+
+      this.cd_set.remove();
+      this.imagePoint.remove();
+      this.anglePicker.delete();
+
+   }
+
+
     setPairData (data) {
       this.data = data;
     }
@@ -206,8 +228,8 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
 
 
    draw () {
-      drawBeamConstruction ();
-
+      this.imagePoint.attr({ cx: this.data.X2, cy: this.data.Y2 });
+      this.drawBeamConstruction ();
    }
 
 
@@ -403,6 +425,8 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
       this.cd_set.push(p7, p8, p9);
 
     }
+
+    this.cd_set.toBack();
 
  }
 

@@ -165,6 +165,8 @@ var drawAxis = function (r, grid, offset) {
     }
 
 
+  axis_set.toBack ();
+
  }
 
 
@@ -338,6 +340,8 @@ var drawAxis = function (r, grid, offset) {
       lens.push(c1, c2);
 
     }
+
+    lens.toFront ();
 
     return lens;
   }

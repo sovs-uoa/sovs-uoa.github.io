@@ -23,15 +23,33 @@ var lens = {  prescription : null,
                         index:       "",
                         thickness:   "",
                         stop:        "",
-                        aperture:    "" 
+                        aperture:    "", 
+                      
+                        // modal source information 
+                        source: {
+                            id:       "",
+                            tag_id:   "",
+                            z:        "",
+                            h:        "",
+                            angle:    "",
+                            width:    "" 
+                        }
                       } 
+
             };
 
  
-function lensTypeSelector(lensType) {
+function lensTypeSelector(elem) {
     
 
-    $("#lens-type-text-readonly").val(lensType);
+    var lensType      = elem.getAttribute("data-short-id");
+    var lensTypeLong  = elem.innerText;
+
+
+    // update this field 
+    $("#lens-type-text-readonly").val(lensTypeLong);
+
+    // hide everything
     $("#lens-type-index").hide();
     $("#lens-type-sphere").hide();
     $("#lens-type-thick").hide();
@@ -39,25 +57,25 @@ function lensTypeSelector(lensType) {
 
     switch (lensType) {
 
-      case "Index": // show those elements for the index 
+      case "index": // show those elements for the index 
         $("#lens-type-index").show();
         console.log("index selected");
         lens.modal.type = lensType;
         break;
 
-      case "Sphere": // show those elements for the sphere 
+      case "sphere": // show those elements for the sphere 
         $("#lens-type-sphere").show();        
         console.log("sphere selected");
         lens.modal.type = lensType;
         break;
 
-      case "Thin": // show those elements for the sphere 
+      case "thin": // show those elements for the sphere 
         $("#lens-type-thin").show();        
         console.log("thin selected");
         lens.modal.type = lensType;
         break;
 
-      case "Thick": // show those elements for the sphere 
+      case "thick": // show those elements for the sphere 
         $("#lens-type-thick").show();
         console.log("sphere selected");
         lens.modal.type = lensType;
@@ -73,6 +91,42 @@ function lensTypeSelector(lensType) {
   $("#modalLoginForm").modal("show");
 
  }
+
+
+function lensObjectSelector(elem) {
+    
+
+    var objectType      = elem.getAttribute("data-short-id");
+    var objectTypeLong  = elem.innerText;
+
+    // update this field 
+    $("#point-type-text-readonly").val(objectTypeLong);
+
+    // hide everything
+    $("#lens-type-point").hide();
+    $("#lens-type-beam").hide();
+
+    switch (objectType) {
+
+      case "point": // show those elements for the index 
+        $("#lens-type-point").show();
+        console.log("point type selected");
+        break;
+
+      case "beam": // show those elements for the sphere 
+        $("#lens-type-beam").show();        
+        console.log("beam type selected");
+        break;
+
+      default:
+        console.log("unknown selected.");
+    }
+
+
+  $("#pointAddForm").modal("show");
+ }
+
+
 
 
  function addModalInfoToTable() {
@@ -219,27 +273,39 @@ POINTS = OBJECTS + IMAGES TABLE
  function addModalInfoToPointsTable() {
 
 
+    var rowCount                  = lens.table.getDataCount();
+    lens.modal.source.id          = rowCount + 1;
+    // lens.modal.source.tag_id      = "NA";
+    //lens.modal.group        = document.getElementById("modal-lens-group-name").value;
+    //lens.modal.description  = document.getElementById("modal-lens-element-description").value;
 
-    var rowCount            = lens.table.getDataCount();
-    lens.modal.id           = rowCount + 1;
-    lens.modal.tag_id       = "NA";
-    lens.modal.group        = document.getElementById("modal-lens-group-name").value;
-    lens.modal.description  = document.getElementById("modal-lens-element-description").value;
-    lens.modal.index        = Number(document.getElementById("modal-lens-refractive-index").value);
-    lens.modal.thickness    = Number(document.getElementById("modal-lens-thickness").value); 
-    lens.modal.radius       = Number(document.getElementById("modal-lens-radius-of-curvature").value);
-    lens.modal.power        = Number(document.getElementById("modal-thin-power").value);    
-    lens.modal.aperture     = Number(document.getElementById("modal-lens-aperture-diameter").value);
+    // lens.modal.source.type    = document.getElementById("modal-point-type").value;          // finite or parallel
+    lens.modal.source.z  = Number(document.getElementById("modal-point-z").value);
+    lens.modal.source.h  = Number(document.getElementById("modal-point-h").value); 
+    lens.modal.source.t  = Number(document.getElementById("modal-beam-angle").value);
+    lens.modal.source.bw = Number(document.getElementById("modal-beam-width").value);  // beamwidth not shown
 
-    // add a row to the table 
-    // console.log(lens.modal);
-    lens.pointsTable.addData(lens.modal);
+    var chooseBeam  = $("#lens-type-beam").is(":visible");
+    var choosePoint = $("#lens-type-point").is(":visible");
+    if (chooseBeam & !choosePoint ) {
+        lens.modal.source.type  = "beam";
+        lens.modal.source.which = "object";
+        lens.modal.source.z     = undefined;
+        lens.modal.source.h     = undefined;        
+    } else if (choosePoint & !chooseBeam ) {
+        lens.modal.source.type  = "point";
+        lens.modal.source.which = "object";
+        lens.modal.source.t     = undefined;
+        lens.modal.source.bw    = undefined;        
+    }
 
-  
-    // dismiss the modal 
-    $("#addPointsForm").modal("hide");
 
-    console.log(lens.table.getData());
+    // add construction  + update table 
+    addConstruction (lens.modal.source);
+
+
+
+    $("#pointAddForm").modal("hide");
  }
 
 
@@ -281,7 +347,7 @@ function initializePointsTable(data, updatePointsCallback, success) {
         data:data,
         height:"200px",
         addRowPos:"bottom",
-        selectable:false, 
+        selectable:true, 
         movableRows:false,
         layout:"fitColumns",
         columns:[
@@ -303,17 +369,27 @@ function initializePointsTable(data, updatePointsCallback, success) {
 
 
       // show the points 
-      updatePointsCallback ();
+      // updatePointsCallback ();
 
-      //Add row on "Add Row" button click
-      $("#lens-points-add-point").click(function(){
-          // entry area here 
-      });
+
+      /* these should be in the main file */
+/*
 
       //Delete row on "Delete Row" button click
       $("#lens-points-del-row").click(function(){
-          lens.pointsTable.deleteRow(1);
+
+          console.log("request to delete row...");
+          selectedData = lens.pointsTable.getSelectedData(); 
+
+          selectedData.forEach(elem => {
+              lens.pointsTable.deleteRow(elem.id);
+          });
+
+          // update the constructions 
+
+
       });
+*/
 
       //Clear table on "Empty the table" button click
       $("#lens-table-clear").click(function(){
@@ -331,6 +407,81 @@ function initializePointsTable(data, updatePointsCallback, success) {
 
  }
 
+
+
+
+// information 
+function converterPoints(points) {
+    out = [];
+    points.forEach( each => {
+
+        switch (each.type) {
+
+           /* ------------------------------------
+
+            FINITE RAYS 
+
+           ---------------------------------------- */
+
+            case "finite": case "point":
+
+             data  = {    id  : each.id,
+                         type : each.type,
+                         which: each.which };
+
+             switch (data.which) {
+                case "object":
+                  data.zo   = each.z;
+                  data.ho   = each.h;
+                  data.to   = null;
+                  data.zi   = null;
+                  data.hi   = null;
+                  data.ti   = null;
+                  break;
+
+                case "image":
+                  data.zi   = each.z;
+                  data.hi   = each.h;
+                  data.ti   = null;
+                  data.zo   = null;
+                  data.ho   = null;
+                  data.to   = null;
+                  break;
+             }
+
+
+           out.push(data); 
+           break; 
+
+           /* ------------------------------------
+
+            PARALLEL RAYS 
+
+           ---------------------------------------- */
+
+
+            case "parallel": case "beam":
+
+              out.push({ id    : each.id,
+                         type  : each.type,
+                         which : each.which,                                                              
+                         to    : each.th,
+                         zo    : -Infinity, // OBJECT 
+                         ho    : null,
+                         zi    : null,
+                         hi    : null,
+                         ti    : null });
+              break;
+
+            default:
+              error ("not iplemented.");
+              break;
+
+        }
+
+    });
+    return out;
+}
 
 
 

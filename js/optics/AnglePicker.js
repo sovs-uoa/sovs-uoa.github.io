@@ -31,6 +31,11 @@ function movePicker(dx,dy) {
 
     nowX = this.ox + dx;
     nowY = this.oy + dy;
+
+    var a = this.data("internal-data-attr");
+    anchorX = a.parent.anchorX; 
+    anchorY = a.parent.anchorY;
+
     this.attr({ cx: nowX, cy: nowY }); // call the circle 
     
     //nowX = Math.round(nowX / gridSnapSize) * gridSnapSize;
@@ -39,12 +44,8 @@ function movePicker(dx,dy) {
     //console.log(mydata);
 
 
-    var a        = this.data("internal-data-attr");
-    var extender = this.data("data-extender");
- 
-    anchorX = a.parent.anchorX; anchorY = a.parent.anchorY;
+    var extender = this.data("data-extender"); 
     a.parent.extender.attr("path", ["M", anchorX, anchorY, "L", nowX, nowY ]);  
-
     th = rad2deg(Math.atan2(nowY-anchorY, nowX-anchorY));    
     a.parent.angle = th;
     a.parent.moveFunc(th);
@@ -146,14 +147,23 @@ class AnglePicker { // create a ray construction using raphael.js
         this.angle = theta;        
         // this.myset = paper.set();
 
-        this.startFunc = function () { console.log("angle picker start."); };
+        this.startFunc = function ()   { console.log("angle picker start."); };
         this.moveFunc  = function (th) { console.log("angle picker move = " + th); };
-        this.upFunc    = function () { console.log("angle picker end."); };
+        this.upFunc    = function ()   { console.log("angle picker end."); };
 
         this.addAnglePicker (anchorX, anchorY, radius, theta);
         this.clicker.data("internal-data-attr", { anchorX : anchorX, anchorY: anchorY, parent:this });      
 
     }
+
+
+    delete () {
+      // this.cd_set.remove();
+      this.extender.remove();
+      this.clicker.remove();
+
+   }
+
 
 
     data (...args) {
