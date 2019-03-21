@@ -52,8 +52,7 @@
 		"type": "index",
 		"description": "air",
 		"args": {
-			"index": 1.0,
-			"thickness": 1
+			"index": 1.0
 		}
 	} ]
 }

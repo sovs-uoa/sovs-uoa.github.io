@@ -219,13 +219,13 @@ function initializePrescriptionTable(data, updatePrescriptionCallback, success) 
           {rowHandle:true, formatter:"handle", headerSort:false, frozen:true, width:30, minWidth:30},
           {title:"Group",         field:"group",            width:100, headerSort:false},                  
           {title:"Type",          field:"type",             width:100, headerSort:false},                  
-          {title:"Description",   field:"description",      width:200, editor:"input", headerSort:false},
-          {title:"Ref. Index",    field:"index",            mutator:Number, width:100, align:"center", sorter:"number", editor:"input", headerSort:false},
-          {title:"Surf. R.",      field:"radius",           mutator:Number, align:"center", width:100, editor:"input", headerSort:false},
-          {title:"Power",         field:"power",            mutator:Number, align:"center", width:100, editor:true, headerSort:false},
-          {title:"Thickness",     field:"thickness",        mutator:Number, align:"center", width:100, editor:"input", headerSort:false},
-          {title:"Ap. Diameter",  field:"aperture",         align:"center", width:100, editor:"input", headerSort:false},
-          {title:"Stop Flag",     field:"stop",             align:"center", width:100, sorter:"date", editor:"input", headerSort:false, formatter:apertureStop}
+          {title:"Description",   field:"description",      width:100, editor:"input", headerSort:false},
+          {title:"Ref. Index",    field:"index",            width:100, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "" }, align:"center", editor:"input", headerSort:false},
+          {title:"Surf. R.",      field:"radius",           width:100, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "" }, align:"center", editor:"input", headerSort:false},
+          {title:"Power",         field:"power",            width:100, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "" }, align:"center", editor:"input", headerSort:false},
+          {title:"Thickness",     field:"thickness",        width:100, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "" }, align:"center", editor:"input", headerSort:false},
+          {title:"Ap. Diameter",  field:"aperture",         width:100, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "" }, align:"center", editor:"input", headerSort:false},
+          {title:"Stop Flag",     field:"stop",             width:100, align:"center", width:100, sorter:"date", editor:"input", headerSort:false, formatter:apertureStop}
       ],
     });
 
@@ -310,20 +310,31 @@ POINTS = OBJECTS + IMAGES TABLE
 
 
 
+// 
 function decimalPlaces(cell, formatterParams, onRendered){
     //cell - the cell component
     //formatterParams - parameters set for the column
     //onRendered - function to call when the formatter has been rendered
 
     var val = cell.getValue();    
-
-    if (val == null) {
-      return "---";
+    if ((val == null) | isNaN(val)) {
+      return formatterParams.emptyVal;
     };
-
-    return Number(val).toFixed(formatterParams.precision);
- 
+    return Number(val).toFixed(formatterParams.precision); 
 }
+
+
+// needs to be called on access
+function flipVal(value, data, type, params, column) {
+
+
+  console.log(value);
+  if (isNaN(value)) {
+    return value;
+  }
+  return -value;
+}
+
 
 
 // lens information 
@@ -337,6 +348,8 @@ function initializePointsTable(data, updatePointsCallback, success) {
 */
 
       console.log('points table ... initializing.');
+
+
 
       //Build Tabulator
       lens.pointsTable = new Tabulator("#lens-points", {
@@ -354,12 +367,12 @@ function initializePointsTable(data, updatePointsCallback, success) {
             {rowHandle:true, formatter:"handle", headerSort:false, frozen:true, width:30, minWidth:30},
             {title:"id",     field:"id",       width:100, headerSort:false},                  
             {title:"type",   field:"type",     width:100, headerSort:false},                  
-            {title:"zo",     field:"zo",       width:100, editor:"input", headerSort:false, formatter: decimalPlaces, formatterParams:{ precision: 2} },                  
-            {title:"ho",     field:"ho",       width:200, editor:"input", headerSort:false, formatter: decimalPlaces, formatterParams:{ precision: 2} },
-            {title:"zi",     field:"zi",       width:100, editor:"input", headerSort:false, formatter: decimalPlaces, formatterParams:{ precision: 2} },                  
-            {title:"hi",     field:"hi",       width:200, editor:"input", headerSort:false, formatter: decimalPlaces, formatterParams:{ precision: 2} },
-            {title:"to",     field:"to",       width:100, editor:"input", headerSort:false, formatter: decimalPlaces, formatterParams:{ precision: 2} },                  
-            {title:"ti",     field:"ti",       width:200, editor:"input", headerSort:false, formatter: decimalPlaces, formatterParams:{ precision: 2} }
+            {title:"zo",     field:"zo",       width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" } },                  
+            {title:"ho",     field:"ho",       width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" }, accessor: flipVal },
+            {title:"zi",     field:"zi",       width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" } },                  
+            {title:"hi",     field:"hi",       width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" }, accessor: flipVal },
+            {title:"to",     field:"to",       width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" } },                  
+            {title:"ti",     field:"ti",       width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" }, accessor: flipVal }
         ],
       });
 

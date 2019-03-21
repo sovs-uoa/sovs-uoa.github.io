@@ -1,10 +1,13 @@
 
 var attributes      = { "fill": "gray", "stroke-opacity": 0.5, "stroke": "black", "stroke-width": "1" };
 var virtual         = { "fill": "gray", "stroke-opacity": 0.5, "stroke": "black", "stroke-width": "1", "stroke-dasharray":"--" };
-var real            = { "stroke": "black", "stroke-width": "1", "stroke-dasharray":"none"  };
+var real            = { "stroke": "black", "stroke-width": "1", "stroke": "black", "stroke-dasharray":"none"  };
 var none            = { "stroke": "none", "stroke-width": "1" };
 var extend          = { "fill": "red", "stroke-opacity": 0.5, "stroke": "red", "stroke-width": "1" };
-var extend_object   = { "fill": "black", "stroke-opacity": 0.5, "stroke": "black", "stroke-width": "1" };
+var extend_object   = { "fill": "black", "stroke-opacity": 1.0, "stroke": "black", "stroke-width": "3" };
+var extend_image    = { "fill": "black", "stroke-opacity": 1.0, "stroke": "black", "stroke-width": "3" };
+
+
 var picker_extender = { "stroke": "red", "stroke-width": 1, "stroke-dasharray":"--"  };
 var changed         = { "stroke": "blue", "stroke-width": 1, "stroke-dasharray":"--"  };
 

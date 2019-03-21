@@ -799,8 +799,6 @@ getConjuugateTo
 
 
                                      
-                                    // initialized the points
-                                    // initializePointsTable ([]converterPoints(points), updateConstruction, function () {
 
                                     initializePointsTable ([], updateConstruction, function () {
                                           
@@ -831,10 +829,9 @@ getConjuugateTo
                                           
                                           /* ------------------------------------------
 
-                                          LOAD DATA MANUALLY 
+                                          POINTS CAN BE SETUP INDIVIDUALLY 
                                           
                                           ---------------------------------------------- */
-
 
                                           points.forEach( eachPoint => {
                                               console.log("eachPoint");
@@ -934,7 +931,7 @@ getConjuugateTo
     //var  myfilename = "./lenses/thin-lens-negative.lens";
     //load (myfilename);
 
-    load ("2"); // 2 = thin lens (positive)
+    load ("0"); // 2 = thin lens (positive)
 
 
     }
@@ -1014,11 +1011,11 @@ getConjuugateTo
 
         <!-- TO DO: need to build this list fron the javascript array --> 
         <div id="dropdown-lens-menu" class="dropdown-menu">
-          <a class="dropdown-item file-selection"  href="#" data-id="2" >Thin lens in Air (Positive)</a>
-          <a class="dropdown-item file-selection"  href="#" data-id="3" >Thin Lens in Air (Negative)</a>
-<!--          
           <a class="dropdown-item file-selection"  href="#" data-id="0" >Thick Lens in Air (Positive)</a>
           <a class="dropdown-item file-selection"  href="#" data-id="1" >Thick lens in Air (Negative)</a>
+          <a class="dropdown-item file-selection"  href="#" data-id="2" >Thin lens in Air (Positive)</a>
+          <a class="dropdown-item file-selection"  href="#" data-id="3" >Thin Lens in Air (Negative)</a>
+<!--
           <a class="dropdown-item file-selection"  href="#" data-id="4" >Multiple thin lenses</a>
           <a class="dropdown-item file-selection"  href="#" data-id="5" >Gullstrand Eye Model (Relaxed)</a>
           <a class="dropdown-item file-selection"  href="#" data-id="6" >Gullstrand Eye Model (Accommodated)</a>

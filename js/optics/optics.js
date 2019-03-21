@@ -118,13 +118,13 @@ function convertToLensTable (response) {
                              group:       assignParameterValue(response[i].group, ""),                                         
                              type:        assignParameterValue(response[i].type, ""),
                              description: assignParameterValue(response[i].description, ""),
-                             radius:      assignParameterValue(response[i].args.radius, ""),
-                             power:       assignParameterValue(response[i].args.power, ""),                             
-                             height:      assignParameterValue(response[i].args.height, ""),
-                             index:       assignParameterValue(response[i].args.index, ""),
-                             thickness:   assignParameterValue(response[i].args.thickness, 0),
+                             radius:      assignParameterValue(response[i].args.radius, NaN),
+                             power:       assignParameterValue(response[i].args.power, NaN),                             
+                             height:      assignParameterValue(response[i].args.height, NaN),
+                             index:       assignParameterValue(response[i].args.index, NaN),
+                             thickness:   assignParameterValue(response[i].args.thickness, NaN),
                              stop:        assignParameterValue(response[i].args.stop, false),
-                             aperture:    assignParameterValue(response[i].args.aperture, "") };
+                             aperture:    assignParameterValue(response[i].args.aperture, NaN) };
 
         lens_table.push(each_element);        
     }
@@ -730,7 +730,7 @@ function getLensElementInfo(elem, index) {
       }
 
       // return an identity matrix 
-      return { S: identitySystem, X: normalizedTranslationMatrix(identitySystem, input_elem.index) };                 
+      return { S: identitySystem, X: normalizedTranslationMatrix(identitySystem, input_elem.index), L:0 };                 
     }
 
 
@@ -742,7 +742,7 @@ function getLensElementInfo(elem, index) {
       }
 
       // return an indentity matrix 
-      return { S: identitySystem, X: normalizedTranslationMatrix(identitySystem, input_elem.index) };                 
+      return { S: identitySystem, X: normalizedTranslationMatrix(identitySystem, input_elem.index), L: 0 };                 
     }
 
     // surrounding lens elements 
@@ -783,7 +783,7 @@ function getLensElementInfo(elem, index) {
         n   = input_elem.index;
         d   = input_elem.thickness;
         S   = translationMatrix (d);            
-        return { S: S, invS: inverseMatrix2x2(S), X: normalizedTranslationMatrix(S, n) }; 
+        return { S: S, invS: inverseMatrix2x2(S), X: normalizedTranslationMatrix(S, n), L: 0 }; 
 
       default:
         error("unknown element.");
@@ -822,8 +822,14 @@ function getTotalLensSystemInfo (lensTable) {
     
     // accumulate or read out the thickness
     if (lensTable[i].type == "index") {
-       Z = Z + lensTable[i].thickness;
-    } else {    
+
+       //  
+       if ( (i > 0) & (i < lensTable.length-1)) { 
+         Z = Z + lensTable[i].thickness; };
+
+    } else {
+
+       // ...      
        eachElementInfo.Z   = Z;    // front vertex position 
        Z = Z + eachElementInfo.L;  // add in system length 
     };
