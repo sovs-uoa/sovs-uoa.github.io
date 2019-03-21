@@ -1,0 +1,1487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>SOVS ray-tracer</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+<!--
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+-->
+
+
+  <!-- Raphael-->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.2.7/raphael.js" integrity="sha256-MPXjTSEImVJI1834JAHubdK7Lts1VTUPJmCQ9zKAjyA=" crossorigin="anonymous"></script>  
+
+
+  <!-- Bootstrap -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+
+  <!-- Tabulator -->
+  <script type="text/javascript" src="https://unpkg.com/tabulator-tables@4.1.4/dist/js/tabulator.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabulator/4.1.5/css/bootstrap/tabulator_bootstrap4.css" integrity="sha256-N36ogArERHqDaggYouT90GwTJ75LsbMbwBUAWuf66s4=" crossorigin="anonymous" />
+
+  <!-- Mustache -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/3.0.1/mustache.min.js"></script>
+
+  <!-- Mustache Extension -->
+  <script src="js/mustache-wax.js"></script>
+
+
+  <!-- Required to convert named colors to RGB -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/canvg/1.4/rgbcolor.min.js"></script>
+  <!-- Optional if you want blur -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/stackblur-canvas/1.4.1/stackblur.min.js"></script>
+  <!-- Main canvg code -->
+  <script src="https://cdn.jsdelivr.net/npm/canvg@2.0.0-beta.0/dist/browser/canvg.min.js"></script>
+
+
+  <!-- Other -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/json5/0.5.1/json5.js"></script>
+  <script src="js/optics/optics.js"></script>
+  <script src="js/optics/renderer.js"></script>  
+  <script src="js/optics/RayConstruction.js"></script>    
+  <script src="js/optics/prescription.js"></script>
+  <script src="js/optics/raphael.export.js"></script>
+  <script src="js/optics/AnglePicker.js"></script>  
+  <script src="js/optics/PrincipalRayConstruction.js"></script>  
+  <script src="js/optics/ParallelBeamConstruction.js"></script>  
+  <script src="js/utils.js"></script>  
+
+
+  <link rel="stylesheet" type="text/css" href="css/optics.css">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+
+
+</head>
+
+
+<script>
+
+
+  var   ap;
+
+  var   SelectedObjectPointId;
+  var   totalConjList = [];
+  var   c, dot;
+  var   objectPoint;      // this should be a list or hash-table
+  var   renderableLens;
+  var   lensTable;
+  var   ps, cd_set;
+  const gridSnapSize = 0.01;
+  var   summaryTemplate;
+  var   reportTamplate;
+  var   kx, ky;
+  var   etol = 5e-4;
+  var   fileList  = [ { id: "0", filename: "./lenses/thick-lens-positive.lens", title: "Thick Lens in Air (Positive)" }, 
+                      { id: "1", filename: "./lenses/thick-lens-negative.lens", title: "Thick Lens in Air (Negative)" },
+                      { id: "2", filename: "./lenses/thin-lens-positive.lens", title: "Thin Lens in Air (Positive)"  },
+                      { id: "3", filename: "./lenses/thin-lens-negative.lens", title: "Thin Lens in Air (Negative)"  } ];
+
+
+    displayOptions = { height               : 15, 
+                     showCardinalPoints   : true,
+                     showFocalPoints      : true,
+                     showNodalPoints      : true, 
+                     showPrincipalPoints  : true, 
+                     showVertices         : true };
+
+  Mustache.Formatters = {
+      "decimal": function (value, decimals) {
+        return Number(Math.round(value+'e'+decimals)+'e-'+decimals);
+      }
+    }
+
+
+/* -------------------------------------------------------------------------------
+
+getConjuugateTo
+
+------------------------------------------------------------------------------- */
+
+  function getConjugateTo (which, eachPoint, lens) {
+
+    // updates the conjugate end point in the table
+
+    switch (which) {
+
+      case "object":
+
+      eachPoint.zo = Number(eachPoint.zo);
+      eachPoint.ho = Number(eachPoint.ho);
+
+      pointInfo   = Optics.calculatePointToPoint(lens, [ eachPoint ]); // object to image 
+      return pointInfo[0];
+      
+      case "image":
+
+      eachPoint.zi = Number(eachPoint.zi);
+      eachPoint.hi = Number(eachPoint.hi);
+
+
+      error("not implemented!"); // need to change the "calculatePointToPoint"
+      break;
+
+
+      default:
+        error ("dont know this one!");
+
+    }
+  }
+
+
+
+
+
+  /* -----------------------------------------------------------------------------
+
+
+    EVENT HANDLERS FOR DRAGGABLE POINTS 
+
+
+  --------------------------------------------------------------------------------- */
+
+
+
+  function select (id) {
+
+      console.log ("object click");
+      setScaleFactor ();
+      nowX = dot.ox; nowY = dot.oy;
+      nowX = Math.round(nowX / gridSnapSize) * gridSnapSize;
+      nowY = Math.round(nowY / gridSnapSize) * gridSnapSize;
+      dot.attr({ cx: nowX, cy: nowY });
+      console.log("cx = " + nowX);
+      console.log("cy = " + nowY);
+      SelectedObjectPointId = id;
+
+
+  }
+
+
+  function move (dx, dy) {
+
+      eleminfo = this.data("info");
+
+      console.log("--- called move point id = " + eleminfo.id + "(" + this.id + ")");  
+
+      setScaleFactor ();
+
+      dx = kx*dx; 
+      dy = ky*dy;
+
+      nowX = this.ox + dx;
+      nowY = this.oy + dy;
+
+      nowX = Math.round(nowX / gridSnapSize) * gridSnapSize;
+      nowY = Math.round(nowY / gridSnapSize) * gridSnapSize;
+
+      this.attr({ cx: nowX, cy: nowY });
+  
+      // we should recalculate all the points 
+
+      //console.log("id = " + this.id); 
+      //console.log("moving object");
+      //console.log(this);
+      
+
+      switch (eleminfo.type) {
+
+          case "object" :
+            lens.pointsTable.updateData([ { "id": eleminfo.id, "zo": nowX, "ho": nowY } ]);
+            conjPt = getConjTo (eleminfo.type, { id:0, zo: nowX, ho: nowY }); // this only works in the forward direction
+            lens.pointsTable.updateData([ { "id": eleminfo.id, "zi": conjPt.X2, "hi": conjPt.Y2 } ]); // change this for vertex 
+            c = paper.getById("point-" + eleminfo.id + "-image");
+            c.attr({ cx: conjPt.X2, cy: conjPt.Y2 });
+            console.log('element Located');
+            console.log(c);
+            console.log(conjPt);
+            break;
+
+          case "image" :
+            lens.pointsTable.updateData([ { "id": eleminfo.id, "zi": nowX, "hi": nowY } ]);
+            conjPt = getConjTo (this.id.type, { id:0, zo: nowX, ho: nowY });   // this only works in the forward direction
+            lens.pointsTable.updateData([ { "id": eleminfo.id, "zi": conjPt.X1, "hi": conjPt.Y1 } ]);
+            c = paper.getById("point-" + eleminfo.id + "-image");
+            c.attr({ cx: conjPt.X1, cy: conjPt.Y1 });
+            error("error!");
+            break;
+
+          default:
+            error("unknown draggable");
+
+      }
+
+
+      // update the location of the rays !!!!
+      updatePointsView ();
+   }
+
+  
+  function start () {
+
+      console.log("--- called start point id = " + this.id);  
+
+      // storing original coordinates
+      this.ox = this.attr("cx");
+      this.oy = this.attr("cy");
+
+  }
+
+  
+  function up () {
+
+      console.log("--- called up point id = " + this.id);  
+
+  }
+
+/*
+
+  function update () {
+
+      var PointToPointList  = Optics.calculatePointToPoint(renderableLens.total, objectPoint);
+      p2p = PointToPointList[0];            
+      drawCardinalRays(renderableLens.total, p2p, displayOptions);
+      drawPointToPoint(PointToPointList); // overall system
+
+  }
+*/
+
+  function updatePrescriptionView() {
+
+    // read the lens table 
+    console.log("updating prescription table");
+    lensTable = lens.table.getData();    
+    renderableLens = Optics.analyze(lensTable); // create matrices / we should have group caridnals in here as well
+
+    displayOptions = { height               : 15, 
+                     showCardinalPoints   : true,
+                     showFocalPoints      : true,
+                     showNodalPoints      : true, 
+                     showPrincipalPoints  : true, 
+                     showVertices         : true };
+
+
+    drawCardinalPoints(0, 0, renderableLens.total, displayOptions); // (0,0) 
+    drawOptics(renderableLens);
+
+    // now update the points 
+    if (summaryTemplate !== undefined) {
+      console.log("Summary template!");
+      console.log(summaryTemplate);
+      updateSummaryView (); 
+    }
+
+    // re-calculate all the constructions
+    // refreshAllConstruction ();
+
+    // Only do this - if there are rays in the table 
+    if (lens.pointsTable !== null ) {
+      refreshAllConstruction ();
+    }
+
+  }
+
+
+
+
+  function updateSummaryView () {
+
+    console.log ("-- updating the summary");
+    //console.log(summaryTemplate);
+    var summary = document.getElementById("summary-tab");
+    summary.innerHTML = Mustache.render(summaryTemplate, renderableLens.total);
+
+    // renderableLens 
+    // Total Summary 
+    // Groups Summary 
+  }
+
+
+
+  /* 
+
+    UPDATEPOINTSVIEW 
+
+        - refresh (non-draggable) items from the paper  
+        - remove updating of object/image pairs 
+
+  */
+
+  function showConjugates () {
+
+    pointsTable = lens.pointsTable.getData();    
+    pointsList  = Optics.calculatePointToPoint(renderableLens.total, pointsTable);
+    totalLens   = renderableLens.total;
+
+    if (pointsList.length > 0) {
+        pointsList.forEach( elem => {
+          console.log("showing .... conjugate pair id = " + elem.id);
+          drawConjugates(elem, displayOptions);
+        } );
+    }
+  }
+
+  function getConjTo (which, eachPoint, lens) {
+
+    // updates the conjugate end point in the table
+    totalLens   = renderableLens.total;    
+    pointInfo   = Optics.calculatePointToPoint(totalLens, [ eachPoint ]);
+
+    switch (which) {
+
+      case "object":
+      return pointInfo[0];
+      
+      case "image":
+      error("not implemented!"); // need to change the "calculatePointToPoint"
+      break;
+
+
+      default:
+        error ("dont know this one!");
+
+    }
+  }
+
+
+
+  function updatePointsView() {
+
+    // re-calculate positions
+    totalLens   = renderableLens.total;
+    pointsTable = lens.pointsTable.getData();    
+    pointsList  = Optics.calculatePointToPoint(totalLens, pointsTable); // a bunch of points !!!
+
+
+    /* --------------------------------------------------------------------------
+
+        REDRAW THE RAYS CONSTRUCTION  
+
+        Redraw the rays construction 
+
+    ------------------------------------------------------------------------------ */
+
+    // completely clear rays 
+    if (totalConjList.length > 0) {
+        totalConjList.forEach( elem => {
+          console.log("--- clear element.");
+          //console.log(elem);
+          elem.remove ();
+        } );
+    }
+
+    totalConjList = [];
+    for (var i = 0; i < pointsList.length ; i++) {
+      console.log("showing ... construction " + i );
+      eachConj = new RayConstruction ();
+      eachConj.displayOptions = displayOptions; 
+      eachConj.drawCardinalRays(totalLens, pointsList[i]);
+      //eachConj.drawConjugates(pointsList[i]);
+      totalConjList.push(eachConj);
+    }
+
+  }
+
+
+  /* --------------------------------------------------------------------------------------------------
+
+      UPDATECONSTRUCTION - fired when the cell is edited 
+
+   -------------------------------------------------------------------------------------------------- -- */
+
+   function getPointFromCell(cell) {
+
+    aPoint    = cell.getRow ().getData();
+    fieldname = cell.getColumn().getField();    
+
+    console.log(aPoint);
+    console.log(fieldname)
+
+    switch (fieldname) {
+      case "zo": case "ho": case "to":
+        return { id: aPoint.id, which: "object", z: Number(aPoint.zo), h: Number(aPoint.ho), t: Number(aPoint.to) };
+
+      case "zi": case "hi": case "ti":
+        return { id: aPoint.id, which: "image", z: Number(aPoint.zi), h: Number(aPoint.hi), t: Number(aPoint.ti) };
+
+      default:
+        throw "unknown point type";
+    }
+   }
+
+
+   /* ----------------------------------------------------------------------------------------------------------------
+
+      UPDATECONSTRUCTION update points based on a changed cell 
+
+  ----------------------------------------------------------------------------------------------------------------   */
+
+  // This should re-build all the constructions in the list 
+  function refreshAllConstruction () {
+
+    totalLens   = renderableLens.total;
+    pointsTable = lens.pointsTable.getData();            
+    lens.raphael.constructions.forEach (elem => {
+       aRow       = lens.pointsTable.getRow(elem.getId()).getData();
+       aPoint     = { id: aRow.id, which: "object", z:aRow.zo, h:aRow.ho };
+       pairData   = Optics.calculateConjugatePairFrom(aPoint, totalLens);
+       elem.setPairData(pairData);       
+       elem.setLens(totalLens);
+       elem.remove ();
+       elem.draw ();
+    
+    });
+
+
+  }
+
+
+  function addConstruction (aPoint) {
+
+     console.log("add construction called.");
+
+     totalLens  = renderableLens.total;
+     pairData   = Optics.calculateConjugatePairFrom(aPoint, totalLens);
+     lens.pointsTable.addRow([{  id: aPoint.id, 
+                                 type: aPoint.type }]);
+
+     console.log(lens.pointsTable.getData());
+
+     // update the points table with these data
+     switch (aPoint.type) {
+            case "finite": case "point":   // finite placed beam 
+              lens.raphael.constructions.push( new PrincipalRayConstruction (totalLens, pairData));
+              lens.pointsTable.updateData([{  id: aPoint.id, 
+                                              zo: pairData.VO, ho: pairData.OQ, 
+                                              zi: pairData.VI, hi: pairData.IQ }]);
+              break;
+
+            case "parallel": case "beam": // infinitely placed beam 
+              lens.raphael.constructions.push( new ParallelBeamConstruction (totalLens, pairData));
+              lens.pointsTable.updateData([{  id: aPoint.id, 
+                                              to: pairData.T1, ti: pairData.T2,  
+                                              zi: pairData.VI, hi: pairData.IQ }]);                                            
+              break;
+            
+            default: 
+              break;
+      }
+
+  }
+
+
+
+  function deleteConstruction (id) {
+    for(var i = 0; i < lens.raphael.constructions.length; i++ ) {
+        console.log("This constructions =>");
+        console.log(lens.raphael.constructions[i]);
+        if (lens.raphael.constructions[i].getId() == id) {
+            console.log("deleting object/image object id = " + id);
+            lens.raphael.constructions[i].delete();
+            lens.raphael.constructions.splice(i, 1);
+        } 
+
+    }
+  }
+
+
+  function updateConstruction (cell) {
+
+    console.log("update the graphical end of the construction.");
+
+    //console.log(e);
+    // console.log(cell);
+
+
+    if (cell == null) {
+        return;
+    }
+
+    aPoint     = getPointFromCell(cell); // .getData();
+    totalLens  = renderableLens.total;
+    pairData   = Optics.calculateConjugatePairFrom(aPoint, totalLens); // only works in fwd direction / only works for finite 
+    
+    lens.pointsTable.updateData([{  "id": aPoint.id, 
+                                    "zo": pairData.VO, "ho": pairData.OQ, 
+                                    "zi": pairData.VI, "hi": pairData.IQ, 
+                                    "to": pairData.T1, "ti": pairData.T2 }]);
+
+
+    // need to find the construction corresponding to the point and then update it!
+    for (var i = 0; i < lens.raphael.constructions.length; i++ ) {
+
+        elem = lens.raphael.constructions[i];
+
+        console.log("compare: " + elem.getId() + " == " + aPoint.id);
+
+        if (aPoint.id == elem.getId()) {
+          elem.setPairData (pairData); // update 
+          elem.remove ();
+          elem.draw ();
+          return
+        }
+    }
+
+
+    console.log("construction not found!");
+
+/*
+    var n = lens.raphael.constructions;
+    for (var i=0 ; i < lens.raphael.constructions.length; i++ ) {
+      lens.raphael.constructions[i].update();
+      lens.raphael.constructions[i].draw (); // should clear everything in the object and redraw it 
+    }
+*/
+
+
+  }
+
+
+
+  function downloadReport (which) {
+
+
+      switch (which) {
+
+        case "picture":
+
+
+          // Add style to SVG and also some required information 
+          var svgElement = document.getElementsByTagName('svg')[0];
+          svgElement.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+          var svgStyle   = document.createElementNS("http://www.w3.org/2000/svg", "style");
+          style = "path,circle,text{vector-effect:non-scaling-stroke;stroke-width:2px;}";
+          svgStyle.textContent = style;
+          svgElement.appendChild(svgStyle);
+
+          var downloadTxt = svgElement.outerHTML;
+
+          // create an elelemnt to hold the data
+          var a  = window.document.createElement('a');
+          a.href = window.URL.createObjectURL(new Blob([downloadTxt], {type: 'image/svg+xml'}));
+          a.download = 'picture.svg';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          return;
+
+
+        case "report":
+
+
+          // Add style to SVG and also some required information 
+          var svgElement = document.getElementsByTagName('svg')[0];
+          svgElement.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+          var svgStyle   = document.createElementNS("http://www.w3.org/2000/svg", "style");
+          style = "path,circle,text{vector-effect:non-scaling-stroke;stroke-width:2px;}";
+          svgStyle.textContent = style;
+          svgElement.appendChild(svgStyle);
+
+          var svgTxt = svgElement.outerHTML;
+
+
+
+          var outputData = {};
+          outputData.svg     = svgTxt;           
+          outputData.lens    = lens.table.getData(); 
+          outputData.object  = lens.pointsTable.getData();
+          totalLens          = renderableLens.total;
+          outputData.summary = Mustache.render(summaryTemplate, totalLens); 
+          downloadTxt        = Mustache.render(reportTemplate, outputData);
+
+          // create an elelemnt to hold the data
+          var a  = window.document.createElement('a');
+          a.href = window.URL.createObjectURL(new Blob([downloadTxt], {type: 'text/html'}));
+          a.download = 'report.html';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+
+        default:
+          break;
+
+      }
+
+
+
+      //load a svg snippet in the canvas with id = 'drawingArea'
+      //var myCanvas = document.createElement("canvas");
+      //canvg(myCanvas, svgElement.outerHTML);
+      //var base64 = myCanvas.toDataURL("image/png");
+      //console.log(base64);
+
+/*
+      base64 = "";
+*/
+
+
+/*
+
+      reportData = {  svg    : "circle.svg",
+                      lens   : lens.table.getData (),
+                      points : lens.pointsTable.getData ()
+      };
+
+
+      console.log("Creating ... reporter.");
+      console.log(reportData);
+      console.log(reportTemplate);
+
+
+      // Create a download link!
+      downloadTxt = Mustache.render(reportTemplate, reportData);
+      var a  = window.document.createElement('a');
+      a.href = window.URL.createObjectURL(new Blob([downloadTxt], {type: 'text/html'}));
+      a.download = 'report.html';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+*/
+
+
+
+  }
+
+
+    function findLensById(id) {
+
+      found = fileList.find(function (elem) {
+          return elem.id == id;
+      });
+
+      if (found == undefined) {
+        throw "Couldnt find the requested file in the configuration."
+      }
+
+      return found;
+    }
+
+
+
+    function reload (id) {
+
+          
+     // clear the prescription table and re-populate it 
+     found = findLensById(id);
+
+      $.ajax({
+            url : found.filename,
+            dataType: "text",
+            success : function (data) {
+
+
+                  response = JSON5.parse(data);
+                  // ("lens-container"); // uses paper 
+                   
+                  // initialize the prescription that will execite on change to table 
+                  initializePrescriptionTable (response.prescription, 
+
+                        updatePrescriptionView,   // change in lenses information => full update 
+                        function () {  // success !!! 
+
+                                console.log("reloaded a prescription ...");       
+
+                                // We can update the filename now !!
+                                $("#filename_display").val(found.title);
+
+
+                                // trigger a summary re-write and also a construction refresh
+                                updatePrescriptionView();            
+
+
+                      });
+
+            }});
+    };      
+
+
+
+
+    function load (id) {
+
+
+      // load the mustache report 
+      $.get('mustache/report_template.htm', function(template) {
+        console.log("loaded report template ... OK");
+        reportTemplate = template;
+      });
+
+
+
+
+      found = findLensById(id);
+      $.ajax({
+            url : found.filename,
+            dataType: "text",
+            success : function (data) {
+
+
+                  response = JSON5.parse(data);
+
+
+                  startDrawing("lens-container"); // uses paper 
+
+
+                  // $('#prescription-tab').show(); // show the prescription tab
+
+                   
+                  // initialize the prescription that will execite on change to table 
+                  initializePrescriptionTable (response.prescription, 
+
+                        updatePrescriptionView,   // change in lenses information => full update 
+                        function () {  // success !!! 
+
+                                console.log("loaded a prescription ...");       
+
+                                // We can update the filename now !!
+
+                                $("#filename_display").val(found.title);
+                                // console.log(found);
+
+
+                                updatePrescriptionView();            
+
+
+                                // show the lenses                                    
+                                // $( "#prescription-nav").trigger("click"); // show the table 
+
+                                // we can now load the prescription 
+                                $.get('mustache/summary_report_tables_html.mustache', function(template) {
+                          
+                                    console.log("loaded a summary template ...");
+                                    summaryTemplate = template; 
+                                    updateSummaryView(); 
+
+
+                                     // when the objects and images tab becomes visible we need to initialize it !!
+
+
+                                    // add points 
+                                    var points  = [ { "id"   : 1, 
+                                                      "type" : "finite",
+                                                      "which": "object",
+                                                      "z"    : -20, 
+                                                      "h"    : 10,
+                                                      "t"    : undefined
+                                                       } ];
+
+/*                                                       
+                                                      { "id" : 2, 
+                                                      "type" : "finite",
+                                                      "which": "object",
+                                                      "z"    : -20, 
+                                                      "h"    : -10
+                                                      },
+                                                      { "id" : 3, 
+                                                      "type" : "parallel",
+                                                      "which": "object",
+                                                      "th"   : -30 
+                                                      }];
+*/
+
+  /*                                                      
+                                                      { "id" : 3, 
+                                                      "type" : "parallel",
+                                                      "which": "object",
+                                                      "th"   : 30, 
+                                                      }]; 
+*/
+
+
+
+
+                                     
+                                    // initialized the points
+                                    // initializePointsTable ([]converterPoints(points), updateConstruction, function () {
+
+                                    initializePointsTable ([], updateConstruction, function () {
+                                          
+
+                                          /* ------------------------------------------
+
+                                          SETUP EVENT HANDLERS FOR THE METHOD 
+                                          
+                                          ---------------------------------------------- */
+
+
+                                          //delete the row on "Delete Row" button click
+                                          $("#lens-points-del-row").click(function(){
+                                              console.log("request to delete sources...");
+                                              selectedData = lens.pointsTable.getSelectedData(); 
+                                              selectedData.forEach(elem => {
+                                                  lens.pointsTable.deleteRow(elem.id);
+                                                  deleteConstruction (elem.id);                                                  
+                                              });
+                                          });
+
+
+                                          //Add row on "Add Row" button click
+                                          $("#lens-points-add-point").click(function(){                                          
+                                              console.log("request to add source...");
+                                          });
+
+                                          
+                                          /* ------------------------------------------
+
+                                          LOAD DATA MANUALLY 
+                                          
+                                          ---------------------------------------------- */
+
+
+                                          points.forEach( eachPoint => {
+                                              console.log("eachPoint");
+                                              console.log(eachPoint);
+                                              addConstruction (eachPoint);
+                                          });
+
+
+
+
+
+
+                                          // conjugate points are draggable controllers 
+                                          //showConjugates();
+                                          //ap = new AnglePicker (0, 0, 5, 45);
+
+                                          /* INITIALIZE THE VIEW */
+                                          //drawOptics(renderableLens);  
+
+                                          // add an object point that is draggable   
+                                          //console.log("data from points table");
+                                          //console.log(lens.pointsTable.getData());
+
+
+                                          // add the draggable method to it  
+                                          /*
+
+                                          var dot = paper.circle(points[0].z, points[0].h, 1).attr({
+                                                      fill: "#FFFF00",
+                                                      stroke: "#000099",
+                                                      "stroke-width": 3
+                                                  });
+
+                                          dot.id = points[0].id;
+                                          dot.drag(move, start, up);
+                                          
+                                          */
+
+                                          // put me back on the lens prescription tab
+                                          // $("#objects-images-tab").removeClass("active"); 
+
+
+                                      });
+
+                                                                        
+                                });
+
+
+
+
+
+                    });
+
+
+
+            }
+
+
+      });
+
+
+
+
+    }
+
+
+
+
+   function initializeApp () {
+
+
+     // try and load 
+     console.log('starting ... main app');
+
+     // report template 
+     $.get('mustache/report.htm', function (data) {
+        console.log('loaded ... reportTemplate');
+        reportTemplate = data;
+
+        /* ------------------------------------------------
+        aperture    : ""
+        description : "air"
+        group       : ""
+        height      : ""
+        id          : 1
+        index       : 1
+        radius      : 0
+        stop        : false
+        tag_id      : "0001"
+        thickness.  : 0
+        type        : "index"
+        -------------------------------------------------------- */
+
+    });
+
+    //var  myfilename = "./lenses/thin-lens-positive.lens";
+    //var  myfilename = "./lenses/thin-lens-negative.lens";
+    //load (myfilename);
+
+    load ("2"); // 2 = thin lens (positive)
+
+
+    }
+
+
+
+    $( document ).ready(function() {      
+
+
+
+
+      // trigger on a selection
+      $('.file-selection').on('click', function () {
+
+        console.log("file selection made.");
+        var id  = $(this).data ("id"); // get the data id field 
+        var ndx = fileList.findIndex( function (element) { return element.id == id } );
+          
+        // info.
+        if (ndx > -1) {
+          reload(id);
+          var txt = $(this).text();             // selection 
+          $("#filename_display").val(txt);      // show it 
+        }
+      });
+
+
+
+      // trigger on a selection
+      $('.report-selection').on('click', function () {
+        var id  = $(this).data ("id"); // get the data id field 
+        console.log("report selection made = " + id);
+        downloadReport(id);
+      });
+
+
+
+
+
+
+
+
+
+
+
+
+      initializeApp ();
+
+
+      $( "#objects-images-tab" ).focus(function() {
+        alert( "Handler for .focus() called." );
+      });
+
+
+    });
+
+
+
+
+
+</script>
+
+<body>
+
+<!-- Control the column width, and how they should appear on different devices -->
+
+<div class="container">
+
+<div class="row">
+  <div class="col">
+
+    <div class="input-group mb-3">
+      <div class="input-group-prepend">
+
+      <!-- Buttons -->
+        <button class="btn btn-secondary dropdown-toggle float-left" type="button" id="importer" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Load</button>
+
+        <!-- TO DO: need to build this list fron the javascript array --> 
+        <div id="dropdown-lens-menu" class="dropdown-menu">
+          <a class="dropdown-item file-selection"  href="#" data-id="2" >Thin lens in Air (Positive)</a>
+          <a class="dropdown-item file-selection"  href="#" data-id="3" >Thin Lens in Air (Negative)</a>
+<!--          
+          <a class="dropdown-item file-selection"  href="#" data-id="0" >Thick Lens in Air (Positive)</a>
+          <a class="dropdown-item file-selection"  href="#" data-id="1" >Thick lens in Air (Negative)</a>
+          <a class="dropdown-item file-selection"  href="#" data-id="4" >Multiple thin lenses</a>
+          <a class="dropdown-item file-selection"  href="#" data-id="5" >Gullstrand Eye Model (Relaxed)</a>
+          <a class="dropdown-item file-selection"  href="#" data-id="6" >Gullstrand Eye Model (Accommodated)</a>
+          <div role="separator" class="dropdown-divider"></div>
+          <a class="dropdown-item file-selection"  href="#" data-id="7" >New</a>          
+-->          
+        </div>            
+
+     </div>
+    <input id="filename_display" type="text" class="form-control" aria-label="Text input with dropdown button" placeholder="Load a prescription" readonly>
+
+
+    <!--  Report button -->  
+
+    <div class="dropdown">
+    <button class='btn btn-primary dropdown-toggle float-right' data-toggle="dropdown" id="dropdownReportButton"' > 
+       <i class="fas fa-download"></i>Report
+    </button>
+
+    <!-- TO DO: need to build this list fron the javascript array --> 
+    <div id="dropdown-report-menu" class="dropdown-menu"  aria-labelledby="dropdownReportButton">
+      <a class="dropdown-item report-selection"  href="#" data-id="report" >Report as HTML</a>
+      <a class="dropdown-item report-selection"  href="#" data-id="picture" >Picture as SVG</a>
+    </div>            
+    </div>
+
+
+   </div>
+
+
+
+
+
+
+
+
+    
+
+   </div>
+</div>
+
+
+
+
+<!-- VIEW -->
+<div class="row">
+  <div class="col">
+
+<!--
+        <div class="tab-pane fade show active"  id="lens-tab" role="tabpanel" aria-labelledby = "lens-nav">
+-->
+
+        <div id="lens-container" class="border border-dark"></div>
+
+  </div>
+</div>
+
+<!-- CONTROLS -->
+<div class="row">
+  <div class="col" style="" >
+
+        <!--------------------------------------------------------------------------------------------------------------------------------------------- 
+
+          NAVIGATION TABS  
+
+        ----------------------------------------------------------------------------------------------------------------------------------------------->
+
+      <ul class="nav nav-pills" id="myTab" role="tablist">
+
+<!--
+        <li class="nav-item">
+          <a class="nav-link active" id="lens-nav" data-toggle="tab" href="#lens-tab" role="tab" aria-controls="home" aria-selected="true">View</a>
+        </li>
+-->        
+        <li class="nav-item">
+          <a class="nav-link active" id="prescription-nav" data-toggle="tab" href="#prescription-tab" role="tab" aria-controls="home" aria-selected="true">Lens Prescription</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="objects-images-nav" data-toggle="tab" href="#objects-images-tab" role="tab" aria-controls="profile" aria-selected="false">Objects and Images</a>
+        </li>
+        
+        <li class="nav-item">
+          <a class="nav-link" id="summary-nav" data-toggle="tab" href="#summary-tab" role="tab" aria-controls="contact" aria-selected="false">Summary</a>
+        </li>
+      </ul>
+
+
+      <div class="tab-content" id="myTabContent" >
+
+
+        <!--------------------------------------------------------------------------------------------------------------------------------------------- 
+
+          VIEW TAB   
+
+        ----------------------------------------------------------------------------------------------------------------------------------------------->
+
+<!--
+
+        <div class="tab-pane fade show active"  id="lens-tab" role="tabpanel" aria-labelledby = "lens-nav">
+             <div class="container">
+                <div id="lens-container"></div>
+             </div>
+        </div>
+-->
+
+        <!--------------------------------------------------------------------------------------------------------------------------------------------- 
+
+          PRESCRIPTION TAB   
+
+        ----------------------------------------------------------------------------------------------------------------------------------------------->
+
+        <!-- Prescription addition tab -->
+        <div class="tab-pane show active" id="prescription-tab" role="tabpanel" aria-labelledby = "prescription-nav">    
+
+            <!-- Prescription addition tab -->    
+            <div class="container">
+                <div id="lens-table" class="table-striped" ></div>                        
+            </div>
+
+            <!-- Buttons -->
+            <div class="container">
+              <div class="btn-group" role="group" aria-label="Basic example">
+                      <div class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="lens-table-add-row" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" disabled>
+                          New
+                        </button>
+
+                        <div class="dropdown-menu">
+                          <a class="dropdown-item" href="#" data-short-id="index"  onclick="lensTypeSelector(this); return false;">Refractive Index</a>
+                          <a class="dropdown-item" href="#" data-short-id="thin"   onclick="lensTypeSelector(this); return false;">Thin Lens</a>
+                          <a class="dropdown-item" href="#" data-short-id="thick"  onclick="lensTypeSelector(this); return false;">Thick Lens</a>
+                          <a class="dropdown-item" href="#" data-short-id="sphere" onclick="lensTypeSelector(this); return false;">Spherical Surface</a>
+                        </div>            
+                      </div>
+
+                    <button id="lens-table-del-row" class="btn btn-secondary"  disabled>Delete Selected</button>
+                    <button id="lens-table-clear" class="btn btn-secondary" disabled>Clear</button>
+                    <button id="lens-table-reset" class="btn btn-secondary" disabled>Reset</button>
+              </div>
+        
+          </div>
+      </div>
+
+        <!--------------------------------------------------------------------------------------------------------------------------------------------- 
+
+          OBJECTS AND IMAGES TAB   
+
+        ----------------------------------------------------------------------------------------------------------------------------------------------->
+
+        <div class="tab-pane" id="objects-images-tab" role="tabpanel" aria-labelledby = "objects-images-nav">
+          
+            <div class="container">
+                <div id="lens-points" class="table-striped" ></div>        
+            </div>
+
+            <div class="container">
+                <div class="btn-group" role="group" aria-label="Basic example">       
+                     <div class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="lens-points-add-row" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                          New 
+                        </button>
+
+                        <div class="dropdown-menu">
+                          <a class="dropdown-item" href="#" data-short-id="point" onclick="lensObjectSelector(this); return false;">Point pair (principal rays)</a>
+                          <a class="dropdown-item" href="#" data-short-id="beam" onclick="lensObjectSelector(this); return false;">Beam (from infinity)</a>
+                        </div>            
+                      </div>
+
+                      <button id="lens-points-del-row" class="btn btn-secondary" >Delete Selected</button>
+                      <button id="lens-points-clear" class="btn btn-secondary">Clear</button>                    
+                      <button id="lens-points-reset" class="btn btn-secondary" disabled>Reset</button>
+               </div>
+            </div>
+            
+        </div>
+
+        <!--------------------------------------------------------------------------------------------------------------------------------------------- 
+
+          SUMMARY TAB   
+
+        ----------------------------------------------------------------------------------------------------------------------------------------------->
+
+        <div class="tab-pane"  id="summary-tab"  role="tabpanel" aria-labelledby = "summary-nav" >
+          Summary Information goes here!
+        </div>
+
+
+      </div>
+
+
+    </div>
+   </div>
+</div>
+
+
+
+<!--------------------------------------------------------------------------------------------------------------------------------------------- 
+
+  SUMMARY TAB   
+
+----------------------------------------------------------------------------------------------------------------------------------------------->
+
+
+<div class="modal fade" id="modalLoginForm" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add Lens Element</h5>
+        
+
+        <!-- Details for the type  -->
+
+      </div>
+
+
+      <div class="modal-body">
+
+
+
+        <!-- Lens Type Selector -->
+        Type
+        <div class="input-group mb-3">
+          <input id="lens-type-text-readonly" type="text" class="form-control" aria-label="Text input with dropdown button" placeholder="Select the type of lens element" >
+        </div>
+
+        <!-- Lens Group Name -->
+
+        <div class="input-group mb-3" style="display:none;">
+          <input id="modal-lens-group-name" type="text" class="form-control" aria-label="Description" placeholder="Enter the group name. (Optional)" >
+        </div>
+
+        <!-- Lens Description -->
+        Description
+        <div class="input-group mb-3">
+          <input id="modal-lens-element-description" type="text" class="form-control" aria-label="Description" placeholder="Enter the element description." >
+        </div>
+
+        <!-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+        TYPES LENS INPUTS  
+
+        ------------------------------------------------------------------------------------------------------------------------------------------------------->
+
+
+        <!-- Index -->
+        <div id = "lens-type-index"  style="display:none;">
+
+          Value
+          <div class="input-group mb-3">
+              <input id="modal-lens-refractive-index"  type="text" class="form-control" aria-label="Description"  value="1.0" >
+          </div>
+
+          Thickness
+          <div class="input-group mb-3">
+              <input id="modal-lens-thickness"  type="text" class="form-control" aria-label="Description" placeholder="Enter the thickness." value="1.0" >
+          </div>
+
+        </div>
+
+        <!-- Surface -->
+        <div id = "lens-type-sphere" style="display:none;">
+
+          Radius of curvature 
+          <div class="input-group mb-3">
+              <input id="modal-lens-radius-of-curvature" type="text" class="form-control" aria-label="Description" placeholder="Enter the radius of curvature." value="7.8">
+          </div>
+
+          Aperture diameter
+          <div class="input-group mb-3">
+              <input id="modal-lens-aperture-diameter" type="text" class="form-control" aria-label="Description" placeholder="Enter the aperture diameter" value="5.0" >
+          </div>
+      </div>
+
+
+        <!-- Thin Lens -->
+        <div id = "lens-type-thin" style="display:none;">
+
+          Lens power 
+          <div class="input-group mb-3">
+              <input id="modal-thin-power" type="text" class="form-control" aria-label="Description" placeholder="Enter the lens power." value="0.05" >
+          </div>
+
+          Aperture diameter
+          <div class="input-group mb-3">
+              <input id="modal-thin-height" type="text" class="form-control" aria-label="Description" placeholder="Enter the aperture diameter" value="5.0" >
+          </div>
+      </div>
+
+
+        <!-- Thick Lens -->
+        <div id = "lens-type-thick" style="display:none;">
+
+          Front radius of curvature 
+          <div class="input-group mb-3">
+              <input id="modal-thick-front-radius" type="text" class="form-control" aria-label="Description" placeholder="Enter the front radius." value="10" >
+          </div>
+
+          Refractive index 
+          <div class="input-group mb-3">
+              <input id="modal-thick-refractive-index" type="text" class="form-control" aria-label="Description" placeholder="Enter the lens refractive index." value="1.523" >
+          </div>
+
+          Thickness
+          <div class="input-group mb-3">
+              <input id="modal-thick-thickness" type="text" class="form-control" aria-label="Description" placeholder="Enter the lens thickness." value="1">
+          </div>
+
+          Back radius of curvature 
+          <div class="input-group mb-3">
+              <input id="modal-thick-back-radius" type="text" class="form-control" aria-label="Description" placeholder="Enter the back radius." value="-10" >
+          </div>
+
+          Aperture diameter
+          <div class="input-group mb-3">
+              <input id="modal-thick-height" type="text" class="form-control" aria-label="Description" placeholder="Enter the lens height" value="5" >
+          </div>
+      </div>
+
+
+
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" onclick="addModalInfoToTable();" >Add</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- 
+
+      OBJECTS AND IMAGES - POITNS  
+
+-->
+
+<div class="modal fade" id="pointAddForm" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add Source</h5>
+        
+
+        <!-- Details for the type  -->
+
+      </div>
+
+
+      <div class="modal-body">
+
+
+        <!-- Lens Type Selector -->
+        <div class="input-group mb-3">
+          <input id="point-type-text-readonly" type="text" class="form-control" placeholder="Select whether you want to add object or image point." >
+        </div>
+
+        
+        <!-- Lens Description -->        
+        <div class="input-group mb-3" style="display:none;" >
+          <input id="modal-point-id" type="text" class="form-control" aria-label="Description" placeholder="Enter the id" >
+        </div>
+
+        <!-- Point Input Form -->
+        <div id = "lens-type-point" style="display:none;">
+          Object distance 
+          <div class="input-group mb-3">
+              <input id="modal-point-z"  type="text" class="form-control" aria-label="Description" placeholder="Enter the axial distance." value="20">
+          </div>
+
+          Object height
+          <div class="input-group mb-3">
+              <input id="modal-point-h"  type="text" class="form-control" aria-label="Description" placeholder="Enter the height." value="10">
+          </div>
+        </div>
+
+
+        <!-- Beam Input Form -->
+        <div id = "lens-type-beam" style="display:none;">
+
+          Object beam angle 
+          <div class="input-group mb-3">
+              <input id="modal-beam-angle"  type="text" class="form-control" aria-label="Description" placeholder="Enter the beam angle." value="30" >
+          </div>
+
+          Object beam width
+          <div class="input-group mb-3">
+              <input id="modal-beam-width"  type="text" class="form-control" aria-label="Description" placeholder="Enter the beam width." value="20" >
+          </div>
+        </div>
+
+
+
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-primary" onclick="addModalInfoToPointsTable();" >Add</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!--
+<div class="panel panel-default fixed-panel center-panel">
+ <div class="panel-body">
+  <ul class="nav nav-tabs">
+    <li class="active"><a data-toggle="tab" href="#lens">Lens Prescription</a></li>
+    <li><a data-toggle="tab" href="#conjugates">Objects and Images</a></li>
+    <li><a data-toggle="tab" href="#summary">System Summary</a></li>
+    <li><a data-toggle="tab" href="#raysout">Rays</a></li>
+    <li><a data-toggle="tab" href="#extra">Miscellaneous</a></li>    
+  </ul>
+
+  <div class="tab-content">
+    
+    <div id="lens" class="tab-pane fade in active">
+    </div>
+    
+    <div id="conjugates" class="tab-pane fade">
+      <div id="conjugates-content">
+        <p>conjugates</p>
+      </div>
+      <div class="center">
+        <button data-toggle="modal" data-target="#conjugateModal" class="btn btn-primary center-block">Add Conjugate Pair</button>
+       </div>
+    </div>
+    
+    <div id="summary" class="tab-pane fade">
+      <p>summary</p>
+    </div>
+    
+    <div id="raysout" class="tab-pane fade">
+      <div id="raysout-content">
+              <p>raysout</p>
+      </div>
+      <div class="center">        
+        <button data-toggle="modal" data-target="#raysModal" class="btn btn-primary center-block">Add Ray</button>
+       </div>
+
+    </div>
+    
+    <div id="extra" class="tab-pane fade">
+      <div class="center"><button data-toggle="modal" data-target="#squarespaceModal" class="btn btn-primary center-block">Click Me</button></div>
+    </div>
+  
+  </div>
+
+
+  <div class="panel-footer">
+  Jason Turuwhenua, Auckland Bioengineering Institute, The University of Auckland, New Zealand 
+  </div>
+
+ </div> 
+</div>
+-->
+
+
+
+
+
+
+
+
+</body>
+</html>
