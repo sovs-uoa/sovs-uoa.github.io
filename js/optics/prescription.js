@@ -320,21 +320,32 @@ function decimalPlaces(cell, formatterParams, onRendered){
     if ((val == null) | isNaN(val)) {
       return formatterParams.emptyVal;
     };
-    return Number(val).toFixed(formatterParams.precision); 
+
+    if (formatterParams.flipVal) {
+      val = -val;
+    }
+
+    var formattedVal = Number(val).toFixed(formatterParams.precision);
+    return formattedVal; 
 }
 
 
-// needs to be called on access
-function flipVal(value, data, type, params, column) {
-
-
-  console.log(value);
-  if (isNaN(value)) {
-    return value;
-  }
-  return -value;
+// this will show information the right way up 
+function inFlipMutator (data) {
+  console.log("in mutator called = " + data);
+  return -Number(data);
 }
 
+
+// this will show information the right way up 
+function outFlipMutator (data) {
+  console.log("out mutator called = " + data);
+  return -Number(data);
+}
+
+
+
+var suppressUpdate = false;
 
 
 // lens information 
@@ -347,16 +358,53 @@ function initializePointsTable(data, updatePointsCallback, success) {
       },
 */
 
+
+      function defaultEditFunction(cell) {
+          console.log("point edited - update the points information");
+          updatePointsCallback (cell);
+      }
+
+
+      function flipCellFunction (e, cell) {       
+          cell.cellEdited = function (cell) { console.log("suppressed cell edited function."); };         
+          cell.setValue(-cell.getValue(), false);   // this will call the cell-edited function 
+          suppressUpdate = false;
+          console.log(cell); 
+      };
+
+
+      function flipEditFunction(cell) {
+          console.log("point edited - update the points information");
+          if (!suppressUpdate) {
+            updatePointsCallback (cell);
+          }
+        }
+
+      function unflipCellFunction (cell) { 
+          console.log("Unflip function - started");          
+          suppressUpdate = true;  
+          cell.setValue(-cell.getValue(), false); 
+          suppressUpdate = false;  
+          flipEditFunction(cell);
+          //console.log(cell); 
+          //defaultEditFunction(cell);
+          console.log("Unflip function - ended");
+
+      };
+
+
       console.log('points table ... initializing.');
+
+      //function(cell){
+      //    console.log("point edited - update the points information");
+      //    console.log(cell);
+      //    updatePointsCallback (cell);
+      //  }
 
 
 
       //Build Tabulator
       lens.pointsTable = new Tabulator("#lens-points", {
-         cellEdited:function(cell){
-          console.log("point edited - update the prescription");
-          updatePointsCallback (cell);
-        },
         data:data,
         height:"200px",
         addRowPos:"bottom",
@@ -367,12 +415,20 @@ function initializePointsTable(data, updatePointsCallback, success) {
             {rowHandle:true, formatter:"handle", headerSort:false, frozen:true, width:30, minWidth:30},
             {title:"id",     field:"id",       width:100, headerSort:false},                  
             {title:"type",   field:"type",     width:100, headerSort:false},                  
-            {title:"zo",     field:"zo",       width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" } },                  
-            {title:"ho",     field:"ho",       width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" }, accessor: flipVal },
-            {title:"zi",     field:"zi",       width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" } },                  
-            {title:"hi",     field:"hi",       width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" }, accessor: flipVal },
-            {title:"to",     field:"to",       width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" } },                  
-            {title:"ti",     field:"ti",       width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" }, accessor: flipVal }
+            //{title:"X1",     field:"X1",       width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" } },                  
+            //{title:"Y1",     field:"Y1",       width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" }, accessor: flipVal },
+            {title:"X1",     field:"X1",       width:100, editor:"input", headerSort:false, mutator:Number,       formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" },  cellEdited:  defaultEditFunction   },                  
+            {title:"Y1",     field:"Y1",       width:100, editor:"input", headerSort:false, mutator:Number,       formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" },  cellEdited:  defaultEditFunction   },                  
+            {title:"X2",     field:"X2",       width:100, editor:"input", headerSort:false, mutator:Number,       formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" },  cellEdited:  defaultEditFunction   },                  
+            {title:"Y2",     field:"Y2",       width:100, editor:"input", headerSort:false, mutator:Number,       formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" },  cellEdited:  defaultEditFunction   },                  
+            {title:"l",      field:"l",        width:100, editor:"input", headerSort:false, mutator:Number,       formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" },  cellEdited:  defaultEditFunction   },
+            {title:"ld",     field:"ld",       width:100, editor:"input", headerSort:false, mutator:Number,       formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" },  cellEdited:  defaultEditFunction   },
+            {title:"zo",     field:"zo",       width:100, editor:"input", headerSort:false, mutator:Number,       formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" },                 cellEdited:  defaultEditFunction   },                  
+            {title:"ho",     field:"ho",       width:100, editor:"input", headerSort:false, mutator:Number,       formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--",  flipVal:true },  cellEdited:  defaultEditFunction   },
+            {title:"zi",     field:"zi",       width:100, editor:"input", headerSort:false, mutator:Number,       formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" },                 cellEdited:  defaultEditFunction   },                  
+            {title:"hi",     field:"hi",       width:100, editor:"input", headerSort:false, mutator:Number,       formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--",  flipVal:true },  cellEdited:  defaultEditFunction   },
+            {title:"to",     field:"to",       width:100, editor:"input", headerSort:false, mutator:Number,       formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" },                 cellEdited:  defaultEditFunction   },                  
+            {title:"ti",     field:"ti",       width:100, editor:"input", headerSort:false, mutator:Number,       formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" },                 cellEdited:  defaultEditFunction   }
         ],
       });
 

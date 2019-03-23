@@ -137,6 +137,29 @@ getConjuugateTo
 
 
 
+  /* -----------------------------------------------------------------------------
+
+
+    UPDATE POINTS TABLE 
+
+
+  --------------------------------------------------------------------------------- */
+
+
+  function updatePointsTable(id, pairData) {
+      lens.pointsTable.updateData([{  id: id, 
+                                      X1: pairData.X1, Y1: pairData.Y1,
+                                      X2: pairData.X2, Y2: pairData.Y2,
+                                      l:  pairData.PO, ld: pairData.PI,                                            
+                                      to: pairData.T1, ti: pairData.T2,                                                                                              
+                                      zo: pairData.VO, zi: pairData.VI, 
+                                      ho: pairData.OQ, hi: pairData.IQ }]);
+  };
+
+
+
+
+
 
 
   /* -----------------------------------------------------------------------------
@@ -426,20 +449,17 @@ getConjuugateTo
   // This should re-build all the constructions in the list 
   function refreshAllConstruction () {
 
-    totalLens   = renderableLens.total;
-    pointsTable = lens.pointsTable.getData();            
-    lens.raphael.constructions.forEach (elem => {
-       aRow       = lens.pointsTable.getRow(elem.getId()).getData();
-       aPoint     = { id: aRow.id, which: "object", z:aRow.zo, h:aRow.ho };
-       pairData   = Optics.calculateConjugatePairFrom(aPoint, totalLens);
-       elem.setPairData(pairData);       
-       elem.setLens(totalLens);
-       elem.remove ();
-       elem.draw ();
-    
+      totalLens   = renderableLens.total;
+      pointsTable = lens.pointsTable.getData();            
+      lens.raphael.constructions.forEach (elem => {
+            aRow       = lens.pointsTable.getRow(elem.getId()).getData();
+            aPoint     = { id: aRow.id, which: "object", z:aRow.zo, h:aRow.ho, t:aRow.to };
+            pairData   = Optics.calculateConjugatePairFrom(aPoint, totalLens);
+            elem.setPairData(pairData);       
+            elem.setLens(totalLens);
+            elem.remove ();
+            elem.draw ();    
     });
-
-
   }
 
 
@@ -458,16 +478,30 @@ getConjuugateTo
      switch (aPoint.type) {
             case "finite": case "point":   // finite placed beam 
               lens.raphael.constructions.push( new PrincipalRayConstruction (totalLens, pairData));
+              updatePointsTable(aPoint.id, pairData);
+
+/*              
               lens.pointsTable.updateData([{  id: aPoint.id, 
-                                              zo: pairData.VO, ho: pairData.OQ, 
-                                              zi: pairData.VI, hi: pairData.IQ }]);
+                                              X1: pairData.X1, Y1: pairData.Y1,
+                                              l:  pairData.PO, ld: pairData.PI,                                            
+                                              to: pairData.T1, ti: pairData.T2,                                                                                              
+                                              zo: pairData.VO, zi: pairData.VI, 
+                                              ho: pairData.OQ, hi: pairData.IQ }]);
+*/                                              
               break;
 
             case "parallel": case "beam": // infinitely placed beam 
               lens.raphael.constructions.push( new ParallelBeamConstruction (totalLens, pairData));
+              updatePointsTable(aPoint.id, pairData);
+/*              
+
               lens.pointsTable.updateData([{  id: aPoint.id, 
+                                              X1: pairData.X1, Y1: pairData.Y1,
+                                              l:  pairData.PO, ld: pairData.PI,                                              
                                               to: pairData.T1, ti: pairData.T2,  
-                                              zi: pairData.VI, hi: pairData.IQ }]);                                            
+                                              zo: pairData.VO, zi: pairData.VI,
+                                              ho: pairData.OQ, hi: pairData.IQ }]);                                            
+*/                                              
               break;
             
             default: 
@@ -508,10 +542,13 @@ getConjuugateTo
     totalLens  = renderableLens.total;
     pairData   = Optics.calculateConjugatePairFrom(aPoint, totalLens); // only works in fwd direction / only works for finite 
     
+/*    
     lens.pointsTable.updateData([{  "id": aPoint.id, 
                                     "zo": pairData.VO, "ho": pairData.OQ, 
                                     "zi": pairData.VI, "hi": pairData.IQ, 
                                     "to": pairData.T1, "ti": pairData.T2 }]);
+*/
+    updatePointsTable(aPoint.id, pairData);
 
 
     // need to find the construction corresponding to the point and then update it!

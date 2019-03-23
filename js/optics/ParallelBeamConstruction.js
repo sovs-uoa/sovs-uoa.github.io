@@ -35,9 +35,14 @@ function onmove (th)  {
       this.parent.setPairData(PairData);
 
       // update the table for the beam  
-      lens.pointsTable.updateData([ { id: myPoint.id, 
-                                      to: PairData.T1, 
-                                      zi: PairData.X2, "hi": PairData.Y2 } ]);
+      //lens.pointsTable.updateData([ { id: myPoint.id, 
+      //                                to: PairData.T1, 
+      //                                zi: PairData.X2, "hi": PairData.Y2 } ]);
+
+
+      console.log(PairData);
+
+      updatePointsTable(myPoint.id, PairData);
 
       //myinfo = this.data("data-attr-info"); 
 
