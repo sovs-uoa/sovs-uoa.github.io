@@ -237,6 +237,8 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
 
    draw () {
       this.imagePoint.attr({ cx: this.data.X2, cy: this.data.Y2 });
+      var N1   = this.lens.cardinal.VN1; 
+      this.anglePicker.setAnchor(N1, 0); 
       this.drawBeamConstruction ();
    }
 
