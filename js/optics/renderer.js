@@ -246,6 +246,13 @@ var drawAxis = function (r, grid, offset) {
           var x2 = v2 + vn2;
           var y1 = y - h/2;
           var y2 = y + h/2;
+
+
+          cp1 = drawText(x1, y - 6*cp1.attr("r"), "N");
+          cp2 = drawText(x2, y - 6*cp2.attr("r"), "N'");
+          cp_set.push(cp1, cp2);
+
+
           cp1 = paper.path( ["M", x1, y1, "L", x1, y2 ] ).attr({"fill": "gray", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
           cp2 = paper.path( ["M", x2, y1, "L", x2, y2 ] ).attr({"fill": "gray", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
           cp_set.push(cp1, cp2);
@@ -267,6 +274,13 @@ var drawAxis = function (r, grid, offset) {
           var x2 = v2 + vp2;
           var y1 = y - h/2;
           var y2 = y + h/2;
+
+
+          // principal points 
+          cp1 = drawText(x1, y + 6*cp1.attr("r"), "P");
+          cp2 = drawText(x2, y + 6*cp2.attr("r"), "P'");
+          cp_set.push(cp1, cp2);
+
           cp1 = paper.path( ["M", x1, y1, "L", x1, y2 ] ).attr({"fill": "gray", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
           cp2 = paper.path( ["M", x2, y1, "L", x2, y2 ] ).attr({"fill": "gray", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
           cp_set.push(cp1, cp2);

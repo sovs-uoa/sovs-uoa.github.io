@@ -757,9 +757,9 @@ function getCardinalPoints (S){
 function getPowers (data, n1, n2){
 
 
-  ret = {   F  : n2/data.PF2, 
-            Fv1: n2/data.VF2,
-            Fv2: -n1/data.VF1 };
+  ret = {   F   : n2/data.PF2, 
+            Fv1 : -n1/data.VF1,
+            Fv2 : +n2/data.VF2 };
 
   return ret;
 }

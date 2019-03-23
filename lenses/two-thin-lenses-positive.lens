@@ -27,7 +27,7 @@
 		"type": "thin",
 		"description": "thin lens #1",
 		"args": {
-			"power": 20,
+			"power": 0.2,
 			"height": 12
 		}
 	}, {
@@ -43,7 +43,7 @@
 		"type": "thin",
 		"description": "thin lens #2",
 		"args": {
-			"power": 10,
+			"power": 0.1,
 			"height": 12
 		}
 	}, {
@@ -51,8 +51,7 @@
 		"type": "index",
 		"description": "air",
 		"args": {
-			"index": 1.0,
-			"thickness": 1
+			"index": 1.0
 		}
 	} ]
 }

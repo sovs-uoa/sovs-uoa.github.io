@@ -83,7 +83,8 @@
   var   fileList  = [ { id: "0", filename: "./lenses/thick-lens-positive.lens", title: "Thick Lens in Air (Positive)" }, 
                       { id: "1", filename: "./lenses/thick-lens-negative.lens", title: "Thick Lens in Air (Negative)" },
                       { id: "2", filename: "./lenses/thin-lens-positive.lens", title: "Thin Lens in Air (Positive)"  },
-                      { id: "3", filename: "./lenses/thin-lens-negative.lens", title: "Thin Lens in Air (Negative)"  } ];
+                      { id: "3", filename: "./lenses/thin-lens-negative.lens", title: "Thin Lens in Air (Negative)"  },
+                      { id: "4", filename: "./lenses/two-thin-lenses-positive.lens", title: "Two Thin Lenses in Air (Positive)"  } ];
 
 
     displayOptions = { height               : 15, 
@@ -902,10 +903,10 @@ getConjuugateTo
                                           });
 
 
-                                          rays = [ { u: 0, h: 1 } ];
-                                          console.log(renderableLens);
-                                          newrays = Optics.calculateRayTrace(rays, renderableLens.elem);
-                                          console.log(newrays);
+                                          //rays = [ { u: 0, h: 1 } ];
+                                          //console.log(renderableLens);
+                                          //newrays = Optics.calculateRayTrace(rays, renderableLens.elem);
+                                          //console.log(newrays);
 
 
                                           // conjugate points are draggable controllers 
@@ -995,7 +996,7 @@ getConjuugateTo
     //var  myfilename = "./lenses/thin-lens-negative.lens";
     //load (myfilename);
 
-    load ("0"); // 2 = thin lens (positive)
+    load ("4"); // 2 = thin lens (positive)
 
 
     }
