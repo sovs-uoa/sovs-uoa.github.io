@@ -20,9 +20,9 @@ These functions are called as the picker is dragged
 
 ------------------------------------------------------ */
 
-function onstart ()   { console.log("onstart picker"); };
+function onAfocalStart ()   { console.log("onstart picker"); };
 
-function onmove (th)  { 
+function onAfocalMove (th)  { 
 
       // this => AnglePicker
       console.log("angle picker passed angle = " + th);
@@ -34,10 +34,8 @@ function onmove (th)  {
       PairData  = Optics.calculateConjugatePairFrom(myPoint, totalLens); 
       this.parent.setPairData(PairData);
 
-      
 
-
-      // update the table for the beam  
+            // update the table for the beam  
       //lens.pointsTable.updateData([ { id: myPoint.id, 
       //                                to: PairData.T1, 
       //                                zi: PairData.X2, "hi": PairData.Y2 } ]);
@@ -45,14 +43,17 @@ function onmove (th)  {
 
       updatePointsTable(myPoint.id, PairData);
 
-      //myinfo = this.data("data-attr-info"); 
 
+      // this should update afocalbeamconstruction rays 
+      this.parent.setInputRays(th);
+      
+      // re-paint
       this.parent.remove(); 
       this.parent.draw();
 
 };
 
-function onup ()      { console.log("onup picker"); };
+function onAfocalUp ()      { console.log("onup picker"); };
 
 
 /*   -----------------------------------------------------------------
@@ -116,7 +117,7 @@ function updateBeamConjugate (info, myPoint) {
 UNUSED - A BEAM IS NOT DRAGGABLE !!!!
 
 ---------------------------------------------------------- */
-
+/*
 
 function moveBeam (dx, dy) {
 
@@ -170,6 +171,7 @@ function moveBeam (dx, dy) {
 
   }
 
+*/
 
 /* -------------------------------------------------------------------------------
 
@@ -178,7 +180,7 @@ MAIN
  ---------------------------------------------------------------------------------- */
 
 
-class ParallelBeamConstruction { // create a ray construction using raphael.js
+class AfocalBeamConstruction { // create a ray construction using raphael.js
 
 
 	 constructor(lens, data) {
@@ -189,14 +191,20 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
 
        this.data        = data;
        this.lens        = lens;
-       this.anchorPoint = "N1"; // or V1 if no N1 is available !
+       this.anchorPoint = "V1"; // or V1 if no N1 is available !
 
-       this.imagePoint;
+       // this.imagePoint;
        this.objectPoint;
        this.anglePicker;
        this.BeamWidth    = 10;
 
-       this.addBeamConstruction ();
+       this.rays;
+
+       this.setInputRays(30); 
+       this.addAfocalConstruction (); // draw the rays 
+
+
+
     }
 
 
@@ -237,7 +245,6 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
     }
 
 
-
 /*
 
    reset(theta) {
@@ -255,23 +262,66 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
 */
 
 
+  // This will be called when a table is updated - assumes that pairData is udated.
+
   refresh() {
 
-        var N1 = this.lens.cardinal.VN1; 
-        this.anglePicker.setAnchor(N1, 0);  // change the anchor
 
+        // refresh the angle picker 
+        console.log ("refreshing afocalbeamconstruction");
+        var V1 = 0;
+        var T1 = this.data.T1;
+        this.anglePicker.setAnchor(V1, 0);  // change the anchor
+        this.anglePicker.setAngle (T1);
+
+        this.setInputRays (T1); // this will re-calculate 
+
+
+        //this.anglePicker.remove();
+        //this.anglePicker.draw();
+
+        // refresh the rays 
         this.remove ();            
         this.draw ();    
 
     }
 
 
-
    draw () {
+      //this.imagePoint.attr({ cx: this.data.X2, cy: this.data.Y2 }); // move the image point here
+      //var N1 = this.lens.cardinal.VN1; 
+
       this.imagePoint.attr({ cx: this.data.X2, cy: this.data.Y2 }); // move the image point here
+
+      var V1 = 0;      
+      //this.anglePicker.setAnchor(V1, 0);  // change the anchor
       //this.anglePicker.setAngle(this.data.T1);        
-      this.drawBeamConstruction ();
+      this.drawAfocalConstruction ();
    }
+
+
+   // re-calculate traced rays without drawing
+   setInputRays(th) {
+
+      // console.log(th);
+
+      function getBeam (th, bw) {
+          var r = [];
+          r.push({ u: deg2rad(th), h: -bw/2});
+          r.push({ u: deg2rad(th), h: +bw/2});
+          return r;
+      }
+
+      //this.anglePicker.setAngle(th);
+      var rays     = getBeam(th, this.BeamWidth);      
+      this.raypath = Optics.calculateRayTrace(rays, renderableLens.elem);
+
+      //console.log("Output rays");
+      //console.log (this.raypath);
+      //this.drawAfocalConstruction ();
+   }
+
+
 
 
 
@@ -290,21 +340,17 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
    --------------------------------------------------------------------------------------------------------------- */
 
 
-    addBeamConstruction () {
-
-
-        this.drawBeamConstruction (); // this requires the lens prescription 
+    addAfocalConstruction () {
 
 
         // conjugate data (in laboratory frame!)
         var X1 = this.data.X1; var X2 = this.data.X2;        
         var Y1 = this.data.Y1; var Y2 = this.data.Y2;
-        var T1 = this.data.T1; var T2 = this.data.T2;
+        //var T1 = this.data.T1; var T2 = this.data.T2;
         //var N1 = this.data.N1; var T2 = this.data.N2;
 
 
-        this.imagePoint  = drawPoint(X2, Y2, "cyan"); // image  
-        //this.imagePoint.drag (moveBeam, startBeam, upBeam); // actually its not draggable !!!!
+        this.imagePoint    = drawPoint(X2, Y2, "cyan"); // image  
         this.imagePoint.id = "point-" + this.data.id + "-image";
         this.imagePoint.data("data-attr", {  "element_id"     : "point-" + this.data.id + "-image",
                                               "id"            : this.data.id, 
@@ -314,23 +360,23 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
 
         //. default beam anchor 
         var lens = this.lens;
-        var N1   = lens.cardinal.VN1;             // primary nodal point 
-        var N2   = lens.L + lens.cardinal.VN2;    // secondary nodal point 
+        var V1   = 0; //lens.V1;             // primary nodal point 
+        var V2   = 1; //lens.V2;    // secondary nodal point 
 
         // this will add an anglePicker 
-        this.anglePicker = new AnglePicker (0, 0, 10, T1);
-        this.anglePicker.setAnchor(N1, 0); // move to default point is N1
+        this.anglePicker = new AnglePicker (0, 0, 10, this.data.T1);
+        this.anglePicker.setAnchor(V1, 0); // move to default point is N1
         this.anglePicker.data("data-attr-info", {  "conjugate_id"  : "point-" + this.data.id + "-image",
                                                    "id"            : this.data.id, 
                                                    "type"          : "object",
                                                    "parent"        : this });
         this.anglePicker.parent = this;
-        this.anglePicker.drag(onmove, onstart, onup);
-
-
+        this.anglePicker.drag(onAfocalMove, onAfocalStart, onAfocalUp);
 
         // this.imagePoint.data("data-attr", { "element-id" : "point-" + this.data.id + "-image", "id" : this.data.id, "type" : "image"});
         //this.imagePoint.data("data-attr");
+
+        this.drawAfocalConstruction (); // this requires the lens prescription 
 
     }
 
@@ -356,16 +402,10 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
    }
 
 
-  drawBeamConstruction() {
-
-     // console.log(lens);
+  drawAfocalConstruction() {
 
 
-     console.log("-- draw beam construction.");
-
-     displayOptions = this.displayOptions;
-
-     // position of points in the lab frame
+     // try and deal with this     
      var lens = this.lens;
      var N1 = lens.cardinal.VN1;
      var N2 = lens.L + lens.cardinal.VN2;
@@ -374,225 +414,126 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
      var F1 = lens.cardinal.VF1;
      var F2 = lens.L + lens.cardinal.VF2;
 
-     // Object 
-     var data = this.data;
-     var T1 = data.T1;     
-     var X2 = data.X2;
-     var Y2 = data.Y2;
 
 
-     // X1_1, Y1_1, X1_2, Y1_2 
+     console.log("-- draw afocal beam construction.");
+     displayOptions = this.displayOptions;
+     console.log(lens);
 
 
+     var V1  = lens.V1;
+     var V2  = lens.V2;
+     var ray = this.raypath;
+     
+     this.cd_set.remove ();
 
-    // 
-    ret = getBeamObjectStyle({ N1 : N1, N2: N2, 
-                               P1 : P1, P2: P2,
-                               F1 : F1, F2: F2,
-                               T1 : T1 });
-
-    this.cd_set.remove ();
-
-    console.log(T1);
-
-
-    // beam aimed at N1 points / located on the front principal plane 
-    var bw = this.BeamWidth;
-    var dx = P1 - N1; // position translated to P1 
-	  var y1 = Math.tan(deg2rad(T1)) * dx + bw/2 / Math.sin(deg2rad(90 - T1)); // upper height on N1 
-    var y2 = Math.tan(deg2rad(T1)) * dx - bw/2 / Math.sin(deg2rad(90 - T1)); // lower height on N1
-    var y3 = Math.tan(deg2rad(T1)) * dx + 0;                   // height from the N1 itself 
-
-    // infinity 
-    var X   = -1000;
-    var dx  = X - P1; // effective infinity 
-    var i1  = Math.tan(deg2rad(T1)) * dx + y1; // upper height on N1 
-    var i2  = Math.tan(deg2rad(T1)) * dx - y2; // lower height on N1
-    var i3  = Math.tan(deg2rad(T1)) * dx + y3; // height from the N1 itself 
-
-	  var p1 = paper.path( ["M", P1, y1,  "L", X, i1 ]);    // O  -> H1   (ray through F1)
-	  var p2 = paper.path( ["M", P1, y2,  "L", X, i2 ]);    // H1 -> N1   (ray through F1)
-    var p3 = paper.path( ["M", P1, y3,  "L", X, i3 ]);    // H1 -> N1   (ray through F1)
-
-	  p1.attr(ret.F1);
-	  p2.attr(ret.F2);
-    p3.attr(ret.N1); 
-
-
-    this.cd_set.push(p1, p2, p3);
-
-    console.log("adding the image space construction");
-
-    // Image space beams 
-
-    ret = getBeamImageStyle({ N1 : N1, N2: N2, 
-                              P1 : P1, P2: P2,
-                              F1 : F1, F2: F2,
-                              T1 : T1,
-                              X2 : X2, Y2: Y2 });
-
-    var p4 = paper.path( ["M", P2, y1,  "L", X2, Y2 ]);    // O  -> H1   (ray through F1)
-    var p5 = paper.path( ["M", P2, y2,  "L", X2, Y2 ]);    // H1 -> N1   (ray through F1)
-    var p6 = paper.path( ["M", P2, y3,  "L", X2, Y2 ]);    // H1 -> N1   (ray through F1)
-
-    p4.attr(ret.F1);
-    p5.attr(ret.F2);
-    p6.attr(ret.N1); 
-
-	  this.cd_set.push(p4, p5, p6);
-
-
-    // ADD P1 - P2 RAYS 
-    var p10 = paper.path( ["M", P1, y1,  "L", P2, y1 ]);   // O  -> P1   (ray through F1)
-    var p11 = paper.path( ["M", P1, y2,  "L", P2, y2 ]);   // O  -> P1   (ray through F1)
-    //p12 = paper.path( ["M", X1, Y1,  "L", P1, Y1 ]);   // O  -> P1   (ray through F1)
-    p10.attr(real);
-    p11.attr(real); 
-    //p12.real(real);
-    this.cd_set.push(p10, p11);
+     var dimensions = [ ray.length, ray[0].length ];
+     var K = dimensions[0]; // number of surfaces 
+     var M = dimensions[1]; // number of rays 
 
 
 
-    if (ret.extend) { // extended rays 
+     // START RAYS 
+     var dX = -1000;
+     for (var i=0; i <  M ; i++) {
+        var u1 = ray[0][i].u;         
+        var X1 = ray[0][i].z; var Y1 = ray[0][i].h;
+        var X2 = X1 + dX; var Y2 = Y1 + dX*Math.tan(u1);
+        var p4 = paper.path( ["M", X1, Y1,  "L", X2, Y2 ]); 
+        p4.attr(real);
+        this.cd_set.push(p4);
+     }
 
-      var X = 1000;
-      var dx  = X - P2; // effective infinity 
 
-      var t1 = (Y2 - y1)/(X2 - P2);
-      var t2 = (Y2 - y2)/(X2 - P2);
-      var t3 = (Y2 - y3)/(X2 - P2);
-      
 
-      var i1  = t1 * dx + y1; // upper height on N1 
-      var i2  = t2 * dx - y2; // lower height on N1
-      var i3  = t3 * dx + y3; // height from the N1 itself 
 
-      var p7 = paper.path( ["M", P2, y1,  "L", X, i1 ]);    // O  -> H1   (ray through F1)
-      var p8 = paper.path( ["M", P2, y2,  "L", X, i2 ]);    // H1 -> N1   (ray through F1)
-      var p9 = paper.path( ["M", P2, y3,  "L", X, i3 ]);    // H1 -> N1   (ray through F1)
+     // IN-BETWEEN RAYS 
+     for (var k=0; k < K-1; k++ ) {
+         for (var i=0; i <  M ; i++) {
+            var X1 = ray[k][i].z;   var Y1 = ray[k][i].h;
+            var X2 = ray[k+1][i].z; var Y2 = ray[k+1][i].h;
+            var p4 = paper.path( ["M", X1, Y1,  "L", X2, Y2 ]); 
+            p4.attr(real);
+            this.cd_set.push(p4);
+         }
+     }
 
-      p7.attr(ret.xF1);
-      p8.attr(ret.xF2);
-      p9.attr(ret.xN1); 
+/*
 
-      this.cd_set.push(p7, p8, p9);
+    ret = getAfocalBeamImageStyle({ N1 : N1, N2: N2, 
+                                    P1 : P1, P2: P2,
+                                    F1 : F1, F2: F2,
+                                    T1 : T1,
+                                    X2 : X2, Y2: Y2 });
+*/
 
-    }
+     // FINAL RAYS 
+     for (var i=0; i <  M ; i++) {
+
+        var u1 = ray[K-1][i].u;       
+        var X1 = ray[K-1][i].z; var Y1 = ray[K-1][i].h;
+        var X2 = this.data.X2;  var Y2 = this.data.Y2;
+        var p4 = paper.path( ["M", X1, Y1,  "L", X2, Y2 ]); 
+        
+
+        if (X2 < X1) {
+
+            // information 
+            p4.attr(virtual);
+            this.cd_set.push(p4);
+
+            // extend the rays 
+            var dx  = + 1000;
+            var i1  = u1 * dx + Y1; // upper height on N1 
+            var p5  = paper.path( ["M", X1, Y1,  "L", X1 + dx, i1 ]);    // O  -> H1   (ray through F1)
+            this.cd_set.push(p5);
+
+
+        } else {
+            p4.attr(real);
+            this.cd_set.push(p4);
+        }
+
+
+/*
+        if (ret.extend) {
+
+                var X = 1000;
+                var dx  = X - P2; // effective infinity 
+
+                var t1 = (Y2 - y1)/(X2 - P2);
+                var t2 = (Y2 - y2)/(X2 - P2);
+                var t3 = (Y2 - y3)/(X2 - P2);
+                
+
+                var i1  = t1 * dx + y1; // upper height on N1 
+                var i2  = t2 * dx - y2; // lower height on N1
+                var i3  = t3 * dx + y3; // height from the N1 itself 
+
+                var p7 = paper.path( ["M", P2, y1,  "L", X, i1 ]);    // O  -> H1   (ray through F1)
+                var p8 = paper.path( ["M", P2, y2,  "L", X, i2 ]);    // H1 -> N1   (ray through F1)
+                var p9 = paper.path( ["M", P2, y3,  "L", X, i3 ]);    // H1 -> N1   (ray through F1)
+
+                p7.attr(ret.xF1);
+                p8.attr(ret.xF2);
+                p9.attr(ret.xN1); 
+
+                this.cd_set.push(p7, p8, p9);
+
+        }
+*/
+
+     }
+ 
+
 
     this.cd_set.toBack();
+  }
 
  }
 
 
 
- /* ---------------------------------------------------------------------------------------------------------------
-
-    renderPointToPoint - render the finite object / image conjugates given a processed pointList
-
-    TO DO:
-
-    dataOption - ignore intermediate object/image points 
-               - intermediate rays 
-  
-   --------------------------------------------------------------------------------------------------------------- */
-
-  drawConjugates(data) {
-
-    console.log("-- draw conjugates");
-
-  	var dataOptions = this.dataOptions;
-
-    var X1 = data.X1;
-    var Y1 = data.Y1;
-    if (isFinite(X1) & isFinite(Y1)) {
-      // console.log('X1 = ' + X1 + ' Y1 = '+ Y1);
-      
-
-      console.log("---- added point id = " + data.id + " (object)");
-      // object points are draggable 
-      var c = drawPoint(X1, Y1, "green");               
-      c.id = { id : data.id, type : "object" };
-      c.drag(move, start, up);
-
-/*      
-      c.click (function () {
-      	//console.log(this);
-      	//console.log(e);
-      	console.log("clicked object point = " + this.id);
-      	//select (this.id);
-      });
-*/
-
-      this.ps_set.push(c); 
-    } else {
-    	error("undefined object!");
-    };
-
-   var X2 = data.X2;
-   var Y2 = data.Y2;
-   if (isFinite(X2) & isFinite(Y2)) {
-      
-      // image points are draggable 
-      console.log("---- added point id = " + data.id + " (image)");
-      var c = drawPoint(X2, Y2, "cyan");          
-      c.id = { id : data.id, type : "image" };
-      c.drag(move, start, up);
-      this.ps_set.push(c); 
-
-    } else {
-		error("undefined object!");
-    }
-
-  }
-
-
-  drawPointToPoint(data) {
-
-  	var dataOptions = this.dataOptions;
-
-
-
-    //this.ps_set.remove ();
-    //this.ps_set = paper.set();
-
-    // show the object points for all points 
-    for (var i = 0; i < data.length; i++ ) {
-
-        var X1 = data[i].X1;
-        var Y1 = data[i].Y1;
-        if (isFinite(X1) & isFinite(Y1)) {
-          console.log('X1 = ' + X1 + ' Y1 = '+ Y1);
-          var c = drawPoint(X1, Y1, "cyan");         
-          this.ps_set.push(c); 
-        }
-   }
-
-   var X2 = data[data.length-1].X2;
-   var Y2 = data[data.length-1].Y2;
-   if (isFinite(X2) & isFinite(Y2)) {
-      console.log('X2 = ' + X2 + ' Y2 = '+ Y2);
-      var c = drawPoint(X2, Y2, "cyan");          
-      this.ps_set.push(c); 
-    }
-
-  }
-
-
-  updatePointToPoint () {
-      // cycle through the cp_set if its not empty and alter all circles !
-      if (!Array.isArray(this.ps_set) || !this.ps_set.length) { // array does not exist, is not an array, or is empty
-        this.ps_set.attr({r: kx*4});
-      }
-
-  }
-
-
-
-
-
-}
-
-
 
 /*   -------------------------------------------------
 
@@ -614,39 +555,7 @@ GETOBJECTSTYLE return an apprpriate obejct style.
 
 ------------------------------------------------------ */
 
-   function getBeamObjectStyle(data) {
-
-      // beam style information 
-
-      ret = { F1: real , N1 : real , F2: real  } 
-
-      return ret;
-
-   }
-
-
-
-/*   -------------------------------------------------
-
-GETOBJECTSTYLE return an apprpriate obejct style.
-
-
-  F1
-    OF 
-    FP
-    OP
-
-  F2
-    OP1
-    OP2
-
-  N1
-    OP
-    PN
-
------------------------------------------------------- */
-
-   function getBeamImageStyle(data) {
+   function getAfocalBeamImageStyle(data) {
 
       // beam style information 
       var ret =  { F1: none, N1 : none, F2: none  }; 

@@ -190,6 +190,15 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
     }
 
 
+    refresh() {
+
+        this.remove ();            
+        this.draw ();    
+
+    }
+
+
+
    draw () {
       this.drawRayConstruction ();
 
@@ -349,6 +358,17 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
 	  p1.attr(ret.F2.OP1);
 	  p2.attr(ret.F2.OP2); 
 	  this.cd_set.push(p1, p2);
+
+
+    // ADD P1 - P2 RAYS 
+    p1 = paper.path( ["M", P1, Y1,  "L", P2, Y1 ]);   // O  -> P1   (ray through F1)
+    p2 = paper.path( ["M", P1, Y2,  "L", P2, Y2 ]);   // O  -> P1   (ray through F1)
+    //p3 = paper.path( ["M", X1, Y1,  "L", P1, Y1 ]);   // O  -> P1   (ray through F1)
+    p1.attr(real);
+    p2.attr(real); 
+    //p3.real(real);
+    this.cd_set.push(p1, p2);
+
 
 
     console.log(ret);

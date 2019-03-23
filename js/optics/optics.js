@@ -19,6 +19,7 @@ console.log("loaded ... optics.js");
 
 var Optics = {};
 
+
 Optics.analyze = function (lensTable) {
 
 
@@ -33,6 +34,14 @@ Optics.calculatePointToPoint = function (lensSystem, pointList) {
 
 Optics.calculateConjugatePairFrom = function(point, systemInfo) {
   return calculateConjugatePairFrom (point, systemInfo)
+}
+
+Optics.analyzeSubSystem = function (lensTable) {
+return getLensSystemInfo (lensTable);
+}
+
+Optics.calculateRayTrace = function(rays, systemInfo) {
+  return calculateRayTrace (rays, systemInfo)
 }
 
 
@@ -212,6 +221,50 @@ function rayMultiply (S, r) {
 
   return q
 };
+
+
+
+/* -----------------------------------------------------------------------
+
+RAYBUNDLE Determine conjugate information for a point 
+
+  points are specified relative to the vertices of the system 
+
+  - elements : need to be zero thickness 
+  - finite rays not addressed 
+  - afocal system not addressed 
+
+--------------------------------------------------------------------------- */
+
+
+function calculateRayTrace(rays, lensTable ) {
+
+  //console.log("calculate RyaTrce");
+  //console.log(lensTable);
+
+  // create the total system
+  var Z = 0; ret = [];
+  for (var i=0; i < lensTable.length; i++) {
+
+          each    = lensTable[i];
+          Z       = Z + each.L;
+          newrays = rayMultiply(each.S, rays);
+          
+          for (var j = 0; j < newrays.length; j++) {
+              newrays[j].z = Z;
+          }
+
+          //console.log("system information");
+          //console.log(each);
+          //console.log(Z);
+
+          ret.push(newrays);
+          rays = newrays;        // update rays
+  }
+
+
+  return ret
+}
 
 
 
@@ -783,7 +836,7 @@ function getLensElementInfo(elem, index) {
         n   = input_elem.index;
         d   = input_elem.thickness;
         S   = translationMatrix (d);            
-        return { S: S, invS: inverseMatrix2x2(S), X: normalizedTranslationMatrix(S, n), L: 0 }; 
+        return { S: S, invS: inverseMatrix2x2(S), X: normalizedTranslationMatrix(S, n), L: d }; 
 
       default:
         error("unknown element.");
@@ -860,4 +913,23 @@ function getTotalLensSystemInfo (lensTable) {
   totalSystem.total.F        = totalSystem.total.n2/totalSystem.total.cardinal.PF2;
   totalSystem.total.powers   = totalPowers;
   return totalSystem;
+}
+
+
+function getLensSystemInfo (lensTable) {
+
+
+  // create the total system
+  var Z = 0; r = [];
+  for (var i=0; i < lensTable.length-1; i++) {
+
+    console.log("LENS");
+    console.log(lensTable[i]);
+
+    var id = lensTable[i].id;
+    eachElementInfo  = getLensElementInfo(lensTable, i);
+    r.push(eachElementInfo);
+  }
+
+  return r;
 }

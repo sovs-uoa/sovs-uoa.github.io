@@ -52,6 +52,7 @@
   <script src="js/optics/AnglePicker.js"></script>  
   <script src="js/optics/PrincipalRayConstruction.js"></script>  
   <script src="js/optics/ParallelBeamConstruction.js"></script>  
+  <script src="js/optics/AfocalBeamConstruction.js"></script>    
   <script src="js/utils.js"></script>  
 
 
@@ -456,9 +457,8 @@ getConjuugateTo
             aPoint     = { id: aRow.id, which: "object", z:aRow.zo, h:aRow.ho, t:aRow.to };
             pairData   = Optics.calculateConjugatePairFrom(aPoint, totalLens);
             elem.setPairData(pairData);       
-            elem.setLens(totalLens);
-            elem.remove ();
-            elem.draw ();    
+            elem.setLens(totalLens); // <--- this should change 
+            elem.refresh();
     });
   }
 
@@ -503,6 +503,22 @@ getConjuugateTo
                                               ho: pairData.OQ, hi: pairData.IQ }]);                                            
 */                                              
               break;
+
+
+           case "afocal": // infinitely placed beam 
+              lens.raphael.constructions.push( new AfocalBeamConstruction (totalLens, pairData));
+              updatePointsTable(aPoint.id, pairData);
+/*              
+
+              lens.pointsTable.updateData([{  id: aPoint.id, 
+                                              X1: pairData.X1, Y1: pairData.Y1,
+                                              l:  pairData.PO, ld: pairData.PI,                                              
+                                              to: pairData.T1, ti: pairData.T2,  
+                                              zo: pairData.VO, zi: pairData.VI,
+                                              ho: pairData.OQ, hi: pairData.IQ }]);                                            
+*/                                              
+              break;
+
             
             default: 
               break;
@@ -526,6 +542,12 @@ getConjuugateTo
   }
 
 
+ /* ----------------------------------------------------------------------------------------------------------------
+
+      UPDATECONSTRUCTION update points based on a changed cell 
+
+  ----------------------------------------------------------------------------------------------------------------   */
+
   function updateConstruction (cell) {
 
     console.log("update the graphical end of the construction.");
@@ -541,13 +563,6 @@ getConjuugateTo
     aPoint     = getPointFromCell(cell); // .getData();
     totalLens  = renderableLens.total;
     pairData   = Optics.calculateConjugatePairFrom(aPoint, totalLens); // only works in fwd direction / only works for finite 
-    
-/*    
-    lens.pointsTable.updateData([{  "id": aPoint.id, 
-                                    "zo": pairData.VO, "ho": pairData.OQ, 
-                                    "zi": pairData.VI, "hi": pairData.IQ, 
-                                    "to": pairData.T1, "ti": pairData.T2 }]);
-*/
     updatePointsTable(aPoint.id, pairData);
 
 
@@ -560,8 +575,10 @@ getConjuugateTo
 
         if (aPoint.id == elem.getId()) {
           elem.setPairData (pairData); // update 
-          elem.remove ();
-          elem.draw ();
+
+          elem.refresh ();
+          //elem.remove ();
+          //elem.draw ();
           return
         }
     }
@@ -802,6 +819,7 @@ getConjuugateTo
 
 
                                     // add points 
+/*
                                     var points  = [ { "id"   : 1, 
                                                       "type" : "point",
                                                       "which": "object",
@@ -809,6 +827,13 @@ getConjuugateTo
                                                       "h"    : 10,
                                                       "t"    : undefined
                                                        } ];
+*/
+                                    var points  = [ { "id"   : 1, 
+                                                      "type" : "afocal",
+                                                      "which": "object",
+                                                      "z"    : undefined, 
+                                                      "h"    : undefined,
+                                                      "t"    : 30 } ];
 
 /*                                                       
                                                       { "id" : 2, 
@@ -877,8 +902,10 @@ getConjuugateTo
                                           });
 
 
-
-
+                                          rays = [ { u: 0, h: 1 } ];
+                                          console.log(renderableLens);
+                                          newrays = Optics.calculateRayTrace(rays, renderableLens.elem);
+                                          console.log(newrays);
 
 
                                           // conjugate points are draggable controllers 

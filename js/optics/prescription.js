@@ -427,7 +427,7 @@ function initializePointsTable(data, updatePointsCallback, success) {
             {title:"ho",     field:"ho",       width:100, editor:"input", headerSort:false, mutator:Number,       formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--",  flipVal:true },  cellEdited:  defaultEditFunction   },
             {title:"zi",     field:"zi",       width:100, editor:"input", headerSort:false, mutator:Number,       formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" },                 cellEdited:  defaultEditFunction   },                  
             {title:"hi",     field:"hi",       width:100, editor:"input", headerSort:false, mutator:Number,       formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--",  flipVal:true },  cellEdited:  defaultEditFunction   },
-            {title:"to",     field:"to",       width:100, editor:"input", headerSort:false, mutator:Number,       formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" },                 cellEdited:  defaultEditFunction   },                  
+            {title:"to",     field:"to",       width:100, editor:"input", headerSort:false, mutator:Number,       formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--",  flipVal:true },  cellEdited:  defaultEditFunction   },                  
             {title:"ti",     field:"ti",       width:100, editor:"input", headerSort:false, mutator:Number,       formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" },                 cellEdited:  defaultEditFunction   }
         ],
       });
