@@ -8,6 +8,8 @@ var extend_object   = { "fill": "black", "stroke-opacity": 1.0, "stroke": "black
 var extend_image    = { "fill": "black", "stroke-opacity": 1.0, "stroke": "black", "stroke-width": "3" };
 
 
+
+
 var picker_extender = { "stroke": "red", "stroke-width": 1, "stroke-dasharray":"--"  };
 var changed         = { "stroke": "blue", "stroke-width": 1, "stroke-dasharray":"--"  };
 

@@ -29,7 +29,7 @@
 		"description": "front surface",
 		"args": {
 			"radius": -0.1,
-			"height": 12
+			"height": 0.05
 		}
 	}, {
 		"id": "0003",
@@ -45,7 +45,7 @@
 		"description": "back surface",
 		"args": {
 			"radius": +0.1,
-			"height": 12
+			"height": 0.05
 		}
 	}, {
 		"id": "0003",

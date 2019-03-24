@@ -196,7 +196,7 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
        // this.imagePoint;
        this.objectPoint;
        this.anglePicker;
-       this.BeamWidth    = 0.2;
+       this.BeamWidth    = 0.05;
 
 
        this.afocalmode = false;

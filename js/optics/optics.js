@@ -808,7 +808,7 @@ function getLensElementInfo(elem, index) {
       }
 
       // return an identity matrix 
-      return { S: identitySystem, X: normalizedTranslationMatrix(identitySystem, input_elem.index), L:0 };                 
+      return { S: identitySystem, X: normalizedTranslationMatrix(identitySystem, input_elem.index), L:0, elem: input_elem };                 
     }
 
 
@@ -820,7 +820,7 @@ function getLensElementInfo(elem, index) {
       }
 
       // return an indentity matrix 
-      return { S: identitySystem, X: normalizedTranslationMatrix(identitySystem, input_elem.index), L: 0 };                 
+      return { S: identitySystem, X: normalizedTranslationMatrix(identitySystem, input_elem.index), L: 0, elem: input_elem };                 
     }
 
     // surrounding lens elements 
@@ -841,27 +841,27 @@ function getLensElementInfo(elem, index) {
 
         elemCardinalPoints = getCardinalPoints(S);
         elemPowers = getPowers (elemCardinalPoints, n1, n2);
-        return { S: S, invS: inverseMatrix2x2(S), X: normalizedRefractionMatrix(S, n1, n2), cardinal: elemCardinalPoints, powers: elemPowers, n1: n1, n2: n2, F: F, L : 0 }; 
+        return { S: S, invS: inverseMatrix2x2(S), X: normalizedRefractionMatrix(S, n1, n2), cardinal: elemCardinalPoints, powers: elemPowers, n1: n1, n2: n2, F: F, L : 0, elem: input_elem}; 
 
       case "thin" :
         F   = input_elem.power;
         S   = refractionMatrix (n1, n2, F);   
         elemCardinalPoints = getCardinalPoints(S);
         elemPowers = getPowers (elemCardinalPoints, n1, n2);        
-        return { S: S, invS: inverseMatrix2x2(S), cardinal: elemCardinalPoints, powers: elemPowers,  n1: n1, n2: n2, F: F, L : 0 }; 
+        return { S: S, invS: inverseMatrix2x2(S), cardinal: elemCardinalPoints, powers: elemPowers,  n1: n1, n2: n2, F: F, L : 0, elem: input_elem }; 
 
       case "plane" :
         F = 0;
         S   = refractionMatrix (n1, n2, F);            
         elemCardinalPoints = getCardinalPoints(S);
         elemPowers = getPowers (elemCardinalPoints, n1, n2);
-        return { S: S, invS: inverseMatrix2x2(S), cardinal: elemCardinalPoints, powers: elemPowers }; 
+        return { S: S, invS: inverseMatrix2x2(S), cardinal: elemCardinalPoints, powers: elemPowers, elem: input_elem }; 
       
       case "index" :
         n   = input_elem.index;
         d   = input_elem.thickness;
         S   = translationMatrix (d);            
-        return { S: S, invS: inverseMatrix2x2(S), X: normalizedTranslationMatrix(S, n), L: d }; 
+        return { S: S, invS: inverseMatrix2x2(S), X: normalizedTranslationMatrix(S, n), L: d, elem: input_elem }; 
 
       default:
         error("unknown element.");
@@ -870,7 +870,7 @@ function getLensElementInfo(elem, index) {
 
     // get the data object
     error("shouldnt be able to get here."); 
-    return { S: S, invS: inverseMatrix2x2(S), cardinal: getCardinalPoints (S) };
+    return { S: S, invS: inverseMatrix2x2(S), cardinal: getCardinalPoints (S), elem: input_elem };
 };
 
 

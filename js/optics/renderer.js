@@ -1,3 +1,6 @@
+  var lens_edge       = { "stroke": "black", "stroke-width": "2", "stroke": "black", "stroke-dasharray":"none"  };
+  
+
   var lens = { prescription: null, 
                tabledata : null,
                table : null,
@@ -384,6 +387,53 @@ var drawAxis = function (r, grid, offset) {
 
 
 
+
+
+  /* DRAW LENS TYPES   */
+
+
+  function drawSurface(x, y, R, h, displayOptions) {
+
+    var lens = paper.set();
+    var r = Math.abs(R);
+
+    // draw a path 
+    var h = Math.min(h, 0.9*2*r, displayOptions.height);
+    var c = paper.path( ["M", x, y-h/2, "L", x, y+h/2  ] );
+    lens.push(c);
+
+    if (R < 0) {   // negative curvature
+
+
+      var Z = r - Math.sqrt(Math.pow(R,2) - Math.pow(h/2,2));
+      c1 = paper.path([ "M",x-Z,y+h/2,"a",r,r,0,0,0,0,-h ]);
+      lens.attr(lens_edge);
+      lens.push(c1);
+
+    } else if (R > 0) {   // positive lens
+
+      var r = Math.abs(R);
+      var Z = r - Math.sqrt(Math.pow(R,2) - Math.pow(h/2,2));
+      c1 = paper.path([ "M",x+Z,y-h/2,"a",r,r,0,0,0,0,h ]);
+      lens.attr(lens_edge);
+      lens.push(c1);
+
+    } else { // afocal
+      
+      //c1 = paper.circle(x, y + h/2, 0.1);
+      //c2 = paper.circle(x, y - h/2, 0.1);   
+      //lens.push(c1, c2);
+
+    }
+
+    lens.toFront ();
+
+    return lens;
+  }
+
+
+
+
   /* DRAW LENS TYPES   */
 
 
@@ -500,9 +550,10 @@ var drawAxis = function (r, grid, offset) {
 
     r = kx*4; // 4 pixels is the requested size
 
+
     var c = paper.text(x, y, text);
     c.attr({ "font-family": "arial", fill: "black", "font-size": 1.0, "text-anchor" : "middle" });
-    c.transform([  "t",x,y, "s",0.05,0.05,0,0]);
+    c.transform([  "t",x,y, "s", 0.01,0.01,0,0]);
 
     //.attr({"fill": color, "stroke": "#000000", "stroke-width": 1, "font-size": 1});
 
@@ -1176,7 +1227,7 @@ var drawAxis = function (r, grid, offset) {
 
     var cardinalPoints = [];
 
-    console.log(data);
+    //console.log(data);
 
     // only render surface elements 
     for (var i=1; i< data.elem.length; i=i+2) {
@@ -1185,10 +1236,27 @@ var drawAxis = function (r, grid, offset) {
       cardinalPoints  = data.elem[i].cardinal; 
       equivalentPower = data.elem[i].F;
 
+      curr = data.elem[i].elem;
+      console.log(curr);
 
-      // only thin lenses as of today 
-      l = drawThinLens(axialPosition, 0, equivalentPower, displayOptions);
-      optics_set.push(l);
+      switch (curr.type) {
+
+        case "thin":
+          l = drawThinLens(axialPosition, 0, equivalentPower, displayOptions);
+          optics_set.push(l);
+          break;
+
+        case "sphere":
+          var R = curr.radius; h = curr.height;
+          l = drawSurface(axialPosition, 0, R, h, displayOptions);
+          optics_set.push(l);        
+          break;
+
+        default:
+
+      }
+
+
 
     }
 
