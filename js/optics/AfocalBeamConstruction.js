@@ -378,7 +378,7 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
         // this will add an anglePicker 
         this.anglePicker = new AnglePicker (0, 0, 10, this.data.T1);
         this.anglePicker.setAnchor(V1, 0); // move to default point is N1
-        this.anglePicker.setLength(0.5);        
+        this.anglePicker.setLength(0.2);        
         this.anglePicker.data("data-attr-info", {  "conjugate_id"  : "point-" + this.data.id + "-image",
                                                    "id"            : this.data.id, 
                                                    "type"          : "object",

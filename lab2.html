@@ -75,7 +75,7 @@
   var   renderableLens;
   var   lensTable;
   var   ps, cd_set;
-  const gridSnapSize = 0.01;
+  const gridSnapSize = 0.001;
   var   summaryTemplate;
   var   reportTamplate;
   var   kx, ky;
@@ -1270,8 +1270,9 @@ getConjuugateTo
                         </button>
 
                         <div class="dropdown-menu">
-                          <a class="dropdown-item" href="#" data-short-id="point" onclick="lensObjectSelector(this); return false;">Point pair (principal rays)</a>
-                          <a class="dropdown-item" href="#" data-short-id="beam" onclick="lensObjectSelector(this); return false;">Beam (from infinity)</a>
+                          <a class="dropdown-item" href="#" data-short-id="point"  onclick="lensObjectSelector(this); return false;">point (focal systems only)</a>
+                          <a class="dropdown-item" href="#" data-short-id="beam"   onclick="lensObjectSelector(this);  return false;">beam (from infinity, focal systems only)</a>
+                          <a class="dropdown-item" href="#" data-short-id="afocal" onclick="lensObjectSelector(this);  return false;">beam (from infinity, afocal system)</a>
                         </div>            
                       </div>
 
@@ -1487,6 +1488,11 @@ getConjuugateTo
         <!-- Beam Input Form -->
         <div id = "lens-type-beam" style="display:none;">
 
+
+
+          This will add a beam from infinity to the system. The beam will pass through the cardinal points. This type of light source will not work if the system is afocal. 
+
+
           Object beam angle 
           <div class="input-group mb-3">
               <input id="modal-beam-angle"  type="text" class="form-control" aria-label="Description" placeholder="Enter the beam angle." value="30" >
@@ -1495,6 +1501,26 @@ getConjuugateTo
           Object beam width
           <div class="input-group mb-3">
               <input id="modal-beam-width"  type="text" class="form-control" aria-label="Description" placeholder="Enter the beam width." value="0.1" >
+          </div>
+        </div>
+
+
+
+        <!-- Beam Input Form -->
+        <div id = "lens-type-afocal" style="display:none;">
+
+           This will add a beam from infinity to the system. The beam will pass through the system but not through the cardinal points. This type of light source will work if the system is afocal/focal. If the outgoing rays are detected as collimated - the exit angle will be reported. 
+          <div class="well">
+          </div>
+
+          Object beam angle 
+          <div class="input-group mb-3">
+              <input id="modal-afocal-angle"  type="text" class="form-control" aria-label="Description" placeholder="Enter the beam angle." value="30" >
+          </div>
+
+          Object beam width
+          <div class="input-group mb-3">
+              <input id="modal-afocal-width"  type="text" class="form-control" aria-label="Description" placeholder="Enter the beam width." value="0.1" >
           </div>
         </div>
 

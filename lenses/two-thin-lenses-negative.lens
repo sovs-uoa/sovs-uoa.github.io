@@ -43,7 +43,7 @@
 		"type": "thin",
 		"description": "thin lens #2",
 		"args": {
-			"power":  3,
+			"power":  -3,
 			"height": 1
 		}
 	}, {
