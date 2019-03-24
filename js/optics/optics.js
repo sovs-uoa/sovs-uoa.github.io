@@ -305,6 +305,12 @@ function calculateConjugatePairFrom(point, systemInfo) {
               // results are relative to back vertex
               result    = calculatePairFromObject ({ z: X1-V1, h: Y1, t: T1 }, systemInfo); // distances assumed from vertices 
 
+              // fill in information if we have an afocal system 
+              if (!isFinite(result.IQ) & !isFinite(result.OQ)) {
+                    result.T2 = calculateExitAngle(T1, systemInfo);
+              }               
+
+
               // add in global co-ordiates 
               result.id = point.id;
               result.X1 = X1; 
@@ -345,6 +351,25 @@ function calculateConjugatePairFrom(point, systemInfo) {
 
 }
 
+
+
+
+/* -----------------------------------------------------------------------
+
+CALCULATEEXITANGLE Determine the exit angle of the ray from the system 
+
+  points are specified relative to the vertices of the system 
+
+  - elements : need to be zero thickness 
+  - finite rays not addressed 
+  - afocal system not addressed 
+
+--------------------------------------------------------------------------- */
+
+function calculateExitAngle(T1, systemInfo) {
+  outray = rayMultiply(systemInfo.S, { u: deg2rad(T1), h: 0})
+  return rad2deg(outray.u);
+}
 
 
 

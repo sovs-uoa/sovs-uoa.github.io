@@ -196,12 +196,16 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
        // this.imagePoint;
        this.objectPoint;
        this.anglePicker;
-       this.BeamWidth    = 10;
+       this.BeamWidth    = 0.2;
+
+
+       this.afocalmode = false;
 
        this.rays;
 
        this.setInputRays(30); 
        this.addAfocalConstruction (); // draw the rays 
+
 
 
 
@@ -273,6 +277,7 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
         var T1 = this.data.T1;
         this.anglePicker.setAnchor(V1, 0);  // change the anchor
         this.anglePicker.setAngle (T1);
+        this.anglePicker.setLength (1);
 
         this.setInputRays (T1); // this will re-calculate 
 
@@ -291,7 +296,14 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
       //this.imagePoint.attr({ cx: this.data.X2, cy: this.data.Y2 }); // move the image point here
       //var N1 = this.lens.cardinal.VN1; 
 
-      this.imagePoint.attr({ cx: this.data.X2, cy: this.data.Y2 }); // move the image point here
+      // defend against nonfocal rays 
+      if (isFinite(this.data.X2)) {
+          this.imagePoint.show();
+          this.imagePoint.attr({ cx: this.data.X2, cy: this.data.Y2 }); // move the image point here
+      } else {
+          this.imagePoint.hide();
+      }
+
 
       var V1 = 0;      
       //this.anglePicker.setAnchor(V1, 0);  // change the anchor
@@ -366,6 +378,7 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
         // this will add an anglePicker 
         this.anglePicker = new AnglePicker (0, 0, 10, this.data.T1);
         this.anglePicker.setAnchor(V1, 0); // move to default point is N1
+        this.anglePicker.setLength(0.5);        
         this.anglePicker.data("data-attr-info", {  "conjugate_id"  : "point-" + this.data.id + "-image",
                                                    "id"            : this.data.id, 
                                                    "type"          : "object",
@@ -445,8 +458,6 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
      }
 
 
-
-
      // IN-BETWEEN RAYS 
      for (var k=0; k < K-1; k++ ) {
          for (var i=0; i <  M ; i++) {
@@ -467,7 +478,20 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
                                     X2 : X2, Y2: Y2 });
 */
 
+
+    console.log("FINAL INFORMATION");
+
+    console.log(lens);
+
+
+
+
      // FINAL RAYS 
+
+     if (Math.abs(lens.F) > 0.0001) {
+
+
+      // FINITE RAYS 
      for (var i=0; i <  M ; i++) {
 
         var u1 = ray[K-1][i].u;       
@@ -494,36 +518,27 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
             this.cd_set.push(p4);
         }
 
+      }
 
-/*
-        if (ret.extend) {
 
-                var X = 1000;
-                var dx  = X - P2; // effective infinity 
+     } else { // INFINITE RAYS 
 
-                var t1 = (Y2 - y1)/(X2 - P2);
-                var t2 = (Y2 - y2)/(X2 - P2);
-                var t3 = (Y2 - y3)/(X2 - P2);
-                
 
-                var i1  = t1 * dx + y1; // upper height on N1 
-                var i2  = t2 * dx - y2; // lower height on N1
-                var i3  = t3 * dx + y3; // height from the N1 itself 
+          // FINITE RAYS 
+         var dX = 1000;
+         for (var i=0; i <  M ; i++) {
 
-                var p7 = paper.path( ["M", P2, y1,  "L", X, i1 ]);    // O  -> H1   (ray through F1)
-                var p8 = paper.path( ["M", P2, y2,  "L", X, i2 ]);    // H1 -> N1   (ray through F1)
-                var p9 = paper.path( ["M", P2, y3,  "L", X, i3 ]);    // H1 -> N1   (ray through F1)
+            var u1 = ray[K-1][i].u;       
+            var X1 = ray[K-1][i].z; var Y1 = ray[K-1][i].h;
+            var X2 = X1 + dX;  var Y2 = Y1 + dX*u1;
+            var p4 = paper.path( ["M", X1, Y1,  "L", X2, Y2 ]);         
+            p4.attr(real);
+           this.cd_set.push(p4);
+          }
 
-                p7.attr(ret.xF1);
-                p8.attr(ret.xF2);
-                p9.attr(ret.xN1); 
-
-                this.cd_set.push(p7, p8, p9);
-
-        }
-*/
 
      }
+
  
 
 

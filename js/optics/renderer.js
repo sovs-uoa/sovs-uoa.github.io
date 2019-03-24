@@ -16,8 +16,8 @@
 
 
   var paper; // store the paper here 
-  var viewBoxWidth  = 80;
-  var viewBoxHeight = 40;
+  var viewBoxWidth  = 2;
+  var viewBoxHeight = 1;
   var paperWidth    = 1200;
   var paperHeight   = 400;
   var oX,oY;
@@ -186,11 +186,41 @@ var drawAxis = function (r, grid, offset) {
     var cp;
 
 
-    var v1 = x + 0;
+    var v1 = x + 0;                   // front vertex 
     var v2 = x + systemPoints.L;
-    var h  = displayOptions.height * 2.0;
+    var h  = 2*displayOptions.height;   // back vertex 
 
-    console.log(systemPoints);
+
+
+    // nodal points
+    if (displayOptions.showVertices) {
+          
+          // points           
+          var vn1 = systemPoints.cardinal.VN1;
+          var vn2 = systemPoints.cardinal.VN2;
+          cp1 = drawPoint(v1, 0, "black");
+          cp2 = drawPoint(v2, 0, "black");
+          cp_set.push(cp1, cp2);
+
+          // lines 
+          var y = 0;
+          var x1 = v1
+          var x2 = v2;
+          var y1 = y - h/2;
+          var y2 = y + h/2;
+
+
+          //cp1 = drawText(x1 - 3*cp1.attr("r"), y - 6*cp1.attr("r"), "A");
+          //cp2 = drawText(x2 + 3*cp2.attr("r"), y - 6*cp2.attr("r"), "A'");
+          //cp_set.push(cp1, cp2);
+
+
+          cp1 = paper.path( ["M", x1, y1, "L", x1, y2 ] ).attr({"fill": "gray", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
+          cp2 = paper.path( ["M", x2, y1, "L", x2, y2 ] ).attr({"fill": "gray", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
+          cp_set.push(cp1, cp2);
+
+        }    
+
 
     // cardinal points 
     if (displayOptions.showCardinalPoints) {
@@ -248,10 +278,31 @@ var drawAxis = function (r, grid, offset) {
           var y2 = y + h/2;
 
 
+          if (Math.abs(x1-x2) < 6*cp1.attr("r")) {
+
+              if (x1 <= x2) {
+                  cp1 = drawText((x1+x2)/2, y - 6*cp1.attr("r"), "N/N'");
+              } else {
+                  cp1 = drawText((x1+x2)/2, y - 6*cp1.attr("r"), "N'/N");
+              }
+
+              cp_set.push(cp1, cp2);
+
+          } else {
+
+              // nodal points 
+              cp1 = drawText(x1, y - 6*cp1.attr("r"), "N");
+              cp2 = drawText(x2, y - 6*cp2.attr("r"), "N'");            
+              cp_set.push(cp1, cp2);
+
+          }
+
+
+/*
           cp1 = drawText(x1, y - 6*cp1.attr("r"), "N");
           cp2 = drawText(x2, y - 6*cp2.attr("r"), "N'");
           cp_set.push(cp1, cp2);
-
+*/
 
           cp1 = paper.path( ["M", x1, y1, "L", x1, y2 ] ).attr({"fill": "gray", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
           cp2 = paper.path( ["M", x2, y1, "L", x2, y2 ] ).attr({"fill": "gray", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
@@ -276,10 +327,23 @@ var drawAxis = function (r, grid, offset) {
           var y2 = y + h/2;
 
 
-          // principal points 
-          cp1 = drawText(x1, y + 6*cp1.attr("r"), "P");
-          cp2 = drawText(x2, y + 6*cp2.attr("r"), "P'");
-          cp_set.push(cp1, cp2);
+          if (Math.abs(x1-x2) < 6*cp1.attr("r")) {
+
+              if (x1 <= x2) {
+                  cp1 = drawText((x1+x2)/2, y + 6*cp1.attr("r"), "P/P'");
+              } else {
+                  cp1 = drawText((x1+x2)/2, y + 6*cp1.attr("r"), "P'/P");
+              }
+
+              cp_set.push(cp1, cp2);
+
+          } else {
+              // principal points 
+              cp1 = drawText(x1, y + 6*cp1.attr("r"), "P");
+              cp2 = drawText(x2, y + 6*cp2.attr("r"), "P'");            
+              cp_set.push(cp1, cp2);
+
+          }
 
           cp1 = paper.path( ["M", x1, y1, "L", x1, y2 ] ).attr({"fill": "gray", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
           cp2 = paper.path( ["M", x2, y1, "L", x2, y2 ] ).attr({"fill": "gray", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
@@ -437,7 +501,8 @@ var drawAxis = function (r, grid, offset) {
     r = kx*4; // 4 pixels is the requested size
 
     var c = paper.text(x, y, text);
-    c.attr({ "font-family": "arial", fill: "black", "font-size": 2, "text-anchor" : "middle" });
+    c.attr({ "font-family": "arial", fill: "black", "font-size": 1.0, "text-anchor" : "middle" });
+    c.transform([  "t",x,y, "s",0.05,0.05,0,0]);
 
     //.attr({"fill": color, "stroke": "#000000", "stroke-width": 1, "font-size": 1});
 
@@ -1101,7 +1166,7 @@ var drawAxis = function (r, grid, offset) {
     optics_set.remove();
     optics_set = paper.set();
 
-    displayOptions = { height               : 25, 
+    displayOptions = { height               : 0.5, 
                        showCardinalPoints   : true,
                        showFocalPoints      : true,
                        showNodalPoints      : true, 

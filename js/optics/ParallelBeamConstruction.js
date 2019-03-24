@@ -194,7 +194,7 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
        this.imagePoint;
        this.objectPoint;
        this.anglePicker;
-       this.BeamWidth    = 10;
+       this.BeamWidth    = 0.1;
 
        this.addBeamConstruction ();
     }

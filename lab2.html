@@ -84,10 +84,12 @@
                       { id: "1", filename: "./lenses/thick-lens-negative.lens", title: "Thick Lens in Air (Negative)" },
                       { id: "2", filename: "./lenses/thin-lens-positive.lens", title: "Thin Lens in Air (Positive)"  },
                       { id: "3", filename: "./lenses/thin-lens-negative.lens", title: "Thin Lens in Air (Negative)"  },
-                      { id: "4", filename: "./lenses/two-thin-lenses-positive.lens", title: "Two Thin Lenses in Air (Positive)"  } ];
+                      { id: "4", filename: "./lenses/two-thin-lenses-positive.lens", title: "Two Thin Lenses in Air (Positive)"  },   
+                      { id: "5", filename: "./lenses/two-thin-lenses-positive.lens", title: "Two Thin Lenses in Air (Negative)"  },                                           
+                      { id: "6", filename: "./lenses/keplerian-telescope.lens", title: "Keplerian Telescope"  } ];
 
 
-    displayOptions = { height               : 15, 
+    displayOptions = { height             : 0.05, 
                      showCardinalPoints   : true,
                      showFocalPoints      : true,
                      showNodalPoints      : true, 
@@ -96,7 +98,20 @@
 
   Mustache.Formatters = {
       "decimal": function (value, decimals) {
-        return Number(Math.round(value+'e'+decimals)+'e-'+decimals);
+
+
+        console.log("value = " + value);
+        if (Number.isNaN(value)) {
+          return "undefined";
+        }
+
+        if (!isFinite(value) | value == null) {
+          return "undefined";
+        }
+
+       var value = Number(Math.round(value+'e'+decimals)+'e-'+decimals);
+
+        return value
       }
     }
 
@@ -285,16 +300,23 @@ getConjuugateTo
     lensTable = lens.table.getData();    
     renderableLens = Optics.analyze(lensTable); // create matrices / we should have group caridnals in here as well
 
-    displayOptions = { height               : 15, 
-                     showCardinalPoints   : true,
-                     showFocalPoints      : true,
-                     showNodalPoints      : true, 
-                     showPrincipalPoints  : true, 
-                     showVertices         : true };
+
+    isafocal = (renderableLens.total.F == 0);
+
+    displayOptions = { height             : 0.3, 
+                       showCardinalPoints   : !isafocal,
+                       showFocalPoints      : true,
+                       showNodalPoints      : true, 
+                       showPrincipalPoints  : true, 
+                       showVertices         : true };
 
 
     drawCardinalPoints(0, 0, renderableLens.total, displayOptions); // (0,0) 
+
+
+
     drawOptics(renderableLens);
+
 
     // now update the points 
     if (summaryTemplate !== undefined) {
@@ -1080,6 +1102,10 @@ getConjuugateTo
           <a class="dropdown-item file-selection"  href="#" data-id="1" >Thick lens in Air (Negative)</a>
           <a class="dropdown-item file-selection"  href="#" data-id="2" >Thin lens in Air (Positive)</a>
           <a class="dropdown-item file-selection"  href="#" data-id="3" >Thin Lens in Air (Negative)</a>
+          <a class="dropdown-item file-selection"  href="#" data-id="4" >Two Thin lens in Air (Positive)</a>
+          <a class="dropdown-item file-selection"  href="#" data-id="5" >Two Thin Lens in Air (Negative)</a>
+          <a class="dropdown-item file-selection"  href="#" data-id="6" >Keplerian Telescope</a>
+
 <!--
           <a class="dropdown-item file-selection"  href="#" data-id="4" >Multiple thin lenses</a>
           <a class="dropdown-item file-selection"  href="#" data-id="5" >Gullstrand Eye Model (Relaxed)</a>
@@ -1448,12 +1474,12 @@ getConjuugateTo
         <div id = "lens-type-point" style="display:none;">
           Object distance 
           <div class="input-group mb-3">
-              <input id="modal-point-z"  type="text" class="form-control" aria-label="Description" placeholder="Enter the axial distance." value="20">
+              <input id="modal-point-z"  type="text" class="form-control" aria-label="Description" placeholder="Enter the axial distance." value="-0.5">
           </div>
 
           Object height
           <div class="input-group mb-3">
-              <input id="modal-point-h"  type="text" class="form-control" aria-label="Description" placeholder="Enter the height." value="10">
+              <input id="modal-point-h"  type="text" class="form-control" aria-label="Description" placeholder="Enter the height." value="0.1">
           </div>
         </div>
 
@@ -1468,7 +1494,7 @@ getConjuugateTo
 
           Object beam width
           <div class="input-group mb-3">
-              <input id="modal-beam-width"  type="text" class="form-control" aria-label="Description" placeholder="Enter the beam width." value="20" >
+              <input id="modal-beam-width"  type="text" class="form-control" aria-label="Description" placeholder="Enter the beam width." value="0.1" >
           </div>
         </div>
 

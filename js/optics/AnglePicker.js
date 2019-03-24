@@ -217,10 +217,26 @@ class AnglePicker { // create a ray construction using raphael.js
     }
 
 
+    setLength (length) {
+
+      this.radius = length;
+      var theta   = this.angle;
+      var anchorX = this.anchorX;
+      var anchorY = this.anchorY;
+      var point   = polar2cartesian(length, deg2rad(theta));
+
+
+      // ... this should change the position of the picker 
+      this.clicker.attr({ cx: point.x, cy: point.y });
+      this.extender.attr("path", ["M", anchorX, anchorY, "L", point.x, point.y ]);  
+
+
+    }
+
+
     setAngle (theta) {
 
       this.angle = theta;
-
       var anchorX = this.anchorX;
       var anchorY = this.anchorY;
       var radius  = this.radius;
