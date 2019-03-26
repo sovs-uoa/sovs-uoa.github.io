@@ -79,7 +79,7 @@
   const gridSnapSize = 0.001;
   var   summaryTemplate;
   var   reportTamplate;
-  var   kx, ky;
+  
   var   etol = 5e-4;
   var   fileList  = [ { id: "0", filename: "./lenses/thick-lens-positive.lens", title: "Thick Lens in Air (Positive)" }, 
                       { id: "1", filename: "./lenses/thick-lens-negative.lens", title: "Thick Lens in Air (Negative)" },
@@ -1136,6 +1136,32 @@ getConjuugateTo
 </script>
 
 <body>
+
+
+  <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+
+  <svg width="100" height="100">
+        <pattern id="diagonalHatch" width="10" height="10" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+            <line x1="0" y1="0" x2="0" y2="10" style="stroke:black; stroke-width:1" />
+        </pattern>  
+    </svg>
+
+
+  <defs>
+    <pattern id="smallGrid" width="8" height="8" patternUnits="userSpaceOnUse">
+      <path d="M 8 0 L 0 0 0 8" fill="none" stroke="gray" stroke-width="0.5"/>
+    </pattern>
+    <pattern id="grid" width="80" height="80" patternUnits="userSpaceOnUse">
+      <rect width="80" height="80" fill="url(#smallGrid)"/>
+      <path d="M 80 0 L 0 0 0 80" fill="none" stroke="gray" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+<!--
+  <rect width="100%" height="100%" fill="url(#grid)" />
+
+-->  
+</svg>
 
 <!-- Control the column width, and how they should appear on different devices -->
 

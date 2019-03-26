@@ -29,16 +29,17 @@
 
   var ps, cd_set, axis_set;
   var cp_set, optics_set;
+  var kx, ky;
 
 
 
   function setScaleFactor() {
 
-  // virtual unit / pixel unit 
-  paperWidth  = $("#lens-container").width(); 
-  paperHeight = $("#lens-container").height(); 
-  kx = viewBoxWidth/paperWidth;     // scaling to viewbox 
-  ky = viewBoxHeight/paperHeight;   // scaling to viewbox 
+    // virtual unit / pixel unit 
+    paperWidth  = $("#lens-container").width(); 
+    paperHeight = $("#lens-container").height(); 
+    kx = viewBoxWidth/paperWidth;     // scaling to viewbox 
+    ky = viewBoxHeight/paperHeight;   // scaling to viewbox 
 
 
   }
@@ -54,6 +55,7 @@
     
            // do something
            paper = new Raphael(document.getElementById(canvasID), "100%", "100%");
+
 
           } else {
 
@@ -78,6 +80,12 @@
 
 
         setScaleFactor ();
+
+
+        //paper.circle(1,1,1)
+        //     .attr({ fill: "url(#diagonalHatch)" });
+
+
 
         // draw the axis 
         drawAxis(paper, true,0);
@@ -119,9 +127,11 @@ var drawAxis = function (r, grid, offset) {
   console.log("left = " + viewBox.X + " top = " + viewBox.Y + " width = " + viewBoxWidth + " height = " + viewBoxHeight);
 
   // divSize 
-  var divs    = Math.floor ( width / 20 );           // 20 divs on screen  
-  var divSize = Math.max(1, 5*Math.floor(divs/5) );  // approximate div. size 
+  var divs    = Math.floor ( width / 20 );              // 20 divs on screen  
+  var divSize = Math.max(0.05, 5*Math.floor(100*divs/5)/100 );  // approximate div. size 
 
+
+  console.log("DIVSIZE = " + divSize);
 
 
   // X 
