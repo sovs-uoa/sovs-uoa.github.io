@@ -286,6 +286,9 @@ class AnglePicker { // create a ray construction using raphael.js
       this.clicker.data("data-extender", this.extender);
       this.clicker.drag(movePicker, startPicker, upPicker);
 
+      RegisterWheelCallback({ type: "point", handle: this.clicker });
+
+
       //this.myset.push(extender, clicker);      
       //this.myset.drag(movePicker, startPicker, upPicker);
     }

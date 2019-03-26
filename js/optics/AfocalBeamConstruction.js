@@ -370,6 +370,10 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
                                               "parent"        : this });
 
 
+        // register these points 
+        RegisterWheelCallback({ type: "point", handle: this.imagePoint });
+        
+
         //. default beam anchor 
         var lens = this.lens;
         var V1   = 0; //lens.V1;             // primary nodal point 

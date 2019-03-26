@@ -205,6 +205,10 @@ var drawAxis = function (r, grid, offset) {
           cp2 = drawPoint(v2, 0, "black");
           cp_set.push(cp1, cp2);
 
+          RegisterWheelCallback ({ type: "point", handle: cp1 });
+          RegisterWheelCallback ({ type: "point", handle: cp2 });
+
+
           // lines 
           var y = 0;
           var x1 = v1
@@ -221,6 +225,8 @@ var drawAxis = function (r, grid, offset) {
           cp1 = paper.path( ["M", x1, y1, "L", x1, y2 ] ).attr({"fill": "gray", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
           cp2 = paper.path( ["M", x2, y1, "L", x2, y2 ] ).attr({"fill": "gray", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
           cp_set.push(cp1, cp2);
+
+
 
         }    
 
@@ -243,6 +249,10 @@ var drawAxis = function (r, grid, offset) {
           cp1 = drawPoint(x1, y, "magenta");
           cp2 = drawPoint(x2, y, "magenta");
           cp_set.push(cp1, cp2);
+
+
+          RegisterWheelCallback ({ type: "cardinal", handle: cp1 });
+          RegisterWheelCallback ({ type: "cardinal", handle: cp2 });
 
           //cp1 = drawPoint(x1, y, "magenta");
           //cp2 = drawPoint(x2, y, "magenta");
@@ -273,6 +283,10 @@ var drawAxis = function (r, grid, offset) {
           cp1 = drawPoint(v1 + vn1, y, "blue");
           cp2 = drawPoint(v2 + vn2, y, "blue");
           cp_set.push(cp1, cp2);
+
+          RegisterWheelCallback ({ type: "cardinal", handle: cp1 });
+          RegisterWheelCallback ({ type: "cardinal", handle: cp2 });
+
 
           // lines 
           var x1 = v1 + vn1;
@@ -323,6 +337,9 @@ var drawAxis = function (r, grid, offset) {
           cp2 = drawPoint(v2 + vp2, y, "red");
           cp_set.push(cp1, cp2);
 
+          RegisterWheelCallback ({ type: "cardinal", handle: cp1 });
+          RegisterWheelCallback ({ type: "cardinal", handle: cp2 });
+
           // lines 
           var x1 = v1 + vp1;
           var x2 = v2 + vp2;
@@ -352,6 +369,8 @@ var drawAxis = function (r, grid, offset) {
           cp2 = paper.path( ["M", x2, y1, "L", x2, y2 ] ).attr({"fill": "gray", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
           cp_set.push(cp1, cp2);
 
+
+
         }
 
         // vertices
@@ -361,6 +380,9 @@ var drawAxis = function (r, grid, offset) {
           cp1 = drawPoint(v1 + vn1, y, "green");
           cp2 = drawPoint(v2 + vn2, y, "green");
           cp_set.push(cp1, cp2);
+
+          RegisterWheelCallback ({ type: "cardinal", handle: cp1 });
+          RegisterWheelCallback ({ type: "cardinal", handle: cp2 });
 
           // lines 
           var y1 = y - h/2;
@@ -1200,6 +1222,8 @@ var drawAxis = function (r, grid, offset) {
   }
 
 
+
+
   /* ---------------------------------------------------------------------------------------------------------------
 
     renderOptics - render the lens list with cardinal points 
@@ -1266,6 +1290,20 @@ var drawAxis = function (r, grid, offset) {
     //optics_set.push(c);
 
   }
+
+
+  /* ---------------------------------------------------------------------------------------------------------------
+
+    MOUSE-HANDLER FOR SETTING UP THE SYSTEM 
+
+    Setup and show the system  
+  
+   --------------------------------------------------------------------------------------------------------------- */
+
+   var callbackList = [];
+   function RegisterWheelCallback (info) {
+      callbackList.push(info);
+   }
 
 
 
@@ -1354,8 +1392,25 @@ var drawAxis = function (r, grid, offset) {
 
         drawAxis(paper, true,0);
         setScaleFactor ();
-        updateCardinalPoints (); // if any
-        updatePointToPoint ();
+
+
+        //updateCardinalPoints (); // if any
+        //updatePointToPoint ();
+
+
+        console.log("WHEEL");
+        for (var i = 0; i < callbackList.length ; i++) {
+
+          curr = callbackList[i].handle;
+          console.log("Item");
+          console.log(curr);
+          curr.attr({r: kx*4});
+        }
+
+
+        // cycle through points Registered to stay the same size 
+
+
 
     }
 

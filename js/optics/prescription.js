@@ -363,6 +363,11 @@ function outFlipMutator (data) {
 }
 
 
+function flipVal (value) {
+  return -value;
+}
+
+
 
 var suppressUpdate = false;
 
@@ -444,18 +449,29 @@ function initializePointsTable(data, updatePointsCallback, success) {
             {title:"l'",     field:"ld",       visible:true, width:100, editor:"input", headerSort:false, mutator:Number,       formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" },  cellEdited:  defaultEditFunction   },
             {title:"zo",     field:"zo",       visible:true, width:100, editor:"input", headerSort:false, mutator:Number,       formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" },                 cellEdited:  defaultEditFunction   },                  
             {title:"zi",     field:"zi",       visible:true, width:100, editor:"input", headerSort:false, mutator:Number,       formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" },                 cellEdited:  defaultEditFunction   },                  
-            {title:"ho",     field:"ho",       visible:true, width:100, editor:"input", headerSort:false, mutator:Number,       formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--",  flipVal:true },  cellEdited:  defaultEditFunction   },
-            {title:"hi",     field:"hi",       visible:true, width:100, editor:"input", headerSort:false, mutator:Number,       formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--",  flipVal:true },  cellEdited:  defaultEditFunction   },
-            {title:"to",     field:"to",       visible:true, width:100, editor:"input", headerSort:false, mutator:Number,       formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--",  flipVal:true },  cellEdited:  defaultEditFunction   },                  
-            {title:"ti",     field:"ti",       visible:true, width:100, editor:"input", headerSort:false, mutator:Number,       formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" },                 cellEdited:  defaultEditFunction   }
+            {title:"ho",     field:"ho",       visible:true, width:100, editor:"input", headerSort:false, mutator:Number,       formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--",  flipVal:false },  cellEdited:  defaultEditFunction   },
+            {title:"hi",     field:"hi",       visible:true, width:100, editor:"input", headerSort:false, mutator:Number,       formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--",  flipVal:false },  cellEdited:  defaultEditFunction   },
+            {title:"to",     field:"to",       visible:true, width:100, editor:"input", headerSort:false, mutator:Number,       formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--",  flipVal:false },  cellEdited:  defaultEditFunction   },                  
+            {title:"ti",     field:"ti",       visible:true, width:100, editor:"input", headerSort:false, mutator:Number,       formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--",  flipVal:false },  cellEdited:  defaultEditFunction   }
         ],
       });
 
 
+
+      // ok does this work 
+      lens.pointsTableHandler= new DataTableHandler (lens.pointsTable);
+      lens.pointsTableHandler.attach({ column: "ho", filter: flipVal });
+      lens.pointsTableHandler.attach({ column: "hi", filter: flipVal });
+      lens.pointsTableHandler.attach({ column: "to", filter: flipVal });
+      lens.pointsTableHandler.attach({ column: "ti", filter: flipVal });
+
+
+
+      console.log("PRESCRIPTION");
+      console.log(lens.pointsTableHandler);
+
       //console.log("just called lems table");
       //console.log(lens.pointsTable);
-
-
       // show the points 
       // updatePointsCallback ();
 

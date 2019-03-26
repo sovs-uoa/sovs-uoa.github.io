@@ -259,6 +259,9 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
                                               "parent"        : this });
 
 
+        // register these points 
+        RegisterWheelCallback({ type: "point", handle: this.objectPoint });
+        RegisterWheelCallback({ type: "point", handle: this.imagePoint });
 
 
         // this.imagePoint.data("data-attr", { "element-id" : "point-" + this.data.id + "-image", "id" : this.data.id, "type" : "image"});

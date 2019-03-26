@@ -53,6 +53,7 @@
   <script src="js/optics/PrincipalRayConstruction.js"></script>  
   <script src="js/optics/ParallelBeamConstruction.js"></script>  
   <script src="js/optics/AfocalBeamConstruction.js"></script>    
+  <script src="js/optics/DataTableHandler.js"></script>      
   <script src="js/utils.js"></script>  
 
 
@@ -164,6 +165,8 @@ getConjuugateTo
 
 
   function updatePointsTable(id, pairData) {
+
+/*    
       lens.pointsTable.updateData([{  id: id, 
                                       X1: pairData.X1, Y1: pairData.Y1,
                                       X2: pairData.X2, Y2: pairData.Y2,
@@ -171,6 +174,17 @@ getConjuugateTo
                                       to: pairData.T1, ti: pairData.T2,                                                                                              
                                       zo: pairData.VO, zi: pairData.VI, 
                                       ho: pairData.OQ, hi: pairData.IQ }]);
+*/
+
+
+      lens.pointsTableHandler.updateData([ {  id: id, 
+                                      X1: pairData.X1, Y1: pairData.Y1,
+                                      X2: pairData.X2, Y2: pairData.Y2,
+                                      l:  pairData.PO, ld: pairData.PI,                                            
+                                      to: pairData.T1, ti: pairData.T2,                                                                                              
+                                      zo: pairData.VO, zi: pairData.VI, 
+                                      ho: pairData.OQ, hi: pairData.IQ }]);
+
   };
 
 
@@ -204,7 +218,7 @@ getConjuugateTo
 
   }
 
-
+/*
   function move (dx, dy) {
 
       eleminfo = this.data("info");
@@ -263,7 +277,6 @@ getConjuugateTo
       updatePointsView ();
    }
 
-  
   function start () {
 
       console.log("--- called start point id = " + this.id);  
@@ -280,6 +293,8 @@ getConjuugateTo
       console.log("--- called up point id = " + this.id);  
 
   }
+
+*/
 
 /*
 
