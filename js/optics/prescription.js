@@ -364,7 +364,7 @@ function outFlipMutator (data) {
 
 
 function flipVal (value) {
-  return -value;
+  return -Number(value);
 }
 
 
@@ -446,7 +446,7 @@ function initializePointsTable(data, updatePointsCallback, success) {
             {title:"X2",     field:"X2",       visible:false, width:100, editor:"input", headerSort:false, mutator:Number,       formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" },  cellEdited:  defaultEditFunction   },                  
             {title:"Y2",     field:"Y2",       visible:false, width:100, editor:"input", headerSort:false, mutator:Number,       formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" },  cellEdited:  defaultEditFunction   },                  
             {title:"l",      field:"l",        visible:true, width:100, editor:"input", headerSort:false, mutator:Number,       formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" },  cellEdited:  defaultEditFunction   },
-            {title:"l'",     field:"ld",       visible:true, width:100, editor:"input", headerSort:false, mutator:Number,       formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" },  cellEdited:  defaultEditFunction   },
+            {title:"ld",     field:"ld",       visible:true, width:100, editor:"input", headerSort:false, mutator:Number,       formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" },  cellEdited:  defaultEditFunction   },
             {title:"zo",     field:"zo",       visible:true, width:100, editor:"input", headerSort:false, mutator:Number,       formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" },                 cellEdited:  defaultEditFunction   },                  
             {title:"zi",     field:"zi",       visible:true, width:100, editor:"input", headerSort:false, mutator:Number,       formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" },                 cellEdited:  defaultEditFunction   },                  
             {title:"ho",     field:"ho",       visible:true, width:100, editor:"input", headerSort:false, mutator:Number,       formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--",  flipVal:false },  cellEdited:  defaultEditFunction   },

@@ -29,21 +29,18 @@ class DataTableHandler { // create a ray construction using raphael.js
    }
 
 
-   updateData(data) {
-
+  
+   convertRowData(data) {
 
       console.log("Input data");
       console.log(data);
-
 
       var keys = data.keys ();     
       for (var j = 0 ;  j < data.length ; j++ ) {
 
 
           var curr = data[j];
-
           for (var i=0; i < this.filter.length ; i++) {
-
             var eachFilter = this.filter[i];
             if (curr.hasOwnProperty(eachFilter.column)) {
               curr[eachFilter.column] = eachFilter.filter(curr[eachFilter.column]);              
@@ -57,7 +54,24 @@ class DataTableHandler { // create a ray construction using raphael.js
       console.log("Output data");
       console.log(data);
 
+      return data;
 
+   }
+
+
+   addRow(data) {
+
+      data = this.convertRowData(data);
+      this.table.addRow(data);
+
+
+   }
+
+
+
+   updateData(data) {
+
+      data = this.convertRowData(data);
       this.table.updateData(data);
 
 
