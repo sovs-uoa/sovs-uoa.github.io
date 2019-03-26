@@ -47,7 +47,7 @@ function movePicker(dx,dy) {
     // Math.sqrt(Math.pow(sideA, 2) + Math.pow(sideB, 2));
 
     var radius = Math.sqrt( Math.pow(nowY-anchorY, 2) + Math.pow(nowX-anchorY, 2) );
-    console.log("move-picker: radius = " + radius);
+    //console.log("move-picker: radius = " + radius);
 
     a.parent.angle  = th;
     a.parent.radius = radius;

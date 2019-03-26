@@ -435,7 +435,7 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
 
      console.log("-- draw afocal beam construction.");
      displayOptions = this.displayOptions;
-     console.log(lens);
+     //console.log(lens);
 
 
      var V1  = lens.V1;
@@ -483,9 +483,8 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
 */
 
 
-    console.log("FINAL INFORMATION");
-
-    console.log(lens);
+    //console.log("FINAL INFORMATION");
+    //console.log(lens);
 
 
 

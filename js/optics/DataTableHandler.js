@@ -32,8 +32,8 @@ class DataTableHandler { // create a ray construction using raphael.js
   
    convertRowData(data) {
 
-      console.log("Input data");
-      console.log(data);
+      //console.log("Input data");
+      //console.log(data);
 
       var keys = data.keys ();     
       for (var j = 0 ;  j < data.length ; j++ ) {
@@ -51,8 +51,8 @@ class DataTableHandler { // create a ray construction using raphael.js
 
       }
 
-      console.log("Output data");
-      console.log(data);
+      //console.log("Output data");
+      //console.log(data);
 
       return data;
 
