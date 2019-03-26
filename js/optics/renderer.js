@@ -553,7 +553,7 @@ var drawAxis = function (r, grid, offset) {
 
     var c = paper.text(x, y, text);
     c.attr({ "font-family": "arial", fill: "black", "font-size": 1.0, "text-anchor" : "middle" });
-    c.transform([  "t",x,y, "s", 0.01,0.01,0,0]);
+    c.transform([  "t",x,y, "s", 0.03,0.03,0,0]);
 
     //.attr({"fill": color, "stroke": "#000000", "stroke-width": 1, "font-size": 1});
 
