@@ -6,7 +6,7 @@ The program is an interactive ray-tracer for performing simple paraxial ray-trac
 
 There are many great tools for performing ray-tracing. Unfortunately commercial tools can be expensive, not suitable for using interactively, and they may require a significant learning curve to understand. There are also a number of great optics demonstrations out there, but they tend to be qualitative, or require modification to make it useful.
 
-This application attempts to bridge the gap between the two. It is interactive, obeys the conventions standard in optometry, and gives enough information to confirm the relationships that one comes across when studying optics.
+This application attempts to bridge the gap between the two. It is interactive, obeys the conventions standard in optometry, and gives enough information to confirm the relationships that one comes across when studying optics.  Hopefully it is useful as tool for others.
 
 ## Getting Started:
 
