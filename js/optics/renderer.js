@@ -521,10 +521,8 @@ var drawAxis = function (r, grid, offset) {
     } else if (F > 0) {   // positive lens
 
       y1 = y+h/2; y2 = y-h/2;
-
       c1 = paper.path( ["M", x, y2, "L", x+h/30, y2+h/30  ] );
       c2 = paper.path( ["M", x, y2, "L", x-h/30, y2+h/30  ] );
-
       c3 = paper.path( ["M", x, y1, "L", x-h/30, y1-h/30  ] );
       c4 = paper.path( ["M", x, y1, "L", x+h/30, y1-h/30  ] );
 
@@ -532,10 +530,18 @@ var drawAxis = function (r, grid, offset) {
 
 
     } else { // afocal
+
+
+      y1 = y+h/2; y2 = y-h/2;
+      c1 = paper.path( ["M", x, y2, "L", x+h/30, y2  ] );
+      c2 = paper.path( ["M", x, y2, "L", x-h/30, y2  ] );
+      c3 = paper.path( ["M", x, y1, "L", x-h/30, y1  ] );
+      c4 = paper.path( ["M", x, y1, "L", x+h/30, y1  ] );
+
       
-      cp1 = drawPoint(x, y + h/2, "black");
-      cp2 = drawPoint(x, y - h/2, "black");
-      lens.push(c1, c2);
+      //cp1 = drawPoint(x, y + h/2, "black");
+      //cp2 = drawPoint(x, y - h/2, "black");
+      lens.push(c1, c2, c3, c4);
 
     }
 
@@ -781,17 +787,13 @@ var drawAxis = function (r, grid, offset) {
 
           // F1 RAY O -> F1 -> P1
           if ((data.X1 < data.F1) & (data.F1 < data.P1)) {        // O < F1 < P1
-
               ret.F1 = { OF: real, FP: real, OP: none };
 
           } else if ((data.X1 < data.P1) & (data.P1 < data.F1)) { // O < P1 < F1 
-
               ret.F1 = { OF: none, FP: virtual, OP: real };
 
           } else if ((data.F1 < data.X1) & (data.X1 < data.P1)) { // F1 < O < P1 
-
               ret.F1 = { OF: none, FP: virtual, OP: real };
-
 
           } else {
 
@@ -803,11 +805,8 @@ var drawAxis = function (r, grid, offset) {
 
           // ... the region between P1 & P2 should be empty 
           if (data.P1 < data.P2) {
-
-
               // F2 RAY           
               ret.F2 = { OP1: real, OP2: none };
-
               // N1 RAY 
               ret.N1 = { OP: real, PN: virtual }; // : { OP1: real, PN: virtual };
 
@@ -816,7 +815,6 @@ var drawAxis = function (r, grid, offset) {
 
               // F2 RAY           
               ret.F2 = { OP1: virtual, OP2: none };
-
               // N1 RAY 
               ret.N1 = { OP: real, PN: virtual }; // : { OP1: real, PN: virtual };
 
@@ -833,41 +831,29 @@ var drawAxis = function (r, grid, offset) {
 
 
           // F1 RAY : 
-          if ((data.F1 < data.P1) & (data.P1 < data.X1)) {         // F1 < P1 < O
-
+          if ((data.F1 < data.P1) & (data.P1 < data.X1)) {  // F1 < P1 < O
               ret.F1 = { OF: none, FP: real, OP: virtual }; // positive lens 
-
           } else if ((data.P1 < data.X1) & (data.X1 < data.F1)) {  // P1 < O < F1  
-
               ret.F1 = { OF: none, FP: none, OP: virtual };
-
           } else if ((data.P1 < data.X1) & (data.F1 < data.X1)) {  // P1 < F1 < O
-
               ret.F1 = { OF: virtual, FP: virtual, OP: none };
-
          } else {
-
              alert ("unmeasured");
-
           }
 
 
 
           // F2 RAY 
           // ... the region between P1 & P2 should be empty 
-          if (data.P1 < data.P2) {
-              
+          if (data.P1 < data.P2) {              
               // F2 RAY  
               ret.F2 = { OP1: none, OP2: virtual };
-
               // N1 RAY 
               ret.N1 = { OP: virtual, PN: real }; // : { OP1: real, PN: virtual };
 
           } else {
-
               // F2 RAY  
               ret.F2 = { OP1: virtual, OP2: none };
-
               // N1 RAY (ADDRESS THIS LATER)
               ret.N1 = { OP: virtual, PN: none }; // : { OP1: real, PN: virtual };
 
@@ -1362,46 +1348,58 @@ var drawAxis = function (r, grid, offset) {
   var gridLayer;
 
 
+  var isMouseDown = false;
+
     //Pane
-   dragStart = function (e) {
+   panStart = function (e) {
 
-        console.log("Mouse down");
 
-        if (paper.getElementByPoint(e.pageX, e.pageY) != null) {
-            return;
+        if (e.target.tagName !== "svg") {
+          console.log("dont allow pan.");
+          return;
         }
-        mousedown = true;
+
+        isMouseDown = true;
         startX = e.pageX;
         startY = e.pageY;
     };
 
-  dragMove = function (e) {
+  panMove = function (e) {
         
-        if (mousedown == false) {
-            return;
-        }
-        dX = startX - e.pageX;
-        dY = startY - e.pageY;
-        x = viewBoxWidth / paper.width;
-        y = viewBoxHeight / paper.height;
+        if (!isMouseDown) { return; }
 
-        dX *= x;
-        dY *= y;
+        dX = kx*(startX - e.pageX);
+        dY = kx*(startY - e.pageY);
+
+        //x = viewBoxWidth / paper.width;
+        //y = viewBoxHeight / paper.height;
+        //dX *= x;
+        //dY *= y;
+
+        console.log("Information");
+
+        console.log(viewBox.X);
+        console.log(viewBox.Y);
+
+        console.log(viewBoxWidth);
+        console.log(viewBoxHeight);
+
+        console.log(dX);
+        console.log(dY);
+
         //alert(viewBoxWidth +" "+ paper.width );
-
         paper.setViewBox(viewBox.X + dX, viewBox.Y + dY, viewBoxWidth, viewBoxHeight);
-
-       
-
         // bgRect.translate(dX, dY);
 
     };
 
-  dragEnd = function (e) {
-        if (mousedown == false) return;
+  panEnd = function (e) {
+        
+        if (!isMouseDown) return;
+
         viewBox.X += dX;
         viewBox.Y += dY;
-        mousedown = false;
+        isMouseDown = false;
 
     };
 

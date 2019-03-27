@@ -79,6 +79,8 @@
   const gridSnapSize = 0.001;
   var   summaryTemplate;
   var   reportTamplate;
+
+  var    mouseIsDown = false;
   
   var   etol = 5e-4;
   var   fileList  = [ { id: "0", filename: "./lenses/thick-lens-positive.lens", title: "Thick Lens in Air (Positive)" }, 
@@ -871,6 +873,12 @@ getConjuugateTo
                         console.log(delta);
                         return false;
                   });
+
+
+
+                  $(paper.canvas).mousedown( panStart );
+                  $(paper.canvas).mousemove( panMove );
+                  $(paper.canvas).mouseup( panEnd );
 
 
                   // $('#prescription-tab').show(); // show the prescription tab

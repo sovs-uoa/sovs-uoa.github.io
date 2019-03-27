@@ -12,6 +12,11 @@ path, circle, text {
 
 }
 
+text {
+       -moz-user-select: none;
+       -webkit-user-select: none;
+}
+
 
 .nav-item {
     background-color: #ffffff;
