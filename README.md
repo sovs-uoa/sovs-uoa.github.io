@@ -17,7 +17,15 @@ The application is written in Javascript/HTML5 but has only be tested using Chro
 The program takes as input a .lens prescription file (some of which are "canned") already and displays the lens prescription and details of the system.  Rays can be traced through the system as well.
 
 
+## To do: 
+
+One of the hopes for this web-site is that will allow for demonstrations that would be able to be incorporated in any web-page as required, or be included as part of a course. 
+
+
 ## Instructions [to be written]
+
+
+
 
 Object and Image prescription 
 -----------------------------
@@ -99,9 +107,10 @@ Add additional notes about how to deploy this on a live system
 
 ## Built With
 
-* [Bootstrap] 
-* [JQuery]
-* Javascript and HTML5
+Javascript 
+HTML5
+Bootstrap
+Tabulator 
 
 ## Contributing
 
