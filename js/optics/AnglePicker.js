@@ -175,10 +175,10 @@ class AnglePicker { // create a ray construction using raphael.js
 
     data (...args) {
 
-        console.log(args);
-        console.log("data AnglePicker stored");
-        console.log("name = " + args[0] + " value = " + args[1]);
-        console.log(args[1]);
+        //console.log(args);
+        //console.log("data AnglePicker stored");
+        //console.log("name = " + args[0] + " value = " + args[1]);
+        //console.log(args[1]);
         return this.clicker.data(...args); 
     }
 
@@ -208,12 +208,12 @@ class AnglePicker { // create a ray construction using raphael.js
       this.extender.attr({ "path": ["M", anchorX, anchorY, "L", cx, cy ]});
 
 
-      console.log(this.extender);
-      console.log("set anchor called ...");
-      console.log("cx = " + cx);
-      console.log("cy = " + cy);
-      console.log("anchorX = " + anchorX);
-      console.log("anchorY = " + anchorY);
+      //console.log(this.extender);
+      //console.log("set anchor called ...");
+      //console.log("cx = " + cx);
+      //console.log("cy = " + cy);
+      //console.log("anchorX = " + anchorX);
+      //console.log("anchorY = " + anchorY);
     }
 
 

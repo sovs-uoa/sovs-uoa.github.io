@@ -211,13 +211,6 @@ var drawAxis = function (r, grid, offset) {
           // points           
           var vn1 = systemPoints.cardinal.VN1;
           var vn2 = systemPoints.cardinal.VN2;
-          cp1 = drawPoint(v1, 0, "black");
-          cp2 = drawPoint(v2, 0, "black");
-          cp_set.push(cp1, cp2);
-
-          RegisterWheelCallback ({ type: "point", handle: cp1 });
-          RegisterWheelCallback ({ type: "point", handle: cp2 });
-
 
           // lines 
           var y = 0;
@@ -227,16 +220,30 @@ var drawAxis = function (r, grid, offset) {
           var y2 = y + h/2;
 
 
+          cp1 = drawPoint(v1, 0, "black");
+          cp2 = drawPoint(v2, 0, "black");
+          cp_set.push(cp1, cp2);
+
+          RegisterWheelCallback ({ type: "point", handle: cp1 });
+          RegisterWheelCallback ({ type: "point", handle: cp2 });
+
+
+          r =  cp1.attr("r");
+          // dX = cp1.attr("r")*kx*20;
+          cp1 = drawText(x1, y , "V"); // - 4*cp1.attr("r")
+          cp2 = drawText(x2, y , "V'"); // - 4*cp2.attr("r")
+          cp_set.push(cp1, cp2);
+          RegisterWheelCallback ({ type: "text", handle: cp1 });
+          RegisterWheelCallback ({ type: "text", handle: cp2 });
+
+
           //cp1 = drawText(x1 - 3*cp1.attr("r"), y - 6*cp1.attr("r"), "A");
           //cp2 = drawText(x2 + 3*cp2.attr("r"), y - 6*cp2.attr("r"), "A'");
           //cp_set.push(cp1, cp2);
 
-
           cp1 = paper.path( ["M", x1, y1, "L", x1, y2 ] ).attr({"fill": "gray", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
           cp2 = paper.path( ["M", x2, y1, "L", x2, y2 ] ).attr({"fill": "gray", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
           cp_set.push(cp1, cp2);
-
-
 
         }    
 
@@ -268,8 +275,8 @@ var drawAxis = function (r, grid, offset) {
           //cp2 = drawPoint(x2, y, "magenta");
           //cp_set.push(cp1, cp2);
 
-          cp1 = drawText(x1, y - 4*cp1.attr("r"), "F");
-          cp2 = drawText(x2, y - 4*cp2.attr("r"), "F'");
+          cp1 = drawText(x1, y, "F");
+          cp2 = drawText(x2, y, "F'");
           cp_set.push(cp1, cp2);
 
 
@@ -312,9 +319,9 @@ var drawAxis = function (r, grid, offset) {
           if (Math.abs(x1-x2) < 6*cp1.attr("r")) {
 
               if (x1 <= x2) {
-                  cp1 = drawText((x1+x2)/2, y - 4*cp1.attr("r"), "N/N'");
+                  cp1 = drawText((x1+x2)/2, y, "N/N'");
               } else {
-                  cp1 = drawText((x1+x2)/2, y - 4*cp1.attr("r"), "N'/N");
+                  cp1 = drawText((x1+x2)/2, y, "N'/N");
               }
 
               cp_set.push(cp1, cp2);
@@ -326,8 +333,8 @@ var drawAxis = function (r, grid, offset) {
           } else {
 
               // nodal points 
-              cp1 = drawText(x1, y - 4*cp1.attr("r"), "N");
-              cp2 = drawText(x2, y - 4*cp2.attr("r"), "N'");            
+              cp1 = drawText(x1, y, "N");
+              cp2 = drawText(x2, y, "N'");            
               cp_set.push(cp1, cp2);
 
               RegisterWheelCallback ({ type: "text", handle: cp1 });
@@ -371,9 +378,9 @@ var drawAxis = function (r, grid, offset) {
           if (Math.abs(x1-x2) < 6*cp1.attr("r")) {
 
               if (x1 <= x2) {
-                  cp1 = drawText((x1+x2)/2, y + 4*cp1.attr("r"), "P/P'");
+                  cp1 = drawText((x1+x2)/2, y, "P/P'");
               } else {
-                  cp1 = drawText((x1+x2)/2, y + 4*cp1.attr("r"), "P'/P");
+                  cp1 = drawText((x1+x2)/2, y, "P'/P");
               }
 
               cp_set.push(cp1, cp2);
@@ -526,9 +533,8 @@ var drawAxis = function (r, grid, offset) {
 
     } else { // afocal
       
-      c1 = paper.circle(x, y + h/2, 0.1);
-      c2 = paper.circle(x, y - h/2, 0.1);      
-
+      cp1 = drawPoint(x, y + h/2, "black");
+      cp2 = drawPoint(x, y - h/2, "black");
       lens.push(c1, c2);
 
     }
@@ -604,7 +610,7 @@ var drawAxis = function (r, grid, offset) {
 
     var c = paper.text(x, y, text);
     c.attr({ "font-family": "arial", fill: "black", "font-size": 1.0, "text-anchor" : "middle" });
-    c.transform([  "t",x,y, "s", 0.03,0.03,0,0]);
+    c.transform([  "t",x,y, "s", 20*kx, 20*kx,0,0]);
 
     //.attr({"fill": color, "stroke": "#000000", "stroke-width": 1, "font-size": 1});
 
@@ -1400,6 +1406,45 @@ var drawAxis = function (r, grid, offset) {
     };
 
 
+
+  /* ---------------------------------------------------------------------------------------------------------------
+
+    HANDLER TO PERFORM A ZOOM  
+
+    Setup and show the system  
+  
+   --------------------------------------------------------------------------------------------------------------- */
+
+
+    function transformScalableObject (curr) {
+
+
+              console.log(curr.type);
+              switch (curr.type) {
+
+                  case "text" :
+
+                    var x = curr.handle.attr("x");             
+                    var y = curr.handle.attr("y");             
+                    curr.handle.transform([ "t", x, y, "s", kx*20, ky*20, "0","0" ]);
+                    break;
+
+                  case "point" :
+                    //kx = 100;
+                    curr.handle.attr({r: kx*4});
+                    break;
+
+                  default:
+                    console.log("well lets see");
+                    curr.handle.attr({r: kx*4});
+
+
+              }
+
+    }
+
+
+
  /** This is high-level function.
      * It must react to delta being more/less than zero.
      */
@@ -1418,7 +1463,6 @@ var drawAxis = function (r, grid, offset) {
         viewBox.X -= (viewBoxWidth - vBWo) / 2;
         viewBox.Y -= (viewBoxHeight - vBHo) / 2;
         paper.setViewBox(viewBox.X, viewBox.Y, viewBoxWidth, viewBoxHeight);
-
         setScaleFactor ();
         //drawAxis(paper, true,0);
         //updateCardinalPoints (); // if any
@@ -1427,30 +1471,8 @@ var drawAxis = function (r, grid, offset) {
 
         //console.log("WHEEL");
         for (var i = 0; i < callbackList.length ; i++) {
-          curr = callbackList[i];
-
-          console.log(curr.type);
-          switch (curr.type) {
-
-              case "text" :
-
-                var x = curr.handle.attr("x");             
-                var y = curr.handle.attr("y");             
-                curr.handle.transform([ "t", x, y, "s", kx*20, ky*20, "0","0" ]);
-                break;
-
-              case "point" :
-                //kx = 100;
-                curr.handle.attr({r: kx*4});
-                break;
-
-              default:
-                console.log("well lets see");
-                curr.handle.attr({r: kx*4});
-
-
-          }
-
+          // curr = callbackList[i];
+          transformScalableObject(callbackList[i]);
         }
 
 
@@ -1460,46 +1482,11 @@ var drawAxis = function (r, grid, offset) {
 
     }
 
+
+
+
     /** Event handler for mouse wheel event.
      */
-    function wheel(event) {
-        
-
-      console.log("wheel event");
-
-        var delta = 0;
-        if (!event) /* For IE. */
-            event = window.event;
-        if (event.wheelDelta) { /* IE/Opera. */
-            delta = event.wheelDelta / 120;
-        } else if (event.detail) { /** Mozilla case. */
-            /** In Mozilla, sign of delta is different than in IE.
-             * Also, delta is multiple of 3.
-             */
-            delta = -event.detail / 3;
-        }
-        
-        /** If delta is nonzero, handle it.
-         * Basically, delta is now positive if wheel was scrolled up,
-         * and negative, if wheel was scrolled down.
-         */
-        if (delta) handle(delta);
-
-
-        /** Prevent default actions caused by mouse wheel.
-         * That might be ugly, but we handle scrolls somehow
-         * anyway, so don't bother here..
-         */
-
-        //event.stopPropagation ();
-
-        //if (event.preventDefault) event.preventDefault();
-        //event.returnValue = false;
-
-        return false;
-    }
-
-
 
 
     /** Initialization code. 

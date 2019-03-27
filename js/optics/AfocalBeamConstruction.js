@@ -25,7 +25,7 @@ function onAfocalStart ()   { console.log("onstart picker"); };
 function onAfocalMove (th)  { 
 
       // this => AnglePicker
-      console.log("angle picker passed angle = " + th);
+      //console.log("angle picker passed angle = " + th);
 
 
       // update the graphic + associated table 
@@ -433,7 +433,7 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
 
 
 
-     console.log("-- draw afocal beam construction.");
+     //console.log("-- draw afocal beam construction.");
      displayOptions = this.displayOptions;
      //console.log(lens);
 
