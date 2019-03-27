@@ -261,16 +261,20 @@ var drawAxis = function (r, grid, offset) {
           cp_set.push(cp1, cp2);
 
 
-          RegisterWheelCallback ({ type: "cardinal", handle: cp1 });
-          RegisterWheelCallback ({ type: "cardinal", handle: cp2 });
+          RegisterWheelCallback ({ type: "point", handle: cp1 });
+          RegisterWheelCallback ({ type: "point", handle: cp2 });
 
           //cp1 = drawPoint(x1, y, "magenta");
           //cp2 = drawPoint(x2, y, "magenta");
           //cp_set.push(cp1, cp2);
 
-          cp1 = drawText(x1, y - 6*cp1.attr("r"), "F");
-          cp2 = drawText(x2, y - 6*cp2.attr("r"), "F'");
+          cp1 = drawText(x1, y - 4*cp1.attr("r"), "F");
+          cp2 = drawText(x2, y - 4*cp2.attr("r"), "F'");
           cp_set.push(cp1, cp2);
+
+
+          RegisterWheelCallback ({ type: "text", handle: cp1 });
+          RegisterWheelCallback ({ type: "text", handle: cp2 });
 
           //cp1 = paper.text(x1, y, "F").attr({fill: '#000000'});
           //cp2 = paper.text(x2, y, "F'").attr({fill: '#000000'});
@@ -294,8 +298,8 @@ var drawAxis = function (r, grid, offset) {
           cp2 = drawPoint(v2 + vn2, y, "blue");
           cp_set.push(cp1, cp2);
 
-          RegisterWheelCallback ({ type: "cardinal", handle: cp1 });
-          RegisterWheelCallback ({ type: "cardinal", handle: cp2 });
+          RegisterWheelCallback ({ type: "point", handle: cp1 });
+          RegisterWheelCallback ({ type: "point", handle: cp2 });
 
 
           // lines 
@@ -308,19 +312,26 @@ var drawAxis = function (r, grid, offset) {
           if (Math.abs(x1-x2) < 6*cp1.attr("r")) {
 
               if (x1 <= x2) {
-                  cp1 = drawText((x1+x2)/2, y - 6*cp1.attr("r"), "N/N'");
+                  cp1 = drawText((x1+x2)/2, y - 4*cp1.attr("r"), "N/N'");
               } else {
-                  cp1 = drawText((x1+x2)/2, y - 6*cp1.attr("r"), "N'/N");
+                  cp1 = drawText((x1+x2)/2, y - 4*cp1.attr("r"), "N'/N");
               }
 
               cp_set.push(cp1, cp2);
 
+              RegisterWheelCallback ({ type: "text", handle: cp1 });
+              RegisterWheelCallback ({ type: "text", handle: cp2 });
+
+
           } else {
 
               // nodal points 
-              cp1 = drawText(x1, y - 6*cp1.attr("r"), "N");
-              cp2 = drawText(x2, y - 6*cp2.attr("r"), "N'");            
+              cp1 = drawText(x1, y - 4*cp1.attr("r"), "N");
+              cp2 = drawText(x2, y - 4*cp2.attr("r"), "N'");            
               cp_set.push(cp1, cp2);
+
+              RegisterWheelCallback ({ type: "text", handle: cp1 });
+              RegisterWheelCallback ({ type: "text", handle: cp2 });
 
           }
 
@@ -347,8 +358,8 @@ var drawAxis = function (r, grid, offset) {
           cp2 = drawPoint(v2 + vp2, y, "red");
           cp_set.push(cp1, cp2);
 
-          RegisterWheelCallback ({ type: "cardinal", handle: cp1 });
-          RegisterWheelCallback ({ type: "cardinal", handle: cp2 });
+          RegisterWheelCallback ({ type: "point", handle: cp1 });
+          RegisterWheelCallback ({ type: "point", handle: cp2 });
 
           // lines 
           var x1 = v1 + vp1;
@@ -360,18 +371,26 @@ var drawAxis = function (r, grid, offset) {
           if (Math.abs(x1-x2) < 6*cp1.attr("r")) {
 
               if (x1 <= x2) {
-                  cp1 = drawText((x1+x2)/2, y + 6*cp1.attr("r"), "P/P'");
+                  cp1 = drawText((x1+x2)/2, y + 4*cp1.attr("r"), "P/P'");
               } else {
-                  cp1 = drawText((x1+x2)/2, y + 6*cp1.attr("r"), "P'/P");
+                  cp1 = drawText((x1+x2)/2, y + 4*cp1.attr("r"), "P'/P");
               }
 
               cp_set.push(cp1, cp2);
+
+              RegisterWheelCallback ({ type: "text", handle: cp1 });
+              RegisterWheelCallback ({ type: "text", handle: cp2 });
+
 
           } else {
               // principal points 
               cp1 = drawText(x1, y + 6*cp1.attr("r"), "P");
               cp2 = drawText(x2, y + 6*cp2.attr("r"), "P'");            
               cp_set.push(cp1, cp2);
+
+              RegisterWheelCallback ({ type: "text", handle: cp1 });
+              RegisterWheelCallback ({ type: "text", handle: cp2 });
+
 
           }
 
@@ -1400,21 +1419,38 @@ var drawAxis = function (r, grid, offset) {
         viewBox.Y -= (viewBoxHeight - vBHo) / 2;
         paper.setViewBox(viewBox.X, viewBox.Y, viewBoxWidth, viewBoxHeight);
 
-        drawAxis(paper, true,0);
         setScaleFactor ();
-
-
+        //drawAxis(paper, true,0);
         //updateCardinalPoints (); // if any
         //updatePointToPoint ();
 
 
-        console.log("WHEEL");
+        //console.log("WHEEL");
         for (var i = 0; i < callbackList.length ; i++) {
+          curr = callbackList[i];
 
-          curr = callbackList[i].handle;
-          console.log("Item");
-          console.log(curr);
-          curr.attr({r: kx*4});
+          console.log(curr.type);
+          switch (curr.type) {
+
+              case "text" :
+
+                var x = curr.handle.attr("x");             
+                var y = curr.handle.attr("y");             
+                curr.handle.transform([ "t", x, y, "s", kx*20, ky*20, "0","0" ]);
+                break;
+
+              case "point" :
+                //kx = 100;
+                curr.handle.attr({r: kx*4});
+                break;
+
+              default:
+                console.log("well lets see");
+                curr.handle.attr({r: kx*4});
+
+
+          }
+
         }
 
 
