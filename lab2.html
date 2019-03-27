@@ -1002,6 +1002,18 @@ getConjuugateTo
                                           });
 
 
+                                          $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+                                            //e.target // newly activated tab
+                                            //e.relatedTarget // previous active tab
+                                            console.log("Changed tab.");
+                                            console.log(e.target);
+
+                                            lens.table.tabulator("redraw", true);
+                                            lens.pointsTable.tabulator("redraw", true);
+
+
+                                          })
+
                                           //rays = [ { u: 0, h: 1 } ];
                                           //console.log(renderableLens);
                                           //newrays = Optics.calculateRayTrace(rays, renderableLens.elem);
