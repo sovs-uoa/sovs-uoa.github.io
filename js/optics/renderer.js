@@ -1463,9 +1463,13 @@ var drawAxis = function (r, grid, offset) {
     /** Event handler for mouse wheel event.
      */
     function wheel(event) {
+        
+
+      console.log("wheel event");
+
         var delta = 0;
         if (!event) /* For IE. */
-        event = window.event;
+            event = window.event;
         if (event.wheelDelta) { /* IE/Opera. */
             delta = event.wheelDelta / 120;
         } else if (event.detail) { /** Mozilla case. */
@@ -1474,17 +1478,25 @@ var drawAxis = function (r, grid, offset) {
              */
             delta = -event.detail / 3;
         }
+        
         /** If delta is nonzero, handle it.
          * Basically, delta is now positive if wheel was scrolled up,
          * and negative, if wheel was scrolled down.
          */
         if (delta) handle(delta);
+
+
         /** Prevent default actions caused by mouse wheel.
          * That might be ugly, but we handle scrolls somehow
          * anyway, so don't bother here..
          */
-        if (event.preventDefault) event.preventDefault();
-        event.returnValue = false;
+
+        //event.stopPropagation ();
+
+        //if (event.preventDefault) event.preventDefault();
+        //event.returnValue = false;
+
+        return false;
     }
 
 
@@ -1494,18 +1506,14 @@ var drawAxis = function (r, grid, offset) {
      * If you use your own event management code, change it as required.
      */
 
+
+/*
     if (window.addEventListener) {
-
-
-      /** DOMMouseScroll is for mozilla. */
       window.addEventListener('DOMMouseScroll', wheel, false);
-      /** IE/Opera. */
       window.onmousewheel = document.onmousewheel = wheel;
 
-
-
     };  
-
+*/
 
 /* --------------------------------------------------------------
 

@@ -861,6 +861,18 @@ getConjuugateTo
                   startDrawing("lens-container"); // uses paper 
 
 
+                  // capture mouse wheel using bind
+                  $(paper.canvas).bind('mousewheel', function(event) {
+
+                        // cross-browser wheel delta
+                        var e = window.event || e; // old IE support
+                        var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
+                        handle(delta);
+                        console.log(delta);
+                        return false;
+                  });
+
+
                   // $('#prescription-tab').show(); // show the prescription tab
 
                    
@@ -964,6 +976,9 @@ getConjuugateTo
                                           $("#lens-points-add-point").click(function(){                                          
                                               console.log("request to add source...");
                                           });
+
+
+
 
                                           
                                           /* ------------------------------------------
@@ -1083,7 +1098,6 @@ getConjuugateTo
 
 
 
-
       // trigger on a selection
       $('.file-selection').on('click', function () {
 
@@ -1125,6 +1139,9 @@ getConjuugateTo
       $( "#objects-images-tab" ).focus(function() {
         alert( "Handler for .focus() called." );
       });
+
+
+      
 
 
     });
