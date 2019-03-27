@@ -1,19 +1,31 @@
-# Paraxial optics calculator 
+# SOVS-UOA optics bench 
 
-A program based on Javascript/HTML5 for performing simple optical calculations.  The program takes as input a .lens prescription file (some of which are "canned") already and displays the lens prescription and details of the system.  Rays can be traced through the system as well.
+This program is a ray-tracer developed as part of the OPTOM263 Essential optics course that runs in the School of Optometry and Vision Science (SOVS) at the University of Auckland (UOA). 
+
+The program is an interactive ray-tracer for performing simple paraxial ray-tracing.  It is intended to allow students to  learn key concepts of paraxial optics in an interactive and user-friendly way.  
+
+There are many great tools for performing ray-tracing. Unfortunately commercial tools can be expensive, not suitable for using interactively, and they may require a significant learning curve to understand. There are also a number of great optics demonstrations out there, but they tend to be qualitative, or require modification to make it useful.
+
+This application attempts to bridge the gap between the two. It is interactive, obeys the conventions standard in optometry, and gives enough information to confirm the relationships that one comes across when studying optics.  Hopefully it is useful as tool for others.
+
+## Getting Started:
+
+The application is accessed using the link: http://sovs-uoa.github.io. As of the time of this writing, the link will take you to a page written for the OPTOM263 course, and you can click on Lab2 for example to start the system. 
+
+The application is written in Javascript/HTML5 but has only be tested using Chrome. Hopefully the compatibility with outher browsers will be extended in the future. It is likely broken in other web-browsers. 
+
+The program takes as input a .lens prescription file (some of which are "canned") already and displays the lens prescription and details of the system.  Rays can be traced through the system as well.
 
 
-## ToDo:
+## To do: 
 
-Lens prescription 7/2/2019
----------------------------
+One of the hopes for this web-site is that will allow for demonstrations that would be able to be incorporated in any web-page as required, or be included as part of a course. 
 
-1 - add an insert thick / thin lens [ WIZARD ] 
-2 - save function (save the output to download)
-3 - import function (load the download)
-4 - check function (check the validity of the download)
-5 - "grouping"
-6 - checkbox (flag) for table
+
+## Instructions [to be written]
+
+
+
 
 Object and Image prescription 
 -----------------------------
@@ -95,9 +107,10 @@ Add additional notes about how to deploy this on a live system
 
 ## Built With
 
-* [Bootstrap] 
-* [JQuery]
-* Javascript and HTML5
+Javascript 
+HTML5
+Bootstrap
+Tabulator 
 
 ## Contributing
 
