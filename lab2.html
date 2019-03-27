@@ -1003,13 +1003,30 @@ getConjuugateTo
 
 
                                           $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+                                            
                                             //e.target // newly activated tab
                                             //e.relatedTarget // previous active tab
-                                            console.log("Changed tab.");
-                                            console.log(e.target);
+                                            //console.log("Changed tab.");
+                                            //console.log(e.target);
 
-                                            lens.table.tabulator("redraw", true);
-                                            lens.pointsTable.tabulator("redraw", true);
+                                            console.log(e.target.id);
+                                            console.log("shown tab changed.");       
+
+                                            switch (e.target.id) {
+
+                                               case "objects-images-nav" :
+                                                  console.log("points redraw");
+                                                  $("#lens-points").tabulator("redraw", true);
+                                                  break;
+
+                                               case "prescription-nav" :
+                                                  console.log("prescription redraw");
+                                                  $("#lens-table").tabulator("redraw", true);
+                                                  break;
+
+                                               default:
+
+                                            }                                     
 
 
                                           })
