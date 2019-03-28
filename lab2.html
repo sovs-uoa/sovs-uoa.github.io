@@ -881,10 +881,17 @@ getConjuugateTo
                   });
 
 
-
+                  // mouse events 
                   $(paper.canvas).mousedown( panStart );
                   $(paper.canvas).mousemove( panMove );
                   $(paper.canvas).mouseup( panEnd );
+
+
+                  // touch events 
+                  paper.canvas.addEventListener('touchstart', panStart, false);
+                  paper.canvas.addEventListener('touchmove', panMove, false);
+                  paper.canvas.addEventListener('touchend', panEnd, false);
+
 
 
                   // $('#prescription-tab').show(); // show the prescription tab
