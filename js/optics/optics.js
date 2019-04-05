@@ -790,6 +790,52 @@ function getPowers (data, n1, n2){
 }
 
 
+function getMagnification (S, n1, n2) {
+
+      // refractive index 
+      rayIn  = { u: 1, h: 0 };
+      rayOut = rayMultiply(S, rayIn);
+      VI     = -rayOut.h/rayOut.u;
+
+      // information 
+      u1 = rayIn.u;
+      u2 = rayOut.u;
+      M = (n1*u1) / (n2*u2);
+
+      return M;
+
+}
+
+// forward S
+function getImageFromObject (S, VO) {
+
+      rayIn  = { u: 1, h: 0 };
+      rayOut = rayMultiply(S, rayIn);
+      VI     = -rayOut.h/rayOut.u;
+
+      console.log("Image from object!");
+      console.log(rayOut);
+      console.log(S);      
+      console.log(VI);
+
+      return VI;
+
+}
+
+function getObjectFromImage (S, VO) {
+
+      var invS = inverseMatrix2x2(S);
+      rayIn  = { u: 1, h: 0 };
+      rayOut = rayMultiply(invS, rayIn);
+      VO     = -rayOut.h/rayOut.u;
+
+      console.log("Object from image!");
+      console.log(rayOut);
+      console.log(S);      
+      console.log(VO);
+
+      return VO;
+}
 
 
 
@@ -882,46 +928,140 @@ function getTotalLensSystemInfo (lensTable) {
 
   // read it in 
   totalSystem         = { elem  : [], 
-                          total : { S        : identitySystem,
-                                    invS     : identitySystem, 
-                                    X        : normalizedRefractionMatrix(identitySystem, first.index, last.index),
-                                    cardinal : null,
-                                    n1       : first.index, n2: last.index,
-                                    F        : null,
+                          total : { stop      : false,
+                                    stopIndex : 0,
+                                    stopDiameter : 1,
+                                    S         : identitySystem,
+                                    invS      : identitySystem, 
+                                    X         : normalizedRefractionMatrix(identitySystem, first.index, last.index),
+                                    cardinal  : null,
+                                    n1        : first.index, n2: last.index,
+                                    F         : null,
+                                    entrance  : { L : 0, S : null, n1: 0.0, n2: 0.0  },
+                                    exit      : { L : 0, S : null, n1: 0.0, n2: 0.0 },
+                                    pupil     : { VE1 : 0, VE2 : 0 }
                               } 
                         };
 
   // create the total system
   var Z = 0;
   for (var i=0; i < lensTable.length-1; i++) {
+    eachElementInfo     = getLensElementInfo(lensTable, i);    
 
-    // accumulate the distance 
-    eachElementInfo     = getLensElementInfo(lensTable, i);
-    
-    // accumulate or read out the thickness
+
+
+    // Build Up Exit/Entrance Systems 
+    if (eachElementInfo.elem.hasOwnProperty("stop") & !totalSystem.total.stop) {
+        
+        if (eachElementInfo.elem.stop) {
+
+
+            console.log("FOUND STOP!");
+            console.log(eachElementInfo);
+
+            totalSystem.total.stop         = true;     
+            totalSystem.total.stopIndex    = i;
+            totalSystem.total.stopDiameter = eachElementInfo.elem.height;
+            totalSystem.total.entrance.L   = Z; // system length  
+            totalSystem.total.entrance.n1  = totalSystem.total.n1;
+            totalSystem.total.entrance.n2  = eachElementInfo.n1;
+            totalSystem.total.entrance.S   = identitySystem;      
+            totalSystem.total.exit.L       = Z; // system length  
+            totalSystem.total.exit.S       = identitySystem;                     
+            totalSystem.total.exit.n1      = eachElementInfo.n2;        
+            totalSystem.total.exit.n2      = totalSystem.total.n2;
+
+
+            console.log("UPDATED INDICES!");
+            console.log(totalSystem.total);
+
+        }
+
+    }
+
+    // build up the rest
     if (lensTable[i].type == "index") {
-
-       //  
        if ( (i > 0) & (i < lensTable.length-1)) { 
          Z = Z + lensTable[i].thickness; };
-
     } else {
-
-       // ...      
        eachElementInfo.Z   = Z;    // front vertex position 
        Z = Z + eachElementInfo.L;  // add in system length 
     };
-
     totalSystem.elem.push(eachElementInfo);
   }
 
 
+
+  console.log("START COLLATING...");
+
   // create the system matrix
   for (var i=lensTable.length-1; i >=0; i--) {
-    eachElementInfo     = getLensElementInfo(lensTable, i);
+
+    // create the total system 
+    eachElementInfo = getLensElementInfo(lensTable, i);
+    if ((totalSystem.total.stop) & (totalSystem.total.stopIndex > i)) { // entrance pupil system 
+
+        console.log("Building Entrance Information.");
+       totalSystem.total.entrance.S    = systemMultiply(totalSystem.total.entrance.S, eachElementInfo.S);    
+
+       console.log(eachElementInfo);
+
+
+    } else if ((totalSystem.total.stop) & (totalSystem.total.stopIndex < i))  { // next element gets included 
+
+        console.log("Building Exit Information.");
+        totalSystem.total.exit.S = systemMultiply(totalSystem.total.exit.S, eachElementInfo.S);
+
+       console.log(eachElementInfo);
+
+    
+    } else {
+
+        console.log("Stop Element.");
+
+       console.log(eachElementInfo);
+
+
+    }    
+
+    // Build Up System 
     totalSystem.total.S = systemMultiply(totalSystem.total.S, eachElementInfo.S);
+
   }
+
+
+  // finalize!
+  if (totalSystem.total.stop) {
+
+      totalSystem.total.exit.L        = Z - totalSystem.total.entrance.L;
+      totalSystem.total.exit.invS     = inverseMatrix2x2(totalSystem.total.exit.S);           // eachElementInfo.S);                
+      totalSystem.total.exit.Z        = getImageFromObject(totalSystem.total.exit.S, 0);      // back vertex      
+
+
+      totalSystem.total.entrance.Z    = getObjectFromImage(totalSystem.total.entrance.S, 0);  // front vertex distance      
+      totalSystem.total.entrance.invS = inverseMatrix2x2(totalSystem.total.entrance.S);      // eachElementInfo.S);                
+
+      // put it into the frame of the LENS 
+      totalSystem.total.pupil.VE1 = totalSystem.total.entrance.Z;
+      totalSystem.total.pupil.VE2 = Z + totalSystem.total.exit.Z;
+      
+      // magnifications 
+      var n1 = totalSystem.total.exit.n1;
+      var n2 = totalSystem.total.exit.n2;
+      totalSystem.total.pupil.ME1 = getMagnification (totalSystem.total.entrance.S, n1, n2);
+
+      var n1 = totalSystem.total.entrance.n1;
+      var n2 = totalSystem.total.entrance.n2;
+      totalSystem.total.pupil.ME2 = getMagnification (totalSystem.total.exit.S, n1, n2);
+
+
+      console.log("TOTAL SYSTEM STOPS");
+      console.log(totalSystem.total);
+  }
+
+
   totalSystem.total.invS = inverseMatrix2x2(totalSystem.total.S);
+
 
   S = totalSystem.total.S;
   totalCardinalPoints = getCardinalPoints(S);

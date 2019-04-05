@@ -1,5 +1,8 @@
   var lens_edge       = { "stroke": "black", "stroke-width": "2", "stroke": "black", "stroke-dasharray":"none"  };
   
+  var pupil_attr       = { "stroke-width": "2", "stroke": "gray", "stroke-dasharray":"none"  };
+  
+
 
   var lens = { prescription: null, 
                tabledata : null,
@@ -27,6 +30,7 @@
   var oWidth,oHeight;
 
 
+  var pup_set
   var ps, cd_set, axis_set;
   var cp_set, optics_set;
   var kx, ky;
@@ -71,6 +75,7 @@
         axis_set    = paper.set(); 
         cp_set      = paper.set();
         optics_set  = paper.set();
+        pup_set     = paper.set();
 
        
         oWidth = viewBoxWidth, oHeight = viewBoxHeight;
@@ -183,6 +188,62 @@ var drawAxis = function (r, grid, offset) {
  }
 
 
+ function drawPupils(info) {
+
+      pup_set.remove();
+      pup_set = paper.set();
+
+
+      if (info.stop) {
+
+        var D = info.stopDiameter;
+
+        var h = D;
+
+        E2 = info.pupil.VE2; E1 = info.pupil.VE1;
+        M2 = Math.abs(info.pupil.ME2);  
+        M1 = Math.abs(info.pupil.ME1);
+
+
+        // ENTRANCE 
+        c1 = drawVertArrow(E1, M1*D/2, true);
+        c2 = drawVertArrow(E1,-M1*D/2, false);
+
+        // c1 = paper.path( ["M", E1 - h/30, M1*D/2, "L",  E1 + h/30, M1*D/2  ] );
+        // c2 = paper.path( ["M", E1 - h/30, -M1*D/2, "L", E1 + h/30, -M1*D/2  ] );
+
+        // EXIT 
+        
+        c3 = drawVertArrow(E2, M2*D/2, true);
+        c4 = drawVertArrow(E2,-M2*D/2, false);
+
+        // c3 = paper.path( ["M", E2 - h/30, M2*D/2, "L",  E2 + h/30, M2*D/2  ] );
+        // c4 = paper.path( ["M", E2 - h/30, -M2*D/2, "L", E2 + h/30, -M2*D/2  ] );
+
+        
+        c5 = drawPoint(E1, 0, "blue");
+        c6 = drawPoint(E2, 0, "blue");
+
+        pup_set.push(c1, c2, c3, c4, c5, c6);
+
+        RegisterWheelCallback ({ type: "point", handle: c5 });
+        RegisterWheelCallback ({ type: "point", handle: c6 });
+
+        c7 = drawText(E1-0.02, 0 , "E"); 
+        c8 = drawText(E2+0.02, 0 , "E'");
+
+        RegisterWheelCallback ({ type: "text", handle: c7 });
+        RegisterWheelCallback ({ type: "text", handle: c8 });
+
+        pup_set.push(c7, c8);
+
+
+      }
+
+ }
+
+
+
 
 
   /* THESE ARE DRAWING FUNCTIONS */
@@ -230,8 +291,11 @@ var drawAxis = function (r, grid, offset) {
 
           r =  cp1.attr("r");
           // dX = cp1.attr("r")*kx*20;
-          cp1 = drawText(x1, y , "V"); // - 4*cp1.attr("r")
-          cp2 = drawText(x2, y , "V'"); // - 4*cp2.attr("r")
+          cp1 = drawText(x1-0.02, y , "V"); // - 4*cp1.attr("r")
+          //cp1.transform("...t-100,0");
+          cp2 = drawText(x2+0.02, y , "V'"); // - 4*cp2.attr("r")
+          //cp1.transform("...t100,0");
+
           cp_set.push(cp1, cp2);
           RegisterWheelCallback ({ type: "text", handle: cp1 });
           RegisterWheelCallback ({ type: "text", handle: cp2 });
@@ -489,19 +553,66 @@ var drawAxis = function (r, grid, offset) {
     return lens;
   }
 
+  /* DRAW VERT ARROW - DOESNT HAVE ALL ORIENTATIONS */
+
+  function drawVertArrow(x1, y1, up) {
+
+
+      var c = paper.set ();
+      
+      //c1 = paper.path( ["M", x1, y1, "L", x2, y2 ] );
+      //c2 = paper.path( ["M", x1, y1, "L", y2, y2 ] );
+      //c.push(c1, c2);
+
+
+      var h = Math.abs(y1/2); // Math.sqrt( Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2) );
+
+      if (up) {          
+          c3 = paper.path( ["M", x1, y1, "L", x1+h/5, y1+h/5  ] );
+          c4 = paper.path( ["M", x1, y1, "L", x1-h/5, y1+h/5  ] );        
+          c5 = paper.path( ["M", x1, y1, "L", x1, y1+3*h/5  ] );        
+
+          c3.attr(pupil_attr);
+          c4.attr(pupil_attr);
+          c5.attr(pupil_attr);
+
+          c.push(c3, c4, c5);
+          return c;
+      };
+
+      if (!up) {
+          
+          c6 = paper.path( ["M", x1, y1, "L", x1+h/5, y1-h/5  ] );
+          c7 = paper.path( ["M", x1, y1, "L", x1-h/5, y1-h/5  ] );        
+          c8 = paper.path( ["M", x1, y1, "L", x1, y1-3*h/5  ] );        
+
+          c6.attr(pupil_attr);
+          c7.attr(pupil_attr);
+          c8.attr(pupil_attr);
+
+          c.push(c6, c7, c8);
+          return c;
+      }
+
+      // c3 = paper.path( ["M", x1, y1, "L", x-h/30, y1-h/30  ] );
+      // c4 = paper.path( ["M", x1, y1, "L", x+h/30, y1-h/30  ] );
+
+  }
 
 
 
   /* DRAW LENS TYPES   */
 
-
-
-  function drawThinLens(x, y, F, displayOptions) {
+  function drawThinLens(x, y, F, h, displayOptions) {
 
     var lens = paper.set();
 
+
+    console.log("HEIGHT = " + h);
+
+
     // draw a path 
-    var h = displayOptions.height; 
+    //var h = displayOptions.height; 
     c = paper.path( ["M", x, y-h/2, "L", x, y+h/2  ] );
     lens.push(c);
 
@@ -509,7 +620,6 @@ var drawAxis = function (r, grid, offset) {
     if (F < 0) {   // negative lens 
 
       y1 = y-h/2; y2 = y+h/2;
-
       c1 = paper.path( ["M", x, y2, "L", x+h/30, y2+h/30  ] );
       c2 = paper.path( ["M", x, y2, "L", x-h/30, y2+h/30  ] );
       c3 = paper.path( ["M", x, y1, "L", x-h/30, y1-h/30  ] );
@@ -640,8 +750,14 @@ var drawAxis = function (r, grid, offset) {
 
     r = kx*4; // 4 pixels is the requested size
 
+    var c;
+    if (isFinite(x)) {
+      c = paper.circle(x, y, r).attr({"fill": color, "fill-opacity": 1.0, "stroke": "#000000", "stroke-width": "1"});
+    } else {
+      c = paper.circle(0, 0, r).attr({"fill": color, "fill-opacity": 1.0, "stroke": "#000000", "stroke-width": "1"});
+      c.hide();
+    }
 
-    var c = paper.circle(x, y, r).attr({"fill": color, "fill-opacity": 1.0, "stroke": "#000000", "stroke-width": "1"});
 
     // \c.drag(dragPointMove, dragPointStart, dragPointUp);    
     // c.drag(dragPointMove, dragPointStart, dragPointUp);
@@ -1267,12 +1383,12 @@ var drawAxis = function (r, grid, offset) {
                        showFocalPoints      : true,
                        showNodalPoints      : true, 
                        showPrincipalPoints  : true, 
-                       showVertices         : true };
+                       showVertices         : true,
+                       showPupils           : true  };
 
 
     var cardinalPoints = [];
 
-    //console.log(data);
 
     // only render surface elements 
     for (var i=1; i< data.elem.length; i=i+2) {
@@ -1287,7 +1403,9 @@ var drawAxis = function (r, grid, offset) {
       switch (curr.type) {
 
         case "thin":
-          l = drawThinLens(axialPosition, 0, equivalentPower, displayOptions);
+
+          height = curr.height;
+          l = drawThinLens(axialPosition, 0, equivalentPower, height, displayOptions);
           optics_set.push(l);
           break;
 
@@ -1300,10 +1418,10 @@ var drawAxis = function (r, grid, offset) {
         default:
 
       }
-
-
-
     }
+
+
+
 
     // show the overall cardinal points not the individual ones 
     //systemPoints = data.total;

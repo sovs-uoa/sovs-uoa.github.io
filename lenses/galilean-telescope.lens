@@ -1,0 +1,81 @@
+/*--------------------------------------------
+
+ Galilean Telescope 
+
+ Appendix A: Entrance and Exit Pupils of Telescopes
+ Schwartz 2nd Ed 
+
+
+----------------------------------------------*/
+
+{
+
+	// sources of light 
+
+	"sources" : [ { "id"   		: 1, 
+                    "type" 		: "afocal",
+                    "which"		: "object",
+                    "beamwidth" : 0.15,
+                    "z"    		: NaN, 
+                    "h"    		: NaN,
+                    "t"    		: 30 }, 
+
+				 { "id"   		: 2, 
+                    "type" 		: "afocal",
+                    "which"		: "object",
+                    "beamwidth" : 0.15,
+                    "z"    		: NaN, 
+                    "h"    		: NaN,
+                    "t"    		: 0 },
+
+                    { "id"   	: 3, 
+                    "type" 		: "afocal",
+                    "which"		: "object",
+                    "beamwidth" : 0.15,
+                    "z"    		: NaN, 
+                    "h"    		: NaN,
+                    "t"    		: -30 }],
+
+	// lens prescription
+
+	"title"			: "Galilean Telescope",
+    "prescription"	: [{	"id": "0001",
+							"type": "index",
+							"description": "air",
+							"args": {
+								"index": 1.000
+							}
+						}, {		
+							"id": "0002",
+							"type": "thin",
+							"description": "objective",
+							"args": {
+								"power":  10,
+								"height": 0.2,
+								"stop": true
+							}
+						}, {
+							"id": "0003",
+							"type": "index",
+							"description": "air",
+							"args": {
+								"index": 1.000,
+								"thickness": 0.06
+							}
+						}, {		
+							"id": "0004",
+							"type": "thin",
+							"description": "eyepiece",
+							"args": {
+								"power":  -25,
+								"height": 0.2
+							}
+						}, {
+							"id": "0003",
+							"type": "index",
+							"description": "air",
+							"args": {
+								"index": 1.0
+							}
+						} ]
+}

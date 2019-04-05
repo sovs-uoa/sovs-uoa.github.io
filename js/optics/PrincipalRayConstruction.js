@@ -32,30 +32,12 @@ function updateInterface (myPoint, pairData) {
       switch (myPoint.type) {
 
           case "object" : // update the conjugate [point]
-            
-            // update the lens table
-            
-/*
-            lens.pointsTable.updateData([ { "id": myPoint.id, "zo": nowX, "ho": nowY } ]);
-            lens.pointsTable.updateData([ { "id": myPoint.id, "zi": pairData.X2, "hi": pairData.Y2 } ]); // change this for vertex                        
-*/             
             updatePointsTable(myPoint.id, pairData);
-
-            //c = paper.getById(myPoint.conjugate_id);
-            //c.attr({ cx: pairData.X2, cy: pairData.Y2 });
             break;
 
           case "image" :
-/*
-            lens.pointsTable.updateData([ { "id": myPoint.id, "zi": nowX, "hi": nowY } ]);
-            lens.pointsTable.updateData([ { "id": myPoint.id, "zo": pairData.X1, "ho": pairData.Y1 } ]);
-*/            
             updatePointsTable(myPoint.id, pairData);
 
-
-
-            //c = paper.getById(myPoint.conjugate_id);
-            //c.attr({ cx: pairData.X1, cy: pairData.Y1 });
             break;
 
           default:

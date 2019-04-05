@@ -5,13 +5,15 @@
 
 {
 
-	// points 
+	// sources of light 
 
-
-	"points" : [ { 	"id" : 1, 
-					"type" : "object",
-					"z": -15, 
-					"h": 10 } ],
+	"sources" : [ { "id"   		: 1, 
+                    "type" 		: "afocal",
+                    "which"		: "object",
+                    "beamwidth" : 0.2,
+                    "z"    		: NaN, 
+                    "h"    		: NaN,
+                    "t"    		: 30 }],
 
 	// lens prescription 
 	"title": "Thick Lens",
@@ -25,10 +27,11 @@
 	}, {		
 		"id": "0002",
 		"type": "thin",
-		"description": "thin lens #1",
+		"description": "objective",
 		"args": {
 			"power":  10,
-			"height": 1
+			"height": 0.2,
+			"stop": true
 		}
 	}, {
 		"id": "0003",
@@ -41,10 +44,11 @@
 	}, {		
 		"id": "0004",
 		"type": "thin",
-		"description": "thin lens #2",
+		"description": "eye piece",
 		"args": {
 			"power":  20,
-			"height": 1
+			"height": 0.2,
+			"stop": false	
 		}
 	}, {
 		"id": "0003",

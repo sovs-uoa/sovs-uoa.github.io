@@ -18,7 +18,7 @@ function startPicker() {
 
 function movePicker(dx,dy) {
 
-    console.log("--- called move picker id = " + this.id);  
+    //console.log("--- called move picker id = " + this.id);  
 
     //anchorX  = this.anchorX;
     //anchorY  = this.anchorY;
