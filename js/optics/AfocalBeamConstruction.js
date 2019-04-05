@@ -459,7 +459,7 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
 
 
      // START RAYS 
-     var dX = -1000;
+     var dX = -10;
      for (var i=0; i <  M ; i++) {
         var u1 = ray[0][i].u;         
         var X1 = ray[0][i].z; var Y1 = ray[0][i].h;
@@ -536,7 +536,7 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
 
 
           // FINITE RAYS 
-         var dX = 100;
+         var dX = 10;
          for (var i=0; i <  M ; i++) {
 
             var u1 = ray[K-1][i].u;       
