@@ -536,7 +536,7 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
 
 
           // FINITE RAYS 
-         var dX = 1000;
+         var dX = 100;
          for (var i=0; i <  M ; i++) {
 
             var u1 = ray[K-1][i].u;       
