@@ -878,6 +878,8 @@ getConjuugateTo
                   // capture mouse wheel using bind
                   $(paper.canvas).bind('mousewheel', function(event) {
 
+                        console.log("mouse-wheel called");
+
                         // cross-browser wheel delta
                         var e = window.event || e; // old IE support
                         var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
@@ -892,11 +894,23 @@ getConjuugateTo
                   $(paper.canvas).mousemove( panMove );
                   $(paper.canvas).mouseup( panEnd );
 
+                  paper.canvas.addEventListener("touchstart", panStart);
+                  paper.canvas.addEventListener("touchmove",  panMove);
+                  paper.canvas.addEventListener("touchend",   panEnd);
+
+                  //$(paper.canvas).bind('touchmove', panMove, false);
+                  //$(paper.canvas).bind('touchend', panEnd, false);
+
+
 
                   // touch events 
-                  $(paper.canvas).bind('touchstart', panStart, false);
-                  $(paper.canvas).bind('touchmove', panMove, false);
-                  $(paper.canvas).bind('touchend', panEnd, false);
+                  //$(paper.canvas).bind('touchstart', panStart, false);
+                  //$(paper.canvas).bind('touchmove', panMove, false);
+                  //$(paper.canvas).bind('touchend', panEnd, false);
+
+                  //$(paper.canvas).touchstart(panStart);
+                  //$(paper.canvas).touchmove(panMove);
+                  //$(paper.canvas).touchend(panEnd);
 
 
 

@@ -291,9 +291,9 @@ var drawAxis = function (r, grid, offset) {
 
           r =  cp1.attr("r");
           // dX = cp1.attr("r")*kx*20;
-          cp1 = drawText(x1-0.02, y , "V"); // - 4*cp1.attr("r")
+          cp1 = drawText(x1, y , "V"); // - 4*cp1.attr("r")
           //cp1.transform("...t-100,0");
-          cp2 = drawText(x2+0.02, y , "V'"); // - 4*cp2.attr("r")
+          cp2 = drawText(x2, y , "V'"); // - 4*cp2.attr("r")
           //cp1.transform("...t100,0");
 
           cp_set.push(cp1, cp2);
@@ -1466,10 +1466,12 @@ var drawAxis = function (r, grid, offset) {
   var gridLayer;
 
 
-  var isMouseDown = false;
+  var isTouchDown = false;
 
     //Pane
    panStart = function (e) {
+
+        console.log("pan start");
 
 
         if (e.target.tagName !== "svg") {
@@ -1477,7 +1479,7 @@ var drawAxis = function (r, grid, offset) {
           return;
         }
 
-        isMouseDown = true;
+        isTouchDown = true;
         startX = e.pageX;
         startY = e.pageY;
     };
@@ -1513,11 +1515,11 @@ var drawAxis = function (r, grid, offset) {
 
   panEnd = function (e) {
         
-        if (!isMouseDown) return;
+        if (!isTouchDown) return;
 
         viewBox.X += dX;
         viewBox.Y += dY;
-        isMouseDown = false;
+        isTouchDown = false;
 
     };
 
