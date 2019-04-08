@@ -1466,7 +1466,7 @@ var drawAxis = function (r, grid, offset) {
   var gridLayer;
 
 
-  var isTouchDown = false;
+  var isMouseDown = false;
 
     //Pane
    panStart = function (e) {
@@ -1479,14 +1479,14 @@ var drawAxis = function (r, grid, offset) {
           return;
         }
 
-        isTouchDown = true;
+        isMouseDown = true;
         startX = e.pageX;
         startY = e.pageY;
     };
 
   panMove = function (e) {
         
-        if (!isTouchDown) { return; }
+        if (!isMouseDown) { return; }
 
         dX = kx*(startX - e.pageX);
         dY = kx*(startY - e.pageY);
@@ -1515,11 +1515,11 @@ var drawAxis = function (r, grid, offset) {
 
   panEnd = function (e) {
         
-        if (!isTouchDown) return;
+        if (!isMouseDown) return;
 
         viewBox.X += dX;
         viewBox.Y += dY;
-        isTouchDown = false;
+        isMouseDown = false;
 
     };
 
