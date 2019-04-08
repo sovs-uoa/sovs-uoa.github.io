@@ -1479,17 +1479,41 @@ var drawAxis = function (r, grid, offset) {
           return;
         }
 
+
+
         isMouseDown = true;
-        startX = e.pageX;
-        startY = e.pageY;
+
+        console.log(e);
+
+        // differentiate
+        if(e.type == 'touchstart' || e.type == 'touchmove' || e.type == 'touchend' || e.type == 'touchcancel'){
+            var touch = e.touches[0] || e.changedTouches[0];
+            startX = touch.pageX;
+            startY = touch.pageY;
+          } else if (e.type == 'mousedown' || e.type == 'mouseup' || e.type == 'mousemove' || e.type == 'mouseover'|| e.type=='mouseout' || e.type=='mouseenter' || e.type=='mouseleave') {
+            startX = e.pageX;
+            startY = e.pageY;
+          }
+
     };
 
   panMove = function (e) {
         
         if (!isMouseDown) { return; }
 
-        dX = kx*(startX - e.pageX);
-        dY = kx*(startY - e.pageY);
+        if(e.type == 'touchstart' || e.type == 'touchmove' || e.type == 'touchend' || e.type == 'touchcancel'){
+            var touch = e.touches[0] || e.changedTouches[0];
+            dX = kx*(startX - touch.pageX);
+            dY = kx*(startY - touch.pageY);
+          } else if (e.type == 'mousedown' || e.type == 'mouseup' || e.type == 'mousemove' || e.type == 'mouseover'|| e.type=='mouseout' || e.type=='mouseenter' || e.type=='mouseleave') {
+            //startX = e.pageX;
+            //startY = e.pageY;
+            dX = kx*(startX - e.pageX);
+            dY = kx*(startY - e.pageY);
+          }
+
+
+
 
         //x = viewBoxWidth / paper.width;
         //y = viewBoxHeight / paper.height;
@@ -1506,6 +1530,13 @@ var drawAxis = function (r, grid, offset) {
 
         console.log(dX);
         console.log(dY);
+
+
+        console.log(e);
+        console.log(kx);        
+        console.log(kx);
+        console.log(startX);        
+        console.log(startY);
 
         //alert(viewBoxWidth +" "+ paper.width );
         paper.setViewBox(viewBox.X + dX, viewBox.Y + dY, viewBoxWidth, viewBoxHeight);

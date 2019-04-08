@@ -894,9 +894,9 @@ getConjuugateTo
                   $(paper.canvas).mousemove( panMove );
                   $(paper.canvas).mouseup( panEnd );
 
-                  paper.canvas.addEventListener("touchstart", panStart);
-                  paper.canvas.addEventListener("touchmove",  panMove);
-                  paper.canvas.addEventListener("touchend",   panEnd);
+                  paper.canvas.addEventListener("touchstart", panStart, false);
+                  paper.canvas.addEventListener("touchmove",  panMove, false);
+                  paper.canvas.addEventListener("touchend",   panEnd, false);
 
                   //$(paper.canvas).bind('touchmove', panMove, false);
                   //$(paper.canvas).bind('touchend', panEnd, false);
