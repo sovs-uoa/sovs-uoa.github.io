@@ -1486,7 +1486,7 @@ var drawAxis = function (r, grid, offset) {
 
   panMove = function (e) {
         
-        if (!isMouseDown) { return; }
+        if (!isTouchDown) { return; }
 
         dX = kx*(startX - e.pageX);
         dY = kx*(startY - e.pageY);
