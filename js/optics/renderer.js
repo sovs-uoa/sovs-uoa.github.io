@@ -1517,6 +1517,8 @@ var drawAxis = function (r, grid, offset) {
         
         if (!isMouseDown) return;
 
+        console.log("panEnd");
+
         viewBox.X += dX;
         viewBox.Y += dY;
         isMouseDown = false;
