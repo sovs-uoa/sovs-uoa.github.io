@@ -229,8 +229,11 @@ var drawAxis = function (r, grid, offset) {
         RegisterWheelCallback ({ type: "point", handle: c5 });
         RegisterWheelCallback ({ type: "point", handle: c6 });
 
-        c7 = drawText(E1-0.02, 0 , "E"); 
-        c8 = drawText(E2+0.02, 0 , "E'");
+        c7 = drawText(E1, 0 , "E"); 
+        c7.attr({ "text-anchor" : "start" });
+
+        c8 = drawText(E2, 0 , "E'");
+        c8.attr({ "text-anchor" : "end" });
 
         RegisterWheelCallback ({ type: "text", handle: c7 });
         RegisterWheelCallback ({ type: "text", handle: c8 });
@@ -292,8 +295,10 @@ var drawAxis = function (r, grid, offset) {
           r =  cp1.attr("r");
           // dX = cp1.attr("r")*kx*20;
           cp1 = drawText(x1, y , "V"); // - 4*cp1.attr("r")
+          cp1.attr({ "text-anchor" : "end"});
           //cp1.transform("...t-100,0");
           cp2 = drawText(x2, y , "V'"); // - 4*cp2.attr("r")
+          cp2.attr({ "text-anchor" : "start"});
           //cp1.transform("...t100,0");
 
           cp_set.push(cp1, cp2);
@@ -1576,8 +1581,29 @@ var drawAxis = function (r, grid, offset) {
                   case "text" :
 
                     var x = curr.handle.attr("x");             
-                    var y = curr.handle.attr("y");             
-                    curr.handle.transform([ "t", x, y, "s", kx*20, ky*20, "0","0" ]);
+                    var y = curr.handle.attr("y");     
+
+                    var anchorDirection = curr.handle.attr("text-anchor");
+
+                    switch (anchorDirection) {
+
+                      case "start":
+                        curr.handle.transform([ "t", x, y, "s", kx*20, ky*20, "0","0", "t", 0.5, 0 ]);
+                        break;
+
+                      case "end":
+                        curr.handle.transform([ "t", x, y, "s", kx*20, ky*20, "0","0", "t", -0.5, 0 ]);
+                        break;
+
+                      default:
+                        curr.handle.transform([ "t", x, y, "s", kx*20, ky*20, "0","0" ]);
+
+                    }
+
+
+                    console.log("Anchor Direction = " + anchorDirection + " kx = " + kx);
+
+
                     break;
 
                   case "point" :
