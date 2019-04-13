@@ -5,13 +5,15 @@
 
 {
 
-	// points 
+	// sources 
+	"sources" : [ { "id" 		: 1, 
+					"type" 		: "point",
+					"which"		: "object",
+					"beamwidth" : NaN,
+					"z"			: -0.3, 
+					"h"			: 0.1,
+					"t"			: NaN } ],
 
-
-	"points" : [ { 	"id" : 1, 
-					"type" : "object",
-					"z": -15, 
-					"h": 10 } ],
 
 	// lens prescription 
 	"title": "Thick Lens",
@@ -28,7 +30,7 @@
 		"description": "thin lens #1",
 		"args": {
 			"power":  -1,
-			"height": 1
+			"height": 0.5
 		}
 	}, {
 		"id": "0003",
@@ -44,7 +46,7 @@
 		"description": "thin lens #2",
 		"args": {
 			"power":  -3,
-			"height": 1
+			"height": 0.5
 		}
 	}, {
 		"id": "0003",

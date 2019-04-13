@@ -96,7 +96,7 @@
 
 
         // draw the axis 
-        drawAxis(paper, true,0);
+        drawAxis();
 
       
 
@@ -113,14 +113,14 @@
 
 var axis_set; 
 
-var drawAxis = function (r, grid, offset) {
+var lastdivSize = 0;
+var divSize     = 0;
+
+function drawAxis () {
   
-  var g = grid || false;
-  var o = offset || 0.1;
-
-
+  // var g = grid || false;
+  // var o = offset || 0.1;
   // use divisions of 1, 5, 10, 15, 20  (try to keep as close to x number of divisions)
-
   // viewBox.X, viewBox.Y, viewBoxWidth, viewBoxHeight
 
   // Width 
@@ -132,14 +132,32 @@ var drawAxis = function (r, grid, offset) {
   var bottom  = top + height;
 
   
-  console.log("left = " + viewBox.X + " top = " + viewBox.Y + " width = " + viewBoxWidth + " height = " + viewBoxHeight);
+  //console.log("left = " + viewBox.X + " top = " + viewBox.Y + " width = " + viewBoxWidth + " height = " + viewBoxHeight);
 
   // divSize 
-  var divs    = Math.floor ( width / 20 );              // 20 divs on screen  
-  var divSize = Math.max(0.05, 5*Math.floor(100*divs/5)/100 );  // approximate div. size 
+  
+  var divExact     = width / 20;
+  var divOrder     = Math.floor ( Math.log10( divExact ) );              // -3 / -2 / -1 / 1
+  var divNumerator = Math.round ( divExact / Math.pow(10, divOrder) );   // 3 x 10^{-3} 
+
+  divNumerator = Math.max(1, 2.5*Math.floor( divNumerator / 2.5));
+
+  var divSize      = divNumerator * Math.pow(10, divOrder);  // 20 divs on screen 
+
+  console.log("divSize : " + divNumerator + " x 10^(" + divOrder + ")");
 
 
-  console.log("DIVSIZE = " + divSize);
+  if (lastdivSize == divSize) {
+    return;
+  }
+  lastdivSize = divSize;
+  
+
+  divs        = 2*Math.floor(viewBoxWidth / divSize)
+
+
+  // var divSize = Math.max(0.05, 5*Math.floor(100*divSize/5)/100 );  // approximate div. size 
+  console.log("CHANGED DIVSIZE TO = " + divSize +  " (REDRAWING)");
 
 
   // X 
@@ -158,32 +176,30 @@ var drawAxis = function (r, grid, offset) {
   var dX = 2*width;
   var dY = 2*height;
 
-  if (grid) {
 
-      axis_set.remove();
-      axis_set = paper.set();
-      
+  axis_set.remove();
+  axis_set = paper.set();
+  
 
-      // Draws a border 
-      // axis_set.push( r.rect(left, top, width, height).attr(border_attributes) );
+  // Draws a border 
+  // axis_set.push( r.rect(left, top, width, height).attr(border_attributes) );
 
-      // grid vertical       
-      X = 0; 
-      while (X <= right + dX) {
-        axis_set.push( r.path("M"+X+","+(top-dY)+"L"+X+","+(bottom+dY)).attr(grid_attributes) );
-        axis_set.push( r.path("M"+-X+","+(top-dY)+"L"+-X+","+(bottom+dY)).attr(grid_attributes) );        
-        X = X + divSize;
-      }
+  // grid vertical       
+  X = 0; 
+  while (X <= right + dX) {
+    axis_set.push( paper.path("M"+X+","+(top-dY)+"L"+X+","+(bottom+dY)).attr(grid_attributes) );
+    axis_set.push( paper.path("M"+-X+","+(top-dY)+"L"+-X+","+(bottom+dY)).attr(grid_attributes) );        
+    X = X + divSize;
+  }
 
-      // grid horizontal
-      Y = 0;
-      while (Y <= bottom + dY) {
-        axis_set.push( r.path("M"+(left-dX)+","+-Y+"L"+(right+dX)+","+-Y).attr(grid_attributes) );
-        axis_set.push( r.path("M"+(left-dX)+","+Y+"L"+(right+dX)+","+Y).attr(grid_attributes) );
-        Y = Y + divSize;
-      }
+  // grid horizontal
+  Y = 0;
+  while (Y <= bottom + dY) {
+    axis_set.push( paper.path("M"+(left-dX)+","+-Y+"L"+(right+dX)+","+-Y).attr(grid_attributes) );
+    axis_set.push( paper.path("M"+(left-dX)+","+Y+"L"+(right+dX)+","+Y).attr(grid_attributes) );
+    Y = Y + divSize;
+  }
 
-    }
 
 
   axis_set.toBack ();
@@ -348,7 +364,9 @@ var drawAxis = function (r, grid, offset) {
           //cp_set.push(cp1, cp2);
 
           cp1 = drawText(x1, y, "F");
+          cp1.attr({ "text-anchor" : "end"});
           cp2 = drawText(x2, y, "F'");
+          cp2.attr({ "text-anchor" : "start"});
           cp_set.push(cp1, cp2);
 
 
@@ -367,119 +385,87 @@ var drawAxis = function (r, grid, offset) {
 
         }
 
-        // nodal points
-        if (displayOptions.showNodalPoints) {
-          
-          // points           
+
+        if ((displayOptions.showNodalPoints) & (displayOptions.showPrincipalPoints)) {
+
           var vn1 = systemPoints.cardinal.VN1;
           var vn2 = systemPoints.cardinal.VN2;
-          cp1 = drawPoint(v1 + vn1, y, "blue");
-          cp2 = drawPoint(v2 + vn2, y, "blue");
-          cp_set.push(cp1, cp2);
 
-          RegisterWheelCallback ({ type: "point", handle: cp1 });
-          RegisterWheelCallback ({ type: "point", handle: cp2 });
-
-
-          // lines 
-          var x1 = v1 + vn1;
-          var x2 = v2 + vn2;
-          var y1 = y - h/2;
-          var y2 = y + h/2;
-
-
-          if (Math.abs(x1-x2) < 6*cp1.attr("r")) {
-
-              if (x1 <= x2) {
-                  cp1 = drawText((x1+x2)/2, y, "N/N'");
-              } else {
-                  cp1 = drawText((x1+x2)/2, y, "N'/N");
-              }
-
-              cp_set.push(cp1, cp2);
-
-              RegisterWheelCallback ({ type: "text", handle: cp1 });
-              RegisterWheelCallback ({ type: "text", handle: cp2 });
-
-
-          } else {
-
-              // nodal points 
-              cp1 = drawText(x1, y, "N");
-              cp2 = drawText(x2, y, "N'");            
-              cp_set.push(cp1, cp2);
-
-              RegisterWheelCallback ({ type: "text", handle: cp1 });
-              RegisterWheelCallback ({ type: "text", handle: cp2 });
-
-          }
-
-
-/*
-          cp1 = drawText(x1, y - 6*cp1.attr("r"), "N");
-          cp2 = drawText(x2, y - 6*cp2.attr("r"), "N'");
-          cp_set.push(cp1, cp2);
-*/
-
-          cp1 = paper.path( ["M", x1, y1, "L", x1, y2 ] ).attr({"fill": "gray", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
-          cp2 = paper.path( ["M", x2, y1, "L", x2, y2 ] ).attr({"fill": "gray", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
-          cp_set.push(cp1, cp2);
-
-        }
-
-        // nodal points
-        if (displayOptions.showPrincipalPoints) {
-
-          // points 
           var vp1 = systemPoints.cardinal.VP1;
           var vp2 = systemPoints.cardinal.VP2;
-          cp1 = drawPoint(v1 + vp1, y, "red");
-          cp2 = drawPoint(v2 + vp2, y, "red");
-          cp_set.push(cp1, cp2);
 
-          RegisterWheelCallback ({ type: "point", handle: cp1 });
-          RegisterWheelCallback ({ type: "point", handle: cp2 });
+          var x1 = v1 + vn1;
+          var x2 = v2 + vn2;
 
-          // lines 
-          var x1 = v1 + vp1;
-          var x2 = v2 + vp2;
-          var y1 = y - h/2;
-          var y2 = y + h/2;
+          /* ----------------------------------------------------------
 
+            COMBINED N/P BUT SEPARATED FROM N'/P'
 
-          if (Math.abs(x1-x2) < 6*cp1.attr("r")) {
+            ---------------------------------------------------------- */
 
-              if (x1 <= x2) {
-                  cp1 = drawText((x1+x2)/2, y, "P/P'");
-              } else {
-                  cp1 = drawText((x1+x2)/2, y, "P'/P");
-              }
+           isNonP     = Math.abs(vn1-vp1) < 0.001;
+           isP1nearP2 = Math.abs(vp1-vp2) < 0.001;
 
-              cp_set.push(cp1, cp2);
+          // P/N separate P'/N'  
+          if ((isNonP) & (!isP1nearP2)) {
 
-              RegisterWheelCallback ({ type: "text", handle: cp1 });
-              RegisterWheelCallback ({ type: "text", handle: cp2 });
+            cp1 = drawPoint(x1, 0, "blue");
+            cp_set.push(cp1);
+            RegisterWheelCallback ({ type: "point", handle: cp1 });
+          
+            cp1 = drawText(x1, 0, "P/N");
+            cp1.attr({ "text-anchor" : "middle"});
+            cp1.data({ "data-shift-Y" : 1.0 });
+            cp_set.push(cp1);
+            RegisterWheelCallback ({ type: "text", handle: cp1 });
 
+            cp2 = drawPoint(x2, 0, "blue");
+            cp_set.push(cp2);
+            RegisterWheelCallback ({ type: "point", handle: cp2 });
 
-          } else {
-              // principal points 
-              cp1 = drawText(x1, y + 6*cp1.attr("r"), "P");
-              cp2 = drawText(x2, y + 6*cp2.attr("r"), "P'");            
-              cp_set.push(cp1, cp2);
+            cp2 = drawText(x2, 0, "P'/N'");
+            cp2.attr({ "text-anchor" : "middle"});            
+            cp2.data({ "data-shift-Y" : -1.0 });
+            cp_set.push(cp2);
+            RegisterWheelCallback ({ type: "text", handle: cp2 });
 
-              RegisterWheelCallback ({ type: "text", handle: cp1 });
-              RegisterWheelCallback ({ type: "text", handle: cp2 });
-
+            cp1 = paper.path( ["M", x1, y1, "L", x1, y2 ] ).attr({"fill": "gray", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
+            cp2 = paper.path( ["M", x2, y1, "L", x2, y2 ] ).attr({"fill": "gray", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
+            cp_set.push(cp1, cp2);
 
           }
 
-          cp1 = paper.path( ["M", x1, y1, "L", x1, y2 ] ).attr({"fill": "gray", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
-          cp2 = paper.path( ["M", x2, y1, "L", x2, y2 ] ).attr({"fill": "gray", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
-          cp_set.push(cp1, cp2);
+
+          // P/N + P'/N'  
+          if ((isNonP) & (isP1nearP2)) {
+
+            cp1 = drawPoint(x1, 0, "blue");
+            cp_set.push(cp1);
+            RegisterWheelCallback ({ type: "point", handle: cp1 });
+          
+            cp1 = drawText(x1, 0, "P/N");
+            cp1.attr({ "text-anchor" : "middle"});
+            cp1.data({ "data-shift-Y" : 1.0 });
+            cp_set.push(cp1);
+            RegisterWheelCallback ({ type: "text", handle: cp1 });
+
+            cp2 = drawText(x1, 0, "P'/N'");
+            cp2.attr({ "text-anchor" : "middle"});            
+            cp2.data({ "data-shift-Y" : -1.0 });
+            cp_set.push(cp2);
+            RegisterWheelCallback ({ type: "text", handle: cp2 });
+
+            cp1 = paper.path( ["M", x1, y1, "L", x1, y2 ] ).attr({"fill": "gray", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
+            // cp2 = paper.path( ["M", x2, y1, "L", x2, y2 ] ).attr({"fill": "gray", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
+            cp_set.push(cp1); // , cp2);
+
+          }
+
 
 
 
         }
+
 
         // vertices
         if (displayOptions.showVertices) {
@@ -1450,6 +1436,7 @@ var drawAxis = function (r, grid, offset) {
    var callbackList = [];
    function RegisterWheelCallback (info) {
       callbackList.push(info);
+      transformScalableObject(info);
    }
 
 
@@ -1578,7 +1565,7 @@ var drawAxis = function (r, grid, offset) {
     function transformScalableObject (curr) {
 
 
-              console.log(curr.type);
+              //console.log(curr.type);
               switch (curr.type) {
 
                   case "text" :
@@ -1598,13 +1585,21 @@ var drawAxis = function (r, grid, offset) {
                         curr.handle.transform([ "t", x, y, "s", kx*20, ky*20, "0","0", "t", -0.5, 0 ]);
                         break;
 
+                      case "middle":
+                        var dY = curr.handle.data("data-shift-Y");
+                        //console.log(curr.handle);
+                        //console.log(dY);                        
+                        curr.handle.transform([ "t", x, y, "s", kx*20, ky*20, "0","0", "t", 0, dY]);
+                        break;
+
+
                       default:
                         curr.handle.transform([ "t", x, y, "s", kx*20, ky*20, "0","0" ]);
 
                     }
 
 
-                    console.log("Anchor Direction = " + anchorDirection + " kx = " + kx);
+                    //console.log("Anchor Direction = " + anchorDirection + " kx = " + kx);
 
 
                     break;
@@ -1615,7 +1610,7 @@ var drawAxis = function (r, grid, offset) {
                     break;
 
                   default:
-                    console.log("well lets see");
+                    //console.log("well lets see");
                     curr.handle.attr({r: kx*4});
 
 
@@ -1644,7 +1639,7 @@ var drawAxis = function (r, grid, offset) {
         viewBox.Y -= (viewBoxHeight - vBHo) / 2;
         paper.setViewBox(viewBox.X, viewBox.Y, viewBoxWidth, viewBoxHeight);
         setScaleFactor ();
-        //drawAxis(paper, true,0);
+        drawAxis();
         //updateCardinalPoints (); // if any
         //updatePointToPoint ();
 

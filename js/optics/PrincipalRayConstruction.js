@@ -55,7 +55,7 @@ CONSTRUCTION EVENT HANDLERS
 
 function moveConstruction (dx, dy) {
 
-      console.log("--- called construction move point id = " + this.id);  
+      //console.log("--- called construction move point id = " + this.id);  
 
 
       // update the appropriate point 
@@ -74,7 +74,7 @@ function moveConstruction (dx, dy) {
       // update the conjugate 
       var thisPoint = this.data("data-attr");
 
-      console.log(thisPoint);
+      //console.log(thisPoint);
 
       totalLens = renderableLens.total;  // I should make this local if I can
       pairData  = Optics.calculateConjugatePairFrom({   id     : thisPoint.id, 
@@ -94,7 +94,7 @@ function moveConstruction (dx, dy) {
   
   function startConstruction () {
 
-      console.log("--- called construction start point id = " + this.id);  
+      //console.log("--- called construction start point id = " + this.id);  
 
       // storing original coordinates
       this.ox = this.attr("cx");
@@ -105,7 +105,7 @@ function moveConstruction (dx, dy) {
   
   function upConstruction () {
 
-      console.log("--- called construction up point id = " + this.id);  
+      //console.log("--- called construction up point id = " + this.id);  
 
   }
 
@@ -281,7 +281,7 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
      // console.log(lens);
 
 
-     console.log("-- draw ray construction.");
+     // console.log("-- draw ray construction.");
 
      displayOptions = this.displayOptions;
 
@@ -356,7 +356,7 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
 
 
 
-    console.log(ret);
+    // console.log(ret);
 
     if (ret.extender) {
 
@@ -474,7 +474,7 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
 
   drawConjugates(data) {
 
-    console.log("-- draw conjugates");
+    // console.log("-- draw conjugates");
 
   	var dataOptions = this.dataOptions;
 
@@ -484,7 +484,7 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
       // console.log('X1 = ' + X1 + ' Y1 = '+ Y1);
       
 
-      console.log("---- added point id = " + data.id + " (object)");
+      // console.log("---- added point id = " + data.id + " (object)");
       // object points are draggable 
       var c = drawPoint(X1, Y1, "green");               
       c.id = { id : data.id, type : "object" };
@@ -509,7 +509,7 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
    if (isFinite(X2) & isFinite(Y2)) {
       
       // image points are draggable 
-      console.log("---- added point id = " + data.id + " (image)");
+      // console.log("---- added point id = " + data.id + " (image)");
       var c = drawPoint(X2, Y2, "cyan");          
       c.id = { id : data.id, type : "image" };
       c.drag(move, start, up);
@@ -537,7 +537,7 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
         var X1 = data[i].X1;
         var Y1 = data[i].Y1;
         if (isFinite(X1) & isFinite(Y1)) {
-          console.log('X1 = ' + X1 + ' Y1 = '+ Y1);
+          // console.log('X1 = ' + X1 + ' Y1 = '+ Y1);
           var c = drawPoint(X1, Y1, "cyan");         
           this.ps_set.push(c); 
         }
@@ -546,7 +546,7 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
    var X2 = data[data.length-1].X2;
    var Y2 = data[data.length-1].Y2;
    if (isFinite(X2) & isFinite(Y2)) {
-      console.log('X2 = ' + X2 + ' Y2 = '+ Y2);
+      // console.log('X2 = ' + X2 + ' Y2 = '+ Y2);
       var c = drawPoint(X2, Y2, "cyan");          
       this.ps_set.push(c); 
     }
@@ -737,7 +737,7 @@ GETIMAGESTYLE return an apprpriate obejct style.
    function getImageStyle(data) {
 
 
-      console.log(data);
+      // console.log(data);
 
 
       ret = {};

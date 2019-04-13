@@ -24,14 +24,8 @@
 
 
   <!-- Tabulator -->
-  
-  <!--
   <script type="text/javascript" src="https://unpkg.com/tabulator-tables@4.1.4/dist/js/tabulator.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabulator/4.1.5/css/bootstrap/tabulator_bootstrap4.css" integrity="sha256-N36ogArERHqDaggYouT90GwTJ75LsbMbwBUAWuf66s4=" crossorigin="anonymous" />
-  -->
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/tabulator/4.2.3/js/tabulator.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabulator/4.2.3/css/bootstrap/tabulator_bootstrap4.css" />
 
   <!-- Mustache -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/3.0.1/mustache.min.js"></script>
@@ -58,8 +52,7 @@
   <script src="js/optics/AnglePicker.js"></script>  
   <script src="js/optics/PrincipalRayConstruction.js"></script>  
   <script src="js/optics/ParallelBeamConstruction.js"></script>  
-  <script src="js/optics/AfocalBeamConstruction.js"></script>    
-  <script src="js/optics/DataTableHandler.js"></script>      
+  <script src="js/optics/DataTableHandler.js"></script>        
   <script src="js/utils.js"></script>  
 
 
@@ -82,46 +75,27 @@
   var   renderableLens;
   var   lensTable;
   var   ps, cd_set;
-  const gridSnapSize = 0.001;
+  const gridSnapSize = 0.01;
   var   summaryTemplate;
   var   reportTamplate;
-
-  var    mouseIsDown = false;
-  
+  var   kx, ky;
   var   etol = 5e-4;
-  var   fileList  = [ { id: "0", filename: "./lenses/thick-lens-positive.lens", title: "Thick Lens in Air (Positive Power)" }, 
-                      { id: "1", filename: "./lenses/thick-lens-negative.lens", title: "Thick Lens in Air (Negative Power)" },
+  var   fileList  = [ { id: "0", filename: "./lenses/thick-lens-positive.lens", title: "Thick Lens in Air (Positive)" }, 
+                      { id: "1", filename: "./lenses/thick-lens-negative.lens", title: "Thick Lens in Air (Negative)" },
                       { id: "2", filename: "./lenses/thin-lens-positive.lens", title: "Thin Lens in Air (Positive)"  },
-                      { id: "3", filename: "./lenses/thin-lens-negative.lens", title: "Thin Lens in Air (Negative)"  },
-                      { id: "4", filename: "./lenses/two-thin-lenses-positive.lens", title: "Two Thin Lenses in Air (Nominal Positive)"  },   
-                      { id: "5", filename: "./lenses/two-thin-lenses-negative.lens", title: "Two Thin Lenses in Air (Nominal Negative)"  },
-                      { id: "6", filename: "./lenses/keplerian-telescope.lens", title: "Keplerian Telescope"  },
-                      { id: "7", filename: "./lenses/galilean-telescope.lens", title: "Galilean Telescope"  } ];
+                      { id: "3", filename: "./lenses/thin-lens-negative.lens", title: "Thin Lens in Air (Negative)"  } ];
 
 
-    displayOptions = { height             : 0.05, 
+    displayOptions = { height               : 15, 
                      showCardinalPoints   : true,
                      showFocalPoints      : true,
-                     showNodalPoints      : false, 
-                     showPrincipalPoints  : false, 
+                     showNodalPoints      : true, 
+                     showPrincipalPoints  : true, 
                      showVertices         : true };
 
   Mustache.Formatters = {
       "decimal": function (value, decimals) {
-
-
-        console.log("value = " + value);
-        if (Number.isNaN(value)) {
-          return "undefined";
-        }
-
-        if (!isFinite(value) | value == null) {
-          return "undefined";
-        }
-
-       var value = Number(Math.round(value+'e'+decimals)+'e-'+decimals);
-
-        return value
+        return Number(Math.round(value+'e'+decimals)+'e-'+decimals);
       }
     }
 
@@ -164,66 +138,6 @@ getConjuugateTo
 
 
 
-  /* -----------------------------------------------------------------------------
-
-
-    UPDATE POINTS TABLE 
-
-
-  --------------------------------------------------------------------------------- */
-
-
-  function updatePointsTable(id, pairData) {
-
-/*    
-      lens.pointsTable.updateData([{  id: id, 
-                                      X1: pairData.X1, Y1: pairData.Y1,
-                                      X2: pairData.X2, Y2: pairData.Y2,
-                                      l:  pairData.PO, ld: pairData.PI,                                            
-                                      to: pairData.T1, ti: pairData.T2,                                                                                              
-                                      zo: pairData.VO, zi: pairData.VI, 
-                                      ho: pairData.OQ, hi: pairData.IQ }]);
-*/
-
-
-      lens.pointsTableHandler.updateData([ {  id: id, 
-                                      X1: pairData.X1, Y1: pairData.Y1,
-                                      X2: pairData.X2, Y2: pairData.Y2,
-                                      l:  pairData.PO, ld: pairData.PI,                                            
-                                      to: pairData.T1, ti: pairData.T2,                                                                                              
-                                      zo: pairData.VO, zi: pairData.VI, 
-                                      ho: pairData.OQ, hi: pairData.IQ }]);
-
-  };
-
-
-
-  function addPointsTableRow(aPoint, pairData) {
-
-      lens.pointsTableHandler.addRow([ {  id: aPoint.id,
-                                          type: aPoint.type, 
-                                          X1: pairData.X1, Y1: pairData.Y1,
-                                          X2: pairData.X2, Y2: pairData.Y2,
-                                          l:  pairData.PO, ld: pairData.PI,                                            
-                                          to: pairData.T1, ti: pairData.T2,                                                                                              
-                                          zo: pairData.VO, zi: pairData.VI, 
-                                          ho: pairData.OQ, hi: pairData.IQ }]);
-
-
-
-
-      //console.log( lens.table.getData ());
-
-
-
-
-
-  };
-
-
-
-
-
 
 
   /* -----------------------------------------------------------------------------
@@ -251,7 +165,7 @@ getConjuugateTo
 
   }
 
-/*
+
   function move (dx, dy) {
 
       eleminfo = this.data("info");
@@ -310,6 +224,7 @@ getConjuugateTo
       updatePointsView ();
    }
 
+  
   function start () {
 
       console.log("--- called start point id = " + this.id);  
@@ -326,8 +241,6 @@ getConjuugateTo
       console.log("--- called up point id = " + this.id);  
 
   }
-
-*/
 
 /*
 
@@ -348,22 +261,16 @@ getConjuugateTo
     lensTable = lens.table.getData();    
     renderableLens = Optics.analyze(lensTable); // create matrices / we should have group caridnals in here as well
 
-
-    isafocal = (renderableLens.total.F == 0);
-
-    displayOptions = { height             : 0.3, 
-                       showCardinalPoints   : !isafocal,
-                       showFocalPoints      : true,
-                       showNodalPoints      : true, 
-                       showPrincipalPoints  : true, 
-                       showVertices         : true,
-                       showPupils           : true};
+    displayOptions = { height               : 15, 
+                     showCardinalPoints   : true,
+                     showFocalPoints      : true,
+                     showNodalPoints      : true, 
+                     showPrincipalPoints  : true, 
+                     showVertices         : true };
 
 
     drawCardinalPoints(0, 0, renderableLens.total, displayOptions); // (0,0) 
-    drawPupils(renderableLens.total, displayOptions);
     drawOptics(renderableLens);
-
 
     // now update the points 
     if (summaryTemplate !== undefined) {
@@ -492,16 +399,9 @@ getConjuugateTo
 
    function getPointFromCell(cell) {
 
-    fieldname = cell.getColumn().getField();    
     aPoint    = cell.getRow ().getData();
+    fieldname = cell.getColumn().getField();    
 
-    console.log("got this point.");
-    console.log(aPoint);
-
-    aPoints   = lens.pointsTableHandler.convertRowData([ aPoint ]); // apply filters     
-    aPoint    = aPoints[0];
-
-    console.log("transformed this point.");
     console.log(aPoint);
     console.log(fieldname)
 
@@ -527,16 +427,20 @@ getConjuugateTo
   // This should re-build all the constructions in the list 
   function refreshAllConstruction () {
 
-      totalLens   = renderableLens.total;
-      pointsTable = lens.pointsTable.getData();            
-      lens.raphael.constructions.forEach (elem => {
-            aRow       = lens.pointsTable.getRow(elem.getId()).getData();
-            aPoint     = { id: aRow.id, which: "object", z:aRow.zo, h:aRow.ho, t:aRow.to };
-            pairData   = Optics.calculateConjugatePairFrom(aPoint, totalLens);
-            elem.setPairData(pairData);       
-            elem.setLens(totalLens); // <--- this should change 
-            elem.refresh();
+    totalLens   = renderableLens.total;
+    pointsTable = lens.pointsTable.getData();            
+    lens.raphael.constructions.forEach (elem => {
+       aRow       = lens.pointsTable.getRow(elem.getId()).getData();
+       aPoint     = { id: aRow.id, which: "object", z:aRow.zo, h:aRow.ho };
+       pairData   = Optics.calculateConjugatePairFrom(aPoint, totalLens);
+       elem.setPairData(pairData);       
+       elem.setLens(totalLens);
+       elem.remove ();
+       elem.draw ();
+    
     });
+
+
   }
 
 
@@ -546,63 +450,26 @@ getConjuugateTo
 
      totalLens  = renderableLens.total;
      pairData   = Optics.calculateConjugatePairFrom(aPoint, totalLens);
-     
-     //lens.pointsTable.addRow([{  id: aPoint.id, 
-     //                            type: aPoint.type }]);
+     lens.pointsTable.addRow([{  id: aPoint.id, 
+                                 type: aPoint.type }]);
 
-     addPointsTableRow(aPoint, pairData);
+     console.log(lens.pointsTable.getData());
 
      // update the points table with these data
      switch (aPoint.type) {
             case "finite": case "point":   // finite placed beam 
               lens.raphael.constructions.push( new PrincipalRayConstruction (totalLens, pairData));
-              //updatePointsTable(aPoint.id, pairData);
-
-/*              
               lens.pointsTable.updateData([{  id: aPoint.id, 
-                                              X1: pairData.X1, Y1: pairData.Y1,
-                                              l:  pairData.PO, ld: pairData.PI,                                            
-                                              to: pairData.T1, ti: pairData.T2,                                                                                              
-                                              zo: pairData.VO, zi: pairData.VI, 
-                                              ho: pairData.OQ, hi: pairData.IQ }]);
-*/                                              
+                                              zo: pairData.VO, ho: pairData.OQ, 
+                                              zi: pairData.VI, hi: pairData.IQ }]);
               break;
 
             case "parallel": case "beam": // infinitely placed beam 
               lens.raphael.constructions.push( new ParallelBeamConstruction (totalLens, pairData));
-              //updatePointsTable(aPoint.id, pairData);
-/*              
-
               lens.pointsTable.updateData([{  id: aPoint.id, 
-                                              X1: pairData.X1, Y1: pairData.Y1,
-                                              l:  pairData.PO, ld: pairData.PI,                                              
                                               to: pairData.T1, ti: pairData.T2,  
-                                              zo: pairData.VO, zi: pairData.VI,
-                                              ho: pairData.OQ, hi: pairData.IQ }]);                                            
-*/                                              
+                                              zi: pairData.VI, hi: pairData.IQ }]);                                            
               break;
-
-
-           case "afocal": // infinitely placed beam 
-
-              console.log("AFOCAL");
-              console.log(aPoint);
-
-              var afocal = new AfocalBeamConstruction (totalLens, pairData);
-              // afocal.setBeamWidth (aPoint.beamwidth);
-              lens.raphael.constructions.push(afocal);
-              //updatePointsTable(aPoint.id, pairData);
-/*              
-
-              lens.pointsTable.updateData([{  id: aPoint.id, 
-                                              X1: pairData.X1, Y1: pairData.Y1,
-                                              l:  pairData.PO, ld: pairData.PI,                                              
-                                              to: pairData.T1, ti: pairData.T2,  
-                                              zo: pairData.VO, zi: pairData.VI,
-                                              ho: pairData.OQ, hi: pairData.IQ }]);                                            
-*/                                              
-              break;
-
             
             default: 
               break;
@@ -626,20 +493,12 @@ getConjuugateTo
   }
 
 
- /* ----------------------------------------------------------------------------------------------------------------
-
-      UPDATECONSTRUCTION update points based on a changed cell 
-
-  ----------------------------------------------------------------------------------------------------------------   */
-
   function updateConstruction (cell) {
 
     console.log("update the graphical end of the construction.");
 
     //console.log(e);
-    
-
-    console.log(cell);
+    // console.log(cell);
 
 
     if (cell == null) {
@@ -647,14 +506,13 @@ getConjuugateTo
     }
 
     aPoint     = getPointFromCell(cell); // .getData();
-
-
-    console.log("point from cell");
-    console.log(aPoint);
-
     totalLens  = renderableLens.total;
     pairData   = Optics.calculateConjugatePairFrom(aPoint, totalLens); // only works in fwd direction / only works for finite 
-    updatePointsTable(aPoint.id, pairData);
+    
+    lens.pointsTable.updateData([{  "id": aPoint.id, 
+                                    "zo": pairData.VO, "ho": pairData.OQ, 
+                                    "zi": pairData.VI, "hi": pairData.IQ, 
+                                    "to": pairData.T1, "ti": pairData.T2 }]);
 
 
     // need to find the construction corresponding to the point and then update it!
@@ -666,10 +524,8 @@ getConjuugateTo
 
         if (aPoint.id == elem.getId()) {
           elem.setPairData (pairData); // update 
-
-          elem.refresh ();
-          //elem.remove ();
-          //elem.draw ();
+          elem.remove ();
+          elem.draw ();
           return
         }
     }
@@ -875,45 +731,6 @@ getConjuugateTo
                   startDrawing("lens-container"); // uses paper 
 
 
-                  // capture mouse wheel using bind
-                  $(paper.canvas).bind('mousewheel', function(event) {
-
-                        console.log("mouse-wheel called");
-
-                        // cross-browser wheel delta
-                        var e = window.event || e; // old IE support
-                        var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
-                        handle(delta);
-                        console.log(delta);
-                        return false;
-                  });
-
-
-                  // mouse events 
-                  $(paper.canvas).mousedown( panStart );
-                  $(paper.canvas).mousemove( panMove );
-                  $(paper.canvas).mouseup( panEnd );
-
-                  paper.canvas.addEventListener("touchstart", panStart, false);
-                  paper.canvas.addEventListener("touchmove",  panMove, false);
-                  paper.canvas.addEventListener("touchend",   panEnd, false);
-
-                  //$(paper.canvas).bind('touchmove', panMove, false);
-                  //$(paper.canvas).bind('touchend', panEnd, false);
-
-
-
-                  // touch events 
-                  //$(paper.canvas).bind('touchstart', panStart, false);
-                  //$(paper.canvas).bind('touchmove', panMove, false);
-                  //$(paper.canvas).bind('touchend', panEnd, false);
-
-                  //$(paper.canvas).touchstart(panStart);
-                  //$(paper.canvas).touchmove(panMove);
-                  //$(paper.canvas).touchend(panEnd);
-
-
-
                   // $('#prescription-tab').show(); // show the prescription tab
 
                    
@@ -949,38 +766,13 @@ getConjuugateTo
 
 
                                     // add points 
-/*
                                     var points  = [ { "id"   : 1, 
-                                                      "type" : "point",
+                                                      "type" : "finite",
                                                       "which": "object",
                                                       "z"    : -20, 
                                                       "h"    : 10,
                                                       "t"    : undefined
                                                        } ];
-*/
-
-                                    
-                                    /* -------------------------------------------------------------------------------------
-
-                                        INFORMATION 
-      
-                                    --------------------------------------------------------------------------------------- */
-
-                                    var points; 
-                                    if (response.hasOwnProperty("sources")) {
-                                            points = response.sources;
-                                    } else {
-                                            points  = [ { id    : 1, 
-                                                          type  : "afocal",
-                                                          which : "object",
-                                                          z     : undefined, 
-                                                          h     : undefined,
-                                                          t     : 30 } ];
-                                    }
-
-
-
-
 
 /*                                                       
                                                       { "id" : 2, 
@@ -1008,6 +800,8 @@ getConjuugateTo
 
 
                                      
+                                    // initialized the points
+                                    // initializePointsTable ([]converterPoints(points), updateConstruction, function () {
 
                                     initializePointsTable ([], updateConstruction, function () {
                                           
@@ -1035,15 +829,13 @@ getConjuugateTo
                                               console.log("request to add source...");
                                           });
 
-
-
-
                                           
                                           /* ------------------------------------------
 
-                                          POINTS CAN BE SETUP INDIVIDUALLY 
+                                          LOAD DATA MANUALLY 
                                           
                                           ---------------------------------------------- */
+
 
                                           points.forEach( eachPoint => {
                                               console.log("eachPoint");
@@ -1052,51 +844,8 @@ getConjuugateTo
                                           });
 
 
-                                          $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-                                            
-                                            //e.target // newly activated tab
-                                            //e.relatedTarget // previous active tab
-                                            //console.log("Changed tab.");
-                                            //console.log(e.target);
-
-                                            console.log(e.target.id);
-                                            console.log("shown tab changed.");       
-
-                                            switch (e.target.id) {
-
-                                               case "objects-images-nav" :
-                                                  //console.log("points redraw");
-                                                  //var t = $("#lens-points");
-                                                  //console.log(t);
-                                                  //console.log(lens.pointsTable);
-                                                  
-                                                  // console.log("DataTableHandler");
-                                                  // console.log(DataTableHandler);
-
-                                                  console.log(lens.pointsTable);
-
-                                                  lens.pointsTable.redraw(true); //tabulator("redraw", true);
-                                                  //$("#lens-points").tabulator("redraw", true);
-                                                  break;
-
-                                               case "prescription-nav" :
-
-                                                  console.log("prescription redraw");
-                                                  lens.table.redraw(true); //tabulator("redraw", true);
-                                                  //$("#lens-table").tabulator("redraw", true);
-                                                  break;
-
-                                               default:
-
-                                            }                                     
 
 
-                                          })
-
-                                          //rays = [ { u: 0, h: 1 } ];
-                                          //console.log(renderableLens);
-                                          //newrays = Optics.calculateRayTrace(rays, renderableLens.elem);
-                                          //console.log(newrays);
 
 
                                           // conjugate points are draggable controllers 
@@ -1197,6 +946,7 @@ getConjuugateTo
 
 
 
+
       // trigger on a selection
       $('.file-selection').on('click', function () {
 
@@ -1240,9 +990,6 @@ getConjuugateTo
       });
 
 
-      
-
-
     });
 
 
@@ -1252,32 +999,6 @@ getConjuugateTo
 </script>
 
 <body>
-
-
-  <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-
-  <svg width="100" height="100">
-        <pattern id="diagonalHatch" width="10" height="10" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
-            <line x1="0" y1="0" x2="0" y2="10" style="stroke:black; stroke-width:1" />
-        </pattern>  
-    </svg>
-
-
-  <defs>
-    <pattern id="smallGrid" width="8" height="8" patternUnits="userSpaceOnUse">
-      <path d="M 8 0 L 0 0 0 8" fill="none" stroke="gray" stroke-width="0.5"/>
-    </pattern>
-    <pattern id="grid" width="80" height="80" patternUnits="userSpaceOnUse">
-      <rect width="80" height="80" fill="url(#smallGrid)"/>
-      <path d="M 80 0 L 0 0 0 80" fill="none" stroke="gray" stroke-width="1"/>
-    </pattern>
-  </defs>
-
-<!--
-  <rect width="100%" height="100%" fill="url(#grid)" />
-
--->  
-</svg>
 
 <!-- Control the column width, and how they should appear on different devices -->
 
@@ -1294,24 +1015,11 @@ getConjuugateTo
 
         <!-- TO DO: need to build this list fron the javascript array --> 
         <div id="dropdown-lens-menu" class="dropdown-menu">
-<!--
+          <a class="dropdown-item file-selection"  href="#" data-id="2" >Thin lens in Air (Positive)</a>
+          <a class="dropdown-item file-selection"  href="#" data-id="3" >Thin Lens in Air (Negative)</a>
+<!--          
           <a class="dropdown-item file-selection"  href="#" data-id="0" >Thick Lens in Air (Positive)</a>
           <a class="dropdown-item file-selection"  href="#" data-id="1" >Thick lens in Air (Negative)</a>
-
--->
-
-          <a class="dropdown-item file-selection"  href="#" data-id="2" >Thin lens in Air (Positive Power)</a>
-          <a class="dropdown-item file-selection"  href="#" data-id="3" >Thin Lens in Air (Negative Power)</a>
-          <a class="dropdown-item file-selection"  href="#" data-id="4" >Two Thin lenses in Air (Nominal Positive Power)</a>
-          <a class="dropdown-item file-selection"  href="#" data-id="5" >Two Thin Lenses in Air (Nominal Negative Power)</a>
-
-<!--
-          <a class="dropdown-item file-selection"  href="#" data-id="6" >Keplerian Telescope</a>
-          <a class="dropdown-item file-selection"  href="#" data-id="7" >Galilean Telescope</a>
-
--->
-
-<!--
           <a class="dropdown-item file-selection"  href="#" data-id="4" >Multiple thin lenses</a>
           <a class="dropdown-item file-selection"  href="#" data-id="5" >Gullstrand Eye Model (Relaxed)</a>
           <a class="dropdown-item file-selection"  href="#" data-id="6" >Gullstrand Eye Model (Accommodated)</a>
@@ -1475,9 +1183,8 @@ getConjuugateTo
                         </button>
 
                         <div class="dropdown-menu">
-                          <a class="dropdown-item" href="#" data-short-id="point"  onclick="lensObjectSelector(this); return false;">point (focal systems only)</a>
-                          <a class="dropdown-item" href="#" data-short-id="beam"   onclick="lensObjectSelector(this);  return false;">beam (from infinity, focal systems only)</a>
-                          <a class="dropdown-item" href="#" data-short-id="afocal" onclick="lensObjectSelector(this);  return false;">beam (from infinity, afocal system)</a>
+                          <a class="dropdown-item" href="#" data-short-id="point" onclick="lensObjectSelector(this); return false;">Point pair (principal rays)</a>
+                          <a class="dropdown-item" href="#" data-short-id="beam" onclick="lensObjectSelector(this); return false;">Beam (from infinity)</a>
                         </div>            
                       </div>
 
@@ -1680,23 +1387,18 @@ getConjuugateTo
         <div id = "lens-type-point" style="display:none;">
           Object distance 
           <div class="input-group mb-3">
-              <input id="modal-point-z"  type="text" class="form-control" aria-label="Description" placeholder="Enter the axial distance." value="-0.5">
+              <input id="modal-point-z"  type="text" class="form-control" aria-label="Description" placeholder="Enter the axial distance." value="20">
           </div>
 
           Object height
           <div class="input-group mb-3">
-              <input id="modal-point-h"  type="text" class="form-control" aria-label="Description" placeholder="Enter the height." value="0.1">
+              <input id="modal-point-h"  type="text" class="form-control" aria-label="Description" placeholder="Enter the height." value="10">
           </div>
         </div>
 
 
         <!-- Beam Input Form -->
         <div id = "lens-type-beam" style="display:none;">
-
-
-
-          This will add a beam from infinity to the system. The beam will pass through the cardinal points. This type of light source will not work if the system is afocal. 
-
 
           Object beam angle 
           <div class="input-group mb-3">
@@ -1705,27 +1407,7 @@ getConjuugateTo
 
           Object beam width
           <div class="input-group mb-3">
-              <input id="modal-beam-width"  type="text" class="form-control" aria-label="Description" placeholder="Enter the beam width." value="0.1" >
-          </div>
-        </div>
-
-
-
-        <!-- Beam Input Form -->
-        <div id = "lens-type-afocal" style="display:none;">
-
-           This will add a beam from infinity to the system. The beam will pass through the system but not through the cardinal points. This type of light source will work if the system is afocal/focal. If the outgoing rays are detected as collimated - the exit angle will be reported. 
-          <div class="well">
-          </div>
-
-          Object beam angle 
-          <div class="input-group mb-3">
-              <input id="modal-afocal-angle"  type="text" class="form-control" aria-label="Description" placeholder="Enter the beam angle." value="30" >
-          </div>
-
-          Object beam width
-          <div class="input-group mb-3">
-              <input id="modal-afocal-width"  type="text" class="form-control" aria-label="Description" placeholder="Enter the beam width." value="0.1" >
+              <input id="modal-beam-width"  type="text" class="form-control" aria-label="Description" placeholder="Enter the beam width." value="20" >
           </div>
         </div>
 
