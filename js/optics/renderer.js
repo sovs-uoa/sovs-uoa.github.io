@@ -42,12 +42,15 @@
     // virtual unit / pixel unit 
     paperWidth  = $("#lens-container").width(); 
     paperHeight = $("#lens-container").height(); 
-    kx = viewBoxWidth/paperWidth;     // scaling to viewbox 
-    ky = viewBoxHeight/paperHeight;   // scaling to viewbox 
-
+    kx = viewBoxWidth/paperWidth;     // units/pix 
+    ky = viewBoxHeight/paperHeight;   // units/pix 
 
   }
 
+
+  function getXProportionFactor(num) {
+    return num*viewBoxWidth;
+  }
 
 
   function startDrawing(canvasID) {
