@@ -1,8 +1,12 @@
 /*--------------------------------------------
 
- Two thin lenses positive
-----------------------------------------------*/
+ Keplerian Telescope 
 
+ Appendix A: Entrance and Exit Pupils of Telescopes
+ Schwartz 2nd Ed 
+
+
+----------------------------------------------*/
 {
 
 	// sources of light 
@@ -10,10 +14,10 @@
 	"sources" : [ { "id"   		: 1, 
                     "type" 		: "afocal",
                     "which"		: "object",
-                    "beamwidth" : 0.2,
+                    "beamwidth" : 0.15,
                     "z"    		: NaN, 
                     "h"    		: NaN,
-                    "t"    		: 30 }],
+                    "t"    		: 5 }],
 
 	// lens prescription 
 	"title": "Thick Lens",

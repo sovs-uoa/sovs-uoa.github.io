@@ -18,26 +18,10 @@
                     "beamwidth" : 0.15,
                     "z"    		: NaN, 
                     "h"    		: NaN,
-                    "t"    		: 30 }, 
+                    "t"    		: 5 } ], 
 
-				 { "id"   		: 2, 
-                    "type" 		: "afocal",
-                    "which"		: "object",
-                    "beamwidth" : 0.15,
-                    "z"    		: NaN, 
-                    "h"    		: NaN,
-                    "t"    		: 0 },
-
-                    { "id"   	: 3, 
-                    "type" 		: "afocal",
-                    "which"		: "object",
-                    "beamwidth" : 0.15,
-                    "z"    		: NaN, 
-                    "h"    		: NaN,
-                    "t"    		: -30 }],
 
 	// lens prescription
-
 	"title"			: "Galilean Telescope",
     "prescription"	: [{	"id": "0001",
 							"type": "index",
@@ -50,7 +34,7 @@
 							"type": "thin",
 							"description": "objective",
 							"args": {
-								"power":  10,
+								"power":  5,
 								"height": 0.2,
 								"stop": true
 							}
@@ -60,7 +44,7 @@
 							"description": "air",
 							"args": {
 								"index": 1.000,
-								"thickness": 0.06
+								"thickness": 0.16
 							}
 						}, {		
 							"id": "0004",
