@@ -5,6 +5,8 @@
 
 {
 
+	"general" :  { "cardinalVertHeight" : 0.75 },
+	
 	// sources 
 	"sources" : [ { "id" 		: 1, 
 					"type" 		: "point",
