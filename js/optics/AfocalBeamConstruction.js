@@ -203,7 +203,9 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
 
        this.rays;
 
-       this.setInputRays(30); 
+       // start
+       var T1 = this.data.T1;
+       this.setInputRays(T1); 
        this.addAfocalConstruction (); // draw the rays 
 
 
