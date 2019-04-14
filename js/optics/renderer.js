@@ -141,11 +141,8 @@ function drawAxis () {
   var divNumerator = Math.round ( divExact / Math.pow(10, divOrder) );   // 3 x 10^{-3} 
 
   divNumerator = Math.max(1, 2.5*Math.floor( divNumerator / 2.5));
-
   var divSize      = divNumerator * Math.pow(10, divOrder);  // 20 divs on screen 
-
   console.log("divSize : " + divNumerator + " x 10^(" + divOrder + ")");
-
 
   if (lastdivSize == divSize) {
     return;
@@ -284,8 +281,9 @@ function drawAxis () {
 
     var v1 = x + 0;                   // front vertex 
     var v2 = x + systemPoints.L;
-    var h  = 2*displayOptions.height;   // back vertex 
 
+
+    var h  = displayOptions.cardinalVertHeight;   // back vertex 
 
 
     // nodal points
@@ -329,9 +327,9 @@ function drawAxis () {
           //cp2 = drawText(x2 + 3*cp2.attr("r"), y - 6*cp2.attr("r"), "A'");
           //cp_set.push(cp1, cp2);
 
-          cp1 = paper.path( ["M", x1, y1, "L", x1, y2 ] ).attr({"fill": "gray", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
-          cp2 = paper.path( ["M", x2, y1, "L", x2, y2 ] ).attr({"fill": "gray", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
-          cp_set.push(cp1, cp2);
+          //cp1 = paper.path( ["M", x1, y1, "L", x1, y2 ] ).attr({"fill": "gray", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
+          //cp2 = paper.path( ["M", x2, y1, "L", x2, y2 ] ).attr({"fill": "gray", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
+          //cp_set.push(cp1, cp2);
 
         }    
 
@@ -479,11 +477,11 @@ function drawAxis () {
           RegisterWheelCallback ({ type: "cardinal", handle: cp2 });
 
           // lines 
-          var y1 = y - h/2;
-          var y2 = y + h/2;
-          cp1 = paper.path( ["M", v1, y1, "L", v1, y2 ] ).attr({"fill": "gray", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
-          cp2 = paper.path( ["M", v2, y1, "L", v2, y2 ] ).attr({"fill": "gray", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
-          cp_set.push(cp1, cp2);
+          //var y1 = y - h/2;
+          //var y2 = y + h/2;
+          //cp1 = paper.path( ["M", v1, y1, "L", v1, y2 ] ).attr({"fill": "gray", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
+          //cp2 = paper.path( ["M", v2, y1, "L", v2, y2 ] ).attr({"fill": "gray", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
+          //cp_set.push(cp1, cp2);
 
         }
 
@@ -514,9 +512,9 @@ function drawAxis () {
     var r = Math.abs(R);
 
     // draw a path 
-    var h = Math.min(h, 0.9*2*r, displayOptions.height);
-    var c = paper.path( ["M", x, y-h/2, "L", x, y+h/2  ] );
-    lens.push(c);
+    var h = Math.min(h, 0.9*2*r, h); // displayOptions.height);
+    //var c = paper.path( ["M", x, y-h/2, "L", x, y+h/2  ] );
+    //lens.push(c);
 
     if (R < 0) {   // negative curvature
 
@@ -1405,7 +1403,7 @@ function drawAxis () {
 
         case "sphere":
           var R = curr.radius; h = curr.height;
-          l = drawSurface(axialPosition, 0, R, h, displayOptions);
+          l = drawSurface(axialPosition, 0, R, h); //, displayOptions);
           optics_set.push(l);        
           break;
 

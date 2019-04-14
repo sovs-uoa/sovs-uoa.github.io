@@ -89,14 +89,13 @@
   var    mouseIsDown = false;
   
   var   etol = 5e-4;
-  var   fileList  = [ { id: "0", filename: "./lenses/thick-lens-positive.lens", title: "Thick Lens in Air (Positive Power)" }, 
-                      { id: "1", filename: "./lenses/thick-lens-negative.lens", title: "Thick Lens in Air (Negative Power)" },
+  var   fileList  = [ { id: "0", filename: "./lenses/thick-lens-positive.lens", title: "Thick Lens in Air (Positive)" }, 
+                      { id: "1", filename: "./lenses/thick-lens-negative.lens", title: "Thick Lens in Air (Negative)" },
                       { id: "2", filename: "./lenses/thin-lens-positive.lens", title: "Thin Lens in Air (Positive)"  },
                       { id: "3", filename: "./lenses/thin-lens-negative.lens", title: "Thin Lens in Air (Negative)"  },
-                      { id: "4", filename: "./lenses/two-thin-lenses-positive.lens", title: "Two Thin Lenses in Air (Nominal Positive Power)"  },   
-                      { id: "5", filename: "./lenses/two-thin-lenses-negative.lens", title: "Two Thin Lenses in Air (Nominal Negative Power)"  },
-                      { id: "6", filename: "./lenses/keplerian-telescope.lens", title: "Keplerian Telescope"  },
-                      { id: "7", filename: "./lenses/galilean-telescope.lens", title: "Galilean Telescope"  } ];
+                      { id: "4", filename: "./lenses/two-thin-lenses-positive.lens", title: "Two Thin Lenses in Air (Positive)"  },   
+                      { id: "5", filename: "./lenses/two-thin-lenses-positive.lens", title: "Two Thin Lenses in Air (Negative)"  },                                           
+                      { id: "6", filename: "./lenses/keplerian-telescope.lens", title: "Keplerian Telescope"  } ];
 
 
     displayOptions = { height             : 0.05, 
@@ -356,12 +355,13 @@ getConjuugateTo
                        showFocalPoints      : true,
                        showNodalPoints      : true, 
                        showPrincipalPoints  : true, 
-                       showVertices         : true,
-                       showPupils           : true};
+                       showVertices         : true };
 
 
     drawCardinalPoints(0, 0, renderableLens.total, displayOptions); // (0,0) 
-    drawPupils(renderableLens.total, displayOptions);
+
+
+
     drawOptics(renderableLens);
 
 
@@ -584,13 +584,7 @@ getConjuugateTo
 
 
            case "afocal": // infinitely placed beam 
-
-              console.log("AFOCAL");
-              console.log(aPoint);
-
-              var afocal = new AfocalBeamConstruction (totalLens, pairData);
-              // afocal.setBeamWidth (aPoint.beamwidth);
-              lens.raphael.constructions.push(afocal);
+              lens.raphael.constructions.push( new AfocalBeamConstruction (totalLens, pairData));
               //updatePointsTable(aPoint.id, pairData);
 /*              
 
@@ -878,8 +872,6 @@ getConjuugateTo
                   // capture mouse wheel using bind
                   $(paper.canvas).bind('mousewheel', function(event) {
 
-                        console.log("mouse-wheel called");
-
                         // cross-browser wheel delta
                         var e = window.event || e; // old IE support
                         var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
@@ -894,23 +886,11 @@ getConjuugateTo
                   $(paper.canvas).mousemove( panMove );
                   $(paper.canvas).mouseup( panEnd );
 
-                  paper.canvas.addEventListener("touchstart", panStart, false);
-                  paper.canvas.addEventListener("touchmove",  panMove, false);
-                  paper.canvas.addEventListener("touchend",   panEnd, false);
-
-                  //$(paper.canvas).bind('touchmove', panMove, false);
-                  //$(paper.canvas).bind('touchend', panEnd, false);
-
-
 
                   // touch events 
-                  //$(paper.canvas).bind('touchstart', panStart, false);
-                  //$(paper.canvas).bind('touchmove', panMove, false);
-                  //$(paper.canvas).bind('touchend', panEnd, false);
-
-                  //$(paper.canvas).touchstart(panStart);
-                  //$(paper.canvas).touchmove(panMove);
-                  //$(paper.canvas).touchend(panEnd);
+                  $(paper.canvas).bind('touchstart', panStart, false);
+                  $(paper.canvas).bind('touchmove', panMove, false);
+                  $(paper.canvas).bind('touchend', panEnd, false);
 
 
 
@@ -958,29 +938,12 @@ getConjuugateTo
                                                       "t"    : undefined
                                                        } ];
 */
-
-                                    
-                                    /* -------------------------------------------------------------------------------------
-
-                                        INFORMATION 
-      
-                                    --------------------------------------------------------------------------------------- */
-
-                                    var points; 
-                                    if (response.hasOwnProperty("sources")) {
-                                            points = response.sources;
-                                    } else {
-                                            points  = [ { id    : 1, 
-                                                          type  : "afocal",
-                                                          which : "object",
-                                                          z     : undefined, 
-                                                          h     : undefined,
-                                                          t     : 30 } ];
-                                    }
-
-
-
-
+                                    var points  = [ { "id"   : 1, 
+                                                      "type" : "afocal",
+                                                      "which": "object",
+                                                      "z"    : undefined, 
+                                                      "h"    : undefined,
+                                                      "t"    : 30 } ];
 
 /*                                                       
                                                       { "id" : 2, 
@@ -1186,7 +1149,7 @@ getConjuugateTo
     //var  myfilename = "./lenses/thin-lens-negative.lens";
     //load (myfilename);
 
-    load ("2"); // 2 = thin lens (positive)
+    load ("4"); // 2 = thin lens (positive)
 
 
     }
@@ -1294,22 +1257,13 @@ getConjuugateTo
 
         <!-- TO DO: need to build this list fron the javascript array --> 
         <div id="dropdown-lens-menu" class="dropdown-menu">
-<!--
           <a class="dropdown-item file-selection"  href="#" data-id="0" >Thick Lens in Air (Positive)</a>
           <a class="dropdown-item file-selection"  href="#" data-id="1" >Thick lens in Air (Negative)</a>
-
--->
-
-          <a class="dropdown-item file-selection"  href="#" data-id="2" >Thin lens in Air (Positive Power)</a>
-          <a class="dropdown-item file-selection"  href="#" data-id="3" >Thin Lens in Air (Negative Power)</a>
-          <a class="dropdown-item file-selection"  href="#" data-id="4" >Two Thin lenses in Air (Nominal Positive Power)</a>
-          <a class="dropdown-item file-selection"  href="#" data-id="5" >Two Thin Lenses in Air (Nominal Negative Power)</a>
-
-<!--
+          <a class="dropdown-item file-selection"  href="#" data-id="2" >Thin lens in Air (Positive)</a>
+          <a class="dropdown-item file-selection"  href="#" data-id="3" >Thin Lens in Air (Negative)</a>
+          <a class="dropdown-item file-selection"  href="#" data-id="4" >Two Thin lens in Air (Positive)</a>
+          <a class="dropdown-item file-selection"  href="#" data-id="5" >Two Thin Lens in Air (Negative)</a>
           <a class="dropdown-item file-selection"  href="#" data-id="6" >Keplerian Telescope</a>
-          <a class="dropdown-item file-selection"  href="#" data-id="7" >Galilean Telescope</a>
-
--->
 
 <!--
           <a class="dropdown-item file-selection"  href="#" data-id="4" >Multiple thin lenses</a>
