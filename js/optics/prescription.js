@@ -178,6 +178,69 @@ PRESCRIPTION  = OBJECTS + IMAGES TABLE
 ----------------------------------------------------------------------------------------------------------- */        
 
 
+//toggle cell value on click
+var tickToggle = function(e, cell){
+
+  var data = cell.getRow().getData();
+  if ((data.type == "thin") || (data.type == "sphere")) 
+  {
+    // var column = cell.getColumn().getData();
+    cell.setValue(!cell.getValue()); 
+    cell.getRow().toggleSelect();    
+  }
+}
+
+
+function editCheck (cell) {
+
+    //get data for the row 
+    var data = cell.getRow().getData();
+    var columnName = cell.getColumn().getField();
+
+
+    console.log("edit check column = " + columnName);
+    console.log(data);
+
+
+    switch (data.type) {
+
+      case "sphere":
+      if (columnName == "radius")   { return true; }; 
+      if (columnName == "aperture") { return true; }; 
+      if (columnName == "stop")     { return true; };       
+      break;
+
+      case "power":
+      if (columnName == "sphere") { return true; }; 
+      if (columnName == "aperture") { return true; }; 
+      if (columnName == "stop")     { return true; };       
+      break;
+
+
+      case "index":
+      if (columnName == "index")     { return true; }; 
+      if (columnName == "thickness") { return true; };      
+      break;
+
+      default:
+      return false;
+
+    }
+
+   // default deny
+   return false;
+}
+
+
+
+/* ------------------------------------------------------------------------------------------------------
+
+
+PRESCRIPTION  = OBJECTS + IMAGES TABLE 
+
+----------------------------------------------------------------------------------------------------------- */        
+
+
 // lens information 
 function initializePrescriptionTable(data, updatePrescriptionCallback, success) {
 
@@ -225,17 +288,20 @@ function initializePrescriptionTable(data, updatePrescriptionCallback, success) 
       movableRows:true,
       columns:[
           {rowHandle:true, formatter:"handle", headerSort:false, frozen:true, width:30, minWidth:30},
-          {title:"Group",         field:"group",            width:100, headerSort:false},                  
+          //{title:"Group",         field:"group",            width:100, headerSort:false},                  
+          {title:"Id",            field:"id",               width:100, headerSort:false},                            
           {title:"Type",          field:"type",             width:100, headerSort:false},                  
           {title:"Description",   field:"description",      width:100, editor:"input", headerSort:false},
-          {title:"Ref. Index",    field:"index",            width:100, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "" }, align:"center", editor:"input", headerSort:false},
-          {title:"Surf. R.",      field:"radius",           width:100, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "" }, align:"center", editor:"input", headerSort:false},
-          {title:"Power",         field:"power",            width:100, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "" }, align:"center", editor:"input", headerSort:false},
-          {title:"Thickness",     field:"thickness",        width:100, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "" }, align:"center", editor:"input", headerSort:false},
-          {title:"Ap. Diameter",  field:"aperture",         width:100, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "" }, align:"center", editor:"input", headerSort:false},
-          {title:"Stop Flag",     field:"stop",             width:100, align:"center", width:100, sorter:"date", editor:"input", headerSort:false, formatter:apertureStop}
-      ],
+          {title:"Ref. Index",    field:"index",            width:100, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "" }, align:"center", editor:"input", headerSort:false, editable: editCheck, validator:["min:1.0", "max:5.0"]},
+          {title:"Surf. R.",      field:"radius",           width:100, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "" }, align:"center", editor:"input", headerSort:false, editable: editCheck},
+          {title:"Power",         field:"power",            width:100, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "" }, align:"center", editor:"input", headerSort:false, editable: editCheck},
+          {title:"Thickness",     field:"thickness",        width:100, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "" }, align:"center", editor:"input", headerSort:false, editable: editCheck},
+          {title:"Ap. Diameter",  field:"aperture",         width:100, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "" }, align:"center", editor:"input", headerSort:false, editable: editCheck},
+          {title:"Stop Flag",     field:"stop",             width:100, align:"center", width:100, headerSort:false, formatter:"tickCross", cellClick:tickToggle, formatterParams:{ allowEmpty:true, allowTruthy:true, tickElement:"<span class=\"badge badge-info\">STOP</span>", crossElement:"" }
+           }],
     });
+
+
 
 
     // show it! 
