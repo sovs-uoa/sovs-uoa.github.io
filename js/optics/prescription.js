@@ -434,6 +434,40 @@ function flipVal (value) {
 }
 
 
+/* -----------------------------
+
+
+ ----------------------------- */
+
+
+function editPointCheck (cell) {
+
+    //get data for the row 
+    var data = cell.getRow().getData();
+    var columnName = cell.getColumn().getField();
+
+
+    console.log("edit point check column = " + columnName);
+    console.log(data);
+
+
+    switch (data.type) {
+
+      case "point":
+      if (columnName == "to") { return false; }; 
+      if (columnName == "ti") { return false; }; 
+      break;
+
+
+      default:
+      return true;
+
+    }
+
+   // default deny
+   return true;
+}
+
 
 var suppressUpdate = false;
 
@@ -507,18 +541,18 @@ function initializePointsTable(data, updatePointsCallback, success) {
             {title:"type",   field:"type",     width:100, headerSort:false},                  
             //{title:"X1",     field:"X1",       width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" } },                  
             //{title:"Y1",     field:"Y1",       width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" }, accessor: flipVal },
-            {title:"X1",     field:"X1",       visible:false, width:100, editor:"input", headerSort:false, mutator:Number,       formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" },  cellEdited:  defaultEditFunction   },                  
-            {title:"Y1",     field:"Y1",       visible:false, width:100, editor:"input", headerSort:false, mutator:Number,       formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" },  cellEdited:  defaultEditFunction   },                  
-            {title:"X2",     field:"X2",       visible:false, width:100, editor:"input", headerSort:false, mutator:Number,       formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" },  cellEdited:  defaultEditFunction   },                  
-            {title:"Y2",     field:"Y2",       visible:false, width:100, editor:"input", headerSort:false, mutator:Number,       formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" },  cellEdited:  defaultEditFunction   },                  
-            {title:"<i>l</i>",  field:"l",        visible:true, width:100, editor:"input", headerSort:false, mutator:Number,       formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" },  cellEdited:  defaultEditFunction   },
-            {title:"<i>l&prime;</i>", field:"ld",       visible:true, width:100, editor:"input", headerSort:false, mutator:Number,       formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" },  cellEdited:  defaultEditFunction   },
-            {title:"<i>l<sub>v</sub></i>",    field:"zo",       visible:true, width:100, editor:"input", headerSort:false, mutator:Number,       formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" },                 cellEdited:  defaultEditFunction   },                  
-            {title:"<i>l&prime;<sub>v</sub></i>",   field:"zi",       visible:true, width:100, editor:"input", headerSort:false, mutator:Number,       formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" },                 cellEdited:  defaultEditFunction   },                  
-            {title:"<i>h</i>",     field:"ho",       visible:true, width:100, editor:"input", headerSort:false, mutator:Number,       formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--",  flipVal:false },  cellEdited:  defaultEditFunction   },
-            {title:"<i>h&prime;</i>",     field:"hi",       visible:true, width:100, editor:"input", headerSort:false, mutator:Number,       formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--",  flipVal:false },  cellEdited:  defaultEditFunction   },
-            {title:"<i>&theta;&prime;</i>",     field:"to",       visible:true, width:100, editor:"input", headerSort:false, mutator:Number,       formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--",  flipVal:false },  cellEdited:  defaultEditFunction   },                  
-            {title:"<i>&theta;</i>",     field:"ti",       visible:true, width:100, editor:"input", headerSort:false, mutator:Number,       formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--",  flipVal:false },  cellEdited:  defaultEditFunction   }
+            {title:"X1",                          field:"X1", visible:false, width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" },  cellEdited:  defaultEditFunction, editable:editPointCheck },                  
+            {title:"Y1",                          field:"Y1", visible:false, width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" },  cellEdited:  defaultEditFunction, editable:editPointCheck },                  
+            {title:"X2",                          field:"X2", visible:false, width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" },  cellEdited:  defaultEditFunction, editable:editPointCheck },                  
+            {title:"Y2",                          field:"Y2", visible:false, width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" },  cellEdited:  defaultEditFunction, editable:editPointCheck },                  
+            {title:"<i>l</i>",                    field:"l",  visible:true,  width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" },  cellEdited:  defaultEditFunction, editable:editPointCheck },
+            {title:"<i>l&prime;</i>",             field:"ld", visible:true,  width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" },  cellEdited:  defaultEditFunction, editable:editPointCheck },
+            {title:"<i>l<sub>v</sub></i>",        field:"zo", visible:true,  width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" },  cellEdited:  defaultEditFunction, editable:editPointCheck },                  
+            {title:"<i>l&prime;<sub>v</sub></i>", field:"zi", visible:true,  width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" },  cellEdited:  defaultEditFunction, editable:editPointCheck },                  
+            {title:"<i>h</i>",                    field:"ho", visible:true,  width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--",  flipVal:false },  cellEdited:  defaultEditFunction, editable:editPointCheck },
+            {title:"<i>h&prime;</i>",             field:"hi", visible:true,  width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--",  flipVal:false },  cellEdited:  defaultEditFunction, editable:editPointCheck },
+            {title:"<i>&theta;&prime;</i>",       field:"to", visible:true,  width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--",  flipVal:false },  cellEdited:  defaultEditFunction, editable:editPointCheck },                  
+            {title:"<i>&theta;</i>",              field:"ti", visible:true,  width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--",  flipVal:false },  cellEdited:  defaultEditFunction, editable:editPointCheck }
         ],
       });
 
