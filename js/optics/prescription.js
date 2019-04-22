@@ -106,13 +106,19 @@ function lensObjectSelector(elem) {
     $("#lens-type-point").hide();
     $("#lens-type-beam").hide();
     $("#lens-type-afocal").hide();
+    $("#lens-type-source").hide();
 
 
     switch (objectType) {
 
-      case "point": // show those elements for the index 
+      case "source":
+        $("#lens-type-source").show();
+        //console.log("point/source type selected");
+        break;
+
+      case "point":
         $("#lens-type-point").show();
-        console.log("point type selected");
+        console.log("point/source type selected");
         break;
 
       case "beam": // show those elements for the sphere 
@@ -350,17 +356,18 @@ POINTS = OBJECTS + IMAGES TABLE
     var rowCount                  = lens.table.getDataCount();
     lens.modal.source.id          = rowCount + 1;
     // lens.modal.source.tag_id      = "NA";
-    //lens.modal.group        = document.getElementById("modal-lens-group-name").value;
-    //lens.modal.description  = document.getElementById("modal-lens-element-description").value;
-
+    // lens.modal.group        = document.getElementById("modal-lens-group-name").value;
+    // lens.modal.description  = document.getElementById("modal-lens-element-description").value;
     // lens.modal.source.type    = document.getElementById("modal-point-type").value;          // finite or parallel
 
 
     var chooseBeam   = $("#lens-type-beam").is(":visible");
     var choosePoint  = $("#lens-type-point").is(":visible");
     var chooseAfocal = $("#lens-type-afocal").is(":visible");
+    var chooseSource = $("#lens-type-source").is(":visible");
+    
 
-    if (chooseBeam & !choosePoint & !chooseAfocal) {
+    if (chooseBeam & !choosePoint & !chooseAfocal  & !chooseSource) {
 
         lens.modal.source.t  = Number(document.getElementById("modal-beam-angle").value);
         lens.modal.source.bw = Number(document.getElementById("modal-beam-width").value);  // beamwidth not shown
@@ -368,28 +375,38 @@ POINTS = OBJECTS + IMAGES TABLE
         lens.modal.source.which = "object";
         lens.modal.source.z     = undefined;
         lens.modal.source.h     = undefined;        
-    } else if (choosePoint & !chooseBeam & !chooseAfocal ) {
+
+    } else if (choosePoint & !chooseBeam & !chooseAfocal  & !chooseSource) {
+
         lens.modal.source.z  = Number(document.getElementById("modal-point-z").value);
         lens.modal.source.h  = Number(document.getElementById("modal-point-h").value); 
         lens.modal.source.type  = "point";
         lens.modal.source.which = "object";
         lens.modal.source.t     = undefined;
         lens.modal.source.bw    = undefined;      
-    } else if (!choosePoint & !chooseBeam & chooseAfocal ) {  
+
+    } else if (!choosePoint & !chooseBeam & chooseAfocal  & !chooseSource) {  
+
         lens.modal.source.type  = "afocal";
         lens.modal.source.which = "object";
         lens.modal.source.t  = Number(document.getElementById("modal-afocal-angle").value);
         lens.modal.source.bw = Number(document.getElementById("modal-afocal-width").value);  // beamwidth not shown
         lens.modal.source.z  = undefined;
         lens.modal.source.h  = undefined;      
+
+    } else if (!choosePoint & !chooseBeam & !chooseAfocal  & chooseSource) {  
+        lens.modal.source.z  = Number(document.getElementById("modal-source-z").value);
+        lens.modal.source.h  = Number(document.getElementById("modal-source-h").value);  // beamwidth not shown
+        lens.modal.source.type  = "source";
+        lens.modal.source.which = "object";
+        lens.modal.source.t     = undefined;
+        lens.modal.source.bw    = undefined;
+
     }
 
 
     // add construction  + update table 
     addConstruction (lens.modal.source);
-
-
-
     $("#pointAddForm").modal("hide");
  }
 

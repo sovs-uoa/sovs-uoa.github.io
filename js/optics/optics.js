@@ -22,7 +22,6 @@ var Optics = {};
 
 Optics.analyze = function (lensTable) {
 
-
   // return a lensSystem
   return getTotalLensSystemInfo (lensTable); 
 }
@@ -222,6 +221,24 @@ function rayMultiply (S, r) {
   return q
 };
 
+
+/* -----------------------------------------------------------------------
+
+RAYBUNDLE Determine conjugate information for a point 
+
+--------------------------------------------------------------------------- */
+ 
+
+function translateRays(rays, Z) {
+
+  for (var i=0; i < rays.length; i++) {
+    dZ         = Z - rays[i].z;
+    rays[i].h  = rays[i].h  - rays[i].u*dZ; 
+    rays[i].z  = Z;
+  }
+
+  return rays;
+}
 
 
 /* -----------------------------------------------------------------------

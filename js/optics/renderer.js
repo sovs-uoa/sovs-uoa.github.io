@@ -262,11 +262,11 @@ function drawAxis () {
  }
 
 
+  /* ---------------------------------------------
 
+  THESE ARE DRAWING FUNCTIONS 
 
-
-  /* THESE ARE DRAWING FUNCTIONS */
-
+   ------------------------------------------------ */
 
 
   function drawCardinalPoints(x, y, systemPoints, displayOptions) {

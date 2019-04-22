@@ -480,7 +480,6 @@ getConjuugateTo
   function addConstruction (aPoint) {
 
      console.log("add construction called.");
-
      totalLens  = renderableLens.total;
      pairData   = Optics.calculateConjugatePairFrom(aPoint, totalLens);
      
@@ -491,32 +490,17 @@ getConjuugateTo
 
      // update the points table with these data
      switch (aPoint.type) {
+
+            case "source":   // finite placed beam 
+              lens.raphael.constructions.push( new PointSourceConstruction (totalLens, pairData));
+              break;
+
             case "finite": case "point":   // finite placed beam 
               lens.raphael.constructions.push( new PrincipalRayConstruction (totalLens, pairData));
-              //updatePointsTable(aPoint.id, pairData);
-
-/*              
-              lens.pointsTable.updateData([{  id: aPoint.id, 
-                                              X1: pairData.X1, Y1: pairData.Y1,
-                                              l:  pairData.PO, ld: pairData.PI,                                            
-                                              to: pairData.T1, ti: pairData.T2,                                                                                              
-                                              zo: pairData.VO, zi: pairData.VI, 
-                                              ho: pairData.OQ, hi: pairData.IQ }]);
-*/                                              
               break;
 
             case "parallel": case "beam": // infinitely placed beam 
               lens.raphael.constructions.push( new ParallelBeamConstruction (totalLens, pairData));
-              //updatePointsTable(aPoint.id, pairData);
-/*              
-
-              lens.pointsTable.updateData([{  id: aPoint.id, 
-                                              X1: pairData.X1, Y1: pairData.Y1,
-                                              l:  pairData.PO, ld: pairData.PI,                                              
-                                              to: pairData.T1, ti: pairData.T2,  
-                                              zo: pairData.VO, zi: pairData.VI,
-                                              ho: pairData.OQ, hi: pairData.IQ }]);                                            
-*/                                              
               break;
 
 
@@ -526,18 +510,7 @@ getConjuugateTo
               console.log(aPoint);
 
               var afocal = new AfocalBeamConstruction (totalLens, pairData);
-              // afocal.setBeamWidth (aPoint.beamwidth);
               lens.raphael.constructions.push(afocal);
-              //updatePointsTable(aPoint.id, pairData);
-/*              
-
-              lens.pointsTable.updateData([{  id: aPoint.id, 
-                                              X1: pairData.X1, Y1: pairData.Y1,
-                                              l:  pairData.PO, ld: pairData.PI,                                              
-                                              to: pairData.T1, ti: pairData.T2,  
-                                              zo: pairData.VO, zi: pairData.VI,
-                                              ho: pairData.OQ, hi: pairData.IQ }]);                                            
-*/                                              
               break;
 
             

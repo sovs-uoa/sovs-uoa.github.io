@@ -9,8 +9,10 @@
 ----------------------------------------------*/
 {
 
-	// sources of light 
 
+/*--------------------------------------------
+
+	// sources of light 
 	"sources" : [ { "id"   		: 1, 
                     "type" 		: "afocal",
                     "which"		: "object",
@@ -18,6 +20,18 @@
                     "z"    		: NaN, 
                     "h"    		: NaN,
                     "t"    		: 5 }],
+
+--------------------------------------------*/
+
+	// sources of light 
+	"sources" : [ { "id"   		: 1, 
+                    "type" 		: "source",
+                    "which"		: "object",
+                    "beamwidth" : 0.15,
+                    "z"    		: -0.2, 
+                    "h"    		: 0.1,
+                    "t"    		: NaN }],
+
 
 	// lens prescription 
 	"title": "Thick Lens",

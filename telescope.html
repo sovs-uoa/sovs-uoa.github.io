@@ -59,6 +59,7 @@
   <script src="js/optics/PrincipalRayConstruction.js"></script>  
   <script src="js/optics/ParallelBeamConstruction.js"></script>  
   <script src="js/optics/AfocalBeamConstruction.js"></script>    
+  <script src="js/optics/PointSourceConstruction.js"></script>    
   <script src="js/optics/DataTableHandler.js"></script>      
   <script src="js/utils.js"></script>  
 
@@ -116,16 +117,6 @@
         console.log("report selection made = " + id);
         downloadReport(id);
       });
-
-
-
-
-
-
-
-
-
-
 
 
       initializeApp ();
@@ -217,7 +208,7 @@
     <!--  Report button -->  
 
     <div class="dropdown">
-    <button class='btn btn-primary dropdown-toggle float-right' data-toggle="dropdown" id="dropdownReportButton"' > 
+    <button class='btn btn-primary dropdown-toggle float-right' data-toggle="dropdown" id="dropdownReportButton" > 
        <i class="fas fa-download"></i>Report
     </button>
 
@@ -230,14 +221,6 @@
 
 
    </div>
-
-
-
-
-
-
-
-
     
 
    </div>
@@ -366,8 +349,9 @@
 
                         <div class="dropdown-menu">
                           <a class="dropdown-item" href="#" data-short-id="point"  onclick="lensObjectSelector(this); return false;">point (focal systems only)</a>
-                          <a class="dropdown-item" href="#" data-short-id="beam"   onclick="lensObjectSelector(this);  return false;">beam (from infinity, focal systems only)</a>
-                          <a class="dropdown-item" href="#" data-short-id="afocal" onclick="lensObjectSelector(this);  return false;">beam (from infinity, afocal system)</a>
+                          <a class="dropdown-item" href="#" data-short-id="source" onclick="lensObjectSelector(this); return false;">source (rays)</a>
+                          <a class="dropdown-item" href="#" data-short-id="beam"   onclick="lensObjectSelector(this); return false;">beam (from infinity, focal systems only)</a>
+                          <a class="dropdown-item" href="#" data-short-id="afocal" onclick="lensObjectSelector(this); return false;">beam (from infinity, afocal system)</a>
                         </div>            
                       </div>
 
@@ -429,7 +413,6 @@
         </div>
 
         <!-- Lens Group Name -->
-
         <div class="input-group mb-3" style="display:none;">
           <input id="modal-lens-group-name" type="text" class="form-control" aria-label="Description" placeholder="Enter the group name. (Optional)" >
         </div>
@@ -580,10 +563,23 @@
         </div>
 
 
+        <!-- Source Input Form -->
+        <div id = "lens-type-source" style="display:none;">
+          Object distance 
+          <div class="input-group mb-3">
+              <input id="modal-source-z"  type="text" class="form-control" aria-label="Description" placeholder="Enter the axial distance." value="-0.5">
+          </div>
+
+          Object height
+          <div class="input-group mb-3">
+              <input id="modal-source-h"  type="text" class="form-control" aria-label="Description" placeholder="Enter the height." value="0.1">
+          </div>
+        </div>
+
+
+
         <!-- Beam Input Form -->
         <div id = "lens-type-beam" style="display:none;">
-
-
 
           This will add a beam from infinity to the system. The beam will pass through the cardinal points. This type of light source will not work if the system is afocal. 
 

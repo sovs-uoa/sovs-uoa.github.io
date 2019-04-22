@@ -176,7 +176,6 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
 
         this.remove ();            
         this.draw ();    
-
     }
 
 
