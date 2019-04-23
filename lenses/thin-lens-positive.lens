@@ -10,7 +10,7 @@
 
 
 	"sources" : [ { "id" 		: 1, 
-					"type" 		: "point",
+					"type" 		: "source",
 					"which"		: "object",
 					"beamwidth" : NaN,
 					"z"			: -0.3, 

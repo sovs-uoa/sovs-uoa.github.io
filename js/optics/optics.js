@@ -233,7 +233,7 @@ function translateRays(rays, Z) {
 
   for (var i=0; i < rays.length; i++) {
     dZ         = Z - rays[i].z;
-    rays[i].h  = rays[i].h  - rays[i].u*dZ; 
+    rays[i].h  = rays[i].h  + rays[i].u*dZ; 
     rays[i].z  = Z;
   }
 
@@ -261,10 +261,31 @@ function calculateRayTrace(rays, lensTable ) {
 
   // create the total system
   var Z = 0; ret = [];
-  for (var i=0; i < lensTable.length; i++) {
+
+
+  console.log("Calculate RayTrace");
+
+  // create the system matrix
+  for (var i=lensTable.length-1; i >=0; i--) {
+
+    // create the total system 
+    // eachElementInfo = getLensElementInfo(lensTable, i);
+    //for (var i=0; i < lensTable.length; i++) {
+
+
+
 
           each    = lensTable[i];
           Z       = Z + each.L;
+          
+
+          console.log("Lens");
+          console.log(each);
+
+          console.log("Rays");
+          console.log(rays);
+
+
           newrays = rayMultiply(each.S, rays);
           
           for (var j = 0; j < newrays.length; j++) {

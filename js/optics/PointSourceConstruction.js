@@ -226,7 +226,7 @@ class PointSourceConstruction { // create a ray construction using raphael.js
       var rays = [];
 
       function getBeam (VO, Y1, Y2) {
-          var u0 = (Y2 - Y1)/(VO);
+          var u0 = (Y2 - Y1)/(Math.abs(VO));
           return { u: u0, z:VO, h: Y1};
       }
 
@@ -238,13 +238,25 @@ class PointSourceConstruction { // create a ray construction using raphael.js
       rays.push(getBeam(VO, Y1, +BW/2));      
       rays.push(getBeam(VO, Y1, 0));      
       rays.push(getBeam(VO, Y1, -BW/2));            
+
+      console.log("Original rays");
+      console.log(rays);
+
+      console.log(this.data);
+
       rays = translateRays(rays, 0);
+
+      console.log("Input rays");
+      console.log(rays);
+
 
       // trace them through (Fwd)
       this.raypath = Optics.calculateRayTrace(rays, renderableLens.elem);
 
-      //console.log("Output rays");
-      //console.log (this.raypath);
+      console.log("Output rays");
+      console.log (this.raypath);
+      console.log(renderableLens.elem);
+
       //this.drawAfocalConstruction ();
    }
 
@@ -339,6 +351,9 @@ class PointSourceConstruction { // create a ray construction using raphael.js
      //var F1 = lens.cardinal.VF1;
      //var F2 = lens.L + lens.cardinal.VF2;
 
+     console.log("LENS");
+     console.log(lens);
+
 
 
      //console.log("-- draw PointSource beam construction.");
@@ -347,11 +362,13 @@ class PointSourceConstruction { // create a ray construction using raphael.js
 
 
      var V1   = lens.V1;
-     var V2   = lens.V2;
+     var V2   = lens.L;
      var ray  = this.raypath;
      
-     this.cd_set.remove ();
 
+
+
+     this.cd_set.remove ();
      var dimensions = [ ray.length, ray[0].length ];
      var K = dimensions[0]; // number of surfaces 
      var M = dimensions[1]; // number of rays 
@@ -402,9 +419,9 @@ class PointSourceConstruction { // create a ray construction using raphael.js
 
 
 
-     // FINAL RAYS 
-
-//     if (Math.abs(lens.F) > 0.0001) {
+   // FINAL RAYS 
+/*
+   if (Math.abs(lens.F) > 0.0001) {
 
 
       // FINITE RAYS 
@@ -436,25 +453,62 @@ class PointSourceConstruction { // create a ray construction using raphael.js
 
       }
 
-/*
+
      } else { // INFINITE RAYS 
 
-
+*/
           // FINITE RAYS 
-         var dX = 1000;
+
+
+        var XI = this.data.X2;
+        var YI = this.data.Y2;
+         var dX = 1;
          for (var i=0; i <  M ; i++) {
 
             var u1 = ray[K-1][i].u;       
-            var X1 = ray[K-1][i].z; var Y1 = ray[K-1][i].h;
-            var X2 = X1 + dX;  var Y2 = Y1 + dX*u1;
-            var p4 = paper.path( ["M", X1, Y1,  "L", X2, Y2 ]);         
-            p4.attr(real);
-           this.cd_set.push(p4);
+            var X1 = ray[K-1][i].z; 
+            var Y1 = ray[K-1][i].h;
+            
+            console.log("X2 = " + X2 + ", V2 = " + V2);
+
+            if (XI <= V2) {
+
+              var X2 = X1 + dX;  
+              var Y2 = Y1 + dX*u1;            
+              var p4 = paper.path( ["M", X1, Y1,  "L", X2, Y2 ]);         
+              p4.attr(real);
+              this.cd_set.push(p4);
+
+              var p4 = paper.path( ["M", X1, Y1,  "L", XI, YI ]);         
+
+              // information 
+              p4.attr(virtual);
+              this.cd_set.push(p4);
+
+              // extend the rays 
+              var dx  = + 10;
+              var i1  = u1 * dx + Y1; // upper height on N1 
+              var p5  = paper.path( ["M", X1, Y1,  "L", X1 + dx, i1 ]);    // O  -> H1   (ray through F1)
+              this.cd_set.push(p5);
+
+            } else {
+
+              var p4 = paper.path( ["M", X1, Y1,  "L", XI, YI ]);         
+              p4.attr(real);
+              this.cd_set.push(p4);
+
+
+            }
+
+
           }
 
 
-     }
-*/
+            
+
+
+//     }
+
  
 
 
