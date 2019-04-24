@@ -15,7 +15,7 @@
 %
 -------------------------------------------------------------------------------- */
 
-console.log("loaded ... optics.js");
+//console.log("loaded ... optics.js");
 
 var Optics = {};
 
@@ -66,10 +66,10 @@ Optics.extractGroup = function (lens, group_name) {
   ret.push(lens[lastIndex]);
 
   // result
-  console.log("result group.");  
-  console.log(ret);
-  console.log(lens.length);
-  console.log(lastIndex);
+  //console.log("result group.");  
+  //console.log(ret);
+  //console.log(lens.length);
+  //console.log(lastIndex);
   return ret;
 }
 
@@ -256,14 +256,14 @@ RAYBUNDLE Determine conjugate information for a point
 
 function calculateRayTrace(rays, lensTable ) {
 
-  //console.log("calculate RyaTrce");
-  //console.log(lensTable);
+  ////console.log("calculate RyaTrce");
+  ////console.log(lensTable);
 
   // create the total system
   var Z = 0; ret = [];
 
 
-  console.log("Calculate RayTrace");
+  //console.log("Calculate RayTrace");
 
   // create the system matrix
   for (var i=lensTable.length-1; i >=0; i--) {
@@ -279,11 +279,11 @@ function calculateRayTrace(rays, lensTable ) {
           Z       = Z + each.L;
           
 
-          console.log("Lens");
-          console.log(each);
+          //console.log("Lens");
+          //console.log(each);
 
-          console.log("Rays");
-          console.log(rays);
+          //console.log("Rays");
+          //console.log(rays);
 
 
           newrays = rayMultiply(each.S, rays);
@@ -292,9 +292,9 @@ function calculateRayTrace(rays, lensTable ) {
               newrays[j].z = Z;
           }
 
-          //console.log("system information");
-          //console.log(each);
-          //console.log(Z);
+          ////console.log("system information");
+          ////console.log(each);
+          ////console.log(Z);
 
           ret.push(newrays);
           rays = newrays;        // update rays
@@ -381,8 +381,8 @@ function calculateConjugatePairFrom(point, systemInfo) {
             break;
 
             default:
-            console.log("point ID error!");
-            console.log(point);
+            //console.log("point ID error!");
+            //console.log(point);
             throw "The point was not an object or an image."
 
           }
@@ -851,10 +851,10 @@ function getImageFromObject (S, VO) {
       rayOut = rayMultiply(S, rayIn);
       VI     = -rayOut.h/rayOut.u;
 
-      console.log("Image from object!");
-      console.log(rayOut);
-      console.log(S);      
-      console.log(VI);
+      //console.log("Image from object!");
+      //console.log(rayOut);
+      //console.log(S);      
+      //console.log(VI);
 
       return VI;
 
@@ -867,10 +867,10 @@ function getObjectFromImage (S, VO) {
       rayOut = rayMultiply(invS, rayIn);
       VO     = -rayOut.h/rayOut.u;
 
-      console.log("Object from image!");
-      console.log(rayOut);
-      console.log(S);      
-      console.log(VO);
+      //console.log("Object from image!");
+      //console.log(rayOut);
+      //console.log(S);      
+      //console.log(VO);
 
       return VO;
 }
@@ -994,8 +994,8 @@ function getTotalLensSystemInfo (lensTable) {
         if (eachElementInfo.elem.stop) {
 
 
-            console.log("FOUND STOP!");
-            console.log(eachElementInfo);
+            //console.log("FOUND STOP!");
+            //console.log(eachElementInfo);
 
             totalSystem.total.stop         = true;     
             totalSystem.total.stopIndex    = i;
@@ -1010,8 +1010,8 @@ function getTotalLensSystemInfo (lensTable) {
             totalSystem.total.exit.n2      = totalSystem.total.n2;
 
 
-            console.log("UPDATED INDICES!");
-            console.log(totalSystem.total);
+            //console.log("UPDATED INDICES!");
+            //console.log(totalSystem.total);
 
         }
 
@@ -1030,7 +1030,7 @@ function getTotalLensSystemInfo (lensTable) {
 
 
 
-  console.log("START COLLATING...");
+  //console.log("START COLLATING...");
 
   // create the system matrix
   for (var i=lensTable.length-1; i >=0; i--) {
@@ -1039,25 +1039,25 @@ function getTotalLensSystemInfo (lensTable) {
     eachElementInfo = getLensElementInfo(lensTable, i);
     if ((totalSystem.total.stop) & (totalSystem.total.stopIndex > i)) { // entrance pupil system 
 
-        console.log("Building Entrance Information.");
+        //console.log("Building Entrance Information.");
        totalSystem.total.entrance.S    = systemMultiply(totalSystem.total.entrance.S, eachElementInfo.S);    
 
-       console.log(eachElementInfo);
+       //console.log(eachElementInfo);
 
 
     } else if ((totalSystem.total.stop) & (totalSystem.total.stopIndex < i))  { // next element gets included 
 
-        console.log("Building Exit Information.");
+        //console.log("Building Exit Information.");
         totalSystem.total.exit.S = systemMultiply(totalSystem.total.exit.S, eachElementInfo.S);
 
-       console.log(eachElementInfo);
+       //console.log(eachElementInfo);
 
     
     } else {
 
-        console.log("Stop Element.");
+        //console.log("Stop Element.");
 
-       console.log(eachElementInfo);
+       //console.log(eachElementInfo);
 
 
     }    
@@ -1093,8 +1093,8 @@ function getTotalLensSystemInfo (lensTable) {
       totalSystem.total.pupil.ME2 = getMagnification (totalSystem.total.exit.S, n1, n2);
 
 
-      console.log("TOTAL SYSTEM STOPS");
-      console.log(totalSystem.total);
+      //console.log("TOTAL SYSTEM STOPS");
+      //console.log(totalSystem.total);
   }
 
 
@@ -1106,8 +1106,8 @@ function getTotalLensSystemInfo (lensTable) {
   totalPowers = getPowers (totalCardinalPoints, first.index, last.index);
   
 
-  console.log("Total Powers");
-  console.log(totalPowers);
+  //console.log("Total Powers");
+  //console.log(totalPowers);
 
   totalSystem.total.cardinal = totalCardinalPoints;
   totalSystem.total.Z        = 0; // start gere 
@@ -1126,8 +1126,8 @@ function getLensSystemInfo (lensTable) {
   var Z = 0; r = [];
   for (var i=0; i < lensTable.length-1; i++) {
 
-    console.log("LENS");
-    console.log(lensTable[i]);
+    //console.log("LENS");
+    //console.log(lensTable[i]);
 
     var id = lensTable[i].id;
     eachElementInfo  = getLensElementInfo(lensTable, i);

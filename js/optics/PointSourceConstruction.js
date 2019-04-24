@@ -22,7 +22,7 @@ CONSTRUCTION EVENT HANDLERS
 
 function movePointSource (dx, dy) {
 
-      //console.log("--- called construction move point id = " + this.id);  
+      ////console.log("--- called construction move point id = " + this.id);  
 
 
       // update the appropriate point 
@@ -41,7 +41,7 @@ function movePointSource (dx, dy) {
       // update the conjugate 
       var thisPoint = this.data("data-attr");
 
-      //console.log(thisPoint);
+      ////console.log(thisPoint);
 
       totalLens = renderableLens.total;  // I should make this local if I can
       pairData  = Optics.calculateConjugatePairFrom({   id     : thisPoint.id, 
@@ -62,7 +62,7 @@ function movePointSource (dx, dy) {
   
   function startPointSource () {
 
-      //console.log("--- called construction start point id = " + this.id);  
+      ////console.log("--- called construction start point id = " + this.id);  
 
       // storing original coordinates
       this.ox = this.attr("cx");
@@ -73,7 +73,7 @@ function movePointSource (dx, dy) {
   
   function upPointSource () {
 
-      //console.log("--- called construction up point id = " + this.id);  
+      ////console.log("--- called construction up point id = " + this.id);  
 
   }
 
@@ -191,7 +191,7 @@ class PointSourceConstruction { // create a ray construction using raphael.js
 
 
         // refresh the angle picker 
-        console.log ("refreshing PointSourceConstruction");
+        //console.log ("refreshing PointSourceConstruction");
         
 
         this.updateRays();
@@ -235,7 +235,7 @@ class PointSourceConstruction { // create a ray construction using raphael.js
    // re-calculate traced rays without drawing
    updateRays() {
 
-      // console.log(th);
+      // //console.log(th);
       var rays = [];
 
       function getBeam (VO, Y1, Y2) {
@@ -252,24 +252,24 @@ class PointSourceConstruction { // create a ray construction using raphael.js
       rays.push(getBeam(VO, Y1, 0));      
       rays.push(getBeam(VO, Y1, -BW/2));            
 
-      console.log("Original rays");
-      console.log(rays);
-      console.log(this.data);
+      //console.log("Original rays");
+      //console.log(rays);
+      //console.log(this.data);
 
       rays = translateRays(rays, 0);
 
       this.inputRays = rays;
 
-      console.log("Input rays");
-      console.log(rays);
+      //console.log("Input rays");
+      //console.log(rays);
 
 
       // trace them through (Fwd)
       this.raypath = Optics.calculateRayTrace(rays, renderableLens.elem);
 
-      console.log("Output rays");
-      console.log (this.raypath);
-      console.log(renderableLens.elem);
+      //console.log("Output rays");
+      //console.log (this.raypath);
+      //console.log(renderableLens.elem);
 
       //this.drawAfocalConstruction ();
    }
@@ -365,14 +365,14 @@ class PointSourceConstruction { // create a ray construction using raphael.js
      //var F1 = lens.cardinal.VF1;
      //var F2 = lens.L + lens.cardinal.VF2;
 
-     console.log("LENS");
-     console.log(lens);
-
-
-
-     //console.log("-- draw PointSource beam construction.");
-     displayOptions = this.displayOptions;
+     //console.log("LENS");
      //console.log(lens);
+
+
+
+     ////console.log("-- draw PointSource beam construction.");
+     displayOptions = this.displayOptions;
+     ////console.log(lens);
 
 
      var V1   = 0;
@@ -448,8 +448,8 @@ class PointSourceConstruction { // create a ray construction using raphael.js
 */
 
 
-    //console.log("FINAL INFORMATION");
-    //console.log(lens);
+    ////console.log("FINAL INFORMATION");
+    ////console.log(lens);
 
 
 
@@ -504,7 +504,7 @@ class PointSourceConstruction { // create a ray construction using raphael.js
             var X1 = ray[K-1][i].z; 
             var Y1 = ray[K-1][i].h;
             
-            console.log("X2 = " + X2 + ", V2 = " + V2);
+            //console.log("X2 = " + X2 + ", V2 = " + V2);
 
             if (XI <= V2) {
 
