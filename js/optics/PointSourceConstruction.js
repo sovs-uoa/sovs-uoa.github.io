@@ -110,6 +110,7 @@ class PointSourceConstruction { // create a ray construction using raphael.js
 
        this.PointSourcemode = false;
        this.rays;
+       this.inputRays;
 
        // this.setInputRays(30); 
 
@@ -193,6 +194,8 @@ class PointSourceConstruction { // create a ray construction using raphael.js
         console.log ("refreshing PointSourceConstruction");
         
 
+        this.updateRays();
+
         // refresh the rays 
         this.remove ();            
         this.draw ();    
@@ -212,6 +215,16 @@ class PointSourceConstruction { // create a ray construction using raphael.js
           this.imagePoint.hide();
       }
 
+
+      // defend against nonfocal rays 
+      if (isFinite(this.data.X1)) {
+          this.objectPoint.show();
+          this.objectPoint.attr({ cx: this.data.X1, cy: this.data.Y1 }); // move the image point here
+      } else {
+          this.objectPoint.hide();
+      }
+
+
       // var V1 = 0;      
       // this.anglePicker.setAnchor(V1, 0);  // change the anchor
       // this.anglePicker.setAngle(this.data.T1);        
@@ -226,7 +239,7 @@ class PointSourceConstruction { // create a ray construction using raphael.js
       var rays = [];
 
       function getBeam (VO, Y1, Y2) {
-          var u0 = (Y2 - Y1)/(Math.abs(VO));
+          var u0 = (Y2 - Y1)/(-VO);
           return { u: u0, z:VO, h: Y1};
       }
 
@@ -241,10 +254,11 @@ class PointSourceConstruction { // create a ray construction using raphael.js
 
       console.log("Original rays");
       console.log(rays);
-
       console.log(this.data);
 
       rays = translateRays(rays, 0);
+
+      this.inputRays = rays;
 
       console.log("Input rays");
       console.log(rays);
@@ -361,7 +375,7 @@ class PointSourceConstruction { // create a ray construction using raphael.js
      //console.log(lens);
 
 
-     var V1   = lens.V1;
+     var V1   = 0;
      var V2   = lens.L;
      var ray  = this.raypath;
      
@@ -375,20 +389,41 @@ class PointSourceConstruction { // create a ray construction using raphael.js
 
 
      // START RAYS 
-
+     dX = -1;
      var X1 = this.data.X1;
      var Y1 = this.data.Y1;
-
      for (var i=0; i <  M ; i++) {
         
         var u2 = ray[0][i].u;         
         var X2 = ray[0][i].z; 
         var Y2 = ray[0][i].h;        
 
-        // var X2 = X1 + dX; var Y2 = Y1 + dX*u1;
-        var p4 = paper.path( ["M", X1, Y1,  "L", X2, Y2 ]); 
-        p4.attr(real);
-        this.cd_set.push(p4);
+
+        if (X1 > V1) {
+
+            // var X2 = X1 + dX; var Y2 = Y1 + dX*u1;
+            var p4 = paper.path( ["M", X1, Y1,  "L", X2, Y2 ]); 
+            p4.attr(virtual);
+            this.cd_set.push(p4);
+
+
+            var u1 = this.inputRays[i].u;
+            var X3 = X2 + dX;  
+            var Y3 = Y2 + dX*u1;            
+            var p4 = paper.path( ["M", X2, Y2,  "L", X3, Y3 ]);         
+            p4.attr(real);
+            this.cd_set.push(p4);
+
+        } else {
+
+            // var X2 = X1 + dX; var Y2 = Y1 + dX*u1;
+            var p4 = paper.path( ["M", X1, Y1,  "L", X2, Y2 ]); 
+            p4.attr(real);
+            this.cd_set.push(p4);
+
+        }
+
+
      }
 
 

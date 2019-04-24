@@ -471,11 +471,11 @@ function calculatePairFromObject (object, systemInfo) {
                               IQ  : Infinity, 
                               M   : undefined,
                               T1  : undefined,
-                              T2  : undefined,
+                              T2  : rad2deg(q.u),
                               TH  : h/n1 * curr.F,                              
                                }; // w.r.t. PF1 and PF2 
 
-                      throw "infinite image distance detected";              
+                      //throw "infinite image distance detected";              
               }
 
 
