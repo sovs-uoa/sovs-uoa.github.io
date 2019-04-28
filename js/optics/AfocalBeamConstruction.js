@@ -45,9 +45,7 @@ function onAfocalMove (th)  {
 
 
       // this should update afocalbeamconstruction rays 
-      this.parent.setInputRays(th);
-      
-      // re-paint
+      this.parent.setInputRays(PairData.T1);
       this.parent.remove(); 
       this.parent.draw();
 
@@ -201,15 +199,13 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
 
        this.afocalmode = false;
 
+       this.inputRays;
        this.rays;
 
        // start
        var T1 = this.data.T1;
        this.setInputRays(T1); 
        this.addAfocalConstruction (); // draw the rays 
-
-
-
 
     }
 
@@ -326,15 +322,16 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
 
       function getBeam (th, bw) {
           var r = [];
-          r.push({ u: deg2rad(th), h: -bw/2});
-          r.push({ u: deg2rad(th), h: 0});
-          r.push({ u: deg2rad(th), h: +bw/2});
+          r.push({ u: deg2rad(th), h: -bw/2,  z: 0});
+          r.push({ u: deg2rad(th), h: 0,      z: 0});
+          r.push({ u: deg2rad(th), h: +bw/2,  z: 0});
           return r;
       }
 
       //this.anglePicker.setAngle(th);
-      var rays     = getBeam(th, this.BeamWidth);      
-      this.raypath = Optics.calculateRayTrace(rays, renderableLens.elem);
+      var rays       = getBeam(th, this.BeamWidth);      
+      this.inputRays = rays; 
+      this.raypath   = Optics.calculateRayTrace(rays, renderableLens.elem);
 
       //console.log("Output rays");
       //console.log (this.raypath);
@@ -434,12 +431,12 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
 
      // try and deal with this     
      var lens = this.lens;
-     var N1 = lens.cardinal.VN1;
-     var N2 = lens.L + lens.cardinal.VN2;
-     var P1 = lens.cardinal.VP1;
-     var P2 = lens.L + lens.cardinal.VP2;
-     var F1 = lens.cardinal.VF1;
-     var F2 = lens.L + lens.cardinal.VF2;
+     //var N1 = lens.cardinal.VN1;
+     //var N2 = lens.L + lens.cardinal.VN2;
+     //var P1 = lens.cardinal.VP1;
+     //var P2 = lens.L + lens.cardinal.VP2;
+     //var F1 = lens.cardinal.VF1;
+     //var F2 = lens.L + lens.cardinal.VF2;
 
 
 
@@ -453,19 +450,27 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
      var ray = this.raypath;
      
      this.cd_set.remove ();
-
      var dimensions = [ ray.length, ray[0].length ];
      var K = dimensions[0]; // number of surfaces 
      var M = dimensions[1]; // number of rays 
 
 
+     console.log("Input rays");
+     console.log(this.inputRays);
+
+     console.log("Ray path");
+     console.log(this.raypath);
 
      // START RAYS 
      var dX = -10;
      for (var i=0; i <  M ; i++) {
-        var u1 = ray[0][i].u;         
-        var X1 = ray[0][i].z; var Y1 = ray[0][i].h;
-        var X2 = X1 + dX; var Y2 = Y1 + dX*Math.tan(u1);
+
+
+
+        var u1 = this.inputRays[i].u;         
+        var X1 = this.inputRays[i].z; 
+        var Y1 = this.inputRays[i].h;
+        var X2 = X1 + dX; var Y2 = Y1 + dX*u1;
         var p4 = paper.path( ["M", X1, Y1,  "L", X2, Y2 ]); 
         p4.attr(real);
         this.cd_set.push(p4);

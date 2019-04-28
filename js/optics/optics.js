@@ -265,29 +265,25 @@ function calculateRayTrace(rays, lensTable ) {
 
   //console.log("Calculate RayTrace");
 
+  console.log("START PROCESSING");
+
+
   // create the system matrix
-  for (var i=lensTable.length-1; i >=0; i--) {
+  // for (var i=lensTable.length-1; i >=0; i--) {
 
     // create the total system 
     // eachElementInfo = getLensElementInfo(lensTable, i);
-    //for (var i=0; i < lensTable.length; i++) {
-
-
-
+    for (var i=0; i < lensTable.length; i++) {
 
           each    = lensTable[i];
           Z       = Z + each.L;
-          
 
-          //console.log("Lens");
-          //console.log(each);
+          console.log("Lens");
+          console.log(each);
+          console.log("Rays");
+          console.log(rays);
 
-          //console.log("Rays");
-          //console.log(rays);
-
-
-          newrays = rayMultiply(each.S, rays);
-          
+          newrays = rayMultiply(each.S, rays);          
           for (var j = 0; j < newrays.length; j++) {
               newrays[j].z = Z;
           }
