@@ -216,8 +216,8 @@ function editCheck (cell) {
       if (columnName == "stop")     { return true; };       
       break;
 
-      case "power":
-      if (columnName == "sphere") { return true; }; 
+      case "thin":
+      if (columnName == "power") { return true; }; 
       if (columnName == "aperture") { return true; }; 
       if (columnName == "stop")     { return true; };       
       break;

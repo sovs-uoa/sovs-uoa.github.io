@@ -105,7 +105,7 @@ class PointSourceConstruction { // create a ray construction using raphael.js
        // this.imagePoint;
        this.objectPoint;
        this.imagePoint;
-       this.BeamWidth    = 0.2 || beamwidth;
+       this.BeamWidth    = beamwidth || 0.2;
 
 
        this.PointSourcemode = false;
@@ -514,9 +514,8 @@ class PointSourceConstruction { // create a ray construction using raphael.js
               p4.attr(real);
               this.cd_set.push(p4);
 
-              var p4 = paper.path( ["M", X1, Y1,  "L", XI, YI ]);         
-
               // information 
+              var p4 = paper.path( ["M", X1, Y1,  "L", XI, YI ]);         
               p4.attr(virtual);
               this.cd_set.push(p4);
 
@@ -537,9 +536,6 @@ class PointSourceConstruction { // create a ray construction using raphael.js
 
 
           }
-
-
-            
 
 
 //     }

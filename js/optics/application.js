@@ -480,9 +480,13 @@ getConjuugateTo
   function addConstruction (aPoint) {
 
      console.log("add construction called.");
+     console.log(aPoint);
+
      totalLens  = renderableLens.total;
      pairData   = Optics.calculateConjugatePairFrom(aPoint, totalLens);
-     
+
+
+
      //lens.pointsTable.addRow([{  id: aPoint.id, 
      //                            type: aPoint.type }]);
 
@@ -492,7 +496,8 @@ getConjuugateTo
      switch (aPoint.type) {
 
             case "source":   // finite placed beam 
-              lens.raphael.constructions.push( new PointSourceConstruction (totalLens, pairData));
+              var beamWidth = aPoint.beamwidth;     
+              lens.raphael.constructions.push( new PointSourceConstruction (totalLens, pairData, beamWidth));
               break;
 
             case "finite": case "point":   // finite placed beam 

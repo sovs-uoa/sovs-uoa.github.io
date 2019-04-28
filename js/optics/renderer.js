@@ -1,5 +1,4 @@
   var lens_edge       = { "stroke": "black", "stroke-width": "2", "stroke": "black", "stroke-dasharray":"none"  };
-  
   var pupil_attr       = { "stroke-width": "2", "stroke": "gray", "stroke-dasharray":"none"  };
   
 

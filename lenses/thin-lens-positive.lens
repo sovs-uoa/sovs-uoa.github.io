@@ -7,15 +7,14 @@
 {
 
 	// points 
-
-
 	"sources" : [ { "id" 		: 1, 
-					"type" 		: "source",
+					"type" 		: "point",
 					"which"		: "object",
 					"beamwidth" : NaN,
 					"z"			: -0.3, 
 					"h"			: 0.1,
 					"t"			: NaN } ],
+
 
 	// lens prescription 
 	"title": "Thin Lens",
