@@ -362,6 +362,7 @@
 
                         <div class="dropdown-menu">
                           <a class="dropdown-item" href="#" data-short-id="point"  onclick="lensObjectSelector(this); return false;">point (focal systems only)</a>
+                          <a class="dropdown-item" href="#" data-short-id="source" onclick="lensObjectSelector(this); return false;">source (rays)</a>                          
                           <a class="dropdown-item" href="#" data-short-id="beam"   onclick="lensObjectSelector(this);  return false;">beam (from infinity, focal systems only)</a>
                           <a class="dropdown-item" href="#" data-short-id="afocal" onclick="lensObjectSelector(this);  return false;">beam (from infinity, afocal system)</a>
                         </div>            
@@ -595,6 +596,20 @@
           </div>
         </div>
 
+
+
+        <!-- Source Input Form -->
+        <div id = "lens-type-source" style="display:none;">
+          Object distance 
+          <div class="input-group mb-3">
+              <input id="modal-source-z"  type="text" class="form-control" aria-label="Description" placeholder="Enter the axial distance." value="-0.5">
+          </div>
+
+          Object height
+          <div class="input-group mb-3">
+              <input id="modal-source-h"  type="text" class="form-control" aria-label="Description" placeholder="Enter the height." value="0.1">
+          </div>
+        </div>
 
 
         <!-- Beam Input Form -->
