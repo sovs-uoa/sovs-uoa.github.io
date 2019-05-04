@@ -211,6 +211,7 @@ function editCheck (cell) {
     switch (data.type) {
 
       case "sphere":
+      if (columnName == "power")    { return true; }; 
       if (columnName == "radius")   { return true; }; 
       if (columnName == "aperture") { return true; }; 
       if (columnName == "stop")     { return true; };       
@@ -238,6 +239,55 @@ function editCheck (cell) {
 }
 
 
+
+function updatedFieldCheck (cell) {
+
+    //get data for the row 
+    var data       = cell.getRow().getData();
+    var columnName = cell.getColumn().getField();
+
+
+    console.log("edited check column = " + columnName);
+    console.log(data);
+
+    switch (data.type) {
+
+      case "sphere":
+
+          if (columnName == "radius")   { 
+              
+              console.log("Updating the ... radius");
+              var row     = cell.getRow();
+              var nextRow = row.getNextRow().getData();
+              var prevRow = row.getPrevRow().getData();
+              row.update({ "power" : (nextRow.index - prevRow.index)/data.radius});
+              //return true; 
+          
+          } else if (columnName == "power")   { 
+              
+              console.log("Updating the ... power");
+              var row     = cell.getRow();
+              var nextRow = row.getNextRow().getData();
+              var prevRow = row.getPrevRow().getData();
+              row.update({ "radius" : (nextRow.index - prevRow.index)/data.power});
+              //return true; 
+          }; 
+      break;
+    }
+
+   // default den
+}
+
+
+
+function postBuildUpdate () {
+
+
+    row = 
+
+
+    row = row.getNextRow();
+};
 
 /* ------------------------------------------------------------------------------------------------------
 
@@ -282,9 +332,10 @@ function initializePrescriptionTable(data, updatePrescriptionCallback, success) 
     // Tabulator 
     lens.table = new Tabulator("#lens-table", {
       cellEdited:function(cell){
-        console.log("lens edited - update the prescription");
-        console.log(cell);
-        updatePrescriptionCallback(cell);
+        // console.log("lens edited - update the prescription");
+        // console.log(cell);
+        updatedFieldCheck (cell);         // check if a dependent cell was changed / updated   
+        updatePrescriptionCallback(cell); // other updates 
       },
       data:lensTable,
       height:"300px",
@@ -307,6 +358,8 @@ function initializePrescriptionTable(data, updatePrescriptionCallback, success) 
            }],
     });
 
+
+    // post loading of the table / we should check whether the prescriprion can be filled in
 
 
 
@@ -554,8 +607,8 @@ function initializePointsTable(data, updatePointsCallback, success) {
         layout:"fitColumns",
         columns:[
             {rowHandle:true, formatter:"handle", headerSort:false, frozen:true, width:30, minWidth:30},
-            {title:"id",     field:"id",       width:100, headerSort:false},                  
-            {title:"type",   field:"type",     width:100, headerSort:false},                  
+            {title:"id",     field:"id",       width:50, headerSort:false},                  
+            {title:"type",   field:"type",     width:100, headerSort:false},       
             //{title:"X1",     field:"X1",       width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" } },                  
             //{title:"Y1",     field:"Y1",       width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" }, accessor: flipVal },
             {title:"X1",                          field:"X1", visible:false, width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" },  cellEdited:  defaultEditFunction, editable:editPointCheck },                  
@@ -569,7 +622,8 @@ function initializePointsTable(data, updatePointsCallback, success) {
             {title:"<i>h</i>",                    field:"ho", visible:true,  width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--",  flipVal:false },  cellEdited:  defaultEditFunction, editable:editPointCheck },
             {title:"<i>h&prime;</i>",             field:"hi", visible:true,  width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--",  flipVal:false },  cellEdited:  defaultEditFunction, editable:editPointCheck },
             {title:"<i>&theta;&prime;</i>",       field:"to", visible:true,  width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--",  flipVal:false },  cellEdited:  defaultEditFunction, editable:editPointCheck },                  
-            {title:"<i>&theta;</i>",              field:"ti", visible:true,  width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--",  flipVal:false },  cellEdited:  defaultEditFunction, editable:editPointCheck }
+            {title:"<i>&theta;</i>",              field:"ti", visible:true,  width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--",  flipVal:false },  cellEdited:  defaultEditFunction, editable:editPointCheck },
+            {title:"<i>beam width</i>",           field:"beamwidth", visible:true,  width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--",  flipVal:false },  cellEdited:  defaultEditFunction, editable:editPointCheck }                              
         ],
       });
 

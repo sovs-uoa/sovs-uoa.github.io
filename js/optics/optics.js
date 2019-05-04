@@ -43,7 +43,9 @@ Optics.calculateRayTrace = function(rays, systemInfo) {
   return calculateRayTrace (rays, systemInfo)
 }
 
-
+Optics.getPupils = function(rays, systemInfo) {
+  return calculateRayTrace (rays, systemInfo)
+}
 
 Optics.extractGroup = function (lens, group_name) {
 
@@ -136,6 +138,30 @@ function convertToLensTable (response) {
 
         lens_table.push(each_element);        
     }
+
+    // fill in missing information 
+    for (var i = 1; i < response.length-1; i++ ) {
+
+          prev = lens_table[i-1];
+          curr = lens_table[i];
+          next = lens_table[i+1];
+
+          if (curr.type == "sphere") {
+
+            console.log("AUTO-UPDATING");
+            console.log(curr);
+
+            if (isFinite(curr.radius) & isNaN(curr.power)) {
+              lens_table[i].power = (next.index - prev.index)/curr.radius;
+            }
+
+          }
+
+
+
+    }
+
+
 
     return lens_table;
 };
@@ -995,7 +1021,7 @@ function getTotalLensSystemInfo (lensTable) {
 
             totalSystem.total.stop         = true;     
             totalSystem.total.stopIndex    = i;
-            totalSystem.total.stopDiameter = eachElementInfo.elem.height;
+            totalSystem.total.stopDiameter = eachElementInfo.elem.aperture || eachElementInfo.elem.height;
             totalSystem.total.entrance.L   = Z; // system length  
             totalSystem.total.entrance.n1  = totalSystem.total.n1;
             totalSystem.total.entrance.n2  = eachElementInfo.n1;

@@ -125,6 +125,12 @@ getConjuugateTo
 
   function addPointsTableRow(aPoint, pairData) {
 
+
+     console.log("ADDING ROW");
+
+     console.log(aPoint);
+
+
       lens.pointsTableHandler.addRow([ {  id: aPoint.id,
                                           type: aPoint.type, 
                                           X1: pairData.X1, Y1: pairData.Y1,
@@ -132,9 +138,8 @@ getConjuugateTo
                                           l:  pairData.PO, ld: pairData.PI,                                            
                                           to: pairData.T1, ti: pairData.T2,                                                                                              
                                           zo: pairData.VO, zi: pairData.VI, 
-                                          ho: pairData.OQ, hi: pairData.IQ }]);
-
-
+                                          ho: pairData.OQ, hi: pairData.IQ,
+                                          beamwidth: aPoint.beamwidth }]);
 
 
       //console.log( lens.table.getData ());
@@ -431,10 +436,6 @@ getConjuugateTo
 
     fieldname = cell.getColumn().getField();    
     aPoint    = cell.getRow ().getData();
-
-    console.log("got this point.");
-    console.log(aPoint);
-
     aPoints   = lens.pointsTableHandler.convertRowData([ aPoint ]); // apply filters     
     aPoint    = aPoints[0];
 
@@ -444,10 +445,13 @@ getConjuugateTo
 
     switch (fieldname) {
       case "zo": case "ho": case "to":
-        return { id: aPoint.id, which: "object", z: Number(aPoint.zo), h: Number(aPoint.ho), t: Number(aPoint.to) };
+        return { id: aPoint.id, which: "object", z: Number(aPoint.zo), h: Number(aPoint.ho), t: Number(aPoint.to)};
 
       case "zi": case "hi": case "ti":
         return { id: aPoint.id, which: "image", z: Number(aPoint.zi), h: Number(aPoint.hi), t: Number(aPoint.ti) };
+
+      case "beamwidth":
+        return { id: aPoint.id, beamwidth: Number(aPoint.beamwidth) };
 
       default:
         throw "unknown point type";
@@ -549,46 +553,92 @@ getConjuugateTo
 
   function updateConstruction (cell) {
 
-    console.log("update the graphical end of the construction.");
+    console.log("updating the construction from altered cell.");
 
     //console.log(e);
     
 
     console.log(cell);
 
-
     if (cell == null) {
         return;
     }
 
-    aPoint     = getPointFromCell(cell); // .getData();
+
+    var aPoint = getPointFromCell(cell);
+    var fieldname = cell.getColumn().getField();    
+
+    console.log("find the related construction");
+    for (let elem of lens.raphael.constructions) {
+
+      console.log("Testing id = " + elem.getId() + " ==" + aPoint.id);
+
+      if (elem.getId() === aPoint.id) {
+
+        if ((fieldname == "beamwidth") & (typeof elem.setBeamWidth === 'function')) {
+
+            console.log ("updating beamwidth");
+
+            // beamwidth was changed 
+            elem.setBeamWidth (aPoint.beamwidth);
+            elem.refresh ();
+            return;
+
+        } else {
+
+            // a point was changed 
+            console.log("retrieve point object from the cell");
+            totalLens  = renderableLens.total;
+            pairData   = Optics.calculateConjugatePairFrom(aPoint, totalLens);
+            updatePointsTable(aPoint.id, pairData);
+            console.log("found the appropriate constuction");
+            elem.setPairData (pairData);                  // update the positions  
+            elem.refresh ();
+            return;
+
+        }
 
 
-    console.log("point from cell");
-    console.log(aPoint);
+      }
+    }
 
-    totalLens  = renderableLens.total;
-    pairData   = Optics.calculateConjugatePairFrom(aPoint, totalLens); // only works in fwd direction / only works for finite 
-    updatePointsTable(aPoint.id, pairData);
-
+/*
 
     // need to find the construction corresponding to the point and then update it!
     for (var i = 0; i < lens.raphael.constructions.length; i++ ) {
-
         elem = lens.raphael.constructions[i];
-
         console.log("compare: " + elem.getId() + " == " + aPoint.id);
-
         if (aPoint.id == elem.getId()) {
-          elem.setPairData (pairData); // update 
 
-          elem.refresh ();
-          //elem.remove ();
-          //elem.draw ();
+          fieldname = cell.getColumn().getField();    
+          if (fieldname == "beamwidth") { // beam-width 
+
+
+            
+            if (typeof elem.setBeamWidth === 'function') { // optional  
+                elem.setBeamWidth (aPoint.beamwidth);
+                elem.refresh ();
+                return
+            }          
+            return 
+
+          } else { // any other field 
+
+
+            aPoint = getPointFromCell(cell); // .getData();
+            console.log("retrieve point object from the cell");
+            totalLens  = renderableLens.total;
+            pairData   = Optics.calculateConjugatePairFrom(aPoint, totalLens);
+            updatePointsTable(aPoint, pairData);
+            console.log("found the appropriate constuction");
+            elem.setPairData (pairData);                  // update the positions  
+            elem.refresh ();
+
+          }
           return
         }
     }
-
+*/
 
     console.log("construction not found!");
 
@@ -890,7 +940,8 @@ getConjuugateTo
                                                           which : "object",
                                                           z     : undefined, 
                                                           h     : undefined,
-                                                          t     : 30 } ];
+                                                          t     : 30,
+                                                          bw    : NaN } ];
                                     }
 
 
@@ -956,7 +1007,7 @@ getConjuugateTo
                                           
                                           /* ------------------------------------------
 
-                                          POINTS CAN BE SETUP INDIVIDUALLY 
+                                          POINTS ARE SETUP INDIVIDUALLY 
                                           
                                           ---------------------------------------------- */
 

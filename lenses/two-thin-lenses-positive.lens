@@ -9,6 +9,9 @@
 
 	// sources 
 
+/*
+
+
 	"sources" : [ { "id" 		: 1, 
 					"type" 		: "point",
 					"which"		: "object",
@@ -16,18 +19,16 @@
 					"z"			: -0.3, 
 					"h"			: 0.1,
 					"t"			: NaN } ],
+*/
 
-/*
 
 	"sources" : [ { "id" 		: 1, 
 					"type" 		: "source",
 					"which"		: "object",
-					"beamwidth" : 0.4,
+					"beamwidth" : 0.5,
 					"z"			: -0.3, 
 					"h"			: 0.1,
 					"t"			: NaN } ],
-*/
-
 
 	// lens prescription 
 	"title": "Thick Lens",

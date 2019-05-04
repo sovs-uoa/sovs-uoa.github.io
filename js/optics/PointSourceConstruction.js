@@ -81,15 +81,25 @@ function movePointSource (dx, dy) {
 
 /* -------------------------------------------------------------------------------
 
-MAIN 
+CONSTANTS  
 
  ---------------------------------------------------------------------------------- */
 
 
+const ENTRANCE_PUPIL = 0;
+const FRONT_VERTEX   = 1;
+
+
+/* -------------------------------------------------------------------------------
+
+MAIN 
+
+ ---------------------------------------------------------------------------------- */
+
 class PointSourceConstruction { // create a ray construction using raphael.js
 
 
-	 constructor(lens, data, beamwidth) {
+	 constructor(lens, data, beamwidth, aiming) {
 
 	 	   // global paper 
        this.cd_set = paper.set();
@@ -106,6 +116,9 @@ class PointSourceConstruction { // create a ray construction using raphael.js
        this.objectPoint;
        this.imagePoint;
        this.BeamWidth    = beamwidth || 0.2;
+
+
+       this.Aiming       = aiming || ENTRANCE_PUPIL;
 
 
        this.PointSourcemode = false;
@@ -150,6 +163,20 @@ class PointSourceConstruction { // create a ray construction using raphael.js
    }
 
 
+  /* ---------------------------------------------------------------------------------------------------------------
+
+    Set Information  
+
+   --------------------------------------------------------------------------------------------------------------- */
+
+   setRayAiming (aimMethod) {
+
+    this.Aiming = aimMethod;
+    this.refresh ();
+
+   }
+
+
     setPairData (data) {
       this.data = data;
     }
@@ -166,6 +193,15 @@ class PointSourceConstruction { // create a ray construction using raphael.js
       this.lens = lens;
 
     }
+
+
+
+  /* ---------------------------------------------------------------------------------------------------------------
+
+    Update  
+
+   --------------------------------------------------------------------------------------------------------------- */
+
 
 
 /*
@@ -238,23 +274,49 @@ class PointSourceConstruction { // create a ray construction using raphael.js
       // //console.log(th);
       var rays = [];
 
-      function getBeam (VO, Y1, Y2) {
-          var u0 = (Y2 - Y1)/(-VO);
-          return { u: u0, z:VO, h: Y1};
+      function getBeam (X2, X1, Y1, Y2) {
+          var u0 = (Y2 - Y1)/(X2 - X1);
+          return { u: u0, z:X1, h: Y1};
       }
 
       var Y1 = this.data.Y1;
-      var VO = this.data.VO;      
-      var BW = this.BeamWidth;
+      var VO = this.data.VO;  
 
       // create rays and then shift to front vertex 
-      rays.push(getBeam(VO, Y1, +BW/2));      
-      rays.push(getBeam(VO, Y1, 0));      
-      rays.push(getBeam(VO, Y1, -BW/2));            
 
-      //console.log("Original rays");
-      //console.log(rays);
-      //console.log(this.data);
+
+
+      var BW = this.BeamWidth;
+      switch (this.Aiming) {
+          case ENTRANCE_PUPIL:
+            var VE1 = renderableLens.total.pupil.VE1;
+            rays.push(getBeam(VE1, VO, Y1, +BW/2));      
+            rays.push(getBeam(VE1, VO, Y1, 0));      
+            rays.push(getBeam(VE1, VO, Y1, -BW/2));            
+            break;
+
+          case FRONT_VERTEX:
+            rays.push(getBeam(0, VO, Y1, +BW/2));      
+            rays.push(getBeam(0, VO, Y1, 0));      
+            rays.push(getBeam(0, VO, Y1, -BW/2));            
+            break;
+
+          default:
+            rays.push(getBeam(0, VO, Y1, +BW/2));      
+            rays.push(getBeam(0, VO, Y1, 0));      
+            rays.push(getBeam(0, VO, Y1, -BW/2));            
+
+
+      }
+
+
+
+
+      console.log("Original rays");
+      console.log(rays);
+      console.log(this.data);
+      console.log(renderableLens);
+
 
       rays = translateRays(rays, 0);
 
