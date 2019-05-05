@@ -1,4 +1,4 @@
-/* PRESCPRTION RELATED 
+/* PRESCRIPTIONs RELATED 
 
 
 
@@ -192,7 +192,7 @@ var tickToggle = function(e, cell){
   {
     // var column = cell.getColumn().getData();
     cell.setValue(!cell.getValue()); 
-    cell.getRow().toggleSelect();    
+    //cell.getRow().toggleSelect();    
   }
 }
 
@@ -283,7 +283,7 @@ function updatedFieldCheck (cell) {
 function postBuildUpdate () {
 
 
-    row = 
+    //row = 
 
 
     row = row.getNextRow();
@@ -334,6 +334,7 @@ function initializePrescriptionTable(data, updatePrescriptionCallback, success) 
       cellEdited:function(cell){
         // console.log("lens edited - update the prescription");
         // console.log(cell);
+        cell.getRow().toggleSelect();    
         updatedFieldCheck (cell);         // check if a dependent cell was changed / updated   
         updatePrescriptionCallback(cell); // other updates 
       },
@@ -555,6 +556,7 @@ function initializePointsTable(data, updatePointsCallback, success) {
 
       function defaultEditFunction(cell) {
           console.log("point edited - update the points information");
+          cell.getRow().toggleSelect();    
           updatePointsCallback (cell);
       }
 
