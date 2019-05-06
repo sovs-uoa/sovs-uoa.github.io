@@ -187,12 +187,24 @@ PRESCRIPTION  = OBJECTS + IMAGES TABLE
 //toggle cell value on click
 var tickToggle = function(e, cell){
 
+
   var data = cell.getRow().getData();
   if ((data.type == "thin") || (data.type == "sphere")) 
   {
-    // var column = cell.getColumn().getData();
-    cell.setValue(!cell.getValue()); 
-    //cell.getRow().toggleSelect();    
+
+    // clear all cells except for the toggled one!
+    allCells = cell.getColumn().getCells();
+    allCells.forEach( each => {
+      var eachRow  = each.getRow().getData();
+      if (eachRow.id == data.id) {
+          each.setValue(!each.getValue()); 
+      } else {
+          each.setValue(false);        
+      }
+    });
+
+    // dont highlight this line!
+    cell.getRow().toggleSelect();    
   }
 }
 
@@ -200,9 +212,11 @@ var tickToggle = function(e, cell){
 function editCheck (cell) {
 
     //get data for the row 
-    var data = cell.getRow().getData();
+    var row  = cell.getRow();
+    var data = row.getData();
     var columnName = cell.getColumn().getField();
-
+    // row.deselect();    
+    row.toggleSelect();
 
     console.log("edit check column = " + columnName);
     console.log(data);
@@ -234,6 +248,7 @@ function editCheck (cell) {
 
     }
 
+
    // default deny
    return false;
 }
@@ -243,7 +258,8 @@ function editCheck (cell) {
 function updatedFieldCheck (cell) {
 
     //get data for the row 
-    var data       = cell.getRow().getData();
+    var row        = cell.getRow();
+    var data       = row.getData();
     var columnName = cell.getColumn().getField();
 
 
@@ -257,7 +273,7 @@ function updatedFieldCheck (cell) {
           if (columnName == "radius")   { 
               
               console.log("Updating the ... radius");
-              var row     = cell.getRow();
+              // var row     = cell.getRow();
               var nextRow = row.getNextRow().getData();
               var prevRow = row.getPrevRow().getData();
               row.update({ "power" : (nextRow.index - prevRow.index)/data.radius});
@@ -266,7 +282,7 @@ function updatedFieldCheck (cell) {
           } else if (columnName == "power")   { 
               
               console.log("Updating the ... power");
-              var row     = cell.getRow();
+              //var row     = cell.getRow();
               var nextRow = row.getNextRow().getData();
               var prevRow = row.getPrevRow().getData();
               row.update({ "radius" : (nextRow.index - prevRow.index)/data.power});
@@ -331,10 +347,11 @@ function initializePrescriptionTable(data, updatePrescriptionCallback, success) 
 
     // Tabulator 
     lens.table = new Tabulator("#lens-table", {
+      cellEditCancelled:function(cell){ console.log("Edit cancelled");  },
       cellEdited:function(cell){
-        // console.log("lens edited - update the prescription");
+        console.log("lens edited - update the prescription");
         // console.log(cell);
-        cell.getRow().deselect();    
+        // cell.getRow().deselect();    
         updatedFieldCheck (cell);         // check if a dependent cell was changed / updated   
         updatePrescriptionCallback(cell); // other updates 
       },
@@ -514,9 +531,10 @@ function flipVal (value) {
 function editPointCheck (cell) {
 
     //get data for the row 
-    var data = cell.getRow().getData();
+    var row  = cell.getRow();
+    var data = row.getData();
     var columnName = cell.getColumn().getField();
-
+    // row.select();
 
     console.log("edit point check column = " + columnName);
     console.log(data);
@@ -607,6 +625,7 @@ function initializePointsTable(data, updatePointsCallback, success) {
         selectable:true, 
         movableRows:false,
         layout:"fitColumns",
+        cellEditCancelled:function(cell){ cell.getRow().select(); },
         columns:[
             {rowHandle:true, formatter:"handle", headerSort:false, frozen:true, width:30, minWidth:30},
             {title:"id",     field:"id",       width:50, headerSort:false},                  
