@@ -334,7 +334,7 @@ function initializePrescriptionTable(data, updatePrescriptionCallback, success) 
       cellEdited:function(cell){
         // console.log("lens edited - update the prescription");
         // console.log(cell);
-        cell.getRow().toggleSelect();    
+        cell.getRow().deselect();    
         updatedFieldCheck (cell);         // check if a dependent cell was changed / updated   
         updatePrescriptionCallback(cell); // other updates 
       },
@@ -556,7 +556,7 @@ function initializePointsTable(data, updatePointsCallback, success) {
 
       function defaultEditFunction(cell) {
           console.log("point edited - update the points information");
-          cell.getRow().toggleSelect();    
+          cell.getRow().deselect();    
           updatePointsCallback (cell);
       }
 
