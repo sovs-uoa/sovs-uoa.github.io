@@ -36,7 +36,8 @@
 							"args": {
 								"power":  5,
 								"height": 0.2,
-								"stop": true
+								"stop": true,
+								"aperture": 0.15
 							}
 						}, {
 							"id": "0003",

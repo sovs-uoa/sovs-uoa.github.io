@@ -1,21 +1,33 @@
 /*--------------------------------------------
 
- Gullstrand 1 Eye Relaxed 
+ LEGRAND RELAXED SCHEMATIC EYE 
 
 ----------------------------------------------*/
 {
 
 
-	// points 
+	/* SOURCE POINTS */
 
 
-	"points" : [ { 	"id" : 1, 
-					"type" : "object",
-					"z": -15, 
-					"h": 10 } ],
+	"sources" : [ { "id"   		: 1, 
+                    "type" 		: "afocal",
+                    "which"		: "object",
+                    "beamwidth" : 5,
+                    "z"    		: NaN, 
+                    "h"    		: NaN,
+                    "t"    		: 5 }],
 
 
-	// lens prescription 
+	/* SCHEMATIC OF EYE WITH PRESCRIPTION */
+
+	"schematic" : { 	"model" : "eye",
+						"show"	: true,  
+						"map"   : { "anterior_cornea" : "0002",
+									"anterior_lens"   : "0006",
+									"retina" 		  : "0014" }},
+
+
+	/* LENS PRESCRITPION */
 
 	"title": "Gullstrand 1 eye relaxed",
     "prescription": [{
@@ -32,7 +44,7 @@
 		"description": "anterior cornea",
 		"args": {
 			"radius": 7.800,
-			"height": 12
+			"height": 10
 		}
 	}, {
 		"id": "0003",
@@ -50,7 +62,7 @@
 		"description": "posterior cornea",
 		"args": {
 			"radius": 6.500,
-			"height": 12
+			"height": 10
 		}
 	}, {
 		"id": "0005",
@@ -68,7 +80,7 @@
 		"args": {
 			"radius"   : 10.200,
 			"stop"     : true,
-			"height"   : 12.0,			
+			"height"   : 10.0,			
 			"aperture" : 1
 		}
 	}, {
@@ -87,10 +99,26 @@
 		"description": "posterior lens",
 		"args": {
 			"radius": -6.000,
-			"height": 13.0
+			"height": 10.0
 		}
 	}, {
 		"id": "0013",
+		"type": "index",
+		"description": "vitreous",
+		"args": {
+			"index": 1.336,
+			"thickness": 15.000
+		}
+	}, {
+		"id": "0014",
+		"type": "img",
+		"description": "retinal plane",
+		"args": {
+			"radius": -100.000,
+			"height": 10.0
+		}
+	}, {
+		"id": "0015",
 		"type": "index",
 		"description": "vitreous",
 		"args": {

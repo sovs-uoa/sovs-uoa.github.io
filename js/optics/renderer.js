@@ -29,7 +29,7 @@
   var oWidth,oHeight;
 
 
-  var pup_set
+  var pup_set, sch;
   var ps, cd_set, axis_set;
   var cp_set, optics_set;
   var kx, ky;
@@ -499,6 +499,105 @@ function drawAxis () {
   }
 
 
+  function getLensElemById(renderableLens, id) {
+    let ret = renderableLens.find (each => {
+      return each.elem.tag_id == id
+    });
+
+    console.log ('ELEM BY ID');
+    console.log (ret);
+
+    return ret;
+  }
+
+
+  function drawSchematic (response, renderableLens) {
+
+    console.log ('DRAW SCHEMATIC');
+    console.log (response);
+    console.log (renderableLens);
+
+    if (response.hasOwnProperty('schematic')) {
+
+
+      switch (response.schematic.model) {
+
+        case "eye":
+          
+          let anterior_cornea = getLensElemById (renderableLens.elem, response.schematic.map.anterior_cornea);
+          let V1  = anterior_cornea.Z;
+          let Rc  = anterior_cornea.elem.radius;
+          let anterior_lens = getLensElemById (renderableLens.elem, response.schematic.map.anterior_lens);
+          let ACD = anterior_lens.Z - V1;
+          let retina = getLensElemById (renderableLens.elem, response.schematic.map.retina);
+          let AL  = retina.Z;
+
+          console.log (`V1=${V1}, Rc=${Rc}, ACD=${ACD}, AL=${AL}`);
+
+          //drawEye ();
+          drawEye (V1, 0, Rc, ACD, AL);
+          break;
+
+        default:
+          throw "eye";
+
+      }
+
+    }
+
+    console.log (renderableLens);
+
+
+  }
+
+
+  /* -------------------------------------------------
+
+      DRAW SPECIAL EYES 
+
+      (x,y) : front vertex (V) 
+      Rc    : corneal radius 
+      ACD   : anterior chamber depth 
+      L     : axial length 
+
+   --------------------------------------------------- */
+
+  function drawEye (x, y, Rc, ACD, AL) {
+
+
+    console.log ("DRAW EYE");
+
+    let sch = paper.set ();
+    //let c = paper.ellipse (0,0,10,10);
+
+
+    /* CIRCLE FOR ANTERIOR EYE */ 
+    let c1 = paper.ellipse (x+Rc, y, Rc, Rc)
+                  .attr({"fill": "gray", "stroke": "none", "stroke-opacity": 0.1, "fill-opacity": 1.0 });
+
+    /* ELLIPSE FOR POSTERIOR EYE */ 
+    let Rx_body = (AL-ACD)/2;
+    let Ry_body = Rx_body * 1.2;
+    let c2 = paper.ellipse ( ACD + Rx_body*0.9, y, Rx_body*1.1, Ry_body)
+                  .attr({"fill": "gray", "stroke": "none", "stroke-opacity": 0.1, "fill-opacity": 1.0 });
+
+    sch.push (c1, c2);
+    sch.toBack ();
+
+         
+
+    /* ELLIPSE FOR POSTERIOR EYE */ 
+    // let Rx_body = (L-ACD)/2;
+    // let Ry_body = Rx_body * 1.3;
+    // paper.ellipse ( ACD + Rx_body, y, Rx_body, Ry_body);
+
+         //.attr({"fill": "gray", "stroke-opacity": 0.5 });
+
+
+    /* ELLIPSE FOR LENS */ 
+
+
+  }
 
 
 
@@ -1405,6 +1504,14 @@ function drawAxis () {
           l = drawSurface(axialPosition, 0, R, h); //, displayOptions);
           optics_set.push(l);        
           break;
+
+        case "img":
+          var R = curr.radius; h = curr.height;
+          l = drawSurface(axialPosition, 0, R, h); //, displayOptions);
+          optics_set.push(l);        
+          break;
+
+
 
         default:
 

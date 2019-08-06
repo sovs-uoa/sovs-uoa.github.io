@@ -283,22 +283,20 @@ RAYBUNDLE Determine conjugate information for a point
 function calculateRayTrace(rays, lensTable ) {
 
   ////console.log("calculate RyaTrce");
-  ////console.log(lensTable);
-
+  ////console.log(lensTable);  
   // create the total system
+
+
   var Z = 0; ret = [];
 
-
   //console.log("Calculate RayTrace");
-
   console.log("START PROCESSING");
-
 
   // create the system matrix
   // for (var i=lensTable.length-1; i >=0; i--) {
+  // create the total system 
+  // eachElementInfo = getLensElementInfo(lensTable, i);
 
-    // create the total system 
-    // eachElementInfo = getLensElementInfo(lensTable, i);
     for (var i=0; i < lensTable.length; i++) {
 
           each    = lensTable[i];
@@ -377,6 +375,11 @@ function calculateConjugatePairFrom(point, systemInfo) {
               result.Y1 = Y1;
               result.X2 = V2 + result.VI; 
               result.Y2 = result.IQ;
+
+              console.log ("CONJUGATE PAIR OUTPUT");
+              console.log (result);
+              console.log (curr);
+
               return result;
 
             break;
@@ -955,6 +958,16 @@ function getLensElementInfo(elem, index) {
         elemCardinalPoints = getCardinalPoints(S);
         elemPowers = getPowers (elemCardinalPoints, n1, n2);        
         return { S: S, invS: inverseMatrix2x2(S), cardinal: elemCardinalPoints, powers: elemPowers,  n1: n1, n2: n2, F: F, L : 0, elem: input_elem }; 
+
+      case "img" :
+        var R   = input_elem.radius; 
+        F   = (n2-n1)/R;    
+        S   = refractionMatrix (n1, n2, F);    
+
+        elemCardinalPoints = getCardinalPoints(S);
+        elemPowers = getPowers (elemCardinalPoints, n1, n2);
+        return { S: S, invS: inverseMatrix2x2(S), X: normalizedRefractionMatrix(S, n1, n2), cardinal: elemCardinalPoints, powers: elemPowers, n1: n1, n2: n2, F: F, L : 0, elem: input_elem}; 
+
 
       case "plane" :
         F = 0;

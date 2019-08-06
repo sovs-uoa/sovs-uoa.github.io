@@ -1,7 +1,6 @@
-/* PRESCRIPTIONs RELATED 
+/* 
 
-
-
+  PRESCRIPTION RELATED 
 
 */
 
@@ -189,7 +188,7 @@ var tickToggle = function(e, cell){
 
 
   var data = cell.getRow().getData();
-  if ((data.type == "thin") || (data.type == "sphere")) 
+  if ((data.type == "thin") || (data.type == "sphere") || (data.type == "img") ) 
   {
 
     // clear all cells except for the toggled one!
@@ -224,7 +223,7 @@ function editCheck (cell) {
 
     switch (data.type) {
 
-      case "sphere":
+      case "sphere": case "img":
       if (columnName == "power")    { return true; }; 
       if (columnName == "radius")   { return true; }; 
       if (columnName == "aperture") { return true; }; 
@@ -268,7 +267,7 @@ function updatedFieldCheck (cell) {
 
     switch (data.type) {
 
-      case "sphere":
+      case "sphere": case "img":
 
           if (columnName == "radius")   { 
               

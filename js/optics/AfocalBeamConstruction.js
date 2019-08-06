@@ -429,20 +429,9 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
   drawAfocalConstruction() {
 
 
-     // try and deal with this     
      var lens = this.lens;
-     //var N1 = lens.cardinal.VN1;
-     //var N2 = lens.L + lens.cardinal.VN2;
-     //var P1 = lens.cardinal.VP1;
-     //var P2 = lens.L + lens.cardinal.VP2;
-     //var F1 = lens.cardinal.VF1;
-     //var F2 = lens.L + lens.cardinal.VF2;
 
-
-
-     //console.log("-- draw afocal beam construction.");
      displayOptions = this.displayOptions;
-     //console.log(lens);
 
 
      var V1  = lens.V1;
@@ -457,15 +446,20 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
 
      console.log("Input rays");
      console.log(this.inputRays);
-
      console.log("Ray path");
      console.log(this.raypath);
+     console.log ("This data.");
+     console.log(this.data);
 
-     // START RAYS 
-     var dX = -10;
+
+     /* --------------------------------------------------------
+      
+        INCOMING RAYS 
+
+       -------------------------------------------------------- */
+
+     var dX = -1000;
      for (var i=0; i <  M ; i++) {
-
-
 
         var u1 = this.inputRays[i].u;         
         var X1 = this.inputRays[i].z; 
@@ -477,7 +471,12 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
      }
 
 
-     // IN-BETWEEN RAYS 
+     /* --------------------------------------------------------
+      
+        MID RAYS 
+
+       -------------------------------------------------------- */
+
      for (var k=0; k < K-1; k++ ) {
          for (var i=0; i <  M ; i++) {
             var X1 = ray[k][i].z;   var Y1 = ray[k][i].h;
@@ -495,67 +494,94 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
                                     F1 : F1, F2: F2,
                                     T1 : T1,
                                     X2 : X2, Y2: Y2 });
-*/
-
 
     //console.log("FINAL INFORMATION");
     //console.log(lens);
 
+*/
 
 
+     /* --------------------------------------------------------
+      
+        FINAL RAYS 
 
-     // FINAL RAYS 
+       -------------------------------------------------------- */
 
      if (Math.abs(lens.F) > 0.0001) {
 
 
-      // FINITE RAYS 
-     for (var i=0; i <  M ; i++) {
-
-        var u1 = ray[K-1][i].u;       
-        var X1 = ray[K-1][i].z; var Y1 = ray[K-1][i].h;
-        var X2 = this.data.X2;  var Y2 = this.data.Y2;
-        var p4 = paper.path( ["M", X1, Y1,  "L", X2, Y2 ]); 
-        
-
-        if (X2 < X1) {
-
-            // information 
-            p4.attr(virtual);
-            this.cd_set.push(p4);
-
-            // extend the rays 
-            var dx  = + 1000;
-            var i1  = u1 * dx + Y1; // upper height on N1 
-            var p5  = paper.path( ["M", X1, Y1,  "L", X1 + dx, i1 ]);    // O  -> H1   (ray through F1)
-            this.cd_set.push(p5);
+         /* FOCAL SYSTEM */
 
 
-        } else {
-            p4.attr(real);
-            this.cd_set.push(p4);
-        }
+         for (var i=0; i <  M ; i++) {
 
-      }
+            // INPUT POINT 
+
+            var u1 = ray[K-1][i].u;       
+            var X1 = ray[K-1][i].z; 
+            var Y1 = ray[K-1][i].h;
+            
+
+            // OUTPUT POINT 
+            var X2 = this.data.X2;  
+            var Y2 = this.data.Y2;            
+            var p4 = paper.path( ["M", X1, Y1,  "L", X2, Y2 ]); 
+            
+
+            if (X2 < X1) {
+
+                /* VIRTUAL */
+
+                p4.attr(virtual);
+                this.cd_set.push(p4);
+
+                // extend the rays 
+
+                var dx  = + 1000;
+                var i1  = u1 * dx + Y1; // upper height on N1 
+                var p5  = paper.path( ["M", X1, Y1,  "L", X1 + dx, i1 ]);    // O  -> H1   (ray through F1)
+                this.cd_set.push(p5);
 
 
-     } else { // INFINITE RAYS 
+            } else {
+
+                /* REAL */
+
+                p4.attr(real);
+                this.cd_set.push(p4);
+            }
+
+          }
 
 
-          // FINITE RAYS 
+     } else { 
+
+
+        /* RAYS TO INFINITY */ 
+
+
+         // FINITE RAYS 
+
          var dX = 10;
          for (var i=0; i <  M ; i++) {
 
+            // INPUT POINT 
+
             var u1 = ray[K-1][i].u;       
-            var X1 = ray[K-1][i].z; var Y1 = ray[K-1][i].h;
+            var X1 = ray[K-1][i].z; 
+            var Y1 = ray[K-1][i].h;
+
+            // OUTPUT POINT 
 
             var X2 = X1 + dX;  
             var Y2 = Y1 + dX*u1;
+            
             var p4 = paper.path( ["M", X1, Y1,  "L", X2, Y2 ]);         
             p4.attr(real);
             this.cd_set.push(p4);
           
             // ADD EXTENSION RAYS 
+
             var i1  = u1 * -dX + Y1; // upper height on N1 
             var p5  = paper.path( ["M", X1, Y1,  "L", X1 -dX, i1 ]);    // O  -> H1   (ray through F1)
             p5.attr(virtual);
@@ -563,16 +589,12 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
 
           }
 
-
-
-
-
      }
 
  
 
 
-    this.cd_set.toBack();
+    this.cd_set.toFront();
   }
 
  }

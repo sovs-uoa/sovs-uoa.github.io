@@ -21,7 +21,8 @@
                       { id: "4", filename: "./lenses/two-thin-lenses-positive.lens", title: "Two Thin Lenses in Air (Nominal Positive Power)"  },   
                       { id: "5", filename: "./lenses/two-thin-lenses-negative.lens", title: "Two Thin Lenses in Air (Nominal Negative Power)"  },
                       { id: "6", filename: "./lenses/keplerian-telescope.lens", title: "Keplerian Telescope"  },
-                      { id: "7", filename: "./lenses/galilean-telescope.lens", title: "Galilean Telescope"  } ];
+                      { id: "7", filename: "./lenses/galilean-telescope.lens", title: "Galilean Telescope"  },
+                      { id: "10",filename: "./lenses/legrand-relaxed-schematic-eye.lens", title: "LeGrand Relaxed Schematic Eye (Relaxed)" }];
 
 
     displayOptions = { height             : 0.05, 
@@ -306,6 +307,12 @@ getConjuugateTo
     drawPupils(renderableLens.total, displayOptions);
     drawOptics(renderableLens);
 
+    console.log ('RESPONSE');
+    console.log (response);
+
+    drawSchematic(response, renderableLens); // DRAW!!!
+
+
 
     // now update the points 
     if (summaryTemplate !== undefined) {
@@ -492,7 +499,7 @@ getConjuugateTo
 
 
      //lens.pointsTable.addRow([{  id: aPoint.id, 
-     //                            type: aPoint.type }]);
+     //                            type: aPoint.type }]);s
 
      addPointsTableRow(aPoint, pairData);
 
@@ -518,7 +525,8 @@ getConjuugateTo
               console.log("AFOCAL");
               console.log(aPoint);
 
-              var afocal = new AfocalBeamConstruction (totalLens, pairData);
+              var beamWidth = aPoint.beamwidth;     
+              var afocal = new AfocalBeamConstruction (totalLens, pairData, beamWidth);
               lens.raphael.constructions.push(afocal);
               break;
 
@@ -764,6 +772,9 @@ getConjuugateTo
     function findLensById(id) {
 
       found = fileList.find(function (elem) {
+
+          console.log (elem);
+
           return elem.id == id;
       });
 
@@ -826,8 +837,11 @@ getConjuugateTo
 
 
 
+     found = findLensById(id);
+     // console.log ('found file');
+     // console.log(found);
 
-      found = findLensById(id);
+
       $.ajax({
             url : found.filename,
             dataType: "text",

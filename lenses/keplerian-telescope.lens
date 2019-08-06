@@ -52,7 +52,7 @@
 			"power":  10,
 			"height": 0.2,
 			"stop": true,
-			"aperture" : 0.2
+			"aperture" : 0.15
 		}
 	}, {
 		"id": "0003",
