@@ -183,7 +183,7 @@ MAIN
 class ParallelBeamConstruction { // create a ray construction using raphael.js
 
 
-	 constructor(lens, data) {
+	 constructor(lens, data, beamWidth) {
 
 	 	   // global paper 
        this.cd_set = paper.set();
@@ -196,7 +196,7 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
        this.imagePoint;
        this.objectPoint;
        this.anglePicker;
-       this.BeamWidth    = 0.1;
+       this.BeamWidth    = beamWidth;
 
        this.addBeamConstruction ();
     }
@@ -231,6 +231,11 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
       this.data = data;
     }
 
+
+    setBeamWidth(bw) {
+      this.BeamWidth = bw;
+      this.refresh ();
+    }
 
     setLens(lens) {
 
@@ -447,11 +452,11 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
     // ADD P1 - P2 RAYS 
     var p10 = paper.path( ["M", P1, y1,  "L", P2, y1 ]);   // O  -> P1   (ray through F1)
     var p11 = paper.path( ["M", P1, y2,  "L", P2, y2 ]);   // O  -> P1   (ray through F1)
-    //p12 = paper.path( ["M", X1, Y1,  "L", P1, Y1 ]);   // O  -> P1   (ray through F1)
+    var p12 = paper.path( ["M", P1, y3,  "L", P2, y3 ]);   // O  -> P1   (ray through F1)
     p10.attr(real);
     p11.attr(real); 
-    //p12.real(real);
-    this.cd_set.push(p10, p11);
+    p12.attr(real);
+    this.cd_set.push(p10, p11, p12);
 
 
 
@@ -481,7 +486,7 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
 
     }
 
-    this.cd_set.toBack();
+    this.cd_set.toFront();
 
  }
 

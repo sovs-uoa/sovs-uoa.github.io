@@ -258,6 +258,8 @@ function drawAxis () {
 
       }
 
+      pup_set.toFront();
+
  }
 
 
@@ -484,6 +486,10 @@ function drawAxis () {
 
         }
 
+
+
+        cp_set.toFront ();
+
     }
 
 
@@ -573,13 +579,13 @@ function drawAxis () {
 
     /* CIRCLE FOR ANTERIOR EYE */ 
     let c1 = paper.ellipse (x+Rc, y, Rc, Rc)
-                  .attr({"fill": "gray", "stroke": "none", "stroke-opacity": 0.1, "fill-opacity": 1.0 });
+                  .attr({"fill": "#F0F0F0", "stroke": "none", "stroke-opacity": 0.1, "fill-opacity": 0.1 });
 
     /* ELLIPSE FOR POSTERIOR EYE */ 
     let Rx_body = (AL-ACD)/2;
     let Ry_body = Rx_body * 1.2;
     let c2 = paper.ellipse ( ACD + Rx_body*0.9, y, Rx_body*1.1, Ry_body)
-                  .attr({"fill": "gray", "stroke": "none", "stroke-opacity": 0.1, "fill-opacity": 1.0 });
+                  .attr({"fill": "#F0F0F0", "stroke": "none", "stroke-opacity": 0.1, "fill-opacity": 0.1 });
 
     sch.push (c1, c2);
     sch.toBack ();

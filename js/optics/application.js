@@ -516,7 +516,7 @@ getConjuugateTo
               break;
 
             case "parallel": case "beam": // infinitely placed beam 
-              lens.raphael.constructions.push( new ParallelBeamConstruction (totalLens, pairData));
+              lens.raphael.constructions.push( new ParallelBeamConstruction (totalLens, pairData, beamWidth));
               break;
 
 
