@@ -41,12 +41,12 @@ function movePicker(dx,dy) {
     var extender = this.data("data-extender"); 
 
     a.parent.extender.attr("path", ["M", anchorX, anchorY, "L", nowX, nowY ]);  
-    th = rad2deg(Math.atan2(nowY-anchorY, nowX-anchorY));    
+    th = rad2deg(Math.atan2(nowY-anchorY, nowX-anchorX));    
 
 
     // Math.sqrt(Math.pow(sideA, 2) + Math.pow(sideB, 2));
 
-    var radius = Math.sqrt( Math.pow(nowY-anchorY, 2) + Math.pow(nowX-anchorY, 2) );
+    var radius = Math.sqrt( Math.pow(nowY-anchorY, 2) + Math.pow(nowX-anchorX, 2) );
     //console.log("move-picker: radius = " + radius);
 
     a.parent.angle  = th;

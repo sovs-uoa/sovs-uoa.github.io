@@ -362,15 +362,15 @@ function drawAxis () {
           //cp2 = drawPoint(x2, y, "magenta");
           //cp_set.push(cp1, cp2);
 
-          cp1 = drawText(x1, y, "F");
-          cp1.attr({ "text-anchor" : "end"});
-          cp2 = drawText(x2, y, "F'");
-          cp2.attr({ "text-anchor" : "start"});
-          cp_set.push(cp1, cp2);
+          let cp1F = drawText(x1, y, "F");
+          cp1F.attr({ "text-anchor" : "end"});
+          let cp2F = drawText(x2, y, "F'");
+          cp2F.attr({ "text-anchor" : "start"});
+          cp_set.push(cp1F, cp2F);
 
 
-          RegisterWheelCallback ({ type: "text", handle: cp1 });
-          RegisterWheelCallback ({ type: "text", handle: cp2 });
+          RegisterWheelCallback ({ type: "text", handle: cp1F });
+          RegisterWheelCallback ({ type: "text", handle: cp2F });
 
           //cp1 = paper.text(x1, y, "F").attr({fill: '#000000'});
           //cp2 = paper.text(x2, y, "F'").attr({fill: '#000000'});

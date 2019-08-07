@@ -183,7 +183,7 @@ MAIN
 class ParallelBeamConstruction { // create a ray construction using raphael.js
 
 
-	 constructor(lens, data, beamWidth) {
+	 constructor(lens, data, BeamWidth) {
 
 	 	   // global paper 
        this.cd_set = paper.set();
@@ -196,7 +196,7 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
        this.imagePoint;
        this.objectPoint;
        this.anglePicker;
-       this.BeamWidth    = beamWidth;
+       this.BeamWidth    = 5.0 || BeamWidth;
 
        this.addBeamConstruction ();
     }
