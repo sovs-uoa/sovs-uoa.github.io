@@ -408,7 +408,7 @@ function drawAxis () {
           // P/N separate P'/N'  
           if ((isNonP) & (!isP1nearP2)) {
 
-            cp1 = drawPoint(x1, 0, "blue");
+            cp1 = drawPoint(x1, 0, "yellow");
             cp_set.push(cp1);
             RegisterWheelCallback ({ type: "point", handle: cp1 });
           
@@ -438,7 +438,7 @@ function drawAxis () {
           // P/N + P'/N'  
           if ((isNonP) & (isP1nearP2)) {
 
-            cp1 = drawPoint(x1, 0, "blue");
+            cp1 = drawPoint(x1, 0, "yellow");
             cp_set.push(cp1);
             RegisterWheelCallback ({ type: "point", handle: cp1 });
           
@@ -460,7 +460,28 @@ function drawAxis () {
 
           }
 
+          
+          if (!isNonP) {
 
+            console.log ('add nodal points');
+
+            cp1 = drawPoint(v1 + vn1, y, "cyan");
+            cp2 = drawPoint(v2 + vn2, y, "cyan");
+            cp_set.push(cp1, cp2);
+
+            cp1 = drawText(x1, 0, "N");
+            cp1.attr({ "text-anchor" : "middle"});
+            cp1.data({ "data-shift-Y" : 0.0 });
+            cp_set.push(cp1);
+            RegisterWheelCallback ({ type: "cardinal", handle: cp1 });
+
+            cp2 = drawText(x2, 0, "N'");
+            cp2.attr({ "text-anchor" : "middle"});
+            cp2.data({ "data-shift-Y" : 0.0 });
+            cp_set.push(cp2);
+            RegisterWheelCallback ({ type: "cardinal", handle: cp2 });
+
+          }
 
 
         }
@@ -470,8 +491,8 @@ function drawAxis () {
         if (displayOptions.showVertices) {
 
           // points 
-          cp1 = drawPoint(v1 + vn1, y, "green");
-          cp2 = drawPoint(v2 + vn2, y, "green");
+          cp1 = drawPoint(v1 + vn1, y, "yellow");
+          cp2 = drawPoint(v2 + vn2, y, "yellow");
           cp_set.push(cp1, cp2);
 
           RegisterWheelCallback ({ type: "cardinal", handle: cp1 });

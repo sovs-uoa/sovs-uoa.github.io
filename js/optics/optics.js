@@ -466,7 +466,7 @@ function calculatePairFromObject (object, systemInfo) {
 
           if (isFinite(z)) { // finite object distance 
                   
-              var ir  = { h: -1*z, u: 1 };    // ray @ front vertex 
+              var ir  = { h: -1*z, u: 1 };     // ray @ front vertex 
               var q   = rayMultiply(S, ir);    // ray @ back vertex          
               var zd  = -q.h/q.u;              // distance from back vertex  
 
@@ -506,6 +506,9 @@ function calculatePairFromObject (object, systemInfo) {
 
          } else { 
 
+
+          console.log (`INFINITY CONJUGATE ANGLE = ${t}`);
+
            zp  = +n2/curr.F;  // PF            
 
             // infinite object => finite image
@@ -515,7 +518,7 @@ function calculatePairFromObject (object, systemInfo) {
                        OQ  : undefined,
                        VI  : curr.cardinal.VF2,
                        PI  : curr.cardinal.PF2, 
-                       IQ  : n2 * Math.tan(deg2rad(t))/ curr.F,
+                       IQ  : n1 * Math.tan(deg2rad(t))/ curr.F, // n2 * Math.tan (deg2rad(t))/ curr.F,
                        M   : undefined,
                        T1  : t,
                        T2  : undefined }; //

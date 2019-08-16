@@ -403,44 +403,51 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
     console.log(T1);
 
 
-    // beam aimed at N1 points / located on the front principal plane 
+    /* --------------------------------------------
+       OBJECT SPACE RAYS 
+      --------------------------------------------- */
+
+    // ... ray points on P1 from infinity aimed at front nodal plane   
     var bw = this.BeamWidth;
     var dx = P1 - N1; // position translated to P1 
-	  var y1 = Math.tan(deg2rad(T1)) * dx + bw/2 / Math.sin(deg2rad(90 - T1)); // upper height on N1 
-    var y2 = Math.tan(deg2rad(T1)) * dx - bw/2 / Math.sin(deg2rad(90 - T1)); // lower height on N1
-    var y3 = Math.tan(deg2rad(T1)) * dx + 0;                   // height from the N1 itself 
+	  var y1 = Math.tan(deg2rad(T1)) * dx + bw/2 / Math.sin(deg2rad(90 - T1));    // upper height on P1 from N1 
+    var y2 = Math.tan(deg2rad(T1)) * dx - bw/2 / Math.sin(deg2rad(90 - T1));    // lower height on P1 from N1
+    var y3 = Math.tan(deg2rad(T1)) * dx + 0;                                    // height on P1 from N1 
 
-    // infinity 
+    // .... rays traced back to infinity  
     var X   = -1000;
-    var dx  = X - P1; // effective infinity 
-    var i1  = Math.tan(deg2rad(T1)) * dx + y1; // upper height on N1 
-    var i2  = Math.tan(deg2rad(T1)) * dx - y2; // lower height on N1
-    var i3  = Math.tan(deg2rad(T1)) * dx + y3; // height from the N1 itself 
+    var dx  = X - P1; 
+    var i1  = Math.tan(deg2rad(T1)) * dx + y1; // upper height @ infinity from N1 
+    var i2  = Math.tan(deg2rad(T1)) * dx - y2; // lower height @ infinity from N1
+    var i3  = Math.tan(deg2rad(T1)) * dx + y3; // height @ infiinity from N1 
 
-	  var p1 = paper.path( ["M", P1, y1,  "L", X, i1 ]);    // O  -> H1   (ray through F1)
-	  var p2 = paper.path( ["M", P1, y2,  "L", X, i2 ]);    // H1 -> N1   (ray through F1)
-    var p3 = paper.path( ["M", P1, y3,  "L", X, i3 ]);    // H1 -> N1   (ray through F1)
-
+    // ... show incoming rays 
+	  var p1 = paper.path( ["M", P1, y1,  "L", X, i1 ]);    // O -> upper P1 
+	  var p2 = paper.path( ["M", P1, y2,  "L", X, i2 ]);    // O -> lower P1 
+    var p3 = paper.path( ["M", P1, y3,  "L", X, i3 ]);    // o -> mid P1    (ray through N1)
 	  p1.attr(ret.F1);
 	  p2.attr(ret.F2);
     p3.attr(ret.N1); 
-
-
     this.cd_set.push(p1, p2, p3);
 
-    console.log("adding the image space construction");
+    // console.log("adding the image space construction");
 
-    // Image space beams 
-
+    /* --------------------------------------------
+       IMAGE SPACE RAYS 
+      --------------------------------------------- */
+    
     ret = getBeamImageStyle({ N1 : N1, N2: N2, 
                               P1 : P1, P2: P2,
                               F1 : F1, F2: F2,
                               T1 : T1,
                               X2 : X2, Y2: Y2 });
 
-    var p4 = paper.path( ["M", P2, y1,  "L", X2, Y2 ]);    // O  -> H1   (ray through F1)
-    var p5 = paper.path( ["M", P2, y2,  "L", X2, Y2 ]);    // H1 -> N1   (ray through F1)
-    var p6 = paper.path( ["M", P2, y3,  "L", X2, Y2 ]);    // H1 -> N1   (ray through F1)
+    var p4 = paper.path( ["M", P2, y1,  "L", X2, Y2 ]);    // Y1 -> I   (ray through F1)
+    var p5 = paper.path( ["M", P2, y2,  "L", X2, Y2 ]);    // Y2 -> I   (ray through F1)
+    var p6 = paper.path( ["M", P2, y3,  "L", X2, Y2 ]);    // N2 -> I   (ray through F1)
+
+
+    //drawPoint(N1, 0, "magenta");
 
     p4.attr(ret.F1);
     p5.attr(ret.F2);
@@ -448,6 +455,11 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
 
 	  this.cd_set.push(p4, p5, p6);
 
+
+    /* --------------------------------------------
+       BRIDGING RAYS OBJECT/IMAGE SPACE 
+      --------------------------------------------- */
+    
 
     // ADD P1 - P2 RAYS 
     var p10 = paper.path( ["M", P1, y1,  "L", P2, y1 ]);   // O  -> P1   (ray through F1)

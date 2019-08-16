@@ -12,7 +12,7 @@
 	"sources" : [ { "id"   		: 1, 
                     "type" 		: "afocal",
                     "which"		: "object",
-                    "beamwidth" : 5,
+                    "beamwidth" : 5.0,
                     "z"    		: NaN, 
                     "h"    		: NaN,
                     "t"    		: 5 }],

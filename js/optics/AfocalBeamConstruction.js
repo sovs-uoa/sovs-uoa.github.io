@@ -35,12 +35,6 @@ function onAfocalMove (th)  {
       this.parent.setPairData(PairData);
 
 
-            // update the table for the beam  
-      //lens.pointsTable.updateData([ { id: myPoint.id, 
-      //                                to: PairData.T1, 
-      //                                zi: PairData.X2, "hi": PairData.Y2 } ]);
-      // console.log(PairData);
-
       updatePointsTable(myPoint.id, PairData);
 
 
@@ -194,7 +188,7 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
        // this.imagePoint;
        this.objectPoint;
        this.anglePicker;
-       this.BeamWidth    = beamwidth || .20;
+       this.BeamWidth    = beamwidth || 5.0;
 
 
        this.afocalmode = false;
@@ -204,6 +198,8 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
 
        // start
        var T1 = this.data.T1;
+
+       //this.refresh ();
        this.setInputRays(T1); 
        this.addAfocalConstruction (); // draw the rays 
 
@@ -283,10 +279,6 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
         this.anglePicker.setLength (getXProportionFactor(0.1));
 
         this.setInputRays (T1); // this will re-calculate 
-
-
-        //this.anglePicker.remove();
-        //this.anglePicker.draw();
 
         // refresh the rays 
         this.remove ();            
