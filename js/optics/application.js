@@ -14,15 +14,16 @@
   var    mouseIsDown = false;
   
   var   etol = 5e-4;
-  var   fileList  = [ { id: "0", filename: "./lenses/thick-lens-positive.lens", title: "Thick Lens in Air (Positive Power)" }, 
-                      { id: "1", filename: "./lenses/thick-lens-negative.lens", title: "Thick Lens in Air (Negative Power)" },
-                      { id: "2", filename: "./lenses/thin-lens-positive.lens", title: "Thin Lens in Air (Positive)"  },
-                      { id: "3", filename: "./lenses/thin-lens-negative.lens", title: "Thin Lens in Air (Negative)"  },
-                      { id: "4", filename: "./lenses/two-thin-lenses-positive.lens", title: "Two Thin Lenses in Air (Nominal Positive Power)"  },   
-                      { id: "5", filename: "./lenses/two-thin-lenses-negative.lens", title: "Two Thin Lenses in Air (Nominal Negative Power)"  },
-                      { id: "6", filename: "./lenses/keplerian-telescope.lens", title: "Keplerian Telescope"  },
-                      { id: "7", filename: "./lenses/galilean-telescope.lens", title: "Galilean Telescope"  },
-                      { id: "10",filename: "./lenses/legrand-relaxed-schematic-eye.lens", title: "LeGrand Relaxed Schematic Eye (Relaxed)" }];
+  var   fileList  = [ { id: "0",  filename: "./lenses/thick-lens-positive.lens", title: "Thick Lens in Air (Positive Power)" }, 
+                      { id: "1",  filename: "./lenses/thick-lens-negative.lens", title: "Thick Lens in Air (Negative Power)" },
+                      { id: "2",  filename: "./lenses/thin-lens-positive.lens", title: "Thin Lens in Air (Positive)"  },
+                      { id: "3",  filename: "./lenses/thin-lens-negative.lens", title: "Thin Lens in Air (Negative)"  },
+                      { id: "4",  filename: "./lenses/two-thin-lenses-positive.lens", title: "Two Thin Lenses in Air (Nominal Positive Power)"  },   
+                      { id: "5",  filename: "./lenses/two-thin-lenses-negative.lens", title: "Two Thin Lenses in Air (Nominal Negative Power)"  },
+                      { id: "6",  filename: "./lenses/keplerian-telescope.lens", title: "Keplerian Telescope"  },
+                      { id: "7",  filename: "./lenses/galilean-telescope.lens", title: "Galilean Telescope"  },                    
+                      { id: "10", filename: "./lenses/legrand-relaxed-schematic-eye.lens", title: "LeGrand Relaxed Schematic Eye (Relaxed)" },
+                      { id: "11", filename: "./lenses/legrand-relaxed-schematic-eye-no-retina.lens", title: "LeGrand Relaxed Schematic Eye (Relaxed / No Retina)" }];
 
 
     displayOptions = { height             : 0.05, 
@@ -298,7 +299,8 @@ getConjuugateTo
                        showNodalPoints          : true, 
                        showPrincipalPoints      : true, 
                        showVertices             : true,
-                       showPupils               : true};
+                       showPupils               : true,
+                       showSchematic            : false };
 
 
     //console.log("cardinal = " + response.general.cardinalVertHeight + " OR " + displayOptions.cardinalVertHeight );
@@ -310,7 +312,8 @@ getConjuugateTo
     console.log ('RESPONSE');
     console.log (response);
 
-    drawSchematic(response, renderableLens); // DRAW!!!
+    if (displayOptions.showSchematic)
+      drawSchematic(response, renderableLens); // DRAW!!!
 
 
 
@@ -771,6 +774,8 @@ getConjuugateTo
 
 
     function findLensById(id) {
+
+      console.log (fileList);
 
       found = fileList.find(function (elem) {
 

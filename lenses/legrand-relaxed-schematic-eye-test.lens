@@ -12,7 +12,7 @@
 	"sources" : [ { "id"   		: 1, 
                     "type" 		: "afocal",
                     "which"		: "object",
-                    "beamwidth" : 5.0,
+                    "beamwidth" : 5,
                     "z"    		: NaN, 
                     "h"    		: NaN,
                     "t"    		: 5 }],
@@ -108,21 +108,6 @@
 		"args": {
 			"index": 1.336,
 			"thickness": 15.000
-		}
-	}, {
-		"id": "0014",
-		"type": "sphere",
-		"description": "retinal plane",
-		"args": {
-			"radius": -100.000,
-			"height": 10.0
-		}
-	}, {
-		"id": "0015",
-		"type": "index",
-		"description": "vitreous",
-		"args": {
-			"index": 1.336
 		}
 	}]
 }

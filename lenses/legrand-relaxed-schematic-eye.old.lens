@@ -111,7 +111,7 @@
 		}
 	}, {
 		"id": "0014",
-		"type": "sphere",
+		"type": "img",
 		"description": "retinal plane",
 		"args": {
 			"radius": -100.000,

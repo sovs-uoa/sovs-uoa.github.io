@@ -410,16 +410,26 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
     // ... ray points on P1 from infinity aimed at front nodal plane   
     var bw = this.BeamWidth;
     var dx = P1 - N1; // position translated to P1 
-	  var y1 = Math.tan(deg2rad(T1)) * dx + bw/2 / Math.sin(deg2rad(90 - T1));    // upper height on P1 from N1 
-    var y2 = Math.tan(deg2rad(T1)) * dx - bw/2 / Math.sin(deg2rad(90 - T1));    // lower height on P1 from N1
-    var y3 = Math.tan(deg2rad(T1)) * dx + 0;                                    // height on P1 from N1 
+	  
+    var y1 = Math.tan(deg2rad(T1)) * dx + bw/2 / Math.cos(deg2rad(T1));    // upper height on P1 from N1 
+    var y2 = Math.tan(deg2rad(T1)) * dx - bw/2 / Math.cos(deg2rad(T1));    // lower height on P1 from N1
+    var y3 = Math.tan(deg2rad(T1)) * dx + 0;                               // height on P1 from N1 
+
+    //var y1 = deg2rad(T1) * dx + bw/2 / Math.sin(deg2rad(90 - T1));    // upper height on P1 from N1 
+    //var y2 = deg2rad(T1) * dx - bw/2 / Math.sin(deg2rad(90 - T1));    // lower height on P1 from N1
+    //var y3 = deg2rad(T1) * dx + 0;                                    // height on P1 from N1 
+
 
     // .... rays traced back to infinity  
     var X   = -1000;
     var dx  = X - P1; 
     var i1  = Math.tan(deg2rad(T1)) * dx + y1; // upper height @ infinity from N1 
-    var i2  = Math.tan(deg2rad(T1)) * dx - y2; // lower height @ infinity from N1
+    var i2  = Math.tan(deg2rad(T1)) * dx + y2; // lower height @ infinity from N1
     var i3  = Math.tan(deg2rad(T1)) * dx + y3; // height @ infiinity from N1 
+    //var i1  = deg2rad(T1) * dx + y1; // upper height @ infinity from N1 
+    //var i2  = deg2rad(T1) * dx - y2; // lower height @ infinity from N1
+    //var i3  = deg2rad(T1) * dx + y3; // height @ infiinity from N1 
+
 
     // ... show incoming rays 
 	  var p1 = paper.path( ["M", P1, y1,  "L", X, i1 ]);    // O -> upper P1 

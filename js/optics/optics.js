@@ -304,13 +304,17 @@ function calculateRayTrace(rays, lensTable ) {
 
           console.log("Lens");
           console.log(each);
-          console.log("Rays");
+          console.log("Input Rays");
           console.log(rays);
 
           newrays = rayMultiply(each.S, rays);          
           for (var j = 0; j < newrays.length; j++) {
               newrays[j].z = Z;
           }
+
+          console.log("Output Rays");
+          console.log(newrays);
+
 
           ////console.log("system information");
           ////console.log(each);
@@ -518,7 +522,7 @@ function calculatePairFromObject (object, systemInfo) {
                        OQ  : undefined,
                        VI  : curr.cardinal.VF2,
                        PI  : curr.cardinal.PF2, 
-                       IQ  : n1 * Math.tan(deg2rad(t))/ curr.F, // n2 * Math.tan (deg2rad(t))/ curr.F,
+                       IQ  : n1 * deg2rad(t)/ curr.F, // n2 * Math.tan (deg2rad(t))/ curr.F,
                        M   : undefined,
                        T1  : t,
                        T2  : undefined }; //

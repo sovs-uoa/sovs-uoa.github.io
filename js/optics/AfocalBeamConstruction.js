@@ -314,9 +314,9 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
 
       function getBeam (th, bw) {
           var r = [];
-          r.push({ u: deg2rad(th), h: -bw/2,  z: 0});
+          r.push({ u: deg2rad(th), h: -bw/2 / Math.cos (deg2rad(th)),  z: 0});
           r.push({ u: deg2rad(th), h: 0,      z: 0});
-          r.push({ u: deg2rad(th), h: +bw/2,  z: 0});
+          r.push({ u: deg2rad(th), h: +bw/2 / Math.cos (deg2rad(th)),  z: 0});
           return r;
       }
 
@@ -456,7 +456,7 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
         var u1 = this.inputRays[i].u;         
         var X1 = this.inputRays[i].z; 
         var Y1 = this.inputRays[i].h;
-        var X2 = X1 + dX; var Y2 = Y1 + dX*u1;
+        var X2 = X1 + dX; var Y2 = Y1 + dX*Math.tan(u1);
         var p4 = paper.path( ["M", X1, Y1,  "L", X2, Y2 ]); 
         p4.attr(real);
         this.cd_set.push(p4);
