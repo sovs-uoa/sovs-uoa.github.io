@@ -21,8 +21,8 @@
 
 
   var paper; // store the paper here 
-  var viewBoxWidth  = 2;
-  var viewBoxHeight = 1;
+  var viewBoxWidth  = 60;
+  var viewBoxHeight = 20;
   var paperWidth    = 1200;
   var paperHeight   = 400;
   var oX,oY;
@@ -51,8 +51,24 @@
     return num*viewBoxWidth;
   }
 
+  function setViewBox (x, y, width, height) {
 
-  function startDrawing(canvasID) {
+      var oX = -viewBoxWidth/2, oY = -viewBoxHeight/2, oWidth = viewBoxWidth, oHeight = viewBoxHeight;        
+
+
+      viewBoxWidth  = width; 
+      viewBoxHeight = height; 
+      oWidth = viewBoxWidth, oHeight = viewBoxHeight;
+
+      viewBox   = paper.setViewBox(x, -y, width, height);
+      viewBox.X = x; viewBox.Y = -y;
+
+      setScaleFactor ();
+
+  }
+
+
+  function startDrawing(canvasID, config) {
 
         // create the canvas
         // paper = new Raphael(document.getElementById(canvasID), paperWidth, paperHeight);
@@ -79,14 +95,32 @@
         optics_set  = paper.set();
         pup_set     = paper.set();
 
+
+
+        if (config.hasOwnProperty("viewBox")) {
+
+          viewBoxWidth  = config.viewBox[2];
+          viewBoxHeight = config.viewBox[3];
+          Left          = config.viewBox[0];
+          Top           = config.viewBox[1];          
+
+          setViewBox (Left, Top, viewBoxWidth, viewBoxHeight);
+
+        } else {
+
+
+          /* DEFAULT */
+          var oX = -viewBoxWidth/2, oY = -viewBoxHeight/2, oWidth = viewBoxWidth, oHeight = viewBoxHeight;        
+          setViewBox (oX, oY, oWidth, oHeight);
+        }
+
+
        
-        oWidth = viewBoxWidth, oHeight = viewBoxHeight;
-        var oX = -viewBoxWidth/2, oY = -viewBoxHeight/2, oWidth = viewBoxWidth, oHeight = viewBoxHeight;        
-        viewBox   = paper.setViewBox(oX, oY, viewBoxWidth, viewBoxHeight);
-        viewBox.X = oX; viewBox.Y = oY;
-
-
-        setScaleFactor ();
+        //oWidth = viewBoxWidth, oHeight = viewBoxHeight;
+        //var oX = -viewBoxWidth/2, oY = -viewBoxHeight/2, oWidth = viewBoxWidth, oHeight = viewBoxHeight;        
+        //viewBox   = paper.setViewBox(oX, oY, viewBoxWidth, viewBoxHeight);
+        //viewBox.X = oX; viewBox.Y = oY;
+        //setScaleFactor ();
 
 
         //paper.circle(1,1,1)

@@ -6,8 +6,13 @@
 {
 
 
-	/* SOURCE POINTS */
+	/* VIEWBOX */
 
+
+	"viewBox" : [ -20, 10, 60, 20 ],
+
+
+	/* SOURCE POINTS */
 
 	"sources" : [ { "id"   		: 1, 
                     "type" 		: "afocal",
@@ -25,6 +30,7 @@
 						"map"   : { "anterior_cornea" : "0002",
 									"anterior_lens"   : "0006",
 									"retina" 		  : "0014" }},
+
 
 
 	/* LENS PRESCRITPION */

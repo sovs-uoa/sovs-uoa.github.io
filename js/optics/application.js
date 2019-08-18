@@ -857,7 +857,7 @@ getConjuugateTo
                   response = JSON5.parse(data);
 
 
-                  startDrawing("lens-container"); // uses paper 
+                  startDrawing("lens-container", response); // uses paper 
 
 
                   // capture mouse wheel using bind
