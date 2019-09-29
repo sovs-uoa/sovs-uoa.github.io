@@ -1,6 +1,6 @@
 # SOVS-UOA optics bench 
 
-This program is a ray-tracer developed as part of the OPTOM263 Essential optics course that runs in the School of Optometry and Vision Science (SOVS) at the University of Auckland (UOA). 
+This program is a ray-tracer developed as part of the OPTOM263 Essential optics course that runs in the School of Optometry and Vision Science (SOVS) at the University of Auckland (UOA).  
 
 The program is an interactive ray-tracer for performing simple paraxial ray-tracing.  It is intended to allow students to  learn key concepts of paraxial optics in an interactive and user-friendly way.  
 
