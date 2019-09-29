@@ -6,8 +6,14 @@
 
 {
 
-	// points 
 
+	/* VIEWBOX */
+
+
+	"viewBox" : [ -1, 1, 2, 2 ],
+
+
+	// points 
 
 	"sources" : [ { "id" 		: 1, 
 					"type" 		: "point",
