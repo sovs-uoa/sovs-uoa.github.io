@@ -22,3 +22,48 @@ function assignParameterValue(argument, defaultValue){
   return typeof argument !== 'undefined' ? argument : defaultValue;
 }
 
+
+
+
+
+function loadConfiguration(path, success, error)
+{
+
+  $.get( path, function( data ) {
+      success (data);
+  })
+  .fail(function (data) {
+    error (data);
+  });
+
+}
+
+
+
+function buildDropdownMenu (which, whichFn, dataList) {
+
+      var dropdwn = document.getElementById(which);
+      dataList.forEach ( each => {
+
+         console.log(each.value);
+
+          // <a class="dropdown-item" href="#">Link 1</a>       
+          newlink = document.createElement('a');
+          newlink.setAttribute('class', 'dropdown-item');
+          newlink.setAttribute('data-name',  each.name);                
+          newlink.setAttribute('data-value', each.value);   
+          newlink.setAttribute('data-desc',  each.desc);                   
+          newlink.setAttribute('onclick', whichFn + '(this);');
+          newlink.innerHTML = each.name;              
+
+          if (each.active) {
+           eval (whichFn + "(newlink);");
+          }
+
+          //console.log(newlink);
+
+          dropdwn.appendChild(newlink);
+
+      });
+
+}

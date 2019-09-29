@@ -499,21 +499,24 @@ function drawAxis () {
 
             console.log ('add nodal points');
 
-            cp1 = drawPoint(v1 + vn1, y, "cyan");
-            cp2 = drawPoint(v2 + vn2, y, "cyan");
+            cp1 = drawPoint(v1 + vn1, y, "yellow");
+            cp2 = drawPoint(v2 + vn2, y, "yellow");
             cp_set.push(cp1, cp2);
+            RegisterWheelCallback ({ type: "cardinal", handle: cp1 });
+            RegisterWheelCallback ({ type: "cardinal", handle: cp2 });
+
 
             cp1 = drawText(x1, 0, "N");
             cp1.attr({ "text-anchor" : "middle"});
             cp1.data({ "data-shift-Y" : 0.0 });
             cp_set.push(cp1);
-            RegisterWheelCallback ({ type: "cardinal", handle: cp1 });
+            RegisterWheelCallback ({ type: "text", handle: cp1 });
 
             cp2 = drawText(x2, 0, "N'");
             cp2.attr({ "text-anchor" : "middle"});
             cp2.data({ "data-shift-Y" : 0.0 });
             cp_set.push(cp2);
-            RegisterWheelCallback ({ type: "cardinal", handle: cp2 });
+            RegisterWheelCallback ({ type: "text", handle: cp2 });
 
           }
 
@@ -525,12 +528,12 @@ function drawAxis () {
         if (displayOptions.showVertices) {
 
           // points 
-          cp1 = drawPoint(v1 + vn1, y, "yellow");
-          cp2 = drawPoint(v2 + vn2, y, "yellow");
-          cp_set.push(cp1, cp2);
+          //cp1 = drawPoint(v1 + vn1, y, "yellow");
+          //cp2 = drawPoint(v2 + vn2, y, "yellow");
+          //cp_set.push(cp1, cp2);
 
-          RegisterWheelCallback ({ type: "cardinal", handle: cp1 });
-          RegisterWheelCallback ({ type: "cardinal", handle: cp2 });
+          //RegisterWheelCallback ({ type: "cardinal", handle: cp1 });
+          //RegisterWheelCallback ({ type: "cardinal", handle: cp2 });
 
           // lines 
           //var y1 = y - h/2;
@@ -872,7 +875,7 @@ function drawAxis () {
 
     console.log('drawing at X:' +x +',Y:'+y + ' KX:' + kx);
 
-    r = kx*4; // 4 pixels is the requested size
+    //r = kx*4; // 4 pixels is the requested size
 
 
     var c = paper.text(x, y, text);
@@ -1730,6 +1733,9 @@ function drawAxis () {
     function transformScalableObject (curr) {
 
 
+              let scaleFactor = 20;
+
+
               //console.log(curr.type);
               switch (curr.type) {
 
@@ -1743,23 +1749,23 @@ function drawAxis () {
                     switch (anchorDirection) {
 
                       case "start":
-                        curr.handle.transform([ "t", x, y, "s", kx*20, ky*20, "0","0", "t", 0.5, 0 ]);
+                        curr.handle.transform([ "t", x, y, "s", kx*scaleFactor, ky*scaleFactor, "0","0", "t", 0.5, 0 ]);
                         break;
 
                       case "end":
-                        curr.handle.transform([ "t", x, y, "s", kx*20, ky*20, "0","0", "t", -0.5, 0 ]);
+                        curr.handle.transform([ "t", x, y, "s", kx*scaleFactor, ky*scaleFactor, "0","0", "t", -0.5, 0 ]);
                         break;
 
                       case "middle":
                         var dY = curr.handle.data("data-shift-Y");
                         //console.log(curr.handle);
                         //console.log(dY);                        
-                        curr.handle.transform([ "t", x, y, "s", kx*20, ky*20, "0","0", "t", 0, dY]);
+                        curr.handle.transform([ "t", x, y, "s", kx*scaleFactor, ky*scaleFactor, "0","0", "t", 0, dY]);
                         break;
 
 
                       default:
-                        curr.handle.transform([ "t", x, y, "s", kx*20, ky*20, "0","0" ]);
+                        curr.handle.transform([ "t", x, y, "s", kx*scaleFactor, ky*scaleFactor, "0","0" ]);
 
                     }
 
