@@ -9,7 +9,7 @@
 	/* VIEWBOX */
 
 
-	"viewBox" : [ -20, 10, 60, 20 ],
+	"viewBox" : [ -1.0, 0.5, 2.0, 1.0 ],
 
 	// points 
 	"sources" : [ { "id" 		: 1, 

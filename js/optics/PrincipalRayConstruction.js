@@ -300,16 +300,21 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
      var X2 = data.X2;
      var Y2 = data.Y2;
 
-     var myData = { N1 : N1, N2: N2, 
-                           P1 : P1, P2: P2,
-                           F1 : F1, F2: F2,
-                           X1 : X1, X2: X2,
-                           Y1 : Y1, Y2: Y2 };
+     var myData = {   N1 : N1, N2: N2, 
+                      P1 : P1, P2: P2,
+                      F1 : F1, F2: F2,
+                      X1 : X1, X2: X2,
+                      Y1 : Y1, Y2: Y2 };
+
+
+     // console.log ('OUTPUT DATA.');
+     // console.log (myData);
+
 
       
     /* -------------------------------------------------------------------------------------------
 
-       OBJECT SPACE 
+       OBJECT SPACE - FINITE OBJECT POINTS 
 
      ---------------------------------------------------------------------------------------------- */
 
@@ -355,14 +360,8 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
 
 
 
-    // console.log(ret);
-
     if (ret.extender) {
 
-
-      //p1 = paper.path( ["M", X1, Y1, "L", F1, 0 ]);       // O  -> F1   (ray through F1)
-      //p2 = paper.path( ["M", F1, 0,  "L", P1, Y2]);       // F1 -> P1   (ray through F1)
-      //p3 = paper.path( ["M", X1, Y1, "L", P1, Y2 ]);      // O  -> P1   (horizontal ray through F2)
 
       dX = -100; dY = 0;
       p1 = paper.path( ["M", P1, Y1, "L", P1 + dX, Y1 ]);     // Y2 -> inf   (ray through F1)
@@ -384,12 +383,10 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
 
     /* -------------------------------------------------------------------------------------------
 
-       IMAGE SPACE 
+       IMAGE SPACE - FINITE IMAGE POINTS 
 
      ---------------------------------------------------------------------------------------------- */
 
-
-    // Styles = { Y1I: virtual, Y2I: virtual, N2I: virtual, IF2: none, Y2F2: real };
     var ImageStyles = getImageStyle(myData);  
     p1 = paper.path( ["M", P2, Y1,  "L", X2, Y2 ]);   // Y1 -> I
     p2 = paper.path( ["M", P2, Y2,  "L", X2, Y2 ]);   // Y2 -> I  
@@ -407,8 +404,6 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
       //p3 = paper.path( ["M", X1, Y1, "L", P1, Y2 ]);      // O  -> P1   (horizontal ray through F2)
 
       var dX = 100; 
-      // dX = Math.min([ 100, X2-P2 ]);
-
       if (X2 > P2) {        
         dX = X2 - P2;
       }
@@ -473,49 +468,43 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
 
   drawConjugates(data) {
 
-    // console.log("-- draw conjugates");
 
   	var dataOptions = this.dataOptions;
 
+
+
+    /* only show if (X1,Y1) is defined */
+
     var X1 = data.X1;
     var Y1 = data.Y1;
-    if (isFinite(X1) & isFinite(Y1)) {
-      // console.log('X1 = ' + X1 + ' Y1 = '+ Y1);
-      
 
-      // console.log("---- added point id = " + data.id + " (object)");
-      // object points are draggable 
+    if (isFinite(X1) & isFinite(Y1)) {
+
       var c = drawPoint(X1, Y1, "green");               
       c.id = { id : data.id, type : "object" };
       c.drag(move, start, up);
-
-/*      
-      c.click (function () {
-      	//console.log(this);
-      	//console.log(e);
-      	console.log("clicked object point = " + this.id);
-      	//select (this.id);
-      });
-*/
-
       this.ps_set.push(c); 
+
     } else {
     	error("undefined object!");
     };
 
+
+    /* only show if (X2,Y2) is defined */
+
    var X2 = data.X2;
    var Y2 = data.Y2;
-   if (isFinite(X2) & isFinite(Y2)) {
-      
-      // image points are draggable 
-      // console.log("---- added point id = " + data.id + " (image)");
+
+   if (isFinite(X2) & isFinite(Y2)) {      
+
       var c = drawPoint(X2, Y2, "cyan");          
       c.id = { id : data.id, type : "image" };
       c.drag(move, start, up);
       this.ps_set.push(c); 
 
     } else {
-		error("undefined object!");
+		  
+      error("undefined object!");
     }
 
   }
@@ -526,15 +515,13 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
   	var dataOptions = this.dataOptions;
 
 
-
-    //this.ps_set.remove ();
-    //this.ps_set = paper.set();
-
     // show the object points for all points 
+
     for (var i = 0; i < data.length; i++ ) {
 
         var X1 = data[i].X1;
         var Y1 = data[i].Y1;
+
         if (isFinite(X1) & isFinite(Y1)) {
           // console.log('X1 = ' + X1 + ' Y1 = '+ Y1);
           var c = drawPoint(X1, Y1, "cyan");         
@@ -611,12 +598,19 @@ GETOBJECTSTYLE return an apprpriate obejct style.
 
           } else if ((data.F1 < data.X1) & (data.X1 < data.P1)) { // F1 < O < P1 
 
-//              ret.F1 = { OF: none, FP: virtual, OP: real };
                 ret.F1 = { OF: none, FP: none, OP: real };
 
           } else {
 
-             alert ("getObjectStyle : X1<P1: unmeasured");
+             //alert (`PrincipalRayConstruction: X1 = ${data.X1} P1 = ${data.P1} F1 = ${data.F1}`);
+
+            if ((data.F1 == data.X1) & (data.X1 < data.P1)) { // F1 < O < P1 
+
+                ret.F1 = { OF: none, FP: none, OP: real };
+
+            }
+
+
 
           }
 
@@ -624,7 +618,6 @@ GETOBJECTSTYLE return an apprpriate obejct style.
 
           // ... the region between P1 & P2 should be empty 
           if (data.P1 <= data.P2) {
-
 
               // F2 RAY           
               ret.F2 = { OP1: real, OP2: none };
@@ -736,27 +729,25 @@ GETIMAGESTYLE return an apprpriate obejct style.
    function getImageStyle(data) {
 
 
-      // console.log(data);
+    if (!isFinite(data.X2)) {
+
+      console.log ('infinity detected.');
+      Styles = { Y1I: real, Y2I: real, N2I: real, IF2: real, Y2F2: real, extender: true };
+      return Styles;
+    }
+
 
 
       ret = {};
       
       if (data.X2 < data.P2) { // VIRTUAL IMAGE 
 
-/*
-          if ((data.F2 < data.X2) & (data.X2 < data.P2)) {         // NEGATIVE LENS (F2 < X2 < P2)
-              Styles = { Y1I: virtual, Y2I: virtual, N2I: virtual, IF2: none, Y2F2: real, extender: true };
-          } else if ((data.X2 < data.P2) & (data.P2 < data.F2)) {  // POSITIVE LENS (F2 < X2 < P2)
-              Styles = { Y1I: virtual, Y2I: virtual, N2I: virtual, IF2: none, Y2F2: real, extender: true };
-          }          
-*/
 
           if ((data.F2 < data.X2) & (data.X2 < data.P2)) {         // NEGATIVE LENS (F2 < X2 < P2)
               Styles = { Y1I: virtual, Y2I: virtual, N2I: virtual, IF2: virtual, Y2F2: real, extender: true };
           } else if ((data.X2 < data.P2) & (data.P2 < data.F2)) {  // POSITIVE LENS (F2 < X2 < P2)
               Styles = { Y1I: virtual, Y2I: virtual, N2I: virtual, IF2: virtual, Y2F2: real, extender: true };
           }          
-
 
 
       } else {  // REAL IMAGE (P2 <= X2)
@@ -767,6 +758,8 @@ GETIMAGESTYLE return an apprpriate obejct style.
           } else if ((data.P2 < data.X2) & (data.X2 < data.F2)) { // P2 < I < F2
               Styles = { Y1I: real, Y2I: real, N2I: real, IF2: none, Y2F2: none, extender: false  };
           }
+
+
 
       }
 

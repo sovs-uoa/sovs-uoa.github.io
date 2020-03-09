@@ -83,8 +83,10 @@
 
      // report template 
      $.get('mustache/report.htm', function (data) {
+
         console.log('loaded ... reportTemplate');
         reportTemplate = data;
+
     });
 
     load ("2"); // 2 = thin lens (positive)
@@ -93,7 +95,6 @@
 
 
     $( document ).ready(function() {      
-
 
 
       // trigger on a selection

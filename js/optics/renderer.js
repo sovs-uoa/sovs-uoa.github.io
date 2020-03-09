@@ -873,7 +873,7 @@ function drawAxis () {
 
   function drawText(x, y, text, color) {
 
-    console.log('drawing at X:' +x +',Y:'+y + ' KX:' + kx);
+    //console.log('drawing at X:' +x +',Y:'+y + ' KX:' + kx);
 
     //r = kx*4; // 4 pixels is the requested size
 
@@ -900,7 +900,7 @@ function drawAxis () {
 
   function drawPoint(x, y, color) {
 
-    console.log('drawing at X:' +x +',Y:'+y + ' KX:' + kx);
+    //console.log('drawing at X:' +x +',Y:'+y + ' KX:' + kx);
 
     r = kx*4; // 4 pixels is the requested size
 
@@ -1634,11 +1634,11 @@ function drawAxis () {
     //Pane
    panStart = function (e) {
 
-        console.log("pan start");
+        //console.log("pan start");
 
 
         if (e.target.tagName !== "svg") {
-          console.log("dont allow pan.");
+          // console.log("dont allow pan.");
           return;
         }
 
@@ -1646,7 +1646,7 @@ function drawAxis () {
 
         isMouseDown = true;
 
-        console.log(e);
+        // console.log(e);
 
         // differentiate
         if(e.type == 'touchstart' || e.type == 'touchmove' || e.type == 'touchend' || e.type == 'touchcancel'){
@@ -1676,30 +1676,26 @@ function drawAxis () {
           }
 
 
-
-
         //x = viewBoxWidth / paper.width;
         //y = viewBoxHeight / paper.height;
         //dX *= x;
         //dY *= y;
 
-        console.log("Information");
 
-        console.log(viewBox.X);
-        console.log(viewBox.Y);
+        //console.log(`panMove : [${viewBox.X},${viewBox.Y},${viewBoxWidth},${viewBoxHeight}], dX=(${dX},${dY})`);
 
-        console.log(viewBoxWidth);
-        console.log(viewBoxHeight);
-
-        console.log(dX);
-        console.log(dY);
-
-
-        console.log(e);
-        console.log(kx);        
-        console.log(kx);
-        console.log(startX);        
-        console.log(startY);
+        //console.log("Information");
+        //console.log(viewBox.X);
+        //console.log(viewBox.Y);
+        //console.log(viewBoxWidth);
+        //console.log(viewBoxHeight);
+        //console.log(dX);
+        //console.log(dY);
+       // console.log(e);
+       // console.log(kx);        
+       // console.log(kx);
+       // console.log(startX);        
+       // console.log(startY);
 
         //alert(viewBoxWidth +" "+ paper.width );
         paper.setViewBox(viewBox.X + dX, viewBox.Y + dY, viewBoxWidth, viewBoxHeight);

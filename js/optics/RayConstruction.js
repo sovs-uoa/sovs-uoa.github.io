@@ -387,10 +387,10 @@ class RayConstruction { // create a ray construction using raphael.js
 
       ret = {};
       
-      if (data.X1 < data.P1) { // real object 
+      if (data.X1 < data.P1) { // real object O
 
 
-          // different cases 
+
           if ((data.X1 < data.F1) & (data.F1 < data.P1)) {        // O < F1 < P1
 
               ret.F1 = { OF: real, FP: real, OP: none };
@@ -405,7 +405,7 @@ class RayConstruction { // create a ray construction using raphael.js
 
           } else {
 
-             alert ("unmeasured");
+             alert (`X1 = ${data.X1} P1 = ${data.P1} F1 = ${data.F1}`);
 
           }
 
@@ -457,7 +457,8 @@ class RayConstruction { // create a ray construction using raphael.js
 
          } else {
 
-             alert ("unmeasured");
+             alert (`X1 = ${data.X1} P1 = ${data.P1} F1 = ${data.F1}`);
+
 
           }
 

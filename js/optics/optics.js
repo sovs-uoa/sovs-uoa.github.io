@@ -290,8 +290,7 @@ function calculateRayTrace(rays, lensTable ) {
   var Z = 0; ret = [];
 
   //console.log("Calculate RayTrace");
-  console.log("START PROCESSING");
-
+  //console.log("START PROCESSING");
   // create the system matrix
   // for (var i=lensTable.length-1; i >=0; i--) {
   // create the total system 
@@ -302,18 +301,18 @@ function calculateRayTrace(rays, lensTable ) {
           each    = lensTable[i];
           Z       = Z + each.L;
 
-          console.log("Lens");
-          console.log(each);
-          console.log("Input Rays");
-          console.log(rays);
+          //console.log("Lens");
+          //console.log(each);
+          //console.log("Input Rays");
+          //console.log(rays);
 
           newrays = rayMultiply(each.S, rays);          
           for (var j = 0; j < newrays.length; j++) {
               newrays[j].z = Z;
           }
 
-          console.log("Output Rays");
-          console.log(newrays);
+          //console.log("Output Rays");
+          //console.log(newrays);
 
 
           ////console.log("system information");
@@ -380,9 +379,9 @@ function calculateConjugatePairFrom(point, systemInfo) {
               result.X2 = V2 + result.VI; 
               result.Y2 = result.IQ;
 
-              console.log ("CONJUGATE PAIR OUTPUT");
-              console.log (result);
-              console.log (curr);
+              //console.log ("CONJUGATE PAIR OUTPUT");
+              //console.log (result);
+              //console.log (curr);
 
               return result;
 

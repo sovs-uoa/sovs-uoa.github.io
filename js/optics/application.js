@@ -37,7 +37,8 @@
       "decimal": function (value, decimals) {
 
 
-        console.log("value = " + value);
+        // console.log("value = " + value);
+        
         if (Number.isNaN(value)) {
           return "undefined";
         }
@@ -128,9 +129,8 @@ getConjuugateTo
   function addPointsTableRow(aPoint, pairData) {
 
 
-     console.log("ADDING ROW");
-
-     console.log(aPoint);
+     //console.log("ADDING ROW");
+     //console.log(aPoint);
 
 
       lens.pointsTableHandler.addRow([ {  id: aPoint.id,
@@ -309,8 +309,8 @@ getConjuugateTo
     drawPupils(renderableLens.total, displayOptions);
     drawOptics(renderableLens);
 
-    console.log ('RESPONSE');
-    console.log (response);
+    //console.log ('RESPONSE');
+    //console.log (response);
 
     if (displayOptions.showSchematic)
       drawSchematic(response, renderableLens); // DRAW!!!
@@ -449,12 +449,14 @@ getConjuugateTo
     aPoints   = lens.pointsTableHandler.convertRowData([ aPoint ]); // apply filters     
     aPoint    = aPoints[0];
 
-    console.log("transformed this point.");
-    console.log(aPoint);
-    console.log(fieldname)
 
+    /* need to update the infomration */
+    console.log(`Edited field "${fieldname}" directly.`);  
+
+    /* field information */
+    
     switch (fieldname) {
-      case "zo": case "ho": case "to":
+      case "zo": case "ho": case "to": 
         return { id: aPoint.id, which: "object", z: Number(aPoint.zo), h: Number(aPoint.ho), t: Number(aPoint.to)};
 
       case "zi": case "hi": case "ti":
@@ -463,8 +465,21 @@ getConjuugateTo
       case "beamwidth":
         return { id: aPoint.id, beamwidth: Number(aPoint.beamwidth) };
 
+      /* add in additional processing required for information */
+
+      case "l": 
+
+        var cardinals = renderableLens.total.cardinal;
+        return { id: aPoint.id, which: "object", z: Number(aPoint.l + cardinals.VP1), h: Number(aPoint.ho), t: Number(aPoint.to) };
+
+      case "ld": 
+        var cardinals = renderableLens.total.cardinal;
+        return { id: aPoint.id, which: "image", z: Number(aPoint.ld + cardinals.VP2), h: Number(aPoint.hi), t: Number(aPoint.ti) };
+
+
+
       default:
-        throw "unknown point type";
+        throw "Editing for ${fieldname} was not handled.";
     }
    }
 
@@ -493,20 +508,12 @@ getConjuugateTo
 
   function addConstruction (aPoint) {
 
-     console.log("add construction called.");
-     console.log(aPoint);
-
      totalLens  = renderableLens.total;
      pairData   = Optics.calculateConjugatePairFrom(aPoint, totalLens);
-
-
-
-     //lens.pointsTable.addRow([{  id: aPoint.id, 
-     //                            type: aPoint.type }]);s
-
      addPointsTableRow(aPoint, pairData);
 
      // update the points table with these data
+
      switch (aPoint.type) {
 
             case "source":   // finite placed beam 
@@ -523,19 +530,15 @@ getConjuugateTo
               lens.raphael.constructions.push( new ParallelBeamConstruction (totalLens, pairData, beamWidth));
               break;
 
-
            case "afocal": // infinitely placed beam 
-
-              console.log("AFOCAL");
-              console.log(aPoint);
 
               var beamWidth = aPoint.beamwidth;     
               var afocal = new AfocalBeamConstruction (totalLens, pairData, beamWidth);
               lens.raphael.constructions.push(afocal);
               break;
-
             
             default: 
+              error ('unknown point construction.');
               break;
       }
 
@@ -775,11 +778,11 @@ getConjuugateTo
 
     function findLensById(id) {
 
-      console.log (fileList);
+      //console.log (fileList);
 
       found = fileList.find(function (elem) {
 
-          console.log (elem);
+          //console.log (elem);
 
           return elem.id == id;
       });
@@ -844,8 +847,8 @@ getConjuugateTo
 
 
      found = findLensById(id);
-     // console.log ('found file');
-     // console.log(found);
+
+
 
 
       $.ajax({
@@ -854,16 +857,18 @@ getConjuugateTo
             success : function (data) {
 
 
+
+
+                  /* loaded lens prescription */
+
+                  console.log (`lens file ... ${found.filename}`);
+
                   response = JSON5.parse(data);
 
 
                   startDrawing("lens-container", response); // uses paper 
 
-
-                  // capture mouse wheel using bind
                   $(paper.canvas).bind('mousewheel', function(event) {
-
-                        console.log("mouse-wheel called");
 
                         // cross-browser wheel delta
                         var e = window.event || e; // old IE support
@@ -883,24 +888,6 @@ getConjuugateTo
                   paper.canvas.addEventListener("touchmove",  panMove, false);
                   paper.canvas.addEventListener("touchend",   panEnd, false);
 
-                  //$(paper.canvas).bind('touchmove', panMove, false);
-                  //$(paper.canvas).bind('touchend', panEnd, false);
-
-
-
-                  // touch events 
-                  //$(paper.canvas).bind('touchstart', panStart, false);
-                  //$(paper.canvas).bind('touchmove', panMove, false);
-                  //$(paper.canvas).bind('touchend', panEnd, false);
-
-                  //$(paper.canvas).touchstart(panStart);
-                  //$(paper.canvas).touchmove(panMove);
-                  //$(paper.canvas).touchend(panEnd);
-
-
-
-                  // $('#prescription-tab').show(); // show the prescription tab
-
                    
                   // initialize the prescription that will execite on change to table 
                   initializePrescriptionTable (response.prescription, 
@@ -909,40 +896,20 @@ getConjuugateTo
                         function () {  // success !!! 
 
                                 console.log("loaded a prescription ...");       
-
-                                // We can update the filename now !!
-
                                 $("#filename_display").val(found.title);
-                                // console.log(found);
 
 
                                 updatePrescriptionView();            
 
+                                /* load a summary table template */
 
-                                // show the lenses                                    
-                                // $( "#prescription-nav").trigger("click"); // show the table 
-
-                                // we can now load the prescription 
                                 $.get('mustache/summary_report_tables_html.mustache', function(template) {
                           
-                                    console.log("loaded a summary template ...");
+
+                                    /* update the summary template view */
+
                                     summaryTemplate = template; 
                                     updateSummaryView(); 
-
-
-                                     // when the objects and images tab becomes visible we need to initialize it !!
-
-
-                                    // add points 
-/*
-                                    var points  = [ { "id"   : 1, 
-                                                      "type" : "point",
-                                                      "which": "object",
-                                                      "z"    : -20, 
-                                                      "h"    : 10,
-                                                      "t"    : undefined
-                                                       } ];
-*/
 
                                     
                                     /* -------------------------------------------------------------------------------------
@@ -952,9 +919,19 @@ getConjuugateTo
                                     --------------------------------------------------------------------------------------- */
 
                                     var points; 
-                                    if (response.hasOwnProperty("sources")) {
+                                    if (response.hasOwnProperty("sources")) {                                            
+
+
+                                            /* load defined sources */
+
+                                            console.log ('loading sources from lenses file.');
                                             points = response.sources;
+
+
                                     } else {
+
+                                            console.log ('setting up default source/loading sources from lenses file.');
+
                                             points  = [ { id    : 1, 
                                                           type  : "afocal",
                                                           which : "object",
@@ -963,33 +940,6 @@ getConjuugateTo
                                                           t     : 30,
                                                           bw    : NaN } ];
                                     }
-
-
-
-
-
-/*                                                       
-                                                      { "id" : 2, 
-                                                      "type" : "finite",
-                                                      "which": "object",
-                                                      "z"    : -20, 
-                                                      "h"    : -10
-                                                      },
-                                                      { "id" : 3, 
-                                                      "type" : "parallel",
-                                                      "which": "object",
-                                                      "th"   : -30 
-                                                      }];
-*/
-
-  /*                                                      
-                                                      { "id" : 3, 
-                                                      "type" : "parallel",
-                                                      "which": "object",
-                                                      "th"   : 30, 
-                                                      }]; 
-*/
-
 
 
 
@@ -1022,8 +972,6 @@ getConjuugateTo
                                           });
 
 
-
-
                                           
                                           /* ------------------------------------------
 
@@ -1032,44 +980,36 @@ getConjuugateTo
                                           ---------------------------------------------- */
 
                                           points.forEach( eachPoint => {
-                                              console.log("eachPoint");
-                                              console.log(eachPoint);
+
+                                              /* klugdy fix for each point */
+
+                                              if (eachPoint.h) 
+                                                eachPoint.h = -eachPoint.h;
+
                                               addConstruction (eachPoint);
                                           });
 
 
+
+                                          /* ------------------------------------------
+
+                                          PASS ... KLUDGE 
+
+                                          ---------------------------------------------- */
+
+
                                           $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
                                             
-                                            //e.target // newly activated tab
-                                            //e.relatedTarget // previous active tab
-                                            //console.log("Changed tab.");
-                                            //console.log(e.target);
-
-                                            console.log(e.target.id);
-                                            console.log("shown tab changed.");       
 
                                             switch (e.target.id) {
 
                                                case "objects-images-nav" :
-                                                  //console.log("points redraw");
-                                                  //var t = $("#lens-points");
-                                                  //console.log(t);
-                                                  //console.log(lens.pointsTable);
-                                                  
-                                                  // console.log("DataTableHandler");
-                                                  // console.log(DataTableHandler);
 
-                                                  console.log(lens.pointsTable);
-
-                                                  lens.pointsTable.redraw(true); //tabulator("redraw", true);
-                                                  //$("#lens-points").tabulator("redraw", true);
+                                                  lens.pointsTable.redraw(true); 
                                                   break;
 
                                                case "prescription-nav" :
-
-                                                  console.log("prescription redraw");
-                                                  lens.table.redraw(true); //tabulator("redraw", true);
-                                                  //$("#lens-table").tabulator("redraw", true);
+                                                  lens.table.redraw(true);
                                                   break;
 
                                                default:
@@ -1078,41 +1018,6 @@ getConjuugateTo
 
 
                                           })
-
-                                          //rays = [ { u: 0, h: 1 } ];
-                                          //console.log(renderableLens);
-                                          //newrays = Optics.calculateRayTrace(rays, renderableLens.elem);
-                                          //console.log(newrays);
-
-
-                                          // conjugate points are draggable controllers 
-                                          //showConjugates();
-                                          //ap = new AnglePicker (0, 0, 5, 45);
-
-                                          /* INITIALIZE THE VIEW */
-                                          //drawOptics(renderableLens);  
-
-                                          // add an object point that is draggable   
-                                          //console.log("data from points table");
-                                          //console.log(lens.pointsTable.getData());
-
-
-                                          // add the draggable method to it  
-                                          /*
-
-                                          var dot = paper.circle(points[0].z, points[0].h, 1).attr({
-                                                      fill: "#FFFF00",
-                                                      stroke: "#000099",
-                                                      "stroke-width": 3
-                                                  });
-
-                                          dot.id = points[0].id;
-                                          dot.drag(move, start, up);
-                                          
-                                          */
-
-                                          // put me back on the lens prescription tab
-                                          // $("#objects-images-tab").removeClass("active"); 
 
 
                                       });

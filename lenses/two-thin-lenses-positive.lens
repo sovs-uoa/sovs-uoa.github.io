@@ -9,18 +9,22 @@
 
 	// sources 
 
-/*
+
+	/* VIEWBOX */
+
+
+	"viewBox" : [ -1.0, 0.5, 2.0, 1.0 ],
 
 
 	"sources" : [ { "id" 		: 1, 
 					"type" 		: "point",
 					"which"		: "object",
 					"beamwidth" : NaN,
-					"z"			: -0.3, 
-					"h"			: 0.1,
+					"z"			: -0.7, 
+					"h"			: +0.3,
 					"t"			: NaN } ],
-*/
 
+/*
 
 	"sources" : [ { "id" 		: 1, 
 					"type" 		: "source",
@@ -29,6 +33,9 @@
 					"z"			: -0.3, 
 					"h"			: 0.1,
 					"t"			: NaN } ],
+
+*/
+
 
 	// lens prescription 
 	"title": "Thick Lens",

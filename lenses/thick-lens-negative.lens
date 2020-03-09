@@ -7,6 +7,12 @@
 {
 
 
+	/* VIEWBOX */
+
+
+	"viewBox" : [ -1.0, 0.5, 2.0, 1.0 ],
+
+
 
 	"general" :  { "cardinalVertHeight" : 0.15 },
 
