@@ -80,15 +80,18 @@
    function initializeApp () {
 
      // try and load 
-     console.log('starting ... main app');
+     // console.log('starting ... main app');
 
      // report template 
      $.get('mustache/report.htm', function (data) {
-        console.log('loaded ... reportTemplate');
+        // console.log('loaded ... reportTemplate');
         reportTemplate = data;
     });
 
     load ("4"); // 0 = Thick Lens in Air(positive)
+
+
+    console.log ('Initialized application.');
 
     }
 
@@ -100,7 +103,7 @@
 
       // trigger on a selection
       $('.file-selection').on('click', function () {
-        console.log("file selection made.");
+        console.log("file selection made.");        
         var id  = $(this).data ("id"); // get the data id field 
         var ndx = fileList.findIndex( function (element) { return element.id == id } );
           

@@ -175,7 +175,7 @@ function drawAxis () {
 
   divNumerator = Math.max(1, 2.5*Math.floor( divNumerator / 2.5));
   var divSize      = divNumerator * Math.pow(10, divOrder);  // 20 divs on screen 
-  console.log("divSize : " + divNumerator + " x 10^(" + divOrder + ")");
+  //console.log("divSize : " + divNumerator + " x 10^(" + divOrder + ")");
 
   if (lastdivSize == divSize) {
     return;
@@ -762,7 +762,7 @@ function drawAxis () {
     var lens = paper.set();
 
 
-    console.log("HEIGHT = " + h);
+    //console.log("HEIGHT = " + h);
 
 
     // draw a path 
@@ -1552,7 +1552,7 @@ function drawAxis () {
       equivalentPower = data.elem[i].F;
 
       curr = data.elem[i].elem;
-      console.log(curr);
+      //console.log(curr);
 
       switch (curr.type) {
 

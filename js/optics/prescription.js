@@ -658,8 +658,8 @@ function initializePointsTable(data, updatePointsCallback, success) {
 
 
 
-      console.log("PRESCRIPTION");
-      console.log(lens.pointsTableHandler);
+      //console.log("PRESCRIPTION");
+      //console.log(lens.pointsTableHandler);
 
       //console.log("just called lems table");
       //console.log(lens.pointsTable);
