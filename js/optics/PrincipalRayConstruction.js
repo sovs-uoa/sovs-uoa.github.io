@@ -187,8 +187,6 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
       var X1 = this.data.X1; var X2 = this.data.X2;        
       var Y1 = this.data.Y1; var Y2 = this.data.Y2;
 
-      this.objectPoint.attr({ cx: X1, cy: Y1});
-
       if (isFinite(X2) & isFinite(Y2)) {
         this.imagePoint.show();
         this.imagePoint.attr({ cx: X2, cy: Y2});
@@ -326,77 +324,87 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
 
      ---------------------------------------------------------------------------------------------- */
 
-    ret = getObjectStyle(myData);
 
-    this.cd_set.remove ();
+        ret = getObjectStyle(myData);
 
+        this.cd_set.remove ();
 
-	  // Nodal ray height at the principal plane  
-	  // N1 RAY - ray through 1 to P1 
-	  var H1 = (0 - Y1) / (N1 - X1 ) * (P1 - X1) + Y1;
-	  var p1 = paper.path( ["M", X1, Y1, "L", P1, H1 ]);   // O  -> H1   (ray through F1)
-	  var p2 = paper.path( ["M", P1, H1,  "L", N1, 0]);    // H1 -> N1   (ray through F1)
-	  p1.attr(ret.N1.OP);
-	  p2.attr(ret.N1.PN); 
-	  this.cd_set.push(p1, p2);
+        // Nodal ray height at the principal plane  
+        // N1 RAY - ray through 1 to P1 
+        var H1 = (0 - Y1) / (N1 - X1 ) * (P1 - X1) + Y1;
+        var p1 = paper.path( ["M", X1, Y1, "L", P1, H1 ]);   // O  -> H1   (ray through F1)
+        var p2 = paper.path( ["M", P1, H1,  "L", N1, 0]);    // H1 -> N1   (ray through F1)
+        p1.attr(ret.N1.OP);
+        p2.attr(ret.N1.PN); 
+        this.cd_set.push(p1, p2);
 
-	  // F1 RAY - ray through F1 to P1 
-	  p1 = paper.path( ["M", X1, Y1, "L", F1, 0 ]);        // O  -> F1   (ray through F1)
-	  p2 = paper.path( ["M", F1, 0,  "L", P1, Y2]);        // F1 -> P1   (ray through F1)
-    p1.attr(ret.F1.OF);
-    p2.attr(ret.F1.FP); 
-    this.cd_set.push(p1, p2);
+        // F1 RAY - ray through F1 to P1 
+        p1 = paper.path( ["M", X1, Y1, "L", F1, 0 ]);        // O  -> F1   (ray through F1)
+        p2 = paper.path( ["M", F1, 0,  "L", P1, Y2]);        // F1 -> P1   (ray through F1)
+        p1.attr(ret.F1.OF);
+        p2.attr(ret.F1.FP); 
+        this.cd_set.push(p1, p2);
 
-    if (isFinite(Y2)) {
-        var p3 = paper.path( ["M", X1, Y1, "L", P1, Y2 ]);   // O  -> P1   (horizontal ray through F2)
-        p3.attr(ret.F1.OP); 
-        this.cd_set.push(p3);
-    }
-    
+        if (isFinite(Y2)) {
+            var p3 = paper.path( ["M", X1, Y1, "L", P1, Y2 ]);   // O  -> P1   (horizontal ray through F2)
+            p3.attr(ret.F1.OP); 
+            this.cd_set.push(p3);
+        }
+        
 
-	  // F2 RAY - ray through P2 to F2 
-	  p1 = paper.path( ["M", X1, Y1,  "L", P1, Y1 ]);   // O  -> P1   (ray through F1)
-	  p2 = paper.path( ["M", P2, Y1,  "L", X1, Y1 ]);   // P2 -> O   (ray through F1)
-	  p1.attr(ret.F2.OP1);
-	  p2.attr(ret.F2.OP2); 
-	  this.cd_set.push(p1, p2);
-
-
-    // ADD P1 - P2 RAYS 
-    p1 = paper.path( ["M", P1, Y1,  "L", P2, Y1 ]);   // O  -> P1   (ray through F1)
-    p1.attr(real);
-    this.cd_set.push(p1);
-    
-
-    /* defined for finite Y2 */
-
-    if (isFinite(Y2)) {
-      p2 = paper.path( ["M", P1, Y2,  "L", P2, Y2 ]);   // O  -> P1   (ray through F1)
-      p2.attr(real);     
-      this.cd_set.push(p2);
-    }    
+        // F2 RAY - ray through P2 to F2 
+        p1 = paper.path( ["M", X1, Y1,  "L", P1, Y1 ]);   // O  -> P1   (ray through F1)
+        p2 = paper.path( ["M", P2, Y1,  "L", X1, Y1 ]);   // P2 -> O   (ray through F1)
+        p1.attr(ret.F2.OP1);
+        p2.attr(ret.F2.OP2); 
+        this.cd_set.push(p1, p2);
 
 
+        // ADD P1 - P2 RAYS 
+        p1 = paper.path( ["M", P1, Y1,  "L", P2, Y1 ]);   // O  -> P1   (ray through F1)
+        p1.attr(real);
+        this.cd_set.push(p1);
+        
+
+        /* defined for finite Y2 */
+
+        if (isFinite(Y2)) {
+          p2 = paper.path( ["M", P1, Y2,  "L", P2, Y2 ]);   // O  -> P1   (ray through F1)
+          p2.attr(real);     
+          this.cd_set.push(p2);
+        }    
 
 
-    if (ret.extender) {
+        if (ret.extender) {
+
+          /* object space extension */          
+
+          dX = -100; dY = 0;
+          p1 = paper.path( ["M", P1, Y1, "L", P1 + dX, Y1 ]);     // Y2 -> inf   (ray through F1)
+          p1.attr(extend_object);
+
+          var m = (Y1-0)/(X1-N1);
+          p2 = paper.path( ["M", N1, 0,  "L", N1 + dX, m*dX]);    // N2 -> inf   (ray through F1)
+          p2.attr(extend_object);
+
+          this.cd_set.push(p1, p2); //, p3); //, p2, p3);
+
+          
+          if (isFinite(Y2)) {
+
+            var m = (Y2-0)/(P1-F1);
+            p3 = paper.path( ["M", P1, Y2, "L", P1 + dX, Y2 + m*dX ]);          // O  -> P1   (horizontal ray through F2)
+            p3.attr(extend_object);
+            this.cd_set.push(p3); //, p3); //, p2, p3);
 
 
-      dX = -100; dY = 0;
-      p1 = paper.path( ["M", P1, Y1, "L", P1 + dX, Y1 ]);     // Y2 -> inf   (ray through F1)
-      p1.attr(extend_object);
 
-      var m = (Y1-0)/(X1-N1);
-      p2 = paper.path( ["M", N1, 0,  "L", N1 + dX, m*dX]);    // N2 -> inf   (ray through F1)
-      p2.attr(extend_object);
+          }
 
-      var m = (Y2-0)/(P1-F1);
-      p3 = paper.path( ["M", P1, Y2, "L", P1 + dX, Y2 + m*dX ]);          // O  -> P1   (horizontal ray through F2)
-      p3.attr(extend_object);
 
-      this.cd_set.push(p1, p2, p3); //, p2, p3);
 
-    }
+        }
+
 
 
 
@@ -408,7 +416,7 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
 
      if (!isFinite(X2) & !isFinite(Y2)) {
 
-        console.log ('special case');
+        console.log ('IMAGE at infinity');
 
         var dX = 100; 
         
@@ -659,15 +667,12 @@ GETOBJECTSTYLE return an apprpriate obejct style.
 
           } else {
 
-             //alert (`PrincipalRayConstruction: X1 = ${data.X1} P1 = ${data.P1} F1 = ${data.F1}`);
 
-            if ((data.F1 == data.X1) & (data.X1 < data.P1)) { // F1 < O < P1 
+            if ((data.F1 == data.X1)) { // F1 < O < P1 
 
                 ret.F1 = { OF: none, FP: none, OP: real };
 
             }
-
-
 
           }
 
@@ -719,6 +724,13 @@ GETOBJECTSTYLE return an apprpriate obejct style.
               ret.F1 = { OF: virtual, FP: virtual, OP: none, extender: true };
 
          } else {
+
+
+            if (data.F1 == data.X1) { // F1 < O < P1 
+
+                ret.F1 = { OF: none, FP: none, OP: real };
+
+            }
 
 
             // this must be X1 == P1
