@@ -174,7 +174,7 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
 
     refresh() {
 
-        //console.log (`refreshing construction, id=${this.getId()}`);
+        console.log (`Refreshing construction, id=${this.getId()}`);
         this.remove ();            
         this.draw ();    
     }
@@ -193,6 +193,8 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
       var X1 = this.data.X1; var X2 = this.data.X2;        
       var Y1 = this.data.Y1; var Y2 = this.data.Y2;
 
+
+      this.objectPoint.attr({ cx: X1, cy: Y1});
       if (isFinite(X2) & isFinite(Y2)) {
         this.imagePoint.show();
         this.imagePoint.attr({ cx: X2, cy: Y2});
@@ -446,7 +448,7 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
 
         
         this.cd_set.toBack();
-        this.imagePoint.hide ();
+        //this.imagePoint.hide ();
 
 
      } else {
@@ -827,7 +829,7 @@ GETIMAGESTYLE return an apprpriate obejct style.
               Styles = { Y1I: virtual, Y2I: virtual, N2I: virtual, IF2: virtual, Y2F2: real, extender: true };
           }         
 
-          console.log(Styles);
+          //console.log(Styles);
 
 
       } else {  // REAL IMAGE (P2 <= X2)
