@@ -174,6 +174,7 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
 
     refresh() {
 
+        //console.log (`refreshing construction, id=${this.getId()}`);
         this.remove ();            
         this.draw ();    
     }
@@ -181,6 +182,11 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
 
 
    draw () {
+
+
+      //console.log ('drawing principal ray construction.');
+      //console.log (this.data);
+
       this.drawRayConstruction ();
 
       // conjugate data (in laboratory frame!)
@@ -283,9 +289,7 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
 
   drawRayConstruction() {
 
-     // console.log(lens);
-
-
+  
      // console.log("-- draw ray construction.");
 
      displayOptions = this.displayOptions;
@@ -313,8 +317,8 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
                       Y1 : Y1, Y2: Y2 };
 
 
-     // console.log ('OUTPUT DATA.');
-     // console.log (myData);
+     //console.log ('MYDATA.');
+     //console.log (myData);
 
 
       
@@ -811,15 +815,25 @@ GETIMAGESTYLE return an apprpriate obejct style.
       
       if (data.X2 < data.P2) { // VIRTUAL IMAGE 
 
+          console.log ('X2 < P2');
+          // console.log (data);
 
-          if ((data.F2 < data.X2) & (data.X2 < data.P2)) {         // NEGATIVE LENS (F2 < X2 < P2)
+
+          if (data.F2 < data.X2) {         // NEGATIVE LENS (F2 < X2 < P2)
               Styles = { Y1I: virtual, Y2I: virtual, N2I: virtual, IF2: virtual, Y2F2: real, extender: true };
-          } else if ((data.X2 < data.P2) & (data.P2 < data.F2)) {  // POSITIVE LENS (F2 < X2 < P2)
+          } else if (data.P2 < data.F2) {  // POSITIVE LENS (F2 < X2 < P2)
               Styles = { Y1I: virtual, Y2I: virtual, N2I: virtual, IF2: virtual, Y2F2: real, extender: true };
-          }          
+          } else if (data.X2 < data.F2 ) {
+              Styles = { Y1I: virtual, Y2I: virtual, N2I: virtual, IF2: virtual, Y2F2: real, extender: true };
+          }         
+
+          console.log(Styles);
 
 
       } else {  // REAL IMAGE (P2 <= X2)
+
+
+          console.log ('X2 >= P2');
 
 
           if ((data.P2 < data.F2) & (data.F2 < data.X2)) { // P2 < F2 < I

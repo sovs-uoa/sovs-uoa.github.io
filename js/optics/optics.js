@@ -587,7 +587,7 @@ function calculatePairFromImage (image, systemInfo) {
 
                   result = {  id  : undefined,     
                               VO  : -Infinity,
-                              PO  : -Infiniity, 
+                              PO  : -Infinity, 
                               OQ  : undefined,
                               VI  : zd, // sign
                               PI  : -curr.cardinal.VP2 + zd, 

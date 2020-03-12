@@ -276,7 +276,8 @@ getConjuugateTo
   function updatePrescriptionView() {
 
     // read the lens table 
-    console.log("updating prescription table");
+    console.log("Updating prescription table");
+
     lensTable = lens.table.getData();    
     renderableLens = Optics.analyze(lensTable); // create matrices / we should have group caridnals in here as well
 
@@ -315,12 +316,11 @@ getConjuugateTo
     if (displayOptions.showSchematic)
       drawSchematic(response, renderableLens); // DRAW!!!
 
-
-
     // now update the points 
     if (summaryTemplate !== undefined) {
-      console.log("Summary template!");
-      console.log(summaryTemplate);
+
+      // console.log("Summary template!");
+      //console.log(summaryTemplate);
       updateSummaryView (); 
     }
 
@@ -493,11 +493,22 @@ getConjuugateTo
   // This should re-build all the constructions in the list 
   function refreshAllConstruction () {
 
+
       totalLens   = renderableLens.total;
       pointsTable = lens.pointsTable.getData();            
       lens.raphael.constructions.forEach (elem => {
+
+
+
+            /* NEGATIVE HEIGHT BECAUSE TABLE AND GRAPH HAVE OPPOSITELY SIGNED DIRECTIONS */
+
+            console.log (`refresh ray construction, id = ${elem.getId()}`);
             aRow       = lens.pointsTable.getRow(elem.getId()).getData();
-            aPoint     = { id: aRow.id, which: "object", z:aRow.zo, h:aRow.ho, t:aRow.to };
+            aPoint     = { id: aRow.id, which: "object", z:aRow.zo, h:-aRow.ho, t:aRow.to };
+
+
+            /* question is whether this needs to reversed in height */
+
             pairData   = Optics.calculateConjugatePairFrom(aPoint, totalLens);
             elem.setPairData(pairData);       
             elem.setLens(totalLens); // <--- this should change 
