@@ -174,37 +174,13 @@
       <div class="input-group-prepend">
 
       <!-- Buttons -->
-        <button class="btn btn-secondary dropdown-toggle float-left" type="button" id="importer" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Load</button>
+        <button class="btn btn-primary dropdown-toggle float-left" type="button" id="importer" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Load</button>
 
         <!-- TO DO: need to build this list fron the javascript array --> 
         <div id="dropdown-lens-menu" class="dropdown-menu">
-<!--
-          <a class="dropdown-item file-selection"  href="#" data-id="0" >Thick Lens in Air (Positive)</a>
-          <a class="dropdown-item file-selection"  href="#" data-id="1" >Thick lens in Air (Negative)</a>
-
--->
-
           <a class="dropdown-item file-selection"  href="#" data-id="2" >Thin lens in Air (Positive Power)</a>
           <a class="dropdown-item file-selection"  href="#" data-id="3" >Thin Lens in Air (Negative Power)</a>
-
-<!--          
-          <a class="dropdown-item file-selection"  href="#" data-id="4" >Two Thin lenses in Air (Nominal Positive Power)</a>
-          <a class="dropdown-item file-selection"  href="#" data-id="5" >Two Thin Lenses in Air (Nominal Negative Power)</a>
--->
-
-<!--
-          <a class="dropdown-item file-selection"  href="#" data-id="6" >Keplerian Telescope</a>
-          <a class="dropdown-item file-selection"  href="#" data-id="7" >Galilean Telescope</a>
-
--->
-
-<!--
-          <a class="dropdown-item file-selection"  href="#" data-id="4" >Multiple thin lenses</a>
-          <a class="dropdown-item file-selection"  href="#" data-id="5" >Gullstrand Eye Model (Relaxed)</a>
-          <a class="dropdown-item file-selection"  href="#" data-id="6" >Gullstrand Eye Model (Accommodated)</a>
-          <div role="separator" class="dropdown-divider"></div>
-          <a class="dropdown-item file-selection"  href="#" data-id="7" >New</a>          
--->          
+        
         </div>            
 
      </div>
@@ -214,13 +190,13 @@
     <!--  Report button -->  
 
     <div class="dropdown">
-    <button class='btn btn-primary dropdown-toggle float-right' data-toggle="dropdown" id="dropdownReportButton"' > 
+    <button class='btn btn-secondary dropdown-toggle float-right' data-toggle="dropdown" id="dropdownReportButton"' disabled> 
        <i class="fas fa-download"></i>Report
     </button>
 
     <!-- TO DO: need to build this list fron the javascript array --> 
     <div id="dropdown-report-menu" class="dropdown-menu"  aria-labelledby="dropdownReportButton">
-      <a class="dropdown-item report-selection"  href="#" data-id="report" >Report as HTML</a>
+      <a class="dropdown-item report-selection"  href="#" data-id="report">Report as HTML</a>
       <a class="dropdown-item report-selection"  href="#" data-id="picture" >Picture as SVG</a>
     </div>            
     </div>
