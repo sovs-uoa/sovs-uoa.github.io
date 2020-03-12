@@ -186,8 +186,16 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
       // conjugate data (in laboratory frame!)
       var X1 = this.data.X1; var X2 = this.data.X2;        
       var Y1 = this.data.Y1; var Y2 = this.data.Y2;
+
       this.objectPoint.attr({ cx: X1, cy: Y1});
-      this.imagePoint.attr({ cx: X2, cy: Y2});
+
+      if (isFinite(X2) & isFinite(Y2)) {
+        this.imagePoint.show();
+        this.imagePoint.attr({ cx: X2, cy: Y2});
+      } else {
+        this.imagePoint.hide();
+      }
+
 
    }
 
@@ -321,7 +329,7 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
     ret = getObjectStyle(myData);
 
     this.cd_set.remove ();
-    // this.cd_set = paper.set();
+
 
 	  // Nodal ray height at the principal plane  
 	  // N1 RAY - ray through 1 to P1 
@@ -335,11 +343,16 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
 	  // F1 RAY - ray through F1 to P1 
 	  p1 = paper.path( ["M", X1, Y1, "L", F1, 0 ]);        // O  -> F1   (ray through F1)
 	  p2 = paper.path( ["M", F1, 0,  "L", P1, Y2]);        // F1 -> P1   (ray through F1)
-	  var p3 = paper.path( ["M", X1, Y1, "L", P1, Y2 ]);   // O  -> P1   (horizontal ray through F2)
-	  p1.attr(ret.F1.OF);
-	  p2.attr(ret.F1.FP); 
-	  p3.attr(ret.F1.OP); 
-	  this.cd_set.push(p1, p2, p3);
+    p1.attr(ret.F1.OF);
+    p2.attr(ret.F1.FP); 
+    this.cd_set.push(p1, p2);
+
+    if (isFinite(Y2)) {
+        var p3 = paper.path( ["M", X1, Y1, "L", P1, Y2 ]);   // O  -> P1   (horizontal ray through F2)
+        p3.attr(ret.F1.OP); 
+        this.cd_set.push(p3);
+    }
+    
 
 	  // F2 RAY - ray through P2 to F2 
 	  p1 = paper.path( ["M", X1, Y1,  "L", P1, Y1 ]);   // O  -> P1   (ray through F1)
@@ -351,12 +364,18 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
 
     // ADD P1 - P2 RAYS 
     p1 = paper.path( ["M", P1, Y1,  "L", P2, Y1 ]);   // O  -> P1   (ray through F1)
-    p2 = paper.path( ["M", P1, Y2,  "L", P2, Y2 ]);   // O  -> P1   (ray through F1)
-    //p3 = paper.path( ["M", X1, Y1,  "L", P1, Y1 ]);   // O  -> P1   (ray through F1)
     p1.attr(real);
-    p2.attr(real); 
-    //p3.real(real);
-    this.cd_set.push(p1, p2);
+    this.cd_set.push(p1);
+    
+
+    /* defined for finite Y2 */
+
+    if (isFinite(Y2)) {
+      p2 = paper.path( ["M", P1, Y2,  "L", P2, Y2 ]);   // O  -> P1   (ray through F1)
+      p2.attr(real);     
+      this.cd_set.push(p2);
+    }    
+
 
 
 
@@ -387,48 +406,86 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
 
      ---------------------------------------------------------------------------------------------- */
 
-    var ImageStyles = getImageStyle(myData);  
-    p1 = paper.path( ["M", P2, Y1,  "L", X2, Y2 ]);   // Y1 -> I
-    p2 = paper.path( ["M", P2, Y2,  "L", X2, Y2 ]);   // Y2 -> I  
-    p3 = paper.path( ["M", N2, 0,  "L", X2, Y2 ]);   // Y2 -> I  
-    p1.attr(ImageStyles.Y1I);
-    p2.attr(ImageStyles.Y2I); 
-    p3.attr(ImageStyles.N2I); 
-    this.cd_set.push(p1,p2,p3);
+     if (!isFinite(X2) & !isFinite(Y2)) {
+
+        console.log ('special case');
+
+        var dX = 100; 
+        
+        m = (-Y1)/(F2-P2);
+
+        console.log (`m=${m}, dX=${dX}, Y2=${Y2}`);
+
+        /* rays extending forward */
+
+        p1 = paper.path( ["M", P2, Y1,  "L", P2 + dX, Y1 + m*dX ]);  // Y1 -> I
+        p3 = paper.path( ["M", N2, 0,  "L",  N2 + dX, m*dX ]);   // Y2 -> I  
+        p1.attr(extend_image);
+        p3.attr(extend_image);
+        this.cd_set.push(p1, p3);
+
+        /* rays extending backward */
+        p1 = paper.path( ["M", P1, Y1,  "L", P1 - dX, Y1 - m*dX ]);  // Y1 -> I
+        p3 = paper.path( ["M", N1, 0,  "L",  N1 - dX, -m*dX ]);   // Y2 -> I  
+        p1.attr(virtual);
+        p3.attr(virtual);
+        this.cd_set.push(p1, p3);
 
 
-    if (ImageStyles.extender) {
-
-      //p1 = paper.path( ["M", X1, Y1, "L", F1, 0 ]);       // O  -> F1   (ray through F1)
-      //p2 = paper.path( ["M", F1, 0,  "L", P1, Y2]);       // F1 -> P1   (ray through F1)
-      //p3 = paper.path( ["M", X1, Y1, "L", P1, Y2 ]);      // O  -> P1   (horizontal ray through F2)
-
-      var dX = 100; 
-      if (X2 > P2) {        
-        dX = X2 - P2;
-      }
-
-      dY = 0;
-      p1 = paper.path( ["M", P2, Y2, "L", P2 + dX, Y2 ]);     // Y2 -> inf   (ray through F1)
-      p1.attr(extend_image);
-      //p1.attr(real);
-
-      var m = (Y2-0)/(X2-N2);
-      p2 = paper.path( ["M", N2, 0,  "L", N2 + dX, m*dX]);    // N2 -> inf   (ray through F1)
-      p2.attr(extend_image);
-
-      var m = (Y1-0)/(P2-F2);
-      p3 = paper.path( ["M", P2, Y1, "L", P2 + dX, Y1 + m*dX ]);          // O  -> P1   (horizontal ray through F2)
-      p3.attr(extend_image);
+        
+        this.cd_set.toBack();
+        this.imagePoint.hide ();
 
 
-      this.cd_set.push(p1, p2, p3);
-
-    }
+     } else {
 
 
+        /* finite X2 and Y2 */
 
-    this.cd_set.toBack();
+        var ImageStyles = getImageStyle(myData);  
+        p1 = paper.path( ["M", P2, Y1,  "L", X2, Y2 ]);  // Y1 -> I
+        p2 = paper.path( ["M", P2, Y2,  "L", X2, Y2 ]);  // Y2 -> I  
+        p3 = paper.path( ["M", N2, 0,  "L", X2, Y2 ]);   // Y2 -> I  
+        p1.attr(ImageStyles.Y1I);
+        p2.attr(ImageStyles.Y2I); 
+        p3.attr(ImageStyles.N2I); 
+        this.cd_set.push(p1,p2,p3);
+
+
+        if (ImageStyles.extender) {
+
+          var dX = 100; 
+          if (X2 > P2) {        
+            dX = X2 - P2;
+          }
+
+          /* rays through F2 forward into image space (X2, Y2) */
+
+          dY = 0;
+          p1 = paper.path( ["M", P2, Y2, "L", P2 + dX, Y2 ]);         // Y2 -> inf   (ray through F1)
+          p1.attr(extend_image);
+
+          /* rays extending forward into image space (X2, Y2) from N2 */
+
+          var m = (Y2-0)/(X2-N2);
+          p2 = paper.path( ["M", N2, 0,  "L", N2 + dX, m*dX]);        // N2 -> inf   (ray through F1)
+          p2.attr(extend_image);
+
+          /* rays through F1 extending forward into image space (X2, Y2) from N2 */
+
+          var m = (Y1-0)/(P2-F2);
+          p3 = paper.path( ["M", P2, Y1, "L", P2 + dX, Y1 + m*dX ]);   // O  -> P1   (horizontal ray through F2)
+          p3.attr(extend_image);
+
+          this.cd_set.push(p1, p2, p3);
+
+        }
+
+        this.cd_set.toBack();
+
+     }
+
+
 
  }
 
