@@ -519,11 +519,17 @@ getConjuugateTo
 
   function addConstruction (aPoint) {
 
+    /* update the points table */
+
      totalLens  = renderableLens.total;
      pairData   = Optics.calculateConjugatePairFrom(aPoint, totalLens);
      addPointsTableRow(aPoint, pairData);
 
      // update the points table with these data
+
+
+     console.log ('construction information');
+     console.log (aPoint);
 
      switch (aPoint.type) {
 
@@ -538,6 +544,7 @@ getConjuugateTo
 
             case "parallel": case "beam": // infinitely placed beam 
               var beamWidth = aPoint.beamwidth;     
+              console.log (`beamWidth = ${beamWidth}`);
               lens.raphael.constructions.push( new ParallelBeamConstruction (totalLens, pairData, beamWidth));
               break;
 
@@ -684,28 +691,36 @@ getConjuugateTo
   function downloadReport (which) {
 
 
+      console.log (`Requesting download.`);
+
+
       switch (which) {
 
         case "picture":
 
 
-          // Add style to SVG and also some required information 
+          /* add style to SVG create an element to hold picture then press click */ 
+
           var svgElement = document.getElementsByTagName('svg')[0];
           svgElement.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
           var svgStyle   = document.createElementNS("http://www.w3.org/2000/svg", "style");
           style = "path,circle,text{vector-effect:non-scaling-stroke;stroke-width:2px;}";
           svgStyle.textContent = style;
           svgElement.appendChild(svgStyle);
-
           var downloadTxt = svgElement.outerHTML;
 
-          // create an elelemnt to hold the data
+          /* create an element to hold picture then press click */ 
+
+          downloadTxt = paper.toSVG ();
+          //console.log (svgString);
+
           var a  = window.document.createElement('a');
           a.href = window.URL.createObjectURL(new Blob([downloadTxt], {type: 'image/svg+xml'}));
           a.download = 'picture.svg';
           document.body.appendChild(a);
           a.click();
-          document.body.removeChild(a);
+          setTimeout( function () { document.body.removeChild(a); }, 1000);          
+          console.log (`Download activated ... ${a.download}`);
           return;
 
 
@@ -738,9 +753,11 @@ getConjuugateTo
           a.download = 'report.html';
           document.body.appendChild(a);
           a.click();
-          document.body.removeChild(a);
+          setTimeout( function () { document.body.removeChild(a); }, 1000); 
+          break;          
 
         default:
+          console.log ('Unknown request made.');
           break;
 
       }

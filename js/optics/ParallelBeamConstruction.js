@@ -196,7 +196,7 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
        this.imagePoint;
        this.objectPoint;
        this.anglePicker;
-       this.BeamWidth    = 5.0 || BeamWidth;
+       this.BeamWidth    = BeamWidth || 1.0;
 
        this.addBeamConstruction ();
     }
@@ -324,8 +324,11 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
         var N1   = lens.cardinal.VN1;             // primary nodal point 
         var N2   = lens.L + lens.cardinal.VN2;    // secondary nodal point 
 
+
+        var defaultHandleLength = lens.cardinal.VF2 * 1.5;
+
         // this will add an anglePicker 
-        this.anglePicker = new AnglePicker (0, 0, 10, T1);
+        this.anglePicker = new AnglePicker (0, 0, defaultHandleLength, T1);
         this.anglePicker.setAnchor(N1, 0); // move to default point is N1
         this.anglePicker.data("data-attr-info", {  "conjugate_id"  : "point-" + this.data.id + "-image",
                                                    "id"            : this.data.id, 

@@ -83,7 +83,6 @@
 
      // report template 
      $.get('mustache/report.htm', function (data) {
-
         console.log('loaded ... reportTemplate');
         reportTemplate = data;
 
@@ -117,7 +116,7 @@
       // trigger on a selection
       $('.report-selection').on('click', function () {
         var id  = $(this).data ("id"); // get the data id field 
-        console.log("report selection made = " + id);
+        console.log(`Requesting ${id} of output.`);
         downloadReport(id);
       });
 
@@ -190,7 +189,7 @@
     <!--  Report button -->  
 
     <div class="dropdown">
-    <button class='btn btn-secondary dropdown-toggle float-right' data-toggle="dropdown" id="dropdownReportButton"' disabled> 
+    <button class='btn btn-secondary dropdown-toggle float-right' data-toggle="dropdown" id="dropdownReportButton"> 
        <i class="fas fa-download"></i>Report
     </button>
 

@@ -521,7 +521,8 @@ function calculatePairFromObject (object, systemInfo) {
                        OQ  : undefined,
                        VI  : curr.cardinal.VF2,
                        PI  : curr.cardinal.PF2, 
-                       IQ  : n1 * deg2rad(t)/ curr.F, // n2 * Math.tan (deg2rad(t))/ curr.F,
+                       // IQ  : n1 * deg2rad(t)/ curr.F, // n2 * Math.tan (deg2rad(t))/ curr.F,
+                       IQ  : zp * Math.tan(deg2rad(t)), // n2 * Math.tan (deg2rad(t))/ curr.F,                       
                        M   : undefined,
                        T1  : t,
                        T2  : undefined }; //

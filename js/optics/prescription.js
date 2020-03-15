@@ -440,7 +440,7 @@ POINTS = OBJECTS + IMAGES TABLE
     if (chooseBeam & !choosePoint & !chooseAfocal  & !chooseSource) {
 
         lens.modal.source.t  = Number(document.getElementById("modal-beam-angle").value);
-        lens.modal.source.bw = Number(document.getElementById("modal-beam-width").value);  // beamwidth not shown
+        lens.modal.source.beamwidth= Number(document.getElementById("modal-beam-width").value);  // beamwidth not shown
         lens.modal.source.type  = "beam";
         lens.modal.source.which = "object";
         lens.modal.source.z     = undefined;
@@ -453,14 +453,14 @@ POINTS = OBJECTS + IMAGES TABLE
         lens.modal.source.type  = "point";
         lens.modal.source.which = "object";
         lens.modal.source.t     = undefined;
-        lens.modal.source.bw    = undefined;      
+        lens.modal.source.beamwidth    = undefined;      
 
     } else if (!choosePoint & !chooseBeam & chooseAfocal  & !chooseSource) {  
 
         lens.modal.source.type  = "afocal";
         lens.modal.source.which = "object";
         lens.modal.source.t  = Number(document.getElementById("modal-afocal-angle").value);
-        lens.modal.source.bw = Number(document.getElementById("modal-afocal-width").value);  // beamwidth not shown
+        lens.modal.source.beamwidth = Number(document.getElementById("modal-afocal-width").value);  // beamwidth not shown
         lens.modal.source.z  = undefined;
         lens.modal.source.h  = undefined;      
 
@@ -470,7 +470,7 @@ POINTS = OBJECTS + IMAGES TABLE
         lens.modal.source.type  = "source";
         lens.modal.source.which = "object";
         lens.modal.source.t     = undefined;
-        lens.modal.source.bw    = undefined;
+        lens.modal.source.beamwidth    = undefined;
 
     }
 
