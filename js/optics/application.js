@@ -23,7 +23,9 @@
                       { id: "6",  filename: "./lenses/keplerian-telescope.lens", title: "Keplerian Telescope"  },
                       { id: "7",  filename: "./lenses/galilean-telescope.lens", title: "Galilean Telescope"  },                    
                       { id: "10", filename: "./lenses/legrand-relaxed-schematic-eye.lens", title: "LeGrand Relaxed Schematic Eye (Relaxed)" },
-                      { id: "11", filename: "./lenses/legrand-relaxed-schematic-eye-no-retina.lens", title: "LeGrand Relaxed Schematic Eye (Relaxed / No Retina)" }];
+                      { id: "11", filename: "./lenses/legrand-relaxed-schematic-eye-no-retina.lens", title: "LeGrand Relaxed Schematic Eye (Relaxed / No Retina)" },
+                      { id: "12", filename: "./lenses/reduced-eye-with-accommodation.lens", title: "Reduced Eye with Accommodation" },
+                      { id: "13", filename: "./lenses/reduced-eye-with-accommodation-img.lens", title: "Reduced Eye with Accommodation (Img)" }];
 
 
     displayOptions = { height             : 0.05, 
@@ -34,12 +36,16 @@
                      showVertices         : true };
 
   Mustache.Formatters = {
-      "decimal": function (value, decimals) {
+      
+
+      "m2mm": function (value, decimals) {
 
 
-        // console.log("value = " + value);
-        
-        if (Number.isNaN(value)) {
+        var value = Number(value * 1000);
+
+        //console.log("value = " + value);
+ 
+        if (isNaN(value)) {
           return "undefined";
         }
 
@@ -47,10 +53,33 @@
           return "undefined";
         }
 
-       var value = Number(Math.round(value+'e'+decimals)+'e-'+decimals);
+       var value = value.toFixed(decimals); // Number(Math.round(value+'e'+decimals)+'e-'+decimals);
+
+        return value
+      },
+    
+
+
+      "decimal": function (value, decimals) {
+
+        var value = Number(value);
+
+        //console.log("value = " + value);
+ 
+
+        if (isNaN(value)) {
+          return "undefined";
+        }
+
+        if (!isFinite(value) | value == null) {
+          return "undefined";
+        }
+
+       var value = value.toFixed(decimals); // Number(Math.round(value+'e'+decimals)+'e-'+decimals);
 
         return value
       }
+    
     }
 
 
@@ -341,7 +370,16 @@ getConjuugateTo
 
     console.log ("-- updating the summary");
     //console.log(summaryTemplate);
+
+    // output
+    console.log (renderableLens.total);
+
+
     var summary = document.getElementById("summary-tab");
+
+    console.log ('TEMPLATE TEXT');
+    console.log (summaryTemplate);
+
     summary.innerHTML = Mustache.render(summaryTemplate, renderableLens.total);
 
     // renderableLens 
@@ -931,7 +969,7 @@ getConjuugateTo
 
                                 /* load a summary table template */
 
-                                $.get('mustache/summary_report_tables_html.mustache', function(template) {
+                                $.get('mustache/lab3_report_tables_html.mustache', function(template) {
                           
 
                                     /* update the summary template view */

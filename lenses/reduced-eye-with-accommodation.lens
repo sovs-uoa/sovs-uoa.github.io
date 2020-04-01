@@ -1,0 +1,65 @@
+/*--------------------------------------------
+
+Reduced eye with accommodation  
+
+----------------------------------------------*/
+{
+	"title": "Reduced eye with accommodation",
+	"visible": { 	"radius": true,
+				 	"power":true,
+				 	"curvature":true,
+				 	"aperture":true },	
+
+	"viewBox" : [ -0.06, 0.01, 0.10, 0.025 ],
+
+
+	"sources" : [ { "id" 		: 1, 
+					"type" 		: "beam",
+					"which"		: "object",
+					"beamwidth" : 0.01,
+					"z"			: NaN, 
+					"h"			: NaN,
+					"t"			: 10 } ],
+
+
+	"prescription": [{
+		"id": "0001",
+		"type": "index",
+		"description": "air",
+		"args": {
+			"index": 1.000
+		}
+	}, {		
+		"id": "0004",
+		"type": "thin",
+		"description": "Accommodating lens",
+		"args": {
+			"power":  10,
+			"height": 0.01
+		}
+	}, {
+		"id": "0003",
+		"type": "index",
+		"description": "air",
+		"args": {
+			"index": 1.0,
+			"thickness": 0.0
+		}
+	}, {		
+		"id": "0002",
+		"type": "sphere",
+		"description": "anterior cornea",
+		"args": {
+			"radius": 0.0055,
+			"height": 0.01
+		}
+	}, {
+		"id": "0003",
+		"type": "index",
+		"description": "aqueous/vitreous",
+		"args": {
+			"index": 1.33,
+			"thickness": 0.0165
+		}
+	}]
+}

@@ -931,19 +931,41 @@ function getLensElementInfo(elem, index) {
     if (index == elem.length-1) {
 
       // ERROR - first element is not a REF INDEX 
-      if (input_elem.type != "index") {
-        throw "last element is not an index"; 
+      if ((input_elem.type != "index") && (input_elem.type != "img"))  {
+        throw "last element is not valid (index or img)"; 
       }
 
-      // return an indentity matrix 
-      return { S: identitySystem, X: normalizedTranslationMatrix(identitySystem, input_elem.index), L: 0, elem: input_elem };                 
+      // This is an index so return an identity matrix
+      if (input_elem.type === "index") {
+        return { S: identitySystem, X: normalizedTranslationMatrix(identitySystem, input_elem.index), L: 0, elem: input_elem };                 
+      }
+
     }
 
     // surrounding lens elements 
-    var next_elem   = elem[index+1];
     var prev_elem   = elem[index-1];
     var n1          = parseFloat(prev_elem.index);
-    var n2          = parseFloat(next_elem.index);
+    var next_elem, n2;    
+    if (index+1 <= elem.length-1) {
+          next_elem = elem[index+1];
+          n2 = parseFloat(next_elem.index);
+    
+    } else {
+
+      // information 
+      if (input_elem.type === "img") {
+          
+          console.log ('img surface detected. no next element found.');
+          n2 = n1;
+      
+
+      } else
+          throw "badly formed lens prescription";
+
+    };
+
+
+    // var n2          = parseFloat(next_elem.index);
     var F           = 0;
     var S           = {};
 
@@ -967,13 +989,10 @@ function getLensElementInfo(elem, index) {
         return { S: S, invS: inverseMatrix2x2(S), cardinal: elemCardinalPoints, powers: elemPowers,  n1: n1, n2: n2, F: F, L : 0, elem: input_elem }; 
 
       case "img" :
-        var R   = input_elem.radius; 
-        F   = (n2-n1)/R;    
-        S   = refractionMatrix (n1, n2, F);    
 
-        elemCardinalPoints = getCardinalPoints(S);
-        elemPowers = getPowers (elemCardinalPoints, n1, n2);
-        return { S: S, invS: inverseMatrix2x2(S), X: normalizedRefractionMatrix(S, n1, n2), cardinal: elemCardinalPoints, powers: elemPowers, n1: n1, n2: n2, F: F, L : 0, elem: input_elem}; 
+        // try and do nothing
+        var R = input_elem.radius; 
+        return { S: identitySystem, invS: identitySystem, X: identitySystem, L:0, elem: input_elem }; 
 
 
       case "plane" :
@@ -981,7 +1000,7 @@ function getLensElementInfo(elem, index) {
         S   = refractionMatrix (n1, n2, F);            
         elemCardinalPoints = getCardinalPoints(S);
         elemPowers = getPowers (elemCardinalPoints, n1, n2);
-        return { S: S, invS: inverseMatrix2x2(S), cardinal: elemCardinalPoints, powers: elemPowers, elem: input_elem }; 
+        return { S: identitySystem, invS: inverseMatrix2x2(S), cardinal: elemCardinalPoints, powers: elemPowers, elem: input_elem }; 
       
       case "index" :
         n   = input_elem.index;
@@ -1006,6 +1025,14 @@ function getTotalLensSystemInfo (lensTable) {
   first = lensTable[0]; 
   last  = lensTable[lensTable.length-1]; 
 
+  // check if the last element is 
+  if (last.type === "img") {
+      
+      last  = lensTable[lensTable.length-1-1]; 
+
+  };
+
+
   // read it in 
   totalSystem         = { elem  : [], 
                           total : { stop      : false,
@@ -1023,11 +1050,16 @@ function getTotalLensSystemInfo (lensTable) {
                               } 
                         };
 
+  
+
+
   // create the total system
   var Z = 0;
-  for (var i=0; i < lensTable.length-1; i++) {
-    eachElementInfo     = getLensElementInfo(lensTable, i);    
+  for (var i=0; i < lensTable.length; i++) {
 
+    console.log (`EACH ELEMENT INFO : INDEX [${i}]`);
+
+    eachElementInfo     = getLensElementInfo(lensTable, i);    
 
 
     // Build Up Exit/Entrance Systems 
@@ -1061,46 +1093,58 @@ function getTotalLensSystemInfo (lensTable) {
 
     // build up the rest
     if (lensTable[i].type == "index") {
+      
        if ( (i > 0) & (i < lensTable.length-1)) { 
          Z = Z + lensTable[i].thickness; };
+
+
+    } else if (lensTable[i].type == "img") {
+
+         console.log (`IMG position = ${Z}`);
+         eachElementInfo.Z = Z;
+
     } else {
-       eachElementInfo.Z   = Z;    // front vertex position 
-       Z = Z + eachElementInfo.L;  // add in system length 
+    
+         eachElementInfo.Z   = Z;    // front vertex position 
+         Z = Z + eachElementInfo.L;  // add in system length 
+    
     };
+
+
+
     totalSystem.elem.push(eachElementInfo);
   }
 
 
+  console.log ('TOTAL SYSTEM');
+  console.log (totalSystem);
 
-  //console.log("START COLLATING...");
 
-  // create the system matrix
+  /* ----------------------------------------------
+
+   create the system matrix
+
+  --------------------------------------------------- */
+
+
   for (var i=lensTable.length-1; i >=0; i--) {
 
     // create the total system 
     eachElementInfo = getLensElementInfo(lensTable, i);
-    if ((totalSystem.total.stop) & (totalSystem.total.stopIndex > i)) { // entrance pupil system 
 
-        //console.log("Building Entrance Information.");
+
+    // entrance pupil system
+    if ((totalSystem.total.stop) & (totalSystem.total.stopIndex > i)) {
        totalSystem.total.entrance.S    = systemMultiply(totalSystem.total.entrance.S, eachElementInfo.S);    
-
-       //console.log(eachElementInfo);
-
 
     } else if ((totalSystem.total.stop) & (totalSystem.total.stopIndex < i))  { // next element gets included 
 
-        //console.log("Building Exit Information.");
+        // exit pupil system 
         totalSystem.total.exit.S = systemMultiply(totalSystem.total.exit.S, eachElementInfo.S);
-
-       //console.log(eachElementInfo);
-
     
     } else {
 
-        //console.log("Stop Element.");
-
-       //console.log(eachElementInfo);
-
+        // stop elelment 
 
     }    
 
@@ -1108,6 +1152,7 @@ function getTotalLensSystemInfo (lensTable) {
     totalSystem.total.S = systemMultiply(totalSystem.total.S, eachElementInfo.S);
 
   }
+
 
 
   // finalize!
@@ -1148,15 +1193,18 @@ function getTotalLensSystemInfo (lensTable) {
   totalPowers = getPowers (totalCardinalPoints, first.index, last.index);
   
 
-  //console.log("Total Powers");
-  //console.log(totalPowers);
-
   totalSystem.total.cardinal = totalCardinalPoints;
   totalSystem.total.Z        = 0; // start gere 
   totalSystem.total.X        = normalizedRefractionMatrix(S, first.index, last.index);
   totalSystem.total.L        = Z;  
   totalSystem.total.F        = totalSystem.total.n2/totalSystem.total.cardinal.PF2;
   totalSystem.total.powers   = totalPowers;
+  
+
+  console.log ('TOTALSYSTEM');
+  console.log (totalSystem);
+
+
   return totalSystem;
 }
 

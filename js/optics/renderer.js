@@ -439,6 +439,7 @@ function drawAxis () {
            isNonP     = Math.abs(vn1-vp1) < 0.001;
            isP1nearP2 = Math.abs(vp1-vp2) < 0.001;
 
+
           // P/N separate P'/N'  
           if ((isNonP) & (!isP1nearP2)) {
 
@@ -506,17 +507,40 @@ function drawAxis () {
             RegisterWheelCallback ({ type: "cardinal", handle: cp2 });
 
 
-            cp1 = drawText(x1, 0, "N");
-            cp1.attr({ "text-anchor" : "middle"});
-            cp1.data({ "data-shift-Y" : 0.0 });
-            cp_set.push(cp1);
-            RegisterWheelCallback ({ type: "text", handle: cp1 });
+            var isN1nearN2 = Math.abs((v1 + vn1)-(v2 + vn2)) < 0.001;
+            console.log (`near vn1=${vn1} vn2=${vn2} ${isN1nearN2}`);
 
-            cp2 = drawText(x2, 0, "N'");
-            cp2.attr({ "text-anchor" : "middle"});
-            cp2.data({ "data-shift-Y" : 0.0 });
-            cp_set.push(cp2);
-            RegisterWheelCallback ({ type: "text", handle: cp2 });
+            if (isN1nearN2) {
+        
+              cp1 = drawText(x1, 0, "N/N'");
+              cp1.attr({ "text-anchor" : "middle"});
+              cp1.data({ "data-shift-Y" : 0.0 });
+              cp_set.push(cp1);
+              RegisterWheelCallback ({ type: "text", handle: cp1 });
+
+
+            } else {
+
+
+              console.log (`n1 = ${v1 + vn1}`);
+              console.log (`n2 = ${v2 + vn2}`);
+
+              cp1 = drawText(v1 + vn1, 0, "N");
+              cp1.attr({ "text-anchor" : "middle"});
+              cp1.data({ "data-shift-Y" : 0.0 });
+              cp_set.push(cp1);
+              RegisterWheelCallback ({ type: "text", handle: cp1 });
+
+              cp2 = drawText(v2 + vn2, 0, "N'");
+              cp2.attr({ "text-anchor" : "middle"});
+              cp2.data({ "data-shift-Y" : 0.0 });
+              cp_set.push(cp2);
+              RegisterWheelCallback ({ type: "text", handle: cp2 });
+
+
+
+
+            }
 
           }
 
@@ -1551,8 +1575,14 @@ function drawAxis () {
       cardinalPoints  = data.elem[i].cardinal; 
       equivalentPower = data.elem[i].F;
 
+
+
+
       curr = data.elem[i].elem;
-      //console.log(curr);
+      
+      console.log ('DRAWING');
+      console.log(curr);
+      console.log(data);
 
       switch (curr.type) {
 
@@ -1570,7 +1600,14 @@ function drawAxis () {
           break;
 
         case "img":
+
+
           var R = curr.radius; h = curr.height;
+
+          console.log (`axial position = ${axialPosition}`);
+          console.log (`radius = ${R}`);
+          console.log (`height = ${h}`);
+
           l = drawSurface(axialPosition, 0, R, h); //, displayOptions);
           optics_set.push(l);        
           break;
