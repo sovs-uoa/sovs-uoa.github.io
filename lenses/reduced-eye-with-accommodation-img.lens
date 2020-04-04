@@ -34,7 +34,7 @@ Reduced eye with accommodation
 		"type": "thin",
 		"description": "Accommodating lens",
 		"args": {
-			"power":  10,
+			"power":  0,
 			"height": 0.01
 		}
 	}, {
