@@ -430,6 +430,9 @@ function drawAxis () {
           var x1 = v1 + vn1;
           var x2 = v2 + vn2;
 
+          var p1 = v1 + vp1;
+          var p2 = v2 + vp2;
+
           /* ----------------------------------------------------------
 
             COMBINED N/P BUT SEPARATED FROM N'/P'
@@ -437,7 +440,7 @@ function drawAxis () {
             ---------------------------------------------------------- */
 
            isNonP     = Math.abs(vn1-vp1) < 0.001;
-           isP1nearP2 = Math.abs(vp1-vp2) < 0.001;
+           isP1nearP2 = Math.abs(p1-p2) < 0.001;
 
 
           // P/N separate P'/N'  
@@ -498,7 +501,6 @@ function drawAxis () {
           
           if (!isNonP) {
 
-            console.log ('add nodal points');
 
             cp1 = drawPoint(v1 + vn1, y, "yellow");
             cp2 = drawPoint(v2 + vn2, y, "yellow");
@@ -542,7 +544,46 @@ function drawAxis () {
 
             }
 
+        
+            /* P not on P'*/
+            console.log (`near p1=${p1} p2=${p2} ${isP1nearP2}`);
+
+            if (!isP1nearP2) {
+
+                /* principal points */
+            
+                cp1 = drawText(p1, 0, "P");
+                cp1.attr({ "text-anchor" : "middle"});
+                cp1.data({ "data-shift-Y" : 0.0 });
+                cp_set.push(cp1);
+                RegisterWheelCallback ({ type: "text", handle: cp1 });
+
+                cp2 = drawText(p2, 0, "P'");
+                cp2.attr({ "text-anchor" : "middle"});
+                cp2.data({ "data-shift-Y" : 0.0 });
+                cp_set.push(cp2);
+                RegisterWheelCallback ({ type: "text", handle: cp2 });
+
+
+            } else {
+
+                cp1 = drawText(p1, 0, "P/P'");
+                cp1.attr({ "text-anchor" : "middle"});
+                cp1.data({ "data-shift-Y" : 0.0 });
+                cp_set.push(cp1);
+                RegisterWheelCallback ({ type: "text", handle: cp1 });
+
+            }
+
+
+
+
           }
+
+        
+
+
+
 
 
         }

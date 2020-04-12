@@ -377,8 +377,8 @@ getConjuugateTo
 
     var summary = document.getElementById("summary-tab");
 
-    console.log ('TEMPLATE TEXT');
-    console.log (summaryTemplate);
+    //console.log ('TEMPLATE TEXT');
+    //console.log (summaryTemplate);
 
     summary.innerHTML = Mustache.render(summaryTemplate, renderableLens.total);
 
@@ -658,11 +658,15 @@ getConjuugateTo
         } else {
 
             // a point was changed 
-            console.log("retrieve point object from the cell");
+            console.log("- Retrieve point object from the cell");
+            console.log("- Found the appropriate constuction");
+
+            console.log (elem);
+
+
             totalLens  = renderableLens.total;
             pairData   = Optics.calculateConjugatePairFrom(aPoint, totalLens);
             updatePointsTable(aPoint.id, pairData);
-            console.log("found the appropriate constuction");
             elem.setPairData (pairData);                  // update the positions  
             elem.refresh ();
             return;

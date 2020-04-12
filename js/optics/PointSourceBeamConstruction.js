@@ -278,17 +278,15 @@ class PointSourceBeamConstruction { // create a ray construction using raphael.j
 
         // refresh the angle picker 
         console.log ("refreshing pointsourcebeamconstruction");
-        var V1 = 0;
+
+
+        var V1 = 0; // always set anchor to the front vertex 
         var T1 = this.data.T1;
         this.anglePicker.setAnchor(V1, 0);  // change the anchor
         this.anglePicker.setAngle (T1);
-        this.anglePicker.setLength (1);
+        // this.anglePicker.setLength (1);
 
-        this.setInputRays (T1); // this will re-calculate 
-
-
-        //this.anglePicker.remove();
-        //this.anglePicker.draw();
+        this.setInputRays (T1); // this will re-calculate  ray paths for re-draw
 
         // refresh the rays 
         this.remove ();            

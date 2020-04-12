@@ -245,27 +245,15 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
 
 
 
-/*
-
-   reset(theta) {
-
-      var r = this.anglePicker.getRadius();
-
-      var N1 = this.lens.cardinal.VN1; 
-      this.anglePicker.setAnchor(N1, 0);
-      this.anglePicker.setAngle (theta);
-
-      this.imagePoint.attr({ cx: this.data.X2, cy: this.data.Y2 }); // move the image point here
-      //this.anglePicker.setAngle(this.data.T1);        
-      this.drawBeamConstruction ();
-   }
-*/
-
-
   refresh() {
+
+        console.log ('called REFRESH ParallelBeamCOnsturction');
 
         var N1 = this.lens.cardinal.VN1; 
         this.anglePicker.setAnchor(N1, 0);  // change the anchor
+
+        var T1 = this.data.T1; 
+        this.anglePicker.setAngle(T1);  // change the angle of the picker
 
         this.remove ();            
         this.draw ();    
@@ -275,9 +263,12 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
 
 
    draw () {
-      this.imagePoint.attr({ cx: this.data.X2, cy: this.data.Y2 }); // move the image point here
-      //this.anglePicker.setAngle(this.data.T1);        
+      
       this.drawBeamConstruction ();
+
+      /* image point on top */
+
+      this.imagePoint.attr({ cx: this.data.X2, cy: this.data.Y2 }); // move the image point here
    }
 
 
@@ -317,6 +308,9 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
                                               "id"            : this.data.id, 
                                               "type"          : "image",
                                               "parent"        : this });
+
+
+        RegisterWheelCallback({ type: "point", handle: this.imagePoint });        
 
 
         //. default beam anchor 
@@ -511,7 +505,7 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
 
     }
 
-    this.cd_set.toFront();
+    this.cd_set.toBack();
 
  }
 
