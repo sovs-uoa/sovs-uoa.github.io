@@ -6,16 +6,18 @@
 {
 
 
-	/* SOURCE POINTS */
+
+	"viewBox" : [ -10, 7, 40, 14 ],
 
 
-	"sources" : [ { "id"   		: 1, 
-                    "type" 		: "afocal",
-                    "which"		: "object",
-                    "beamwidth" : 5.0,
-                    "z"    		: NaN, 
-                    "h"    		: NaN,
-                    "t"    		: 5 }],
+	"sources" : [ { "id" 		: 1, 
+					"type" 		: "beam",
+					"which"		: "object",
+					"beamwidth" : 4.0,
+					"z"			: NaN, 
+					"h"			: NaN,
+					"t"			: 10 } ],
+
 
 
 	/* SCHEMATIC OF EYE WITH PRESCRIPTION */
@@ -29,7 +31,7 @@
 
 	/* LENS PRESCRITPION */
 
-	"title": "Gullstrand 1 eye relaxed",
+	"title": "leGrand Relaxed Schematic eye",
     "prescription": [{
 		"id": "0001",
 		"type": "index",
@@ -111,18 +113,11 @@
 		}
 	}, {
 		"id": "0014",
-		"type": "sphere",
+		"type": "img",
 		"description": "retinal plane",
 		"args": {
 			"radius": -100.000,
 			"height": 10.0
-		}
-	}, {
-		"id": "0015",
-		"type": "index",
-		"description": "vitreous",
-		"args": {
-			"index": 1.336
 		}
 	}]
 }

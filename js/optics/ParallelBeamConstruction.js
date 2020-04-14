@@ -269,6 +269,7 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
       /* image point on top */
 
       this.imagePoint.attr({ cx: this.data.X2, cy: this.data.Y2 }); // move the image point here
+      this.imagePoint.toFront ();
    }
 
 
@@ -397,7 +398,7 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
 
     this.cd_set.remove ();
 
-    console.log(T1);
+    //console.log(T1);
 
 
     /* --------------------------------------------
@@ -505,7 +506,7 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
 
     }
 
-    this.cd_set.toBack();
+    this.cd_set.toFront();
 
  }
 

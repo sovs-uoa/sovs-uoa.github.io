@@ -1,7 +1,8 @@
-  var lens_edge       = { "stroke": "black", "stroke-width": "2", "stroke": "black", "stroke-dasharray":"none"  };
+  var lens_edge        = { "stroke": "black", "stroke-width": "2", "stroke": "black", "stroke-dasharray":"none"  };
   var pupil_attr       = { "stroke-width": "2", "stroke": "gray", "stroke-dasharray":"none"  };
   
 
+  /* render options */
 
   var lens = { prescription: null, 
                tabledata : null,
@@ -31,8 +32,57 @@
 
   var pup_set, sch;
   var ps, cd_set, axis_set;
-  var cp_set, optics_set;
+  var cp_set, optics_set, index_set;
   var kx, ky;
+
+
+
+/**
+ * Converts an HSL color value to RGB. Conversion formula
+ * adapted from http://en.wikipedia.org/wiki/HSL_color_space.
+ * Assumes h, s, and l are contained in the set [0, 1] and
+ * returns r, g, and b in the set [0, 255].
+ *
+ * @param   {number}  h       The hue
+ * @param   {number}  s       The saturation
+ * @param   {number}  l       The lightness
+ * @return  {Array}           The RGB representation
+ */
+function hslToRgb(h, s, l){
+    var r, g, b;
+
+    if(s == 0){
+        r = g = b = l; // achromatic
+    }else{
+        var hue2rgb = function hue2rgb(p, q, t){
+            if(t < 0) t += 1;
+            if(t > 1) t -= 1;
+            if(t < 1/6) return p + (q - p) * 6 * t;
+            if(t < 1/2) return q;
+            if(t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+            return p;
+        }
+
+        var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+        var p = 2 * l - q;
+        r = hue2rgb(p, q, h + 1/3);
+        g = hue2rgb(p, q, h);
+        b = hue2rgb(p, q, h - 1/3);
+    }
+
+    return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+}
+
+
+ function getShadingForRefIndex(n) {
+
+    var H = 187;
+    var S = 52;
+    var L = Math.floor(100 - (4/0.1) * (n - 1.000));
+
+    return { h: H, s: S, l: L}
+
+  }
 
 
 
@@ -93,6 +143,7 @@
         axis_set    = paper.set(); 
         cp_set      = paper.set();
         optics_set  = paper.set();
+        index_set   = paper.set();        
         pup_set     = paper.set();
 
 
@@ -232,7 +283,7 @@ function drawAxis () {
 
 
 
-  axis_set.toBack ();
+  axis_set.toFront ();
 
  }
 
@@ -733,12 +784,31 @@ function drawAxis () {
   /* DRAW LENS TYPES   */
 
 
+  function drawIndex(x1, y1, h1, x2, y2, h2, n, displayOptions) {
+
+      var instruction_vector = [ "M", x1, y1+h1/2, "L", x1, y1-h1/2, "L", x2, y2-h2/2, "L", x2, y2+h2/2, "z" ];
+      console.log (instruction_vector);
+
+      var c1 = paper.path (instruction_vector);
+      var sh = getShadingForRefIndex(n);
+      c1.attr("fill", Raphael.hsl(sh.h, sh.s, sh.l));
+      //c1.attr("stroke",Raphael.hsl(sh.h, sh.s, sh.l));
+      c1.attr("stroke", Raphael.hsl(sh.h, sh.s, sh.l*0.95));
+
+      return c1
+
+  }
+
+
+
+
   function drawSurface(x, y, R, h, displayOptions) {
 
     var lens = paper.set();
-    var r = Math.abs(R);
+    var c1;
 
     // draw a path 
+    var r = Math.abs(R);
     var h = Math.min(h, 0.9*2*r, h); // displayOptions.height);
     //var c = paper.path( ["M", x, y-h/2, "L", x, y+h/2  ] );
     //lens.push(c);
@@ -746,8 +816,28 @@ function drawAxis () {
     if (R < 0) {   // negative curvature
 
 
+      var r = Math.abs(R);
       var Z = r - Math.sqrt(Math.pow(R,2) - Math.pow(h/2,2));
-      c1 = paper.path([ "M",x-Z,y+h/2,"a",r,r,0,0,0,0,-h ]);
+
+      if (displayOptions.shading) {
+
+        // background shading 
+        n1 = displayOptions.n1;
+        n2 = displayOptions.n2;
+
+        // path length  
+        c1 = paper.path([ "M",x-Z,y+h/2,"a",r,r,0,0,0,0,-h ]);
+        var sh = getShadingForRefIndex(n1);
+        c1.attr("fill", Raphael.hsl(sh.h, sh.s, sh.l));
+
+        // convex side
+
+      } else {
+
+        c1 = paper.path([ "M",x-Z,y+h/2,"a",r,r,0,0,0,0,-h ]);
+
+      };
+
       lens.attr(lens_edge);
       lens.push(c1);
 
@@ -755,7 +845,30 @@ function drawAxis () {
 
       var r = Math.abs(R);
       var Z = r - Math.sqrt(Math.pow(R,2) - Math.pow(h/2,2));
-      c1 = paper.path([ "M",x+Z,y-h/2,"a",r,r,0,0,0,0,h ]);
+
+      if (displayOptions.shading) {
+
+        // background shading 
+        n1 = displayOptions.n1;
+        n2 = displayOptions.n2;
+
+        // path length  
+        c1 = paper.path([ "M",x+Z,y-h/2,"a",r,r,0,0,0,0,h ]);
+
+        // convex side 
+        var sh = getShadingForRefIndex(n2);
+
+        console.log ('SHADING');
+        console.log (sh);
+
+        c1.attr("fill",  Raphael.hsl(sh.h, sh.s, sh.l));
+
+
+      } else {
+        c1 = paper.path([ "M",x+Z,y-h/2,"a",r,r,0,0,0,0,h ]);
+      };
+
+
       lens.attr(lens_edge);
       lens.push(c1);
 
@@ -767,9 +880,9 @@ function drawAxis () {
 
     }
 
-    lens.toFront ();
+    //lens.toBack ();
 
-    return lens;
+    return lens
   }
 
   /* DRAW VERT ARROW - DOESNT HAVE ALL ORIENTATIONS */
@@ -874,7 +987,7 @@ function drawAxis () {
 
     }
 
-    lens.toFront ();
+    //lens.toFront ();
 
     return lens;
   }
@@ -1597,6 +1710,10 @@ function drawAxis () {
     optics_set.remove();
     optics_set = paper.set();
 
+    index_set.remove();
+    index_set  = paper.set();
+
+
     displayOptions = { height               : 0.5, 
                        showCardinalPoints   : true,
                        showFocalPoints      : true,
@@ -1607,59 +1724,160 @@ function drawAxis () {
 
 
     var cardinalPoints = [];
+    var shadingEnabled = true;
+    var l;
+
+
+    console.log ('Drawing optics ...');
+
 
 
     // only render surface elements 
-    for (var i=1; i< data.elem.length; i=i+2) {
 
-      axialPosition   = data.elem[i].Z;
-      cardinalPoints  = data.elem[i].cardinal; 
-      equivalentPower = data.elem[i].F;
+    let M = data.elem.length;
 
+    for (var i = data.elem.length-1; i>0; i--) {
 
-
-
-      curr = data.elem[i].elem;
-      
-      console.log ('DRAWING');
-      console.log(curr);
-      console.log(data);
+      var curr = data.elem[i].elem;
 
       switch (curr.type) {
 
+
         case "thin":
+
+          axialPosition   = data.elem[i].Z;
+          //cardinalPoints  = data.elem[i].cardinal; 
+          equivalentPower = data.elem[i].F;
 
           height = curr.height;
           l = drawThinLens(axialPosition, 0, equivalentPower, height, displayOptions);
           optics_set.push(l);
           break;
 
+
+
         case "sphere":
+
+          axialPosition = data.elem[i].Z;
           var R = curr.radius; h = curr.height;
-          l = drawSurface(axialPosition, 0, R, h); //, displayOptions);
-          optics_set.push(l);        
+
+          if (shadingEnabled) {
+
+              var n1    = data.elem[i-1].elem.index;
+              var n2    = data.elem[i+1].elem.index;
+              var dZ    = data.elem[i].dZ;
+
+              l = drawSurface(axialPosition, 0, R, h, { shading:true, n1: n1, n2:n2, dZ:dZ }); //, displayOptions);
+
+          } else {
+
+              l = drawSurface(axialPosition, 0, R, h, { shading:false }); //, displayOptions);
+
+          };
+
+          optics_set.push(l);      
+          l.toBack();
           break;
+
 
         case "img":
 
 
+          axialPosition = data.elem[i].Z;
           var R = curr.radius; h = curr.height;
-
           console.log (`axial position = ${axialPosition}`);
           console.log (`radius = ${R}`);
           console.log (`height = ${h}`);
 
-          l = drawSurface(axialPosition, 0, R, h); //, displayOptions);
+          if (shadingEnabled) {
+
+              var n1 = data.elem[i-1].elem.index;
+              var n2 = data.elem[0].elem.index;
+              var dZ = data.elem[i].dZ;
+
+              l = drawSurface(axialPosition, 0, R, h, { shading:true, n1: n1, n2:n2, dZ:dZ }); //, displayOptions);
+
+
+          } else {
+
+              l = drawSurface(axialPosition, 0, R, h, { shading:false }); //, displayOptions);
+
+          }
+
+
           optics_set.push(l);        
           break;
 
 
-
         default:
+
+          break;
+
 
       }
     }
 
+   
+
+
+
+
+
+    // only render surface elements 
+
+    if (shadingEnabled) {
+
+        for (var i=0; i<data.elem.length; i+=2) {
+
+
+          var curr = data.elem[i].elem;
+
+
+          console.log ('- Drawing index ...');
+          console.log (curr);
+
+
+
+
+          if (curr.type === "index") {
+
+
+                var currElement = data.elem[i];
+                x1 = currElement.shading.start.Z;
+                h1 = currElement.shading.start.h;                
+                x2 = currElement.shading.end.Z;
+                h2 = currElement.shading.end.h;
+                n = curr.index;
+
+                console.log (`${i}. INDEX: (x1, h1) = (${x1}, ${h1}) (x2, h2) = (${x2}, ${h2}) n=${n}`);
+
+                if (!isFinite(x1) || !isFinite(x2) ) {
+
+
+                } else { 
+
+                  if (n > 1.000) {
+
+                    l = drawIndex(x1, 0, h1, x2, 0, h2, n);
+                    index_set.push(l);      
+
+                  }
+
+
+
+                }
+
+
+
+
+          }
+         
+        }
+
+    }
+
+
+    index_set.toBack();
 
 
 

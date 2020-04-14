@@ -335,9 +335,9 @@ getConjuugateTo
 
     //console.log("cardinal = " + response.general.cardinalVertHeight + " OR " + displayOptions.cardinalVertHeight );
 
-    drawCardinalPoints(0, 0, renderableLens.total, displayOptions); // (0,0) 
-    drawPupils(renderableLens.total, displayOptions);
     drawOptics(renderableLens);
+    drawPupils(renderableLens.total, displayOptions);
+    drawCardinalPoints(0, 0, renderableLens.total, displayOptions); // (0,0) 
 
     //console.log ('RESPONSE');
     //console.log (response);

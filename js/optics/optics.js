@@ -945,8 +945,9 @@ function getLensElementInfo(elem, index) {
     // surrounding lens elements 
     var prev_elem   = elem[index-1];
     var n1          = parseFloat(prev_elem.index);
-    var next_elem, n2;    
+    var next_elem, n2;        
     if (index+1 <= elem.length-1) {
+
           next_elem = elem[index+1];
           n2 = parseFloat(next_elem.index);
     
@@ -973,13 +974,21 @@ function getLensElementInfo(elem, index) {
     switch (input_elem.type) {
 
       case "sphere" :
+
+
+        // power related 
         var R   = input_elem.radius; 
         F   = (n2-n1)/R;    
         S   = refractionMatrix (n1, n2, F);    
 
+        
+        // display related 
+        var h  = input_elem.height; 
+        var dZ = Math.abs(R) - Math.sqrt(Math.pow(R,2) - Math.pow(h/2,2));
+
         elemCardinalPoints = getCardinalPoints(S);
         elemPowers = getPowers (elemCardinalPoints, n1, n2);
-        return { S: S, invS: inverseMatrix2x2(S), X: normalizedRefractionMatrix(S, n1, n2), cardinal: elemCardinalPoints, powers: elemPowers, n1: n1, n2: n2, F: F, L : 0, elem: input_elem}; 
+        return { S: S, invS: inverseMatrix2x2(S), X: normalizedRefractionMatrix(S, n1, n2), cardinal: elemCardinalPoints, powers: elemPowers, n1: n1, n2: n2, F: F, L : 0, elem: input_elem }; 
 
       case "thin" :
         F   = input_elem.power;
@@ -1003,9 +1012,16 @@ function getLensElementInfo(elem, index) {
         return { S: identitySystem, invS: inverseMatrix2x2(S), cardinal: elemCardinalPoints, powers: elemPowers, elem: input_elem }; 
       
       case "index" :
+
         n   = input_elem.index;
         d   = input_elem.thickness;
         S   = translationMatrix (d);            
+
+        // shading related 
+        //console.log (input_elem);
+        //console.log (prev_elem);
+        //console.log (next_elem);
+
         return { S: S, invS: inverseMatrix2x2(S), X: normalizedTranslationMatrix(S, n), L: d, elem: input_elem }; 
 
       default:
@@ -1116,92 +1132,33 @@ function getTotalLensSystemInfo (lensTable) {
   }
 
 
-  console.log ('TOTAL SYSTEM');
-  console.log (totalSystem);
-
-
   /* ----------------------------------------------
 
-   create the system matrix
+   DISPLAY INFORMATION 
+
+    sphere : (n1,n2,R,h,dZ)
+    index  : (z1,h1,z2,h2)
 
   --------------------------------------------------- */
 
 
-  for (var i=lensTable.length-1; i >=0; i--) {
-
-    // create the total system 
-    eachElementInfo = getLensElementInfo(lensTable, i);
-
-
-    // entrance pupil system
-    if ((totalSystem.total.stop) & (totalSystem.total.stopIndex > i)) {
-       totalSystem.total.entrance.S    = systemMultiply(totalSystem.total.entrance.S, eachElementInfo.S);    
-
-    } else if ((totalSystem.total.stop) & (totalSystem.total.stopIndex < i))  { // next element gets included 
-
-        // exit pupil system 
-        totalSystem.total.exit.S = systemMultiply(totalSystem.total.exit.S, eachElementInfo.S);
-    
-    } else {
-
-        // stop elelment 
-
-    }    
-
-    // Build Up System 
-    totalSystem.total.S = systemMultiply(totalSystem.total.S, eachElementInfo.S);
-
-  }
+  appendDisplayInformation (totalSystem);
 
 
 
-  // finalize!
-  if (totalSystem.total.stop) {
+  /* ----------------------------------------------
 
-      totalSystem.total.exit.L        = Z - totalSystem.total.entrance.L;
-      totalSystem.total.exit.invS     = inverseMatrix2x2(totalSystem.total.exit.S);           // eachElementInfo.S);                
-      totalSystem.total.exit.Z        = getImageFromObject(totalSystem.total.exit.S, 0);      // back vertex      
+   SYSTEM MATRIX 
 
-
-      totalSystem.total.entrance.Z    = getObjectFromImage(totalSystem.total.entrance.S, 0);  // front vertex distance      
-      totalSystem.total.entrance.invS = inverseMatrix2x2(totalSystem.total.entrance.S);      // eachElementInfo.S);                
-
-      // put it into the frame of the LENS 
-      totalSystem.total.pupil.VE1 = totalSystem.total.entrance.Z;
-      totalSystem.total.pupil.VE2 = Z + totalSystem.total.exit.Z;
-      
-      // magnifications 
-      var n1 = totalSystem.total.exit.n1;
-      var n2 = totalSystem.total.exit.n2;
-      totalSystem.total.pupil.ME1 = getMagnification (totalSystem.total.entrance.S, n1, n2);
-
-      var n1 = totalSystem.total.entrance.n1;
-      var n2 = totalSystem.total.entrance.n2;
-      totalSystem.total.pupil.ME2 = getMagnification (totalSystem.total.exit.S, n1, n2);
+  --------------------------------------------------- */
 
 
-      //console.log("TOTAL SYSTEM STOPS");
-      //console.log(totalSystem.total);
-  }
+  appendOverallInformation (totalSystem, Z);
 
 
-  totalSystem.total.invS = inverseMatrix2x2(totalSystem.total.S);
 
 
-  S = totalSystem.total.S;
-  totalCardinalPoints = getCardinalPoints(S);
-  totalPowers = getPowers (totalCardinalPoints, first.index, last.index);
-  
-
-  totalSystem.total.cardinal = totalCardinalPoints;
-  totalSystem.total.Z        = 0; // start gere 
-  totalSystem.total.X        = normalizedRefractionMatrix(S, first.index, last.index);
-  totalSystem.total.L        = Z;  
-  totalSystem.total.F        = totalSystem.total.n2/totalSystem.total.cardinal.PF2;
-  totalSystem.total.powers   = totalPowers;
-  
-
-  console.log ('TOTALSYSTEM');
+  console.log ('TOTAL SYSTEM INFO');
   console.log (totalSystem);
 
 
@@ -1215,10 +1172,6 @@ function getLensSystemInfo (lensTable) {
   // create the total system
   var Z = 0; r = [];
   for (var i=0; i < lensTable.length-1; i++) {
-
-    //console.log("LENS");
-    //console.log(lensTable[i]);
-
     var id = lensTable[i].id;
     eachElementInfo  = getLensElementInfo(lensTable, i);
     r.push(eachElementInfo);
@@ -1226,3 +1179,183 @@ function getLensSystemInfo (lensTable) {
 
   return r;
 }
+
+
+
+/*-- APPENDERS --*/
+
+
+function appendDisplayInformation (totalSystem) {
+
+
+
+      /*-- add a depth (dZ) field --*/
+
+      for (var i=0; i < lensTable.length; i++) {
+
+        curr = totalSystem.elem[i];
+
+        switch (curr.elem.type) {
+
+          case "index":
+            curr.shading = { dZ : NaN };
+            break;
+
+          case "img":  case "sphere":
+
+            var R   = curr.elem.radius;
+            var h   = curr.elem.height;
+            var Z   = Math.abs(R) - Math.sqrt(Math.pow(R,2) - Math.pow(h/2,2));
+            curr.shading = { dZ : Math.sign(R)*Z };
+            break;
+
+          default:
+            curr.shading = { dZ : 0 };
+
+        }
+
+      }
+
+
+      /*-- update the index field --*/
+      
+
+      for (var i=0; i < lensTable.length; i+=2) {
+
+
+        if (i == 0) {  // first element 
+
+          curr   = totalSystem.elem[i];
+          next   = totalSystem.elem[i+1];
+          isprev = false;
+
+          curr.shading = {     dZ: 0, 
+                            start: { Z: -Infinity, h: Infinity },  
+                              end: { Z: next.Z + next.shading.dZ, h: next.elem.height } };
+
+
+        } else if (i == lensTable.length-1) { // last element 
+
+          curr   = totalSystem.elem[i];
+          prev   = totalSystem.elem[i-1];
+          isnext = false;
+
+          curr.shading = {     dZ: 0,
+                            start: { Z: prev.Z + prev.shading.dZ, h: prev.elem.height },  
+                              end: { Z: Infinity, h: Infinity } };
+
+
+        } else {
+
+          // all elements 
+
+          curr = totalSystem.elem[i];
+          prev = totalSystem.elem[i-1];
+          next = totalSystem.elem[i+1];
+
+          curr.shading = {     dZ: 0, 
+                            start: { Z: prev.Z + prev.shading.dZ, h: prev.elem.height },  
+                              end: { Z: next.Z + next.shading.dZ, h: next.elem.height } };
+
+
+        }
+
+      }
+     
+  }
+
+
+
+  function appendOverallInformation (totalSystem, Z) {
+
+
+    /* ------------------------------------------------
+
+     Overall system information 
+
+    --------------------------------------------------- */
+
+
+    for (var i=lensTable.length-1; i >=0; i--) {
+
+      // create the total system 
+      eachElementInfo = getLensElementInfo(lensTable, i);
+
+
+      // entrance pupil system
+      if ((totalSystem.total.stop) & (totalSystem.total.stopIndex > i)) {
+         totalSystem.total.entrance.S    = systemMultiply(totalSystem.total.entrance.S, eachElementInfo.S);    
+
+      } else if ((totalSystem.total.stop) & (totalSystem.total.stopIndex < i))  { // next element gets included 
+
+          // exit pupil system 
+          totalSystem.total.exit.S = systemMultiply(totalSystem.total.exit.S, eachElementInfo.S);
+      
+      } else {
+
+          // stop elelment 
+
+      }    
+
+      // Build Up System 
+      totalSystem.total.S = systemMultiply(totalSystem.total.S, eachElementInfo.S);
+
+    }
+
+
+
+    /* ------------------------------------------------
+
+     Overall system information 
+
+    --------------------------------------------------- */
+
+
+    if (totalSystem.total.stop) {
+
+        totalSystem.total.exit.L        = Z - totalSystem.total.entrance.L;
+        totalSystem.total.exit.invS     = inverseMatrix2x2(totalSystem.total.exit.S);           // eachElementInfo.S);                
+        totalSystem.total.exit.Z        = getImageFromObject(totalSystem.total.exit.S, 0);      // back vertex      
+
+
+        totalSystem.total.entrance.Z    = getObjectFromImage(totalSystem.total.entrance.S, 0);  // front vertex distance      
+        totalSystem.total.entrance.invS = inverseMatrix2x2(totalSystem.total.entrance.S);      // eachElementInfo.S);                
+
+        // put it into the frame of the LENS 
+        totalSystem.total.pupil.VE1 = totalSystem.total.entrance.Z;
+        totalSystem.total.pupil.VE2 = Z + totalSystem.total.exit.Z;
+        
+        // magnifications 
+        var n1 = totalSystem.total.exit.n1;
+        var n2 = totalSystem.total.exit.n2;
+        totalSystem.total.pupil.ME1 = getMagnification (totalSystem.total.entrance.S, n1, n2);
+
+        var n1 = totalSystem.total.entrance.n1;
+        var n2 = totalSystem.total.entrance.n2;
+        totalSystem.total.pupil.ME2 = getMagnification (totalSystem.total.exit.S, n1, n2);
+
+
+        //console.log("TOTAL SYSTEM STOPS");
+        //console.log(totalSystem.total);
+    }
+
+
+    totalSystem.total.invS = inverseMatrix2x2(totalSystem.total.S);
+
+
+    S = totalSystem.total.S;
+    totalCardinalPoints = getCardinalPoints(S);
+    totalPowers = getPowers (totalCardinalPoints, first.index, last.index);
+    
+
+    totalSystem.total.cardinal = totalCardinalPoints;
+    totalSystem.total.Z        = 0; // start gere 
+    totalSystem.total.X        = normalizedRefractionMatrix(S, first.index, last.index);
+    totalSystem.total.L        = Z;  
+    totalSystem.total.F        = totalSystem.total.n2/totalSystem.total.cardinal.PF2;
+    totalSystem.total.powers   = totalPowers;
+
+
+
+
+ }
