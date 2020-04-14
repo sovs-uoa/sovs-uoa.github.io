@@ -34,7 +34,6 @@ function movePicker(dx,dy) {
 
     var a = this.data("internal-data-attr");
 
-
     anchorX = a.parent.anchorX; 
     anchorY = a.parent.anchorY;
     this.attr({ cx: nowX, cy: nowY }); // call the circle 
@@ -208,6 +207,10 @@ class AnglePicker { // create a ray construction using raphael.js
       this.extender.attr({ "path": ["M", anchorX, anchorY, "L", cx, cy ]});
 
 
+      this.extender.toFront();
+      this.clicker.toFront();
+
+
       //console.log(this.extender);
       //console.log("set anchor called ...");
       //console.log("cx = " + cx);
@@ -231,6 +234,10 @@ class AnglePicker { // create a ray construction using raphael.js
       this.extender.attr("path", ["M", anchorX, anchorY, "L", point.x, point.y ]);  
 
 
+      this.extender.toFront();
+      this.clicker.toFront();
+
+
     }
 
 
@@ -246,6 +253,9 @@ class AnglePicker { // create a ray construction using raphael.js
       this.clicker.attr({ cx: point.x, cy: point.y });
       this.extender.attr("path", ["M", anchorX, anchorY, "L", point.x, point.y ]);  
       
+      this.extender.toFront();
+      this.clicker.toFront();
+
       //var point  = polar2cartesian(radius, deg2rad(theta));
       //var x      = anchorX + point.x;
       //var y      = anchorY + point.y;
@@ -287,6 +297,9 @@ class AnglePicker { // create a ray construction using raphael.js
       this.clicker.drag(movePicker, startPicker, upPicker);
 
       RegisterWheelCallback({ type: "point", handle: this.clicker });
+
+      this.extender.toFront();
+      this.clicker.toFront();
 
 
       //this.myset.push(extender, clicker);      
