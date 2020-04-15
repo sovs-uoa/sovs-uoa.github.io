@@ -369,7 +369,7 @@ function drawAxis () {
     var v2 = x + systemPoints.L;
 
 
-    var h  = displayOptions.cardinalVertHeight;   // back vertex 
+    var h  = 1 || displayOptions.cardinalVertHeight;   // back vertex 
 
 
     // nodal points
@@ -398,10 +398,10 @@ function drawAxis () {
           r =  cp1.attr("r");
           // dX = cp1.attr("r")*kx*20;
           cp1 = drawText(x1, y , "V"); // - 4*cp1.attr("r")
-          cp1.attr({ "text-anchor" : "end"});
+          cp1.attr({ "text-anchor" : "middle"});
           //cp1.transform("...t-100,0");
           cp2 = drawText(x2, y , "V'"); // - 4*cp2.attr("r")
-          cp2.attr({ "text-anchor" : "start"});
+          cp2.attr({ "text-anchor" : "middle"});
           //cp1.transform("...t100,0");
 
           cp_set.push(cp1, cp2);
@@ -461,6 +461,9 @@ function drawAxis () {
           //cp2 = paper.text(x2, y, "F'").attr({fill: '#000000'});
           //cp_set.push(cp1, cp2);
 
+
+
+          console.log (`bars: (x1,y1)=(${x1},${y1})  (x2,y2)=(${x2},${y2})`);
 
           // BARS
           cp1 = paper.path( ["M", x1, y1, "L", x1, y2 ] ).attr({"gray": "#000000", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
@@ -662,7 +665,7 @@ function drawAxis () {
 
 
 
-        cp_set.toFront ();
+        //cp_set.toFront ();
 
     }
 
@@ -1724,7 +1727,7 @@ function drawAxis () {
 
 
     var cardinalPoints = [];
-    var shadingEnabled = true;
+    var shadingEnabled = false;
     var l;
 
 
@@ -2050,9 +2053,8 @@ function drawAxis () {
 
                       case "middle":
                         var dY = curr.handle.data("data-shift-Y");
-                        //console.log(curr.handle);
-                        //console.log(dY);                        
                         curr.handle.transform([ "t", x, y, "s", kx*scaleFactor, ky*scaleFactor, "0","0", "t", 0, dY]);
+                        //curr.handle.transform([ "s", kx*scaleFactor, ky*scaleFactor, "0","0", "t", 0, dY]);                        
                         break;
 
 

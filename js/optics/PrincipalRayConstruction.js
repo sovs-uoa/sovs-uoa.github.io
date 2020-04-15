@@ -189,6 +189,7 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
 
       this.drawRayConstruction ();
 
+
       // conjugate data (in laboratory frame!)
       var X1 = this.data.X1; var X2 = this.data.X2;        
       var Y1 = this.data.Y1; var Y2 = this.data.Y2;
@@ -198,6 +199,8 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
       if (isFinite(X2) & isFinite(Y2)) {
         this.imagePoint.show();
         this.imagePoint.attr({ cx: X2, cy: Y2});
+        this.imagePoint.toFront();
+
       } else {
         this.imagePoint.hide();
       }
@@ -447,7 +450,7 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
 
 
         
-        this.cd_set.toBack();
+        //this.cd_set.toFront();
         //this.imagePoint.hide ();
 
 
@@ -495,10 +498,14 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
 
         }
 
-        this.cd_set.toBack();
-
+    
      }
 
+
+
+  /* bring set tot front */
+
+  this.cd_set.toFront();
 
 
  }
