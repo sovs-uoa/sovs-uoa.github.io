@@ -25,8 +25,9 @@
                       { id: "10", filename: "./lenses/legrand-relaxed-schematic-eye.lens", title: "LeGrand Relaxed Schematic Eye (Relaxed)" },
                       { id: "11", filename: "./lenses/legrand-relaxed-schematic-eye-no-retina.lens", title: "LeGrand Relaxed Schematic Eye (Relaxed / No Retina)" },
                       { id: "12", filename: "./lenses/reduced-eye-with-accommodation-img.lens", title: "Reduced Eye with Accommodation" },
-                      { id: "13", filename: "./lenses/reduced-eye-with-ametropia.lens", title: "Reduced Eye with Ametropia" },
-                      { id: "14", filename: "./lenses/mystery-eye-with-ametropia.lens", title: "Mystery Eye with Ametropia" }];
+                      { id: "13", filename: "./lenses/reduced-eye-with-ametropia.lens", title: "Reduced Eye (Lab 4)" },
+                      { id: "14", filename: "./lenses/mystery-eye-with-ametropia-1.lens", title: "Mystery Eye with Ametropia #1" },
+                      { id: "15", filename: "./lenses/mystery-eye-with-ametropia-2.lens", title: "Mystery Eye with Ametropia #2" }];
 
                       // { id: "12", filename: "./lenses/reduced-eye-with-accommodation.lens", title: "Reduced Eye with Accommodation" },
 
