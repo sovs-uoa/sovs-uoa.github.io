@@ -1,6 +1,6 @@
 /*--------------------------------------------
 
-Mystery reduced eye with accommodation  
+Mystery reduced eye with accommodation (axial Rx 4.5D length 0.0262) 
 
 ----------------------------------------------*/
 {
@@ -91,7 +91,7 @@ Mystery reduced eye with accommodation
 		"description": "aqueous/vitreous",
 		"args": {
 			"index": 1.33,
-			"thickness": 0.024
+			"thickness": 0.0262
 		}
 	}, {
 		"id": "0010",

@@ -1,10 +1,10 @@
 /*--------------------------------------------
 
-Reduced eye with accommodation  
+Reduced eye with ametropia (Lab 4)
 
 ----------------------------------------------*/
 {
-	"title": "Reduced eye with accommodation",
+	"title": "Reduced eye (Lab 4)",
 	"visible": { 	"radius": true,
 				 	"power":true,
 				 	"curvature":true,
@@ -42,7 +42,8 @@ Reduced eye with accommodation
 		"type": "index",
 		"description": "air#2",
 		"args": {
-			"index": 1.000
+			"index": 1.000,
+			"thickness": 0.0			
 		}
 	},{		
 		"id": "0004",
@@ -57,7 +58,8 @@ Reduced eye with accommodation
 		"type": "index",
 		"description": "air#3",
 		"args": {
-			"index": 1.000
+			"index": 1.000,
+			"thickness": 0.0
 		}
 	}, {		
 		"id": "0006",
@@ -89,7 +91,7 @@ Reduced eye with accommodation
 		"description": "aqueous/vitreous",
 		"args": {
 			"index": 1.33,
-			"thickness": 0.015
+			"thickness": 0.02217
 		}
 	}, {
 		"id": "0010",
@@ -100,3 +102,4 @@ Reduced eye with accommodation
 			"height": 0.01		
 		}
 	}]
+}
