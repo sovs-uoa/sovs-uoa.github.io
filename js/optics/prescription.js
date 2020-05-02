@@ -363,9 +363,9 @@ function initializePrescriptionTable(data, updatePrescriptionCallback, success) 
       columns:[
           {rowHandle:true, formatter:"handle", headerSort:false, frozen:true, width:30, minWidth:30},
           //{title:"Group",         field:"group",            width:100, headerSort:false},                  
-          {title:"Id",            field:"id",               width:100, headerSort:false},                            
+          {title:"Id",            field:"id",               width:100, headerSort:false, width:50},                            
           {title:"Type",          field:"type",             width:100, headerSort:false},                  
-          {title:"Description",   field:"description",      width:100, editor:"input", headerSort:false},
+          {title:"Description",   field:"description",      width:100, editor:"input", headerSort:false, width:200},
           {title:"Ref. Index",    field:"index",            width:100, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "" }, align:"center", editor:"input", headerSort:false, editable: editCheck, validator:["min:1.0", "max:5.0"]},
           {title:"Surf. R.",      field:"radius",           width:100, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "" }, align:"center", editor:"input", headerSort:false, editable: editCheck},
           {title:"Power",         field:"power",            width:100, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "" }, align:"center", editor:"input", headerSort:false, editable: editCheck},

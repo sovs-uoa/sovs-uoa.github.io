@@ -32,7 +32,7 @@ Mystery reduced eye with accommodation #2 (58D cornea)
 	},{		
 		"id": "0002",
 		"type": "thin",
-		"description": "Rx",
+		"description": "correcting lens",
 		"args": {
 			"power":  0,
 			"height": 0.01
@@ -40,7 +40,7 @@ Mystery reduced eye with accommodation #2 (58D cornea)
 	},{
 		"id": "0003",
 		"type": "index",
-		"description": "air#2",
+		"description": "air gap",
 		"args": {
 			"index": 1.000,
 			"thickness": 0.0			
@@ -48,7 +48,7 @@ Mystery reduced eye with accommodation #2 (58D cornea)
 	},{		
 		"id": "0004",
 		"type": "thin",
-		"description": "Ametropic lens",
+		"description": "ametropia lens",
 		"args": {
 			"power":  0,
 			"height": 0.01
@@ -64,7 +64,7 @@ Mystery reduced eye with accommodation #2 (58D cornea)
 	}, {		
 		"id": "0006",
 		"type": "thin",
-		"description": "Accommodating lens",
+		"description": "accommodating lens",
 		"args": {
 			"power":  0,
 			"height": 0.01
