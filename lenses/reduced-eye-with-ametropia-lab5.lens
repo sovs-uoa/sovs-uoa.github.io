@@ -1,0 +1,105 @@
+/*--------------------------------------------
+
+Reduced eye with ametropia (Lab 4)
+
+----------------------------------------------*/
+{
+	"title": "Reduced eye (Lab 4)",
+	"visible": { 	"radius": true,
+				 	"power":true,
+				 	"curvature":true,
+				 	"aperture":true },	
+
+	"viewBox" : [ -0.05, 0.01, 0.10, 0.05 ],
+
+
+	"sources" : [ { "id" 		: 1, 
+					"type" 		: "beam",
+					"which"		: "object",
+					"beamwidth" : 0.01,
+					"z"			: NaN, 
+					"h"			: NaN,
+					"t"			: 10 } ],
+
+
+	"prescription": [{
+		"id": "0001",
+		"type": "index",
+		"description": "air#1",
+		"args": {
+			"index": 1.000
+		}
+	},{		
+		"id": "0002",
+		"type": "thin",
+		"description": "correcting lens",
+		"args": {
+			"power":  0,
+			"height": 0.01
+		}
+	},{
+		"id": "0003",
+		"type": "index",
+		"description": "air#2",
+		"args": {
+			"index": 1.000,
+			"thickness": 0.0			
+		}
+	},{		
+		"id": "0004",
+		"type": "thin",
+		"description": "ametropia lens",
+		"args": {
+			"power":  0,
+			"height": 0.01
+		}
+	},{
+		"id": "0005",
+		"type": "index",
+		"description": "air#3",
+		"args": {
+			"index": 1.000,
+			"thickness": 0.0
+		}
+	}, {		
+		"id": "0006",
+		"type": "thin",
+		"description": "accommodating lens",
+		"args": {
+			"power":  0,
+			"height": 0.01
+		}
+	}, {
+		"id": "0007",
+		"type": "index",
+		"description": "air#4",
+		"args": {
+			"index": 1.0,
+			"thickness": 0.0
+		}
+	}, {		
+		"id": "0008",
+		"type": "sphere",
+		"description": "anterior cornea",
+		"args": {
+			"radius": 0.0055,
+			"height": 0.01
+		}
+	}, {
+		"id": "0009",
+		"type": "index",
+		"description": "aqueous/vitreous",
+		"args": {
+			"index": 1.33,
+			"thickness": 0.02217
+		}
+	}, {
+		"id": "0010",
+		"type": "img",
+		"description": "retina",
+		"args" : {
+			"radius": -0.01,
+			"height": 0.01		
+		}
+	}]
+}

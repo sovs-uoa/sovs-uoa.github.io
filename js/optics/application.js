@@ -27,7 +27,9 @@
                       { id: "12", filename: "./lenses/reduced-eye-with-accommodation-img.lens", title: "Reduced Eye with Accommodation" },
                       { id: "13", filename: "./lenses/reduced-eye-with-ametropia.lens",   title: "Reduced emmetropic eye" },
                       { id: "14", filename: "./lenses/mystery-eye-with-ametropia-1.lens", title: "Mystery eye #1" },
-                      { id: "15", filename: "./lenses/mystery-eye-with-ametropia-2.lens", title: "Mystery eye #2" }];
+                      { id: "15", filename: "./lenses/mystery-eye-with-ametropia-2.lens", title: "Mystery eye #2" },
+                      { id: "16", filename: "./lenses/telescope-with-reduced-eye-with-ametropia.lens", title: "Telescope" },
+                      { id: "17", filename: "./lenses/reduced-eye-with-ametropia.lens", title: "Reduced eye with ametropia" }];
 
                       // { id: "12", filename: "./lenses/reduced-eye-with-accommodation.lens", title: "Reduced Eye with Accommodation" },
 
