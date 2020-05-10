@@ -1,0 +1,124 @@
+<h4>Summary</h4>
+
+              <!-- Summary -->
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>name</th>
+                    <th>value</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Primary ref. index (n)</td><td>{{n1 | decimal : 5 }}</td>
+                  </tr>
+                  <tr>
+                    <td>Secondary ref. index (n')</td><td>{{n2 | decimal : 5 }}</td>
+                  </tr>
+                  <tr>
+                    <td>System length (VV') (mm)</td><td>{{L | m2mm : 3 }}</td>
+                  </tr>
+                </tbody>
+              </table>
+
+<h4>Powers</h4>
+
+              <!-- Powers -->
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>name</th>
+                    <th>value</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Equivalent power (F)</td><td>{{powers.F | decimal : 3 }}</td>
+                  </tr>
+                  <tr>
+                    <td>Front vertex power (F<sub>v</sub>)</td><td>{{powers.Fv1 | decimal : 3 }}</td>
+                  </tr>
+                  <tr>
+                    <td>Back vertex power (F<sub>v'</sub>)</td><td>{{powers.Fv2 | decimal : 3 }}</td>
+                  </tr>
+                </tbody>
+              </table>
+
+<h4>Distances (mm)</h4>
+
+
+              <!-- Distances -->
+             <table class="table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Front</th>
+                    <th>Back</th>        
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Focal lengths</td>
+                    <td>{{cardinal.PF1 | m2mm : 3 }} (PF)</td>
+                    <td>{{cardinal.PF2 | m2mm : 3 }} (P'F')</td>
+                  </tr>
+                  <tr>
+                    <td>Vertex focal lengths</td>
+                    <td>{{cardinal.VF1 | m2mm : 3 }} (VF)</td>
+                    <td>{{cardinal.VF2 | m2mm : 3 }} (V'F')</td>
+                  </tr>
+                  <tr>  
+                    <td>Principal points</td>
+                    <td>{{cardinal.VP1 | m2mm : 3 }} (VP)</td>
+                    <td>{{cardinal.VP2 | m2mm : 3 }} (V'P')</td>
+                  </tr>
+                  <tr>  
+                    <td>Nodal points</td>
+                    <td>{{cardinal.VN1 | m2mm : 3 }} (VN)</td>
+                    <td>{{cardinal.VN2 | m2mm : 3 }} (V'N')</td>
+                  </tr>
+                </tbody>
+              </table>
+
+<h4>Pupils (mm)</h4>
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Position</th>
+                    <th>Pupil Mag.</th>        
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Entrance</td><td>{{pupil.VE1 | m2mm : 3 }} (VE)</td><td>{{pupil.ME1 | decimal : 3 }}</td>
+                  </tr>
+                  <tr>
+                    <td>Exit</td><td>{{pupil.VE2 | m2mm : 3 }} (VE')</td><td>{{pupil.ME2 | decimal : 3 }}</td>
+                  </tr>
+                </tbody>
+              </table>
+
+<!-- System -->
+
+<h4>System coefficients</h4>
+            <table class="table">
+                <thead>
+                  <tr>
+                    <th>name</th>
+                    <th>value</th>
+                    <th>name</th>
+                    <th>value</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>A</td><td>{{S.A | decimal : 5 }}</td>
+                    <td>B</td><td>{{S.B | decimal : 5 }}</td>
+                  </tr>
+                  <tr>
+                    <td>C</td><td>{{S.C | decimal : 5 }}</td>
+                    <td>D</td><td>{{S.D | decimal : 5 }}</td>             
+                  </tr>
+                </tbody>
+              </table>

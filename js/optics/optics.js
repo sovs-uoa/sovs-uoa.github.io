@@ -862,6 +862,10 @@ function getPowers (data, n1, n2){
 
 function getMagnification (S, n1, n2) {
 
+
+      /* assumes that light passes through the system! */
+
+
       // refractive index 
       rayIn  = { u: 1, h: 0 };
       rayOut = rayMultiply(S, rayIn);
@@ -1326,17 +1330,18 @@ function appendDisplayInformation (totalSystem) {
         totalSystem.total.pupil.VE2 = Z + totalSystem.total.exit.Z;
         
         // magnifications 
-        var n1 = totalSystem.total.exit.n1;
-        var n2 = totalSystem.total.exit.n2;
-        totalSystem.total.pupil.ME1 = getMagnification (totalSystem.total.entrance.S, n1, n2);
-
         var n1 = totalSystem.total.entrance.n1;
         var n2 = totalSystem.total.entrance.n2;
+        totalSystem.total.pupil.ME1 = getMagnification (totalSystem.total.entrance.S, n1, n2);
+
+
+        var n1 = totalSystem.total.exit.n1;
+        var n2 = totalSystem.total.exit.n2;
         totalSystem.total.pupil.ME2 = getMagnification (totalSystem.total.exit.S, n1, n2);
 
 
-        //console.log("TOTAL SYSTEM STOPS");
-        //console.log(totalSystem.total);
+        console.log("TOTAL SYSTEM STOPS");
+        console.log(totalSystem.total);
     }
 
 

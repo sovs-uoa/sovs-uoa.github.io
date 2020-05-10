@@ -63,8 +63,7 @@
   <script src="js/optics/DataTableHandler.js"></script>      
   <script src="js/utils.js"></script>  
 
-  <!-- main application -->
-  <script src="js/optics/application.js"></script>  
+
 
 
   <link rel="stylesheet" type="text/css" href="css/optics.css">
@@ -76,11 +75,18 @@
 
 <script>
 
+
+   /* configuration infromation */
+
+   var config = { summary_template: 'mustache/lab5_report_tables_html.mustache' };
+
+
    function initializeApp () {
 
 
      // laod configuration 
     
+
 
      // report template 
      console.log('starting ... main app');
@@ -695,4 +701,11 @@
 
 
 </body>
+
+
+
+  <!-- main application -->
+  <script src="js/optics/application.js"></script>  
+
+
 </html>

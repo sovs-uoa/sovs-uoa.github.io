@@ -979,7 +979,23 @@ getConjuugateTo
 
                                 /* load a summary table template */
 
-                                $.get('mustache/lab3_report_tables_html.mustache', function(template) {
+
+                                function assignParameter(assertValue, defaultValue) {
+                                  console.log (`loaded asserted value ... ${assertValue}`);
+                                   if (assertValue == undefined) 
+                                        return defaultValue;
+                                  return assertValue;
+                                };
+
+
+                                console.log ('config');
+                                console.log (config);
+
+                                var assignValue = assignParameter(config.summary_template, 'mustache/lab3_report_tables_html.mustache'); 
+
+                                console.log (assignValue);
+
+                                $.get(assignValue, function(template) {
                           
 
                                     /* update the summary template view */

@@ -36,7 +36,8 @@ Telescope with reduced eye and ametropia  (Lab 45
 		"args": {
 			"power":  10,
 			"stop": true,
-			"aperture" : 0.025
+			"aperture" : 0.025,
+			"height": 0.025			
 		}
 	},{		
 		"id": "0002",

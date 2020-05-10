@@ -290,6 +290,10 @@ function drawAxis () {
 
  function drawPupils(info) {
 
+
+      console.log ('DRAW PUPIL');
+      console.log (info);
+
       pup_set.remove();
       pup_set = paper.set();
 
@@ -1753,6 +1757,14 @@ function drawAxis () {
           equivalentPower = data.elem[i].F;
 
           height = curr.height;
+
+
+          //console.log ('THIN');
+          //console.log (curr);
+          //console.log (axialPosition);
+          //console.log (equivalentPower);
+
+
           l = drawThinLens(axialPosition, 0, equivalentPower, height, displayOptions);
           optics_set.push(l);
           break;
