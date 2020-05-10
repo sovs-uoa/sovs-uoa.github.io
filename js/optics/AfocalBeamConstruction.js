@@ -43,6 +43,9 @@ function onAfocalMove (th)  {
       this.parent.remove(); 
       this.parent.draw();
 
+
+
+
 };
 
 function onAfocalUp ()      { console.log("onup picker"); };
@@ -292,6 +295,11 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
       //var N1 = this.lens.cardinal.VN1; 
 
       // defend against nonfocal rays 
+
+
+      /* KLUDGE */
+
+
       if (isFinite(this.data.X2)) {
           this.imagePoint.show();
           this.imagePoint.attr({ cx: this.data.X2, cy: this.data.Y2 }); // move the image point here
@@ -304,6 +312,10 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
       //this.anglePicker.setAnchor(V1, 0);  // change the anchor
       //this.anglePicker.setAngle(this.data.T1);        
       this.drawAfocalConstruction ();
+
+      /* JT: TRY AND HIDE THIS POINT - UNTIL IMG PROBLEM IS RESOLVED */
+      this.imagePoint.hide();
+
    }
 
 
@@ -320,14 +332,14 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
           return r;
       }
 
-      //this.anglePicker.setAngle(th);
+
+
+      /* this should determine rays at each surface */
+
       var rays       = getBeam(th, this.BeamWidth);      
       this.inputRays = rays; 
       this.raypath   = Optics.calculateRayTrace(rays, renderableLens.elem);
 
-      //console.log("Output rays");
-      //console.log (this.raypath);
-      //this.drawAfocalConstruction ();
    }
 
 
@@ -359,14 +371,21 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
         //var N1 = this.data.N1; var T2 = this.data.N2;
 
 
+        console.log ('DRAW POINT DATA');
+        console.log (this.data);
 
-
-        this.imagePoint    = drawPoint(X2, Y2, "cyan"); // image  
+        this.imagePoint    = drawPoint(X2, Y2, "red"); // image  
         this.imagePoint.id = "point-" + this.data.id + "-image";
         this.imagePoint.data("data-attr", {  "element_id"     : "point-" + this.data.id + "-image",
                                               "id"            : this.data.id, 
                                               "type"          : "image",
                                               "parent"        : this });
+
+         
+        /* JT: TRY AND HIDE THIS POINT - UNTIL IMG PROBLEM IS RESOLVED */
+        this.imagePoint.hide();
+
+
 
 
         // register these points 
@@ -444,11 +463,11 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
      console.log(this.data);
 
 
-     /* --------------------------------------------------------
-      
-        INCOMING RAYS 
 
-       -------------------------------------------------------- */
+
+     console.log ('INPUT');
+
+     /* input rays */
 
      var dX = -1000;
      for (var i=0; i <  M ; i++) {
@@ -463,66 +482,64 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
      }
 
 
-     /* --------------------------------------------------------
-      
-        MID RAYS 
 
-       -------------------------------------------------------- */
+    console.log ('ALONG');
 
-     for (var k=0; k < K-1; k++ ) {
-         for (var i=0; i <  M ; i++) {
+
+     /* rays along path */
+
+
+     for (var k=0; k < K-1; k++ ) {     // elements 
+         for (var i=0; i <  M ; i++) {  // rays 
+
             var X1 = ray[k][i].z;   var Y1 = ray[k][i].h;
             var X2 = ray[k+1][i].z; var Y2 = ray[k+1][i].h;
             var p4 = paper.path( ["M", X1, Y1,  "L", X2, Y2 ]); 
             p4.attr(real);
             this.cd_set.push(p4);
+         
          }
      }
 
-/*
 
-    ret = getAfocalBeamImageStyle({ N1 : N1, N2: N2, 
-                                    P1 : P1, P2: P2,
-                                    F1 : F1, F2: F2,
-                                    T1 : T1,
-                                    X2 : X2, Y2: Y2 });
+     /* final rays */
 
-    //console.log("FINAL INFORMATION");
-    //console.log(lens);
-
-*/
+     console.log ('LENS');
+     console.log (lens);
 
 
-     /* --------------------------------------------------------
-      
-        FINAL RAYS 
-
-       -------------------------------------------------------- */
-
-     if (Math.abs(lens.F) > 0.0001) {
+     if (Math.abs(lens.F) > 0.0001) {   // focal system 
 
 
-         /* FOCAL SYSTEM */
+         for (var i=0; i <  M ; i++) {   // rays 
 
-
-         for (var i=0; i <  M ; i++) {
-
-            // INPUT POINT 
 
             var u1 = ray[K-1][i].u;       
             var X1 = ray[K-1][i].z; 
             var Y1 = ray[K-1][i].h;
             
 
-            // OUTPUT POINT 
+            // focal point 
+
             var X2 = this.data.X2;  
             var Y2 = this.data.Y2;            
             var p4 = paper.path( ["M", X1, Y1,  "L", X2, Y2 ]); 
-            
+            p4.attr ("stroke", "#FF0000");
 
-            if (X2 < X1) {
 
-                /* VIRTUAL */
+            console.log ('DISPLAY!!');
+            console.log (this.data);
+            console.log (`X1 = ${X1}, Y1 = ${Y1}`);
+            console.log (`X2 = ${X2}, Y2 = ${Y2}`);
+
+
+            etol < 1e-4;
+
+            if (lens.VI < -etol) {  // probably virtual 
+
+
+                console.log ('SOME VIRTUAL CRZINESS');
+
 
                 p4.attr(virtual);
                 this.cd_set.push(p4);
@@ -539,6 +556,13 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
 
                 /* REAL */
 
+                console.log ('STANDARD REAL ');
+
+
+                // JT: STOP PLOTTING OF THIS POINT
+                
+                p4.hide ();
+
                 p4.attr(real);
                 this.cd_set.push(p4);
             }
@@ -549,10 +573,8 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
      } else { 
 
 
-        /* RAYS TO INFINITY */ 
+        // afocal system 
 
-
-         // FINITE RAYS 
 
          var dX = 10;
          for (var i=0; i <  M ; i++) {

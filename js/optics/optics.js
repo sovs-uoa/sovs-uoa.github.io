@@ -1081,6 +1081,8 @@ function getTotalLensSystemInfo (lensTable) {
 
     eachElementInfo     = getLensElementInfo(lensTable, i);    
 
+    console.log (eachElementInfo);
+
 
     // Build Up Exit/Entrance Systems 
     if (eachElementInfo.elem.hasOwnProperty("stop") & !totalSystem.total.stop) {

@@ -1,10 +1,10 @@
 /*--------------------------------------------
 
-Telescope with reduced eye and ametropia  (Lab 5)
+Telescope with reduced eye and ametropia  (Lab 45
 
 ----------------------------------------------*/
 {
-	"title": "Galilean Telescope (Lab 5)",
+	"title": "Telescope (Lab 5)",
 	"visible": { 	"radius": true,
 				 	"power":true,
 				 	"curvature":true,
@@ -61,6 +61,39 @@ Telescope with reduced eye and ametropia  (Lab 5)
 		"description": "eye relief",
 		"args": {
 			"index": 1.000,
+			"thickness": 0.0			
+		}
+	},{		
+		"id": "0005",
+		"type": "thin",
+		"description": "ametropia lens",
+		"args": {
+			"power":  0,
+			"height": 0.01
+		}
+	},{
+		"id": "0006",
+		"type": "index",
+		"description": "air#2",
+		"args": {
+			"index": 1.0,
+			"thickness": 0.0
+		}
+	},{		
+		"id": "0007",
+		"type": "sphere",
+		"description": "anterior cornea",
+		"args": {
+			"radius": 0.0055,
+			"height": 0.01
+		}
+	},{
+		"id": "0008",
+		"type": "index",
+		"description": "aqueous/vitreous",
+		"args": {
+			"index": 1.33,
+			"thickness": 0.02217
 		}
 	}]
 }
