@@ -1,22 +1,22 @@
 /*--------------------------------------------
 
-Assignment: Telescope with reduced eye and ametropia  
+Assignment : basic eye model 
 
 ----------------------------------------------*/
 {
-	"title": "Telescope (Lab 5)",
+	"title": "Basic eye",
 	"visible": { 	"radius": true,
 				 	"power":true,
 				 	"curvature":true,
 				 	"aperture":true },	
 
-	"viewBox" : [ -0.03, 0.03, 0.20, 0.06 ],
+	"viewBox" : [ -0.04, 0.02, 0.08, 0.04 ],
 
 
 	"sources" : [ { "id" 		: 1, 
-					"type" 		: "afocal",
+					"type" 		: "beam",
 					"which"		: "object",
-					"beamwidth" : 0.025,
+					"beamwidth" : 0.01,
 					"z"			: NaN, 
 					"h"			: NaN,
 					"t"			: 10 } ],
@@ -32,39 +32,21 @@ Assignment: Telescope with reduced eye and ametropia
 	},{		
 		"id": "0002",
 		"type": "thin",
-		"description": "objective lens",
+		"description": "correcting lens",
 		"args": {
-			"power":  10,
-			"stop": true,
-			"aperture" : 0.025,
-			"height": 0.025			
-		}
-	},{		
-		"id": "0002",
-		"type": "index",
-		"description": "tube length",
-		"args": {
-			"index":  1.000,
-			"thickness": 0.08
-		}
-	},{	
-		"id": "0003",
-		"type": "thin",
-		"description": "eyepiece lens",
-		"args": {
-			"power":  -50,
-			"height": 0.025
+			"power":  0,
+			"height": 0.01
 		}
 	},{
-		"id": "0004",
+		"id": "0003",
 		"type": "index",
-		"description": "eye relief",
+		"description": "air gap",
 		"args": {
 			"index": 1.000,
 			"thickness": 0.0			
 		}
 	},{		
-		"id": "0005",
+		"id": "0004",
 		"type": "thin",
 		"description": "ametropia lens",
 		"args": {
@@ -72,31 +54,47 @@ Assignment: Telescope with reduced eye and ametropia
 			"height": 0.01
 		}
 	},{
-		"id": "0006",
+		"id": "0005",
 		"type": "index",
 		"description": "air#2",
+		"args": {
+			"index": 1.000,
+			"thickness": 0.0
+		}
+	}, {		
+		"id": "0006",
+		"type": "thin",
+		"description": "accommodating lens",
+		"args": {
+			"power":  0,
+			"height": 0.01
+		}
+	}, {
+		"id": "0007",
+		"type": "index",
+		"description": "air#4",
 		"args": {
 			"index": 1.0,
 			"thickness": 0.0
 		}
-	},{		
-		"id": "0007",
+	}, {		
+		"id": "0008",
 		"type": "sphere",
 		"description": "anterior cornea",
 		"args": {
 			"radius": 0.0055,
 			"height": 0.01
 		}
-	},{
-		"id": "0008",
+	}, {
+		"id": "0009",
 		"type": "index",
 		"description": "aqueous/vitreous",
 		"args": {
 			"index": 1.33,
-			"thickness": 0.02217
+			"thickness": 0.024
 		}
-	},{
-		"id": "0009",
+	}, {
+		"id": "0010",
 		"type": "img",
 		"description": "retina",
 		"args" : {

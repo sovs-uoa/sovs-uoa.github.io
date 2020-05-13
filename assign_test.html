@@ -63,6 +63,7 @@
   <script src="js/optics/DataTableHandler.js"></script>      
   <script src="js/utils.js"></script>  
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/canvg/1.5/canvg.js" integrity="sha256-gS9x7L+zPeuIJQi5Ozx6nkmnAKegHZGdx/Zy/jOs/Ao=" crossorigin="anonymous"></script>
 
 
 
@@ -102,7 +103,7 @@
     });
 
 
-    load ("16"); // 12 = Reduced Eye with Accommodation 
+    load ("19"); // 12 = Reduced Eye with Accommodation 
     }
 
 
@@ -127,7 +128,7 @@
 
       // trigger on a selection
       $('#optics_report').on('click', function () {
-        downloadOpticsReport();
+        downloadReport("report");
       });
 
 
@@ -201,7 +202,9 @@
           <a class="dropdown-item file-selection"  href="#" data-id="4" >Two Thin lens in Air (Positive)</a>
           <a class="dropdown-item file-selection"  href="#" data-id="5" >Two Thin Lens in Air (Negative)</a>
 -->          
-          <a class="dropdown-item file-selection"  href="#" data-id="16" >Telescope model</a>
+
+          <a class="dropdown-item file-selection"  href="#" data-id="19" >Thick Lens</a>
+          <a class="dropdown-item file-selection"  href="#" data-id="20" >Eye Model</a>
 
 <!--          
           <a class="dropdown-item file-selection"  href="#" data-id="7" >Galilean telescope</a>
@@ -252,6 +255,13 @@
 -->
 
         <div id="lens-container" class="border border-dark"></div>
+
+        <canvas id="target_canvas" >          
+        </canvas>
+
+        <div id="target_div" >          
+        </div>
+
 
   </div>
 </div>

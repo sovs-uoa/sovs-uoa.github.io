@@ -1,0 +1,122 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>SOVS optics reports</title>
+  <meta name="description" content="Opticas report">
+  <meta name="author" content="">
+</head>
+
+
+<style>
+h1 { font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif; font-size: 26px; font-style: normal; font-variant: normal; font-weight: bold; line-height: 28px; } 
+h3 { font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif; font-size: 16px; font-style: normal; font-variant: normal; font-weight: bold; line-height: 17px; } 
+p { font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif; font-size: 16px; font-style: normal; font-variant: normal; font-weight: 400; line-height: 22px; } 
+
+blockquote { font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif; font-size: 23px; font-style: normal; font-variant: normal; font-weight: 400; line-height: 32px; } 
+pre { font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif; font-size: 15px; font-style: normal; font-variant: normal; font-weight: 400; line-height: 20px; }
+ 
+body { font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif; font-size: 16px; font-style: normal; font-variant: normal; font-weight: bold; line-height: 17px; }
+</style>
+
+<body>
+	<h1>SOVS optics report</h1>
+
+
+	<hr>
+
+	<h3>Lens Prescription</h3>
+
+
+		<table>
+		  <thead>
+		  	<th>Id</th>
+		  	<th>Type</th>
+		  	<th>Description</th>
+		  	<th>Ref. Index</th>
+		  	<th>Surf. R.</th>
+		  	<th>Power</th>
+		  	<th>Thickness</th>
+		  	<th>Ap. Diameter</th>
+		  	<th>Stop Flag</th>
+		  </thead>  	
+
+		  <tbody>
+		  
+		  {{#lens_table}}
+
+		  <tr>
+		    <td>{{id}}</td>
+		    <td>{{type}}</td>
+		    <td>{{description}}</td>
+		    <td>{{index}}</td>
+		    <td>{{radius}}</td>
+		    <td>{{power}}</td>
+		    <td>{{thickness}}</td>
+		    <td>{{aperture}}</td>
+		    <td>{{stop}}</td>
+		  </tr>
+		  {{/lens_table}}
+
+		  </tbody>
+		</table>
+
+	<hr>
+
+
+	<h3>Objects and Images</h3>
+
+
+		<table>
+		  <thead>
+		  	<th>id</th>
+		  	<th>type</th>
+		  	<th><i>l</i></th>
+		  	<th><i>l&prime;</i></th>
+		  	<th><i>l&prime;<sub>v</sub></i></th>
+		  	<th><i>l&prime;<sub>v</sub></i></th>
+		  	<th><i>h</i></th>
+		  	<th><i>h&prime;</i></th>
+		  	<th><i>&theta;</i></th>
+		  	<th><i>&theta;&prime;</i></th>		  	
+		  	<th><i>beamwidth</i></th>		  	
+		  </thead>  	
+
+		  <tbody>
+		  
+		  {{#points_table}}
+
+		  <tr>
+		    <td>{{id}}</td>
+		    <td>{{type}}</td>
+		    <td>{{l}}</td>
+		    <td>{{ld}}</td>
+		    <td>{{zi}}</td>
+		    <td>{{zo}}</td>
+		    <td>{{hi}}</td>
+		    <td>{{ho}}</td>
+		    <td>{{ti}}</td>
+		    <td>{{to}}</td>
+		    <td>{{beamwidth}}</td>		    
+		  </tr>
+		  {{/points_table}}
+
+		  </tbody>
+		</table>
+
+	<hr>
+
+	<h3>Summary</h3>
+
+	{{{summary}}}
+
+  	<!-- Raw output data for parsing -->
+	<script id="raw" type="text/json">
+		{{asJSON}}
+	</script>
+
+
+</body>
+</html>

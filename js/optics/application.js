@@ -11,6 +11,8 @@
   var   summaryTemplate;
   var   reportTamplate;
 
+  var   download_report_template; 
+
   var    mouseIsDown = false;
   
   var   etol = 5e-4;
@@ -30,7 +32,10 @@
                       { id: "15", filename: "./lenses/mystery-eye-with-ametropia-2.lens", title: "Mystery eye #2" },
                       { id: "16", filename: "./lenses/telescope-with-reduced-eye-with-ametropia.lens", title: "Telescope" },
                       { id: "17", filename: "./lenses/reduced-eye-with-ametropia.lens", title: "Reduced eye with ametropia" },
-                      { id: "18", filename: "./lenses/telescope-with-reduced-eye-with-ametropia-no-retina.lens", title: "Telescope with no retina" }];
+                      { id: "18", filename: "./lenses/telescope-with-reduced-eye-with-ametropia-no-retina.lens", title: "Telescope with no retina" },
+                      { id: "19",  filename: "./lenses/assign-thick-lens.lens", title: "Thick Lens" },
+                      { id: "20",  filename: "./lenses/assign-basic-eye.lens", title: "Eye Model" },
+                      { id: "21",  filename: "./lenses/assign-telescope.lens", title: "Telescope" }];
 
                       // { id: "12", filename: "./lenses/reduced-eye-with-accommodation.lens", title: "Reduced Eye with Accommodation" },
 
@@ -736,6 +741,45 @@ getConjuugateTo
   }
 
 
+  /* REPORT */
+
+  function downloadOpticsReport () {
+
+      // lens prescription summary 
+
+
+      //var grab_canvas = document.getElementById('target_canvas');
+      var container = document.getElementById('lens-container');
+
+      //var svg_element = container.firstElementChild;
+      //importSVG(svg_element, grab_canvas);
+      // canvg("target_canvas", (new XMLSerializer).serializeToString(container.firstElementChild));
+
+
+      // summary report information 
+      var output = {};      
+      output.lens_table    = lens.table.getData(); 
+      output.points_table  = lens.pointsTable.getData();
+      //output.summary_table = renderableLens.total;
+      output.asJSON        = JSON.stringify(output);
+      output.summary       = Mustache.render(summaryTemplate, renderableLens.total); 
+
+
+      console.log (output);
+
+      // download the information 
+      download_report_html = Mustache.render(download_report_template, output);  
+      var a  = window.document.createElement('a');
+      a.href = window.URL.createObjectURL(new Blob([download_report_html], {type: 'text/html'}));
+      a.download = 'report.html';
+      document.body.appendChild(a); a.click();
+      setTimeout( function () { document.body.removeChild(a); }, 1000); 
+
+
+  };
+
+
+  /* OLD DOWNLOAD REPORT */
 
   function downloadReport (which) {
 
@@ -933,9 +977,6 @@ getConjuugateTo
             dataType: "text",
             success : function (data) {
 
-
-
-
                   /* loaded lens prescription */
 
                   console.log (`lens file ... ${found.filename}`);
@@ -966,7 +1007,7 @@ getConjuugateTo
                   paper.canvas.addEventListener("touchend",   panEnd, false);
 
                    
-                  // initialize the prescription that will execite on change to table 
+                  // initialize the prescription that will execute on change to table 
                   initializePrescriptionTable (response.prescription, 
 
                         updatePrescriptionView,   // change in lenses information => full update 
@@ -988,13 +1029,12 @@ getConjuugateTo
                                   return assertValue;
                                 };
 
-
                                 console.log ('config');
                                 console.log (config);
+                                console.log (assignValue);
 
                                 var assignValue = assignParameter(config.summary_template, 'mustache/lab3_report_tables_html.mustache'); 
 
-                                console.log (assignValue);
 
                                 $.get(assignValue, function(template) {
                           
@@ -1036,6 +1076,7 @@ getConjuugateTo
 
 
 
+                                    console.log ('initialize the points table.');
                                      
 
                                     initializePointsTable ([], updateConstruction, function () {
@@ -1135,3 +1176,34 @@ getConjuugateTo
 
 
     }
+
+
+
+    /* JSON to HTML string */
+
+
+    var totalString = '';
+         
+    function constructTable(list) { 
+            
+      var totalString = '<thead>\n<tr>\n';        
+      var headers = Object.keys(list); 
+      headers.forEach ( header => {
+        totalString = totalString + `<th>${data[header]}</th>\n`;
+      });
+      totalString = totalString + '</tr>\n';        
+      totalString = totalString + '</thead>\n';        
+
+      totalString = totalString + '<tbody>\n';        
+      list.forEach ( data => {
+        totalString = '<tr>\n';
+        headers.forEach ( header=> {
+            totalString = totalString + '<td>${data[header]}</td>\n';
+         });
+        totalString = totalString + '</tr>\n';
+      });
+      totalString = totalString + '</tbody>\n'; 
+
+      return totalString;       
+    } 
+    

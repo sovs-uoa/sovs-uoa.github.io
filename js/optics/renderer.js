@@ -127,6 +127,7 @@ function hslToRgb(h, s, l){
     
            // do something
            paper = new Raphael(document.getElementById(canvasID), "100%", "100%");
+           // paper = new Raphael(document.getElementById(canvasID), 640, 480);
 
 
           } else {
@@ -2178,6 +2179,54 @@ function toCoords(center, radius, angle) {
     var x = center[0] + Math.cos(radians) * radius;
     var y = center[1] + Math.sin(radians) * radius;
     return [x, y];
+}
+
+
+/* IMPORTER TO CANVAS */
+
+
+function tryGrabSVG() {
+
+  var grab_canvas = document.getElementById('target_canvas');
+  var container = document.getElementById('lens-container');
+  var svg_element = container.firstElementChild;
+  importSVG(svg_element, grab_canvas);
+
+
+}
+
+
+function importSVG(sourceSVG, targetCanvas) {
+
+
+    console.log (sourceSVG);
+    console.log (targetCanvas);
+    
+    // https://developer.mozilla.org/en/XMLSerializer
+    svg_xml = (new XMLSerializer()).serializeToString(sourceSVG);
+    //var ctx = targetCanvas.getContext('2d');
+
+    //console.log (svg_xml);
+
+    // this is just a JavaScript (HTML) image
+    var img = new Image();
+    // http://en.wikipedia.org/wiki/SVG#Native_support
+    // https://developer.mozilla.org/en/DOM/window.btoa
+    img.src = "data:image/svg+xml;base64," + btoa(svg_xml);
+
+    targetCanvas.appendChild(img);
+
+    console.log (img);
+
+    //img.onload = function() {
+        // after this, Canvas’ origin-clean is DIRTY
+
+     //   console.log ('Draw img on canvas');
+     //   console.log ('img');
+
+
+     //   ctx.drawImage(img, 0, 0);
+    // }
 }
 
 

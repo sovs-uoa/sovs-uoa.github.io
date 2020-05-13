@@ -5,7 +5,15 @@
 */
 
 
-var lens = {  prescription : null, 
+
+var lens;
+
+
+function clearLens () {
+
+
+
+lens     = {  prescription : null, 
               tabledata    : null,
               table        : null,
               points       : null,
@@ -37,6 +45,10 @@ var lens = {  prescription : null,
 
             };
 
+}
+
+console.log ('clearing lenses.');
+clearLens ();
  
 function lensTypeSelector(elem) {
     

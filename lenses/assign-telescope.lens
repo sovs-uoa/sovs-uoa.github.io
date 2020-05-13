@@ -63,7 +63,22 @@ Assignment: Telescope with reduced eye and ametropia
 			"index": 1.000,
 			"thickness": 0.0			
 		}
-	},{		
+	},{
+		"id": "0004",
+		"type": "thin",
+		"description": "spectacles",
+		"args": {
+			"power": 0.000,
+			"height": 0.025		}
+	},{
+		"id": "0004",
+		"type": "index",
+		"description": "air gap",
+		"args": {
+			"index": 1.000,
+			"thickness": 0.0			
+		}
+	}, {		
 		"id": "0005",
 		"type": "thin",
 		"description": "ametropia lens",

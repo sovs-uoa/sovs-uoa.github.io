@@ -92,8 +92,6 @@
     });
 
 
-
-
      // report template 
      console.log('starting ... main app');
      $.get('mustache/report.htm', function (data) {
@@ -102,7 +100,7 @@
     });
 
 
-    load ("16"); // 12 = Reduced Eye with Accommodation 
+    load ("19"); // 12 = Reduced Eye with Accommodation 
     }
 
 
@@ -117,7 +115,14 @@
           
         // info.
         if (ndx > -1) {
-          reload(id);
+
+
+          //reload(id); // load everything 
+
+          clearLens ();
+
+          load(id);
+
           var txt = $(this).text();             // selection 
           $("#filename_display").val(txt);      // show it 
         }
@@ -201,7 +206,10 @@
           <a class="dropdown-item file-selection"  href="#" data-id="4" >Two Thin lens in Air (Positive)</a>
           <a class="dropdown-item file-selection"  href="#" data-id="5" >Two Thin Lens in Air (Negative)</a>
 -->          
-          <a class="dropdown-item file-selection"  href="#" data-id="16" >Telescope model</a>
+
+          <a class="dropdown-item file-selection"  href="#" data-id="19" >Thick Lens</a>
+          <a class="dropdown-item file-selection"  href="#" data-id="20" >Eye Model</a>
+          <a class="dropdown-item file-selection"  href="#" data-id="21" >Telescope</a>
 
 <!--          
           <a class="dropdown-item file-selection"  href="#" data-id="7" >Galilean telescope</a>

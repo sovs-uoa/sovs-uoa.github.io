@@ -78,7 +78,7 @@
 
    /* configuration infromation */
 
-   var config = { summary_template: 'mustache/lab5_report_tables_html.mustache', 
+   var config = { summary_template: 'mustache/assignment_report_tables_html.mustache', 
                   download_report_template : 'mustache/optics_report_template_v1.0.mustache.htm' };
 
 
@@ -102,7 +102,7 @@
     });
 
 
-    load ("16"); // 12 = Reduced Eye with Accommodation 
+    load ("19"); // 12 = Reduced Eye with Accommodation 
     }
 
 
@@ -201,6 +201,8 @@
           <a class="dropdown-item file-selection"  href="#" data-id="4" >Two Thin lens in Air (Positive)</a>
           <a class="dropdown-item file-selection"  href="#" data-id="5" >Two Thin Lens in Air (Negative)</a>
 -->          
+
+          <a class="dropdown-item file-selection"  href="#" data-id="19" >Spectacle lens</a>
           <a class="dropdown-item file-selection"  href="#" data-id="16" >Telescope model</a>
 
 <!--          
@@ -229,7 +231,7 @@
     <!--  Report button -->  
 
 
-    <button class='btn btn-primary float-right' id="optics_report" > 
+    <button class='btn btn-primary float-right' id="optics_report" disabled> 
        <i class="fas fa-download"></i>Report
     </button>
 
@@ -251,7 +253,7 @@
         <div class="tab-pane fade show active"  id="lens-tab" role="tabpanel" aria-labelledby = "lens-nav">
 -->
 
-        <div id="lens-container" class="border border-dark"></div>
+        <div id="lens-container" class="border border-dark" ></div>
 
   </div>
 </div>

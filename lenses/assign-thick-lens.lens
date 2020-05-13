@@ -1,0 +1,66 @@
+/*--------------------------------------------
+
+Assigment  Thick Lens in Air 
+
+----------------------------------------------*/
+
+{
+
+
+	// viewbox
+	"viewBox" : [ -0.04, 0.02, 0.08, 0.04 ],
+
+	// general 
+	"general" :  { "cardinalVertHeight" : 0.001 },
+
+	// sources 
+	"sources" : [ { "id" 		: 1, 
+					"type" 		: "source",
+					"which"		: "object",
+					"beamwidth" : 0.004,
+					"z"			: -100, 
+					"h"			: 0,
+					"t"			: 10 } ],
+
+	// lens prescription 
+	"title": "Thick Lens",
+    "prescription": [{
+		"id": "0001",
+		"type": "index",
+		"description": "air",
+		"args": {
+			"index": 1.000
+		}
+	}, {		
+		"id": "0002",
+		"type": "sphere",
+		"description": "front surface",
+		"args": {
+			"radius": 0.0261,
+			"height": 0.005
+		}
+	}, {
+		"id": "0003",
+		"type": "index",
+		"description": "glass",
+		"args": {
+			"index": 1.523,
+			"thickness": 0.0025
+		}
+	}, {		
+		"id": "0004",
+		"type": "sphere",
+		"description": "back surface",
+		"args": {
+			"radius": -0.0261,
+			"height": 0.005
+		}
+	}, {
+		"id": "0003",
+		"type": "index",
+		"description": "air",
+		"args": {
+			"index": 1.0			
+		}
+	}]
+}
