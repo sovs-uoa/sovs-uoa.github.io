@@ -1,0 +1,122 @@
+/*--------------------------------------------
+
+Assignment: Telescope with reduced eye and ametropia  
+
+----------------------------------------------*/
+{
+	"title": "Telescope (Lab 5)",
+	"visible": { 	"radius": true,
+				 	"power":true,
+				 	"curvature":true,
+				 	"aperture":true },	
+
+	"viewBox" : [ -0.03, 0.03, 0.20, 0.06 ],
+
+
+	"sources" : [ { "id" 		: 1, 
+					"type" 		: "afocal",
+					"which"		: "object",
+					"beamwidth" : 0.025,
+					"z"			: NaN, 
+					"h"			: NaN,
+					"t"			: 0 } ],
+
+
+	"prescription": [{
+		"id": "0001",
+		"type": "index",
+		"description": "air#1",
+		"args": {
+			"index": 1.000
+		}
+	},{		
+		"id": "0002",
+		"type": "thin",
+		"description": "objective lens",
+		"args": {
+			"power":  10,
+			"stop": true,
+			"aperture" : 0.025,
+			"height": 0.025			
+		}
+	},{		
+		"id": "0002",
+		"type": "index",
+		"description": "tube length",
+		"args": {
+			"index":  1.000,
+			"thickness": 0.08
+		}
+	},{	
+		"id": "0003",
+		"type": "thin",
+		"description": "eyepiece lens",
+		"args": {
+			"power":  -50,
+			"height": 0.025
+		}
+	},{
+		"id": "0004",
+		"type": "index",
+		"description": "eye relief",
+		"args": {
+			"index": 1.000,
+			"thickness": 0.0			
+		}
+	},{
+		"id": "0004",
+		"type": "thin",
+		"description": "spectacles",
+		"args": {
+			"power": 0.000,
+			"height": 0.025		}
+	},{
+		"id": "0004",
+		"type": "index",
+		"description": "air gap",
+		"args": {
+			"index": 1.000,
+			"thickness": 0.0			
+		}
+	}, {		
+		"id": "0005",
+		"type": "thin",
+		"description": "ametropia lens",
+		"args": {
+			"power":  0,
+			"height": 0.01
+		}
+	},{
+		"id": "0006",
+		"type": "index",
+		"description": "air#2",
+		"args": {
+			"index": 1.0,
+			"thickness": 0.0
+		}
+	},{		
+		"id": "0007",
+		"type": "sphere",
+		"description": "anterior cornea",
+		"args": {
+			"radius": 0.0055,
+			"height": 0.01
+		}
+	},{
+		"id": "0008",
+		"type": "index",
+		"description": "aqueous/vitreous",
+		"args": {
+			"index": 1.33,
+			"thickness": 0.024801970108696
+		}
+	},{
+		"id": "0009",
+		"type": "img",
+		"description": "retina",
+		"args" : {
+			"radius": -0.01,
+			"height": 0.01		
+		}
+	}]
+}

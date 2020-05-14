@@ -35,7 +35,7 @@
                       { id: "18", filename: "./lenses/telescope-with-reduced-eye-with-ametropia-no-retina.lens", title: "Telescope with no retina" },
                       { id: "19",  filename: "./lenses/assign-thick-lens.lens", title: "Thick Lens" },
                       { id: "20",  filename: "./lenses/assign-basic-eye.lens", title: "Eye Model" },
-                      { id: "21",  filename: "./lenses/assign-telescope.lens", title: "Telescope" }];
+                      { id: "21",  filename: "./lenses/assign-telescope-myopia.lens", title: "Telescope" }];
 
                       // { id: "12", filename: "./lenses/reduced-eye-with-accommodation.lens", title: "Reduced Eye with Accommodation" },
 
@@ -755,14 +755,39 @@ getConjuugateTo
       //importSVG(svg_element, grab_canvas);
       // canvg("target_canvas", (new XMLSerializer).serializeToString(container.firstElementChild));
 
+      function replaceNaN(data) {
+
+
+
+        data.forEach (datum => {
+          all_keys = Object.keys(datum);
+          all_keys.forEach ( key => {
+            
+            function isNumericNaN (value) {
+            return typeof value === 'number' && isNaN(value);
+            }
+
+
+            if (isNumericNaN(datum[key])) {
+              datum[key] = '';
+            };
+          });
+        });
+
+        return data;
+      }
+
 
       // summary report information 
       var output = {};      
-      output.lens_table    = lens.table.getData(); 
-      output.points_table  = lens.pointsTable.getData();
+      output.lens_table    = replaceNaN(lens.table.getData()); 
+      output.points_table  = replaceNaN(lens.pointsTable.getData());
       //output.summary_table = renderableLens.total;
       output.asJSON        = JSON.stringify(output);
       output.summary       = Mustache.render(summaryTemplate, renderableLens.total); 
+
+
+      // replace any NaNs tih "---"
 
 
       console.log (output);
