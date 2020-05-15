@@ -97,6 +97,28 @@
 
 /* -------------------------------------------------------------------------------
 
+Unique Identifier 
+
+------------------------------------------------------------------------------- */
+
+
+function uuidv4() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
+
+function getFormattedDate() {
+    var date = new Date();
+    var str = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " +  date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
+
+    return str;
+}
+
+
+/* -------------------------------------------------------------------------------
+
 getConjuugateTo
 
 ------------------------------------------------------------------------------- */
@@ -756,9 +778,6 @@ getConjuugateTo
       // canvg("target_canvas", (new XMLSerializer).serializeToString(container.firstElementChild));
 
       function replaceNaN(data) {
-
-
-
         data.forEach (datum => {
           all_keys = Object.keys(datum);
           all_keys.forEach ( key => {
@@ -780,6 +799,10 @@ getConjuugateTo
 
       // summary report information 
       var output = {};      
+
+
+      output.id            = uuidv4();
+      output.date_string   = getFormattedDate();
       output.lens_table    = replaceNaN(lens.table.getData()); 
       output.points_table  = replaceNaN(lens.pointsTable.getData());
       //output.summary_table = renderableLens.total;
