@@ -35,7 +35,10 @@
                       { id: "18", filename: "./lenses/telescope-with-reduced-eye-with-ametropia-no-retina.lens", title: "Telescope with no retina" },
                       { id: "19",  filename: "./lenses/assign-thick-lens.lens", title: "Thick Lens" },
                       { id: "20",  filename: "./lenses/assign-basic-eye.lens", title: "Eye Model" },
-                      { id: "21",  filename: "./lenses/assign-telescope-myopia.lens", title: "Telescope" }];
+                      { id: "21",  filename: "./lenses/assign-telescope-myopia.lens", title: "Telescope" },
+                      { id: "22",  filename: "./lenses/lab6-vertometer-standard.lens", title: "Vertometer" },
+                      { id: "23",  filename: "./lenses/lab6-vertometer-mystery-lens-1.lens", title: "Vertometer with mystery lens #1" },
+                      { id: "24",  filename: "./lenses/lab6-vertometer-mystery-lens-2.lens", title: "Vertometer with mystery lens #2" }];
 
                       // { id: "12", filename: "./lenses/reduced-eye-with-accommodation.lens", title: "Reduced Eye with Accommodation" },
 
