@@ -120,6 +120,9 @@ function hslToRgb(h, s, l){
 
   function startDrawing(canvasID, config) {
 
+
+        console.log ('start drawing.');
+
         // create the canvas
         // paper = new Raphael(document.getElementById(canvasID), paperWidth, paperHeight);
 
@@ -291,9 +294,8 @@ function drawAxis () {
 
  function drawPupils(info) {
 
-
-      console.log ('DRAW PUPIL');
-      console.log (info);
+      //console.log ('DRAW PUPIL');
+      console.log ('- draw pupils.');
 
       pup_set.remove();
       pup_set = paper.set();
@@ -362,7 +364,7 @@ function drawAxis () {
 
   function drawCardinalPoints(x, y, systemPoints, displayOptions) {
 
-    console.log("Updated cardinal points.");
+    console.log("- cardinal points");
 
     cp_set.remove();
     cp_set = paper.set();
@@ -468,7 +470,7 @@ function drawAxis () {
 
 
 
-          console.log (`bars: (x1,y1)=(${x1},${y1})  (x2,y2)=(${x2},${y2})`);
+          //console.log (`bars: (x1,y1)=(${x1},${y1})  (x2,y2)=(${x2},${y2})`);
 
           // BARS
           cp1 = paper.path( ["M", x1, y1, "L", x1, y2 ] ).attr({"gray": "#000000", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
@@ -569,7 +571,7 @@ function drawAxis () {
 
 
             var isN1nearN2 = Math.abs((v1 + vn1)-(v2 + vn2)) < 0.001;
-            console.log (`near vn1=${vn1} vn2=${vn2} ${isN1nearN2}`);
+            //console.log (`near vn1=${vn1} vn2=${vn2} ${isN1nearN2}`);
 
             if (isN1nearN2) {
         
@@ -583,8 +585,8 @@ function drawAxis () {
             } else {
 
 
-              console.log (`n1 = ${v1 + vn1}`);
-              console.log (`n2 = ${v2 + vn2}`);
+             //console.log (`n1 = ${v1 + vn1}`);
+              //console.log (`n2 = ${v2 + vn2}`);
 
               cp1 = drawText(v1 + vn1, 0, "N");
               cp1.attr({ "text-anchor" : "middle"});
@@ -605,7 +607,7 @@ function drawAxis () {
 
         
             /* P not on P'*/
-            console.log (`near p1=${p1} p2=${p2} ${isP1nearP2}`);
+            //console.log (`near p1=${p1} p2=${p2} ${isP1nearP2}`);
 
             if (!isP1nearP2) {
 
@@ -1736,8 +1738,7 @@ function drawAxis () {
     var l;
 
 
-    console.log ('Drawing optics ...');
-
+    console.log ('Drawing optics');
 
 
     // only render surface elements 
@@ -1768,6 +1769,7 @@ function drawAxis () {
 
           l = drawThinLens(axialPosition, 0, equivalentPower, height, displayOptions);
           optics_set.push(l);
+          console.log (`- ${curr.type} Z = ${axialPosition}, F = ${equivalentPower}, h = ${height}`);                    
           break;
 
 
@@ -1793,26 +1795,23 @@ function drawAxis () {
 
           optics_set.push(l);      
           l.toBack();
+
+          console.log (`- ${curr.type} Z = ${axialPosition}, R = ${R}, h = ${h}`);          
           break;
 
 
         case "img":
 
 
+
           axialPosition = data.elem[i].Z;
           var R = curr.radius; h = curr.height;
-          console.log (`axial position = ${axialPosition}`);
-          console.log (`radius = ${R}`);
-          console.log (`height = ${h}`);
-
           if (shadingEnabled) {
 
               var n1 = data.elem[i-1].elem.index;
               var n2 = data.elem[0].elem.index;
               var dZ = data.elem[i].dZ;
-
               l = drawSurface(axialPosition, 0, R, h, { shading:true, n1: n1, n2:n2, dZ:dZ }); //, displayOptions);
-
 
           } else {
 
@@ -1820,13 +1819,15 @@ function drawAxis () {
 
           }
 
-
           optics_set.push(l);        
+          console.log (`- ${curr.type} Z = ${axialPosition}, R = ${R}, h = ${h}`);          
           break;
 
 
-        default:
 
+
+        default:
+          console.log (`- ${curr.type} n = ${curr.index}`);                    
           break;
 
 
@@ -1865,7 +1866,6 @@ function drawAxis () {
                 h2 = currElement.shading.end.h;
                 n = curr.index;
 
-                console.log (`${i}. INDEX: (x1, h1) = (${x1}, ${h1}) (x2, h2) = (${x2}, ${h2}) n=${n}`);
 
                 if (!isFinite(x1) || !isFinite(x2) ) {
 

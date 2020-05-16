@@ -960,7 +960,7 @@ function getLensElementInfo(elem, index) {
       // information 
       if (input_elem.type === "img") {
           
-          console.log ('img surface detected. no next element found.');
+          console.log (' - img surface detected. no next element found.');
           n2 = n1;
       
 
@@ -1041,6 +1041,8 @@ function getLensElementInfo(elem, index) {
 
 function getTotalLensSystemInfo (lensTable) {
 
+  console.log ('Generating total lens information.');
+
   // get first index and last index 
   first = lensTable[0]; 
   last  = lensTable[lensTable.length-1]; 
@@ -1077,11 +1079,11 @@ function getTotalLensSystemInfo (lensTable) {
   var Z = 0;
   for (var i=0; i < lensTable.length; i++) {
 
-    console.log (`EACH ELEMENT INFO : INDEX [${i}]`);
+    //console.log (`EACH ELEMENT INFO : INDEX [${i}]`);
 
     eachElementInfo     = getLensElementInfo(lensTable, i);    
 
-    console.log (eachElementInfo);
+    //console.log (eachElementInfo);
 
 
     // Build Up Exit/Entrance Systems 
@@ -1122,7 +1124,7 @@ function getTotalLensSystemInfo (lensTable) {
 
     } else if (lensTable[i].type == "img") {
 
-         console.log (`IMG position = ${Z}`);
+         // console.log (`IMG position = ${Z}`);
          eachElementInfo.Z = Z;
 
     } else {
@@ -1162,9 +1164,7 @@ function getTotalLensSystemInfo (lensTable) {
   appendOverallInformation (totalSystem, Z);
 
 
-
-
-  console.log ('TOTAL SYSTEM INFO');
+  console.log (' - Result below:');
   console.log (totalSystem);
 
 

@@ -406,11 +406,11 @@ getConjuugateTo
 
   function updateSummaryView () {
 
-    console.log ("-- updating the summary");
-    //console.log(summaryTemplate);
+    console.log ("Updating the summary view.");
 
+    //console.log(summaryTemplate);
     // output
-    console.log (renderableLens.total);
+    // console.log (renderableLens.total);
 
 
     var summary = document.getElementById("summary-tab");
@@ -603,9 +603,7 @@ getConjuugateTo
 
      // update the points table with these data
 
-
-     console.log ('construction information');
-     console.log (aPoint);
+     console.log (` - adding ${aPoint.type}`);
 
      switch (aPoint.type) {
 
@@ -1065,9 +1063,8 @@ getConjuugateTo
                         updatePrescriptionView,   // change in lenses information => full update 
                         function () {  // success !!! 
 
-                                console.log("loaded a prescription ...");       
+                                console.log("Load the lens prescription.");       
                                 $("#filename_display").val(found.title);
-
 
                                 updatePrescriptionView();            
 
@@ -1075,20 +1072,22 @@ getConjuugateTo
 
 
                                 function assignParameter(assertValue, defaultValue) {
-                                  console.log (`loaded asserted value ... ${assertValue}`);
                                    if (assertValue == undefined) 
                                         return defaultValue;
                                   return assertValue;
                                 };
 
-                                console.log ('config');
-                                console.log (config);
-                                console.log (assignValue);
+                                //console.log ('Configuration loaded');
+                                // console.log (config);
+
+                                // console.log (assignValue);
 
                                 var assignValue = assignParameter(config.summary_template, 'mustache/lab3_report_tables_html.mustache'); 
 
 
                                 $.get(assignValue, function(template) {
+
+                                    console.log (`loaded download report template ... ${assignValue}`);
                           
 
                                     /* update the summary template view */
@@ -1103,20 +1102,14 @@ getConjuugateTo
       
                                     --------------------------------------------------------------------------------------- */
 
+                                    console.log ('Reading source points');
+
                                     var points; 
-                                    if (response.hasOwnProperty("sources")) {                                            
-
-
-                                            /* load defined sources */
-
-                                            console.log ('loading sources from lenses file.');
+                                    if (response.hasOwnProperty("sources")) {   /* load defined sources */
+                                            console.log (' - from lens file.');
                                             points = response.sources;
-
-
                                     } else {
-
-                                            console.log ('setting up default source/loading sources from lenses file.');
-
+                                            console.log (' - using default');
                                             points  = [ { id    : 1, 
                                                           type  : "afocal",
                                                           which : "object",
@@ -1128,22 +1121,18 @@ getConjuugateTo
 
 
 
-                                    console.log ('initialize the points table.');
-                                     
+                                    console.log (' - intializing point table (sources).');
+ 
 
                                     initializePointsTable ([], updateConstruction, function () {
                                           
 
-                                          /* ------------------------------------------
 
-                                          SETUP EVENT HANDLERS FOR THE METHOD 
-                                          
-                                          ---------------------------------------------- */
+                                          // delete lenses  
 
-
-                                          //delete the row on "Delete Row" button click
                                           $("#lens-points-del-row").click(function(){
-                                              console.log("request to delete sources...");
+
+                                              console.log(" - deleting all sources...");
                                               selectedData = lens.pointsTable.getSelectedData(); 
                                               selectedData.forEach(elem => {
                                                   lens.pointsTable.deleteRow(elem.id);
@@ -1152,22 +1141,17 @@ getConjuugateTo
                                           });
 
 
-                                          //Add row on "Add Row" button click
+                                          // add rows 
+
                                           $("#lens-points-add-point").click(function(){                                          
                                               console.log("request to add source...");
                                           });
 
 
-                                          
-                                          /* ------------------------------------------
-
-                                          POINTS ARE SETUP INDIVIDUALLY 
-                                          
-                                          ---------------------------------------------- */
-
+                                          console.log ('Adding points to paper.');
                                           points.forEach( eachPoint => {
 
-                                              /* klugdy fix for each point */
+                                              /* klugdy fix for each point to account for raphael co-ordinate system */
 
                                               if (eachPoint.h) 
                                                 eachPoint.h = -eachPoint.h;
