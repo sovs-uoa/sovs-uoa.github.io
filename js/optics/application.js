@@ -38,7 +38,7 @@
                       { id: "21",  filename: "./lenses/assign-telescope-myopia.lens", title: "Telescope" },
                       { id: "22",  filename: "./lenses/lab6-vertometer-standard.lens", title: "Vertometer" },
                       { id: "23",  filename: "./lenses/lab6-vertometer-mystery-lens-1.lens", title: "Vertometer with mystery lens #1" },
-                      { id: "24",  filename: "./lenses/lab6-vertometer-mystery-lens-2.lens", title: "Vertometer with mystery lens #2" }];
+                      { id: "24",  filename: "./lenses/lab6-telescope-mystery-lens-0.lens", title: "Telescope with mystery lens" }];
 
                       // { id: "12", filename: "./lenses/reduced-eye-with-accommodation.lens", title: "Reduced Eye with Accommodation" },
 

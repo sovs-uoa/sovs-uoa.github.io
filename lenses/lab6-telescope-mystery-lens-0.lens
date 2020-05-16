@@ -16,7 +16,7 @@ Vertometer standard
 	"sources" : [ { "id" 		: 1, 
 					"type" 		: "source",
 					"which"		: "object",
-					"beamwidth" : 0.025,
+					"beamwidth" : 0.0030,
 					"z"			: -0.039444444444444, 
 					"h"			: 0,
 					"t"			: 0 } ],
@@ -30,29 +30,11 @@ Vertometer standard
 			"index": 1.000
 		}
 	},{		
-		"id": "0002",
-		"type": "thin",
-		"description": "standard lens",
-		"args": {
-			"power":  30,
-			"stop": false,
-			"aperture" : 0.025,
-			"height": 0.025			
-		}
-	},{
-		"id": "0003",
-		"type": "index",
-		"description": "lens stop",
-		"args": {
-			"index": 1.000,
-			"thickness" : 0.033333333333333
-		}
-	},{		
 		"id": "0004",
 		"type": "sphere",
 		"description": "test front surface",
 		"args": {
-			"radius": 0.716382024953075,
+			"radius": 0.237222478154364,
 			"stop": false,
 			"aperture" : 0.025,
 			"height": 0.025			

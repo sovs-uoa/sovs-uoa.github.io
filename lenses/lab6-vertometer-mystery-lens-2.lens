@@ -52,7 +52,7 @@ Vertometer standard
 		"type": "sphere",
 		"description": "test front surface",
 		"args": {
-			"radius": 0.045248178084007,
+			"radius": -0.045248178084007,
 			"stop": false,
 			"aperture" : 0.025,
 			"height": 0.025			
@@ -70,7 +70,7 @@ Vertometer standard
 		"type": "sphere",
 		"description": "test back surface",
 		"args": {
-			"radius": 0.354666666666667,
+			"radius": -0.354666666666667,
 			"stop": false,
 			"aperture" : 0.025,
 			"height": 0.025			
