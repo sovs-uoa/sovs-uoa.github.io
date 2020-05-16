@@ -102,7 +102,7 @@
     });
 
 
-    load ("24"); // 12 = Reduced Eye with Accommodation 
+    load ("25"); // 12 = Reduced Eye with Accommodation 
     }
 
 
@@ -117,7 +117,9 @@
           
         // info.
         if (ndx > -1) {
-          reload(id);
+
+          //reload(id);
+          load(id);
           var txt = $(this).text();             // selection 
           $("#filename_display").val(txt);      // show it 
         }
@@ -202,10 +204,10 @@
           <a class="dropdown-item file-selection"  href="#" data-id="5" >Two Thin Lens in Air (Negative)</a>
 -->          
 
-          <a class="dropdown-item file-selection"  href="#" data-id="22" >Telescope with mystery lens</a>
-          <a class="dropdown-item file-selection"  href="#" data-id="23" >Vertometer</a>
-          <a class="dropdown-item file-selection"  href="#" data-id="24" >Vertometer with mystery lens #1</a>
-          <a class="dropdown-item file-selection"  href="#" data-id="25" >Vertometer with mystery lens #2</a>
+          <a class="dropdown-item file-selection"  href="#" data-id="25" >Telescope with mystery lens</a>
+          <a class="dropdown-item file-selection"  href="#" data-id="22" >Vertometer</a>
+          <a class="dropdown-item file-selection"  href="#" data-id="23" >Vertometer with mystery lens #1</a>
+          <a class="dropdown-item file-selection"  href="#" data-id="24" >Vertometer with mystery lens #2</a>
 
 <!--          
           <a class="dropdown-item file-selection"  href="#" data-id="7" >Galilean telescope</a>
