@@ -42,7 +42,7 @@
                       { id: "25",  filename: "./lenses/lab6-telescope-mystery-lens-0.lens", title: "Telescope with mystery lens" },
                       { id: "26",  filename: "./lenses/assign-vertometer-mystery-lens-OS.lens", title: "Vertometer with lens OS" },
                       { id: "27",  filename: "./lenses/assign-vertometer-mystery-lens-OD.lens", title: "Vertometer with lens OD" },
-                      { id: "28",  filename: "./lenses/assign-vertometer-mystery-lens-OD.lens", title: "Vertometer" }];
+                      { id: "28",  filename: "./lenses/assign-vertometer-mystery-lens.lens", title: "Vertometer" }];
 
                       // { id: "12", filename: "./lenses/reduced-eye-with-accommodation.lens", title: "Reduced Eye with Accommodation" },
 
