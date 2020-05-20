@@ -199,8 +199,8 @@ getConjuugateTo
   function addPointsTableRow(aPoint, pairData) {
 
 
-     //console.log("ADDING ROW");
-     //console.log(aPoint);
+     console.log("ADDING ROW");
+     console.log(aPoint);
 
 
       lens.pointsTableHandler.addRow([ {  id: aPoint.id,
@@ -1085,8 +1085,10 @@ getConjuugateTo
 
                                 // console.log (assignValue);
 
-                                var assignValue = assignParameter(config.summary_template, 'mustache/lab3_report_tables_html.mustache'); 
-
+                                var assignValue ='mustache/lab3_report_tables_html.mustache';
+                                if (typeof config !== 'undefined')
+                                  assignValue = assignParameter(config.summary_template, 'mustache/lab3_report_tables_html.mustache'); 
+                                
 
                                 $.get(assignValue, function(template) {
 
