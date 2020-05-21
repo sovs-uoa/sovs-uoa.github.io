@@ -1080,9 +1080,8 @@ getConjuugateTo
                                   return assertValue;
                                 };
 
-                                //console.log ('Configuration loaded');
+                                // console.log ('Configuration loaded');
                                 // console.log (config);
-
                                 // console.log (assignValue);
 
                                 var assignValue ='mustache/lab3_report_tables_html.mustache';
