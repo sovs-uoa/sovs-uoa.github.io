@@ -1,0 +1,48 @@
+/*--------------------------------------------
+
+Assignment : mirror 
+
+----------------------------------------------*/
+{
+	"title": "Mirror",
+	"visible": { 	"radius": true,
+				 	"power":true,
+				 	"curvature":true,
+				 	"aperture":true },	
+
+	"viewBox" : [ -0.12, 0.02, 0.16, 0.04 ],
+
+
+	"sources" : [ { "id" 		: 1, 
+					"type" 		: "source",
+					"which"		: "object",
+					"beamwidth" : 0.001,
+					"z"			: -0.1, 
+					"h"			: 0.1,
+					"t"			: NaN } ],
+
+
+	"prescription": [{
+		"id": "0001",
+		"type": "index",
+		"description": "air#1",
+		"args": {
+			"index": 1.000
+		}
+	}, {		
+		"id": "0002",
+		"type": "sphere",
+		"description": "mirror",
+		"args": {
+			"radius": 0.0078,
+			"height": 0.008
+		}
+	}, {
+		"id": "0003",
+		"type": "index",
+		"description": "air#2",
+		"args": {
+			"index": -1
+		}
+	}]
+}
