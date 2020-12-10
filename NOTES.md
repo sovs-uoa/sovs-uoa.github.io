@@ -1,5 +1,8 @@
 NOTES.md
 
+git submodule update --remote --merge
+
+
 jtur044@BN337103 MINGW64 /c/xampp/htdocs/sovs-uoa.github.io (master)
 $ git submodule update --init
 Submodule 'fish' (https://github.com/jtur044/fish.git) registered for path 'fish'
