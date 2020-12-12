@@ -22,5 +22,8 @@
   "bugs": {
     "url": "https://github.com/jtur044/paraxial-optics/issues"
   },
-  "homepage": "https://github.com/jtur044/paraxial-optics#readme"
+  "homepage": "https://github.com/jtur044/paraxial-optics#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
 }

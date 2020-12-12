@@ -427,9 +427,8 @@ class PointSourceConstruction { // create a ray construction using raphael.js
      //var F1 = lens.cardinal.VF1;
      //var F2 = lens.L + lens.cardinal.VF2;
 
-     //console.log("LENS");
-     //console.log(lens);
-
+     console.log("LENS");
+     console.log(lens);
 
 
      ////console.log("-- draw PointSource beam construction.");
@@ -450,7 +449,7 @@ class PointSourceConstruction { // create a ray construction using raphael.js
      var M = dimensions[1]; // number of rays 
 
 
-     // START RAYS 
+     /* inital rays */  
      dX = -1;
      var X1 = this.data.X1;
      var Y1 = this.data.Y1;
@@ -489,7 +488,7 @@ class PointSourceConstruction { // create a ray construction using raphael.js
      }
 
 
-     // IN-BETWEEN RAYS 
+     /* transmitted rays */  
      for (var k=0; k < K-1; k++ ) {
          for (var i=0; i <  M ; i++) {
             var X1 = ray[k][i].z;   var Y1 = ray[k][i].h;
@@ -554,8 +553,8 @@ class PointSourceConstruction { // create a ray construction using raphael.js
      } else { // INFINITE RAYS 
 
 */
-          // FINITE RAYS 
-
+        
+        /* Final rays */ 
 
         var XI = this.data.X2;
         var YI = this.data.Y2;
@@ -568,27 +567,42 @@ class PointSourceConstruction { // create a ray construction using raphael.js
             
             //console.log("X2 = " + X2 + ", V2 = " + V2);
 
-            if (XI <= V2) {
+            var direction = Math.sign(lens.n2);
 
-              var X2 = X1 + dX;  
-              var Y2 = Y1 + dX*u1;            
-              var p4 = paper.path( ["M", X1, Y1,  "L", X2, Y2 ]);         
-              p4.attr(real);
-              this.cd_set.push(p4);
+            //console.log (direction);
+            //console.log (XI);
+            //console.log (V2);
+            console.log (`${i}. XI: ${XI} V2:${V2} direction:${direction}`);
 
-              // information 
+            //dX = dX * direction;
+
+            if (XI*direction <= V2*direction) {
+
+              // extended rays               
+              if (direction > 0) {  /* keep this for backward compatibility */
+
+                  var X2 = X1 + dX;  
+                  var Y2 = Y1 + dX*u1;            
+                  var p4 = paper.path( ["M", X1, Y1,  "L", X2, Y2 ]);         
+                  p4.attr(real);
+                  this.cd_set.push(p4);
+              }
+
+              // draw from the present to the final
               var p4 = paper.path( ["M", X1, Y1,  "L", XI, YI ]);         
               p4.attr(virtual);
               this.cd_set.push(p4);
 
-              // extend the rays 
-              var dx  = + 10;
+              // the extension part 
+              var dx  = + 10*direction;
               var i1  = u1 * dx + Y1; // upper height on N1 
               var p5  = paper.path( ["M", X1, Y1,  "L", X1 + dx, i1 ]);    // O  -> H1   (ray through F1)
               this.cd_set.push(p5);
 
             } else {
 
+
+              // standard converging rays  
               var p4 = paper.path( ["M", X1, Y1,  "L", XI, YI ]);         
               p4.attr(real);
               this.cd_set.push(p4);
@@ -596,8 +610,7 @@ class PointSourceConstruction { // create a ray construction using raphael.js
 
             }
 
-
-          }
+        }
 
 
 //     }
