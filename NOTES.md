@@ -1,6 +1,20 @@
 NOTES.md
 
+
 git submodule update --remote --merge
+
+
+git submodule update --init
+cd fish
+git checkout master
+git pull origin master
+cd ..
+git add fish
+git commit -m "updated to latest fish"
+git push
+
+
+
 
 
 jtur044@BN337103 MINGW64 /c/xampp/htdocs/sovs-uoa.github.io (master)
