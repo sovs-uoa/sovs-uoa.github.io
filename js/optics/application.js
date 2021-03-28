@@ -1128,12 +1128,8 @@ getConjuugateTo
 
 
                                     console.log (' - intializing point table (sources).');
- 
-
                                     initializePointsTable ([], updateConstruction, function () {
                                           
-
-
                                           // delete lenses  
 
                                           $("#lens-points-del-row").click(function(){
@@ -1177,14 +1173,15 @@ getConjuugateTo
                                           $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
                                             
 
+
                                             switch (e.target.id) {
-
                                                case "objects-images-nav" :
-
+                                                  console.log ('Switch to POINTS table TAB!');
                                                   lens.pointsTable.redraw(true); 
                                                   break;
 
                                                case "prescription-nav" :
+                                                  console.log ('Switch to PRESCRIPTION table TAB!');
                                                   lens.table.redraw(true);
                                                   break;
 

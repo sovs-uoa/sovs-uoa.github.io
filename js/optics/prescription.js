@@ -483,6 +483,7 @@ POINTS = OBJECTS + IMAGES TABLE
         lens.modal.source.which = "object";
         lens.modal.source.t     = undefined;
         lens.modal.source.beamwidth    = undefined;
+        lens.modal.source.beamwidth= Number(document.getElementById("modal-beam-width").value);  // beamwidth not shown
 
     }
 
