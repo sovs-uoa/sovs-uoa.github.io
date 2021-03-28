@@ -435,7 +435,11 @@ POINTS = OBJECTS + IMAGES TABLE
  function addModalInfoToPointsTable() {
 
 
-    var rowCount                  = lens.table.getDataCount();
+    var rowCount                  = lens.pointsTable.getDataCount();
+
+    console.log (`Adding NEW ROW =  ${rowCount}`);
+
+
     lens.modal.source.id          = rowCount + 1;
     // lens.modal.source.tag_id      = "NA";
     // lens.modal.group        = document.getElementById("modal-lens-group-name").value;
@@ -483,7 +487,7 @@ POINTS = OBJECTS + IMAGES TABLE
         lens.modal.source.which = "object";
         lens.modal.source.t     = undefined;
         lens.modal.source.beamwidth    = undefined;
-        lens.modal.source.beamwidth= Number(document.getElementById("modal-beam-width").value);  // beamwidth not shown
+        lens.modal.source.beamwidth= Number(document.getElementById("modal-source-beam-width").value);  // beamwidth not shown
 
     }
 

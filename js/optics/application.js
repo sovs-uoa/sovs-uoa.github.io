@@ -401,6 +401,8 @@ getConjuugateTo
 
     // Only do this - if there are rays in the table 
     if (lens.pointsTable !== null ) {
+
+      console.log ('Request to REFRESH constructions');
       refreshAllConstruction ();
     }
 
@@ -1157,8 +1159,7 @@ getConjuugateTo
 
                                               if (eachPoint.h) 
                                                 eachPoint.h = -eachPoint.h;
-
-                                              addConstruction (eachPoint);
+                                                addConstruction (eachPoint);
                                           });
 
 
