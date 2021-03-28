@@ -432,15 +432,17 @@ POINTS = OBJECTS + IMAGES TABLE
 
 ----------------------------------------------------------------------------------------------------------- */
 
+  var globalIndexCounter = 1;
+
  function addModalInfoToPointsTable() {
 
+    //var rowCount                  = lens.pointsTable.getDataCount();
+    //console.log (`Adding NEW ROW =  ${rowCount}`);
 
-    var rowCount                  = lens.pointsTable.getDataCount();
+    globalIndexCounter += 1;
+    lens.modal.source.id          = globalIndexCounter;
 
-    console.log (`Adding NEW ROW =  ${rowCount}`);
 
-
-    lens.modal.source.id          = rowCount + 1;
     // lens.modal.source.tag_id      = "NA";
     // lens.modal.group        = document.getElementById("modal-lens-group-name").value;
     // lens.modal.description  = document.getElementById("modal-lens-element-description").value;
