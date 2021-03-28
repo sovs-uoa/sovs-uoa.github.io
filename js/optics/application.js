@@ -348,20 +348,22 @@ getConjuugateTo
   function updatePrescriptionView() {
 
     // read the lens table 
-    console.log("Updating prescription table");
+    console.log("Updating the PRESCRIPTION VIEW.");
+
+
+    // Update the Optics Object 
+
 
     lensTable = lens.table.getData();    
     renderableLens = Optics.analyze(lensTable); // create matrices / we should have group caridnals in here as well
 
 
     isafocal = (renderableLens.total.F == 0);
-
     var vertHeight = 0.3;
     if (response.hasOwnProperty("general")) {
         if(response.general.hasOwnProperty("cardinalVertHeight")) {
           vertHeight = response.general.cardinalVertHeight;
         }
-
     }
 
 
@@ -402,7 +404,7 @@ getConjuugateTo
     // Only do this - if there are rays in the table 
     if (lens.pointsTable !== null ) {
 
-      console.log ('Request to REFRESH constructions');
+      console.log ('Updating CONSTRUCTIONS');
       refreshAllConstruction ();
     }
 
@@ -413,7 +415,7 @@ getConjuugateTo
 
   function updateSummaryView () {
 
-    console.log ("Updating the summary view.");
+    console.log ("Updating the SUMMARY VIEW.");
 
     //console.log(summaryTemplate);
     // output
@@ -483,11 +485,16 @@ getConjuugateTo
 
   function updatePointsView() {
 
+
+    console.log ("Updating the POINTS VIEW.");
+
     // re-calculate positions
     totalLens   = renderableLens.total;
     pointsTable = lens.pointsTable.getData();    
     pointsList  = Optics.calculatePointToPoint(totalLens, pointsTable); // a bunch of points !!!
 
+
+    console.log (pointsTable);
 
     /* --------------------------------------------------------------------------
 
@@ -582,10 +589,12 @@ getConjuugateTo
       lens.raphael.constructions.forEach (elem => {
 
 
+            // elem is a CONSTRUCTION 
+
 
             /* NEGATIVE HEIGHT BECAUSE TABLE AND GRAPH HAVE OPPOSITELY SIGNED DIRECTIONS */
 
-            console.log (`refresh ray construction, id = ${elem.getId()}`);
+            console.log (`- REFRESH construction ID = ${elem.getId()}`);
             aRow       = lens.pointsTable.getRow(elem.getId()).getData();
             aPoint     = { id: aRow.id, which: "object", z:aRow.zo, h:-aRow.ho, t:aRow.to };
 
@@ -596,6 +605,10 @@ getConjuugateTo
             elem.setPairData(pairData);       
             elem.setLens(totalLens); // <--- this should change 
             elem.refresh();
+
+            // update on POINTS TABLE 
+            console.log (`- CALLED Update on Points Table`);            
+            updatePointsTable(aPoint.id, pairData);
     });
   }
 
@@ -667,22 +680,20 @@ getConjuugateTo
 
   function updateConstruction (cell) {
 
-    console.log("updating the construction from altered cell.");
 
-    //console.log(e);
-    
-
-    console.log(cell);
+    // console.log(cell);
 
     if (cell == null) {
+        console.log("Cell altered ... but value was NULL.");
         return;
     }
+
+    console.log("Cell altered ... searching for matching construction.");
+
 
 
     var aPoint = getPointFromCell(cell);
     var fieldname = cell.getColumn().getField();    
-
-    console.log("find the related construction");
     for (let elem of lens.raphael.constructions) {
 
       console.log("Testing id = " + elem.getId() + " ==" + aPoint.id);
@@ -701,6 +712,8 @@ getConjuugateTo
         } else {
 
             // a point was changed 
+
+            console.log("Cell altered ... Construction FOUND!");
             console.log("- Retrieve point object from the cell");
             console.log("- Found the appropriate constuction");
 
@@ -719,6 +732,9 @@ getConjuugateTo
 
       }
     }
+
+   console.log("Cell altered ... But construction was NOT FOUND!");
+
 
 /*
 
@@ -758,7 +774,6 @@ getConjuugateTo
     }
 */
 
-    console.log("construction not found!");
 
 /*
     var n = lens.raphael.constructions;
