@@ -91,7 +91,7 @@ Mystery reduced eye with accommodation (axial Rx 4.5D length 0.0262)
 		"description": "aqueous/vitreous",
 		"args": {
 			"index": 1.33,
-			"thickness": 0.0262
+			"thickness": 0.0262069
 		}
 	}, {
 		"id": "0010",
