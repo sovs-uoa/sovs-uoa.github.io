@@ -53,7 +53,7 @@
 		"description": "cornea",
 		"args": {
 			"index": 1.3771,
-			"thickness": 0.55
+			"thickness": 0.00055
 		}
 	}, {
 		"id": "0004",
