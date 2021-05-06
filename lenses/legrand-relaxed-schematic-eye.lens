@@ -45,8 +45,8 @@
 		"type": "sphere",
 		"description": "anterior cornea",
 		"args": {
-			"radius": 7.800,
-			"height": 10
+			"radius": 0.007800,
+			"height": 0.01
 		}
 	}, {
 		"id": "0003",
@@ -55,7 +55,7 @@
 		"description": "cornea",
 		"args": {
 			"index": 1.3771,
-			"thickness": 0.55
+			"thickness": 0.00055
 		}
 	}, {
 		"id": "0004",
@@ -63,8 +63,8 @@
 		"type": "sphere",
 		"description": "posterior cornea",
 		"args": {
-			"radius": 6.500,
-			"height": 10
+			"radius": 0.006500,
+			"height": 0.01
 		}
 	}, {
 		"id": "0005",
@@ -72,7 +72,7 @@
 		"description": "aqueous",
 		"args": {
 			"index": 1.3374,
-			"thickness": 3.05
+			"thickness": 0.00305
 		}
 	}, {
 		"id": "0006",
@@ -80,9 +80,9 @@
 		"type": "sphere",
 		"description": "anterior lens",
 		"args": {
-			"radius"   : 10.200,
+			"radius"   : 0.0010200,
 			"stop"     : true,
-			"height"   : 10.0,			
+			"height"   : 0.01,			
 			"aperture" : 1
 		}
 	}, {
@@ -92,7 +92,7 @@
 		"description": "lens",
 		"args": {
 			"index": 1.4200,
-			"thickness": 4.000
+			"thickness": 0.0004
 		}
 	}, {
 		"id": "0012",
@@ -100,8 +100,8 @@
 		"type": "sphere",
 		"description": "posterior lens",
 		"args": {
-			"radius": -6.000,
-			"height": 10.0
+			"radius": -0.006000,
+			"height": 0.01
 		}
 	}, {
 		"id": "0013",
@@ -109,7 +109,7 @@
 		"description": "vitreous",
 		"args": {
 			"index": 1.336,
-			"thickness": 15.000
+			"thickness": 0.0015
 		}
 	}, {
 		"id": "0014",
@@ -117,7 +117,7 @@
 		"description": "retinal plane",
 		"args": {
 			"radius": -100.000,
-			"height": 10.0
+			"height": 0.01
 		}
 	}]
 }
