@@ -92,7 +92,7 @@
 		"description": "lens",
 		"args": {
 			"index": 1.4200,
-			"thickness": 0.0004
+			"thickness": 0.004
 		}
 	}, {
 		"id": "0012",
