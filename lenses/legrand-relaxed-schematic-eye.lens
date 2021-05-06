@@ -35,12 +35,27 @@
     "prescription": [{
 		"id": "0001",
 		"type": "index",
-		"description": "air",
+		"description": "air#1",
 		"args": {
 			"index": 1.000
 		}
 	}, {		
 		"id": "0002",
+		"type": "thin",
+		"description": "spectacle correction",
+		"args": {
+			"power": 6,
+			"height": 0.1
+		}
+	}, {
+		"id": "0003",
+		"type": "index",
+		"description": "air#2",
+		"args": {
+			"index": 1.0
+			"thickness": 0.0015
+	},{		
+		"id": "0004",
 		"group": "cornea",
 		"type": "sphere",
 		"description": "anterior cornea",
@@ -49,7 +64,7 @@
 			"height": 0.01
 		}
 	}, {
-		"id": "0003",
+		"id": "0005",
 		"group": "cornea",
 		"type": "index",
 		"description": "cornea",
@@ -58,7 +73,7 @@
 			"thickness": 0.00055
 		}
 	}, {
-		"id": "0004",
+		"id": "0006",
 		"group": "cornea",		
 		"type": "sphere",
 		"description": "posterior cornea",
@@ -67,7 +82,7 @@
 			"height": 0.01
 		}
 	}, {
-		"id": "0005",
+		"id": "0007",
 		"type": "index",
 		"description": "aqueous",
 		"args": {
@@ -75,7 +90,7 @@
 			"thickness": 0.00305
 		}
 	}, {
-		"id": "0006",
+		"id": "0008",
 		"group": "lens",
 		"type": "sphere",
 		"description": "anterior lens",
@@ -86,7 +101,7 @@
 			"aperture" : 1
 		}
 	}, {
-		"id": "0007",
+		"id": "0009",
 		"group": "lens",
 		"type": "index",
 		"description": "lens",
@@ -95,7 +110,7 @@
 			"thickness": 0.004
 		}
 	}, {
-		"id": "0012",
+		"id": "0010",
 		"group": "lens",		
 		"type": "sphere",
 		"description": "posterior lens",
@@ -104,7 +119,7 @@
 			"height": 0.01
 		}
 	}, {
-		"id": "0013",
+		"id": "0011",
 		"type": "index",
 		"description": "vitreous",
 		"args": {
@@ -112,7 +127,7 @@
 			"thickness": 0.016597
 		}
 	}, {
-		"id": "0014",
+		"id": "0012",
 		"type": "img",
 		"description": "retinal plane",
 		"args": {
