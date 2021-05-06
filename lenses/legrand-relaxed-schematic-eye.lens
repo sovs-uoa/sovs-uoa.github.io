@@ -80,7 +80,7 @@
 		"type": "sphere",
 		"description": "anterior lens",
 		"args": {
-			"radius"   : 0.0010200,
+			"radius"   : 0.010200,
 			"stop"     : true,
 			"height"   : 0.01,			
 			"aperture" : 1
