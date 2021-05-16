@@ -7,7 +7,7 @@
   var   renderableLens;
   var   lensTable;
   var   ps, cd_set;
-  const gridSnapSize = 0.00005;
+  const gridSnapSize = 0.000025;
   var   summaryTemplate;
   var   reportTamplate;
 
