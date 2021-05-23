@@ -29,6 +29,6 @@
                       { "id": "30",  "filename": "./lenses/keratometer.lens", "title": "Keratometer" } ],
 
 
-    "profiles" : [ { "name" : "assignment",      "list" : [ "19", "20", "21", "28'" ] }, 
-                  { "name" : "assignment-2021",  "list" : [ "19", "20", "21", "28" ] }]
+    "profiles" : [ { "name" : "assignment",      "main" : "19", "list" : [ "19", "20", "21", "28'" ] }, 
+                  { "name" : "assignment-2021",  "main" : "19", "list" : [ "19", "20", "21", "28" ] }]
 }

@@ -100,36 +100,29 @@
     });
 
 
-    load ("19"); // 12 = Reduced Eye with Accommodation 
     }
 
 
     $( document ).ready(function() {      
 
 
-       load_configuration ('./config/config.json').then(configuration => {
+          load_configuration ('./config/config.json').then(configuration => {
 
            // configuration 
-           
-            build_lenses_menu (configuration, "dropdown-lens-menu", "assignment-2021");
 
-            // trigger on a selection
+            var profile = build_lenses_menu (configuration, "dropdown-lens-menu", "assignment-2021");
+
+            console.log (profile);
+            
+            // Trigger on a SELECTION 
+
             $('.file-selection').on('click', function () {
-
               console.log("file selection made.");
               var id  = $(this).data ("id"); // get the data id field 
-              var ndx = fileList.findIndex( function (element) { return element.id == id } );
-                
-              // info.
+              var ndx = fileList.findIndex( function (element) { return element.id == id } );                
               if (ndx > -1) {
-
-
-                //reload(id); // load everything 
-
                 clearLens ();
-
                 load(id);
-
                 var txt = $(this).text();             // selection 
                 $("#filename_display").val(txt);      // show it 
               }
@@ -144,6 +137,12 @@
 
 
             initializeApp ();
+
+            load ("19"); // 12 = Reduced Eye with Accommodation 
+
+
+            // load ("19"); // 12 = Reduced Eye with Accommodation 
+
 
 
             $( "#objects-images-tab" ).focus(function() {

@@ -75,41 +75,36 @@
 
  function build_lenses_menu (configuration, id, profile_name) {
 
-    configuration.profiles.forEach (profile => { 
-    if (profile.name === profile_name) {
 
-         console.log (`profile ${profile_name} was found. Creating a menu.`);
+    var this_element = document.getElementById (id);
+    this_element.innerHTML = "";
+    
+    /* main profile and main model  */
+    this_profile = configuration.profiles.find (profile_item => { return (profile_item.name === profile_name); });
 
-          var this_element = document.getElementById (id);
-          this_element.innerHTML = "";
+    
+    this_model   = configuration.models.find (model_item => { return (model_item.id == this_profile.main); });
 
-          profile.list.forEach( this_id => {
+    console.log (profile_name);
+    console.log (this_profile);
+    console.log (this_model);
+    
+    this_profile.list.forEach( this_id => {
 
-            var a_href = document.createElement('a');
-            a_href.classList.add("dropdown-item");
-            a_href.classList.add("file-selection");            
-            a_href.href  ="#";
-            a_href.setAttribute("data-id", this_id);
+        /* add an item */ 
 
-            /* get the name for the item */
+        var a_href = document.createElement('a');
+        a_href.classList.add("dropdown-item");
+        a_href.classList.add("file-selection");            
+        a_href.href  ="#";
+        a_href.setAttribute("data-id", this_id);
 
-            model_item = configuration.models.find(item => {return item.id == this_id});
+        model_item = configuration.models.find(item => {return item.id == this_id });
+        a_href.innerHTML = model_item.title;
+        this_element.appendChild (a_href);
 
+      });
 
-            console.log ('model_item');
-            console.log (model_item);
-            a_href.innerHTML = model_item.title;
-
-            this_element.appendChild (a_href);
-
-          })
-
-          return
-      }
-
-    });
-
-    console.log (`profile ${profile_name} was not found`);
 
  }
 
