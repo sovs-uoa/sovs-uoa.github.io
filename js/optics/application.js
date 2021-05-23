@@ -49,7 +49,76 @@
                       // { id: "12", filename: "./lenses/reduced-eye-with-accommodation.lens", title: "Reduced Eye with Accommodation" },
 
 
-    displayOptions = { height             : 0.05, 
+
+  /* load configuration */
+
+  async function load_configuration(config_file) {
+
+    try {
+
+      const response = await fetch(config_file);
+      const txt = await response.json();
+      return txt;
+
+    } catch(err) {      
+      
+      console.log(err);
+    
+    }
+  }
+
+
+
+
+ /* CREATE A MENU FROM THE PROFILE */
+//  <div id="dropdown-lens-menu" class="dropdown-menu">
+
+ function build_lenses_menu (configuration, id, profile_name) {
+
+    configuration.profiles.forEach (profile => { 
+    if (profile.name === profile_name) {
+
+         console.log (`profile ${profile_name} was found. Creating a menu.`);
+
+          var this_element = document.getElementById (id);
+          this_element.innerHTML = "";
+
+          profile.list.forEach( this_id => {
+
+            var a_href = document.createElement('a');
+            a_href.classList.add("dropdown-item");
+            a_href.classList.add("file-selection");            
+            a_href.href  ="#";
+            a_href.setAttribute("data-id", this_id);
+
+            /* get the name for the item */
+
+            model_item = configuration.models.find(item => {return item.id == this_id});
+
+
+            console.log ('model_item');
+            console.log (model_item);
+            a_href.innerHTML = model_item.title;
+
+            this_element.appendChild (a_href);
+
+          })
+
+          return
+      }
+
+    });
+
+    console.log (`profile ${profile_name} was not found`);
+
+ }
+
+
+ /* OTHER */
+
+
+
+  displayOptions = { height             : 0.05, 
                      showCardinalPoints   : true,
                      showFocalPoints      : true,
                      showNodalPoints      : false, 
