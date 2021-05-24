@@ -1,0 +1,161 @@
+/*--------------------------------------------
+
+Vertometer standard  
+
+----------------------------------------------*/
+{
+	"title": "Vertometer (Lab 6)",
+	"visible": { 	"radius": true,
+				 	"power":true,
+				 	"curvature":true,
+				 	"aperture":true },	
+
+	"viewBox" : [ -0.07, 0.05, 0.25, 0.10 ],
+
+
+	"sources" : [ { "id" 		: 1, 
+					"type" 		: "source",
+					"which"		: "object",
+					"beamwidth" : 0.015,
+					"z"			: -0.039444444444444, 
+					"h"			: 0,
+					"t"			: 0 } ],
+
+
+	"prescription": [{
+		"id": "0001",
+		"type": "index",
+		"description": "air#1",
+		"args": {
+			"index": 1.000
+		}
+	},{		
+		"id": "0002",
+		"type": "thin",
+		"description": "standard lens",
+		"args": {
+			"power":  20,
+			"stop": false,
+			"aperture" : 0.025,
+			"height": 0.025			
+		}
+	},{
+		"id": "0003",
+		"type": "index",
+		"description": "lens stop",
+		"args": {
+			"index": 1.000,
+			"thickness" : 0.033333333333333
+		}
+	},{		
+		"id": "0004",
+		"type": "sphere",
+		"description": "test front surface",
+		"args": {
+			"radius": 0.111666666666667,
+			"stop": false,
+			"aperture" : 0.025,
+			"height": 0.025			
+		}
+	},{
+		"id": "0005",
+		"type": "index",
+		"description": "test index",
+		"args": {
+			"index": 1.67,
+			"thickness" : 0.005
+		}
+	},{		
+		"id": "0006",
+		"type": "sphere",
+		"description": "test back surface",
+		"args": {
+			"radius": 0.221327345309381,
+			"stop": false,
+			"aperture" : 0.025,
+			"height": 0.025			
+		}
+	},{
+		"id": "0007",
+		"type": "index",
+		"description": "air#1",
+		"args": {
+			"index": 1.000,
+			"thickness" : 0.02
+		}
+	},{		
+		"id": "0008",
+		"type": "thin",
+		"description": "objective lens",
+		"args": {
+			"power":  10,
+			"stop": false,
+			"aperture" : 0.025,
+			"height": 0.025			
+		}
+	},{		
+		"id": "0009",
+		"type": "index",
+		"description": "tube length",
+		"args": {
+			"index":  1.000,
+			"thickness": 0.08
+		}
+	},{	
+		"id": "0010",
+		"type": "thin",
+		"description": "eyepiece lens",
+		"args": {
+			"power":  -50,
+			"height": 0.01
+		}
+	},{
+		"id": "0011",
+		"type": "index",
+		"description": "eye relief",
+		"args": {
+			"index": 1.000,
+			"thickness": 0.01			
+		}
+	},{	
+		"id": "0012",
+		"type": "thin",
+		"description": "ametropia lens",
+		"args": {
+			"power":  0.0,
+			"height": 0.01
+		}
+	},{
+		"id": "0013",
+		"type": "index",
+		"description": "air #2",
+		"args": {
+			"index": 1.000,
+			"thickness": 0.00			
+		}
+	},{		
+		"id": "0014",
+		"type": "sphere",
+		"description": "anterior cornea",
+		"args": {
+			"radius": 0.0055,
+			"height": 0.01
+		}
+	},{
+		"id": "0015",
+		"type": "index",
+		"description": "aqueous/vitreous",
+		"args": {
+			"index": 1.33,
+			"thickness": 0.022166666666667
+		}
+	},{
+		"id": "0016",
+		"type": "img",
+		"description": "retina",
+		"args" : {
+			"radius": -0.01,
+			"height": 0.01		
+		}
+	}]
+}

@@ -26,9 +26,12 @@
                       { "id": "27",  "filename": "./lenses/assign-vertometer-mystery-lens-OD.lens", "title": "Vertometer with lens OD" },
                       { "id": "28",  "filename": "./lenses/assign-vertometer-mystery-lens.lens", "title": "Vertometer" }, 
                       { "id": "29",  "filename": "./lenses/mirror.lens", "title": "Mirror" },
-                      { "id": "30",  "filename": "./lenses/keratometer.lens", "title": "Keratometer" } ],
+                      { "id": "30",  "filename": "./lenses/keratometer.lens", "title": "Keratometer" },
+                      { "id": "31",  "filename": "./lenses/assign/2021/assignment-2021-thick-lens.lens", "title": "Thick Lens" },
+                      { "id": "32",  "filename": "./lenses/assign/2021/assignment-2021-basic-eye.lens", "title": "Eye Model" },
+                      { "id": "33",  "filename": "./lenses/assign/2021/assignment-2021-vertometer.lens", "title": "Vertometer with unknown lens" } ],
 
 
     "profiles" : [ { "name" : "assignment",      "main" : "19", "list" : [ "19", "20", "21", "28'" ] }, 
-                  { "name" : "assignment-2021",  "main" : "19", "list" : [ "19", "20", "21", "28" ] }]
+                   { "name" : "assignment-2021",  "main" : "31", "list" : [ "31", "32", "33", "34" ] }]
 }
