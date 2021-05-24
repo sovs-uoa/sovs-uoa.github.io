@@ -106,39 +106,41 @@
     $( document ).ready(function() {      
 
 
-          load_configuration ('./config/config.json').then(configuration => {
-
-           // configuration 
-
-            var profile = build_lenses_menu (configuration, "dropdown-lens-menu", "assignment-2021");
-
-            console.log (profile);
-            
-            // Trigger on a SELECTION 
-
-            $('.file-selection').on('click', function () {
-              console.log("file selection made.");
-              var id  = $(this).data ("id"); // get the data id field 
-              var ndx = fileList.findIndex( function (element) { return element.id == id } );                
-              if (ndx > -1) {
-                clearLens ();
-                load(id);
-                var txt = $(this).text();             // selection 
-                $("#filename_display").val(txt);      // show it 
-              }
-            });
+            load_configuration ('./config/config.json').then(configuration => {
 
 
-
-            // trigger on a selection
-            $('#optics_report').on('click', function () {
-              downloadOpticsReport();
-            });
+              // globally accessible 
+              fileList = configuration.models;
 
 
-            initializeApp ();
+              // configuration 
+              var main_profile = build_lenses_menu (configuration, "dropdown-lens-menu", "assignment-2021");
+              console.log (`profile = ${main_profile.name}, main = "${main_profile.main}"`);
 
-            load ("19"); // 12 = Reduced Eye with Accommodation 
+              // Trigger on a SELECTION 
+              $('.file-selection').on('click', function () {
+                console.log("file selection made.");
+                var id  = $(this).data ("id"); // get the data id field 
+                var ndx = fileList.findIndex( function (element) { return element.id == id } );                
+                if (ndx > -1) {
+                  clearLens ();
+                  load(id);
+                  var txt = $(this).text();             // selection 
+                  $("#filename_display").val(txt);      // show it 
+                }
+              });
+
+
+
+              // trigger on a selection
+              $('#optics_report').on('click', function () {
+                downloadOpticsReport();
+              });
+
+
+              initializeApp ();
+
+              load (main_profile.main); // 12 = Reduced Eye with Accommodation 
 
 
             // load ("19"); // 12 = Reduced Eye with Accommodation 
@@ -219,11 +221,13 @@
           <a class="dropdown-item file-selection"  href="#" data-id="5" >Two Thin Lens in Air (Negative)</a>
 -->          
 
+<!--
+
           <a class="dropdown-item file-selection"  href="#" data-id="19" >Thick Lens</a>
           <a class="dropdown-item file-selection"  href="#" data-id="20" >Eye Model</a>
           <a class="dropdown-item file-selection"  href="#" data-id="21" >Telescope</a>
           <a class="dropdown-item file-selection"  href="#" data-id="28" >Vertometer</a>
-
+-->
 
 <!--          
           <a class="dropdown-item file-selection"  href="#" data-id="7" >Galilean telescope</a>

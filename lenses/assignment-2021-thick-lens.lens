@@ -36,8 +36,8 @@ Assigment  Thick Lens in Air
 		"type": "sphere",
 		"description": "front surface",
 		"args": {
-			"radius": 0.1,
-			"height": 0.02
+			"radius": 0.0261,
+			"height": 0.005
 		}
 	}, {
 		"id": "0003",
@@ -45,15 +45,15 @@ Assigment  Thick Lens in Air
 		"description": "glass",
 		"args": {
 			"index": 1.523,
-			"thickness": 0.005
+			"thickness": 0.0025
 		}
 	}, {		
 		"id": "0004",
 		"type": "sphere",
 		"description": "back surface",
 		"args": {
-			"radius": -0.1,
-			"height": 0.02
+			"radius": -0.0261,
+			"height": 0.005
 		}
 	}, {
 		"id": "0003",

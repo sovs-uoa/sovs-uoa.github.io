@@ -80,15 +80,13 @@
     this_element.innerHTML = "";
     
     /* main profile and main model  */
-    this_profile = configuration.profiles.find (profile_item => { return (profile_item.name === profile_name); });
-
-    
+    this_profile = configuration.profiles.find (profile_item => { return (profile_item.name === profile_name); });    
     this_model   = configuration.models.find (model_item => { return (model_item.id == this_profile.main); });
 
-    console.log (profile_name);
-    console.log (this_profile);
-    console.log (this_model);
+    //console.log (profile_name);
+    //console.log (this_profile);
     
+    console.log (`located model ... "${this_model.title}"`);    
     this_profile.list.forEach( this_id => {
 
         /* add an item */ 
@@ -105,7 +103,7 @@
 
       });
 
-
+    return this_profile;
  }
 
 
@@ -1103,8 +1101,11 @@ getConjuugateTo
 
 
 
+     console.log (`loading id = ${id}`);
+
      found = findLensById(id);
 
+     console.log (found);
 
 
 
