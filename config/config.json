@@ -28,9 +28,9 @@
                       { "id": "29",  "filename": "./lenses/mirror.lens", "title": "Mirror" },
                       { "id": "30",  "filename": "./lenses/keratometer.lens", "title": "Keratometer" },
                       { "id": "31",  "filename": "./lenses/assignment/2021/assignment-2021-thick-lens.lens",    "title": "Question 1 Thick Lens" },
-                      { "id": "32",  "filename": "./lenses/assignment/2021/assignment-2021-ametropic-eye.lens", "title": "Question 2 Ametropic Eye" },
+                      { "id": "32",  "filename": "./lenses/assignment/2021/assignment-2021-ametropic-eye.lens", "title": "Question 2 Ametropia with Anisometropia" },
                       { "id": "33",  "filename": "./lenses/assignment/2021/assignment-2021-accommodation.lens", "title": "Question 3 Accommodation" },               
-                      { "id": "34",  "filename": "./lenses/assignment/2021/assignment-2021-add.lens",           "title": "Question 4 Add" },
+                      { "id": "34",  "filename": "./lenses/assignment/2021/assignment-2021-add.lens",           "title": "Question 4 The Add" },
                       { "id": "35",  "filename": "./lenses/assignment/2021/assignment-2021-vertometer.lens",    "title": "Question 5 Vertometer" }  ],
 
 

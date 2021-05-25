@@ -32,7 +32,7 @@ Assignment : basic eye model
 	},{		
 		"id": "0002",
 		"type": "thin",
-		"description": "correcting lens",
+		"description": "the add",
 		"args": {
 			"power":  0,
 			"height": 0.01
@@ -40,37 +40,53 @@ Assignment : basic eye model
 	},{
 		"id": "0003",
 		"type": "index",
-		"description": "air gap",
+		"description": "air#2",
 		"args": {
 			"index": 1.000,
-			"thickness": 0.0			
+			"thickness": 0
 		}
 	},{		
 		"id": "0004",
 		"type": "thin",
+		"description": "spectacle lens",
+		"args": {
+			"power":  -3.0,
+			"height": 0.01
+		}
+	}, {
+		"id": "0005",
+		"type": "index",
+		"description": "air gap",
+		"args": {
+			"index": 1.000,
+			"thickness": 0.014			
+		}
+	},{		
+		"id": "0006",
+		"type": "thin",
 		"description": "ametropia lens",
 		"args": {
-			"power":  1.5,
+			"power":  1.439539347408829,
 			"height": 0.01
 		}
 	},{
-		"id": "0005",
+		"id": "0007",
 		"type": "index",
-		"description": "air#2",
+		"description": "air#3",
 		"args": {
 			"index": 1.000,
 			"thickness": 0.0
 		}
 	}, {		
-		"id": "0006",
+		"id": "0008",
 		"type": "thin",
 		"description": "accommodating lens",
 		"args": {
-			"power":  0,
+			"power":  0.00,
 			"height": 0.01
 		}
 	}, {
-		"id": "0007",
+		"id": "0009",
 		"type": "index",
 		"description": "air#4",
 		"args": {
@@ -78,7 +94,7 @@ Assignment : basic eye model
 			"thickness": 0.0
 		}
 	}, {		
-		"id": "0008",
+		"id": "0010",
 		"type": "sphere",
 		"description": "anterior cornea",
 		"args": {
@@ -86,15 +102,15 @@ Assignment : basic eye model
 			"height": 0.01
 		}
 	}, {
-		"id": "0009",
+		"id": "0011",
 		"type": "index",
 		"description": "aqueous/vitreous",
 		"args": {
 			"index": 1.33,
-			"thickness": 0.022735042735043
+			"thickness": 0.022711569977057
 		}
 	}, {
-		"id": "0010",
+		"id": "0012",
 		"type": "img",
 		"description": "retina",
 		"args" : {

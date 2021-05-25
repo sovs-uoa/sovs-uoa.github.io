@@ -91,7 +91,7 @@ Assignment : basic eye model
 		"description": "aqueous/vitreous",
 		"args": {
 			"index": 1.33,
-			"thickness": 0.023539823008850
+			"thickness": 0.02313043478609
 		}
 	}, {
 		"id": "0010",

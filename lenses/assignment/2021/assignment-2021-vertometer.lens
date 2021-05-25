@@ -52,7 +52,7 @@ Vertometer standard
 		"type": "sphere",
 		"description": "test front surface",
 		"args": {
-			"radius": 0.111666666666667,
+			"radius": -0.060657430943113,
 			"stop": false,
 			"aperture" : 0.025,
 			"height": 0.025			
@@ -62,7 +62,7 @@ Vertometer standard
 		"type": "index",
 		"description": "test index",
 		"args": {
-			"index": 1.67,
+			"index": 1.532,
 			"thickness" : 0.005
 		}
 	},{		
@@ -70,7 +70,7 @@ Vertometer standard
 		"type": "sphere",
 		"description": "test back surface",
 		"args": {
-			"radius": 0.221327345309381,
+			"radius": -0.212800000000000,
 			"stop": false,
 			"aperture" : 0.025,
 			"height": 0.025			
@@ -106,7 +106,7 @@ Vertometer standard
 		"type": "thin",
 		"description": "eyepiece lens",
 		"args": {
-			"power":  -50,
+			"power":  -40,
 			"height": 0.01
 		}
 	},{
@@ -120,9 +120,25 @@ Vertometer standard
 	},{	
 		"id": "0012",
 		"type": "thin",
-		"description": "ametropia lens",
+		"description": "correcting lens",
 		"args": {
 			"power":  0.0,
+			"height": 0.01
+		}
+	},{
+		"id": "0013",
+		"type": "index",
+		"description": "air gap",
+		"args": {
+			"index": 1.000,
+			"thickness": 0.00			
+		}
+	},{	
+		"id": "0012",
+		"type": "thin",
+		"description": "ametropia lens",
+		"args": {
+			"power":  1.0,
 			"height": 0.01
 		}
 	},{
