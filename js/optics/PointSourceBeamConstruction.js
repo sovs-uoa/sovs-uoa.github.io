@@ -514,42 +514,49 @@ class PointSourceBeamConstruction { // create a ray construction using raphael.j
      if (Math.abs(lens.F) > 0.0001) {
 
 
-      // FINITE RAYS 
-     for (var i=0; i <  M ; i++) {
-
-        var u1 = ray[K-1][i].u;       
-        var X1 = ray[K-1][i].z; var Y1 = ray[K-1][i].h;
-        var X2 = this.data.X2;  var Y2 = this.data.Y2;
-        var p4 = paper.path( ["M", X1, Y1,  "L", X2, Y2 ]); 
-        
-
-        if (X2 < X1) {
-
-            // information 
-            p4.attr(virtual);
-            this.cd_set.push(p4);
-
-            // extend the rays 
-            var dx  = + 1000;
-            var i1  = u1 * dx + Y1; // upper height on N1 
-            var p5  = paper.path( ["M", X1, Y1,  "L", X1 + dx, i1 ]);    // O  -> H1   (ray through F1)
-            this.cd_set.push(p5);
+        // focal system
 
 
-        } else {
-            p4.attr(real);
-            this.cd_set.push(p4);
-        }
 
-      }
+        // FINITE RAYS 
+        for (var i=0; i <  M ; i++) {
+
+            var u1 = ray[K-1][i].u;       
+            var X1 = ray[K-1][i].z; var Y1 = ray[K-1][i].h;
+            var X2 = this.data.X2;  var Y2 = this.data.Y2;
+            var p4 = paper.path( ["M", X1, Y1,  "L", X2, Y2 ]); 
+            
+
+            if (X2 < X1) {
+
+                // information 
+                p4.attr(virtual);
+                this.cd_set.push(p4);
+
+                // extend the rays 
+                var dx  = + 1000;
+                var i1  = u1 * dx + Y1; // upper height on N1 
+                var p5  = paper.path( ["M", X1, Y1,  "L", X1 + dx, i1 ]);    // O  -> H1   (ray through F1)
+                this.cd_set.push(p5);
 
 
-     } else { // INFINITE RAYS 
+            } else {
+                p4.attr(real);
+                this.cd_set.push(p4);
+            }
+
+          }
 
 
-          // FINITE RAYS 
-         var dX = 1000;
-         for (var i=0; i <  M ; i++) {
+     } else { 
+
+
+        // afocal system 
+
+
+        // FINITE RAYS 
+        var dX = 1000;
+        for (var i=0; i <  M ; i++) {
 
             var u1 = ray[K-1][i].u;       
             var X1 = ray[K-1][i].z; var Y1 = ray[K-1][i].h;

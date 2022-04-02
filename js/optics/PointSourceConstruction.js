@@ -576,9 +576,22 @@ class PointSourceConstruction { // create a ray construction using raphael.js
 
             //dX = dX * direction;
 
-            if (XI*direction <= V2*direction) {
+            if (XI === Infinity) { 
 
-              // extended rays               
+              // collimated beam
+
+              var X2 = X1 + dX;  
+              var Y2 = Y1 + dX*u1;            
+              var p4 = paper.path( ["M", X1, Y1,  "L", X2, Y2 ]);         
+              p4.attr(real);
+              this.cd_set.push(p4);
+
+
+            } else if (XI*direction <= V2*direction) {
+
+              
+              // virtual image  
+
               if (direction > 0) {  /* keep this for backward compatibility */
 
                   var X2 = X1 + dX;  
@@ -588,7 +601,9 @@ class PointSourceConstruction { // create a ray construction using raphael.js
                   this.cd_set.push(p4);
               }
 
+
               // draw from the present to the final
+
               var p4 = paper.path( ["M", X1, Y1,  "L", XI, YI ]);         
               p4.attr(virtual);
               this.cd_set.push(p4);
@@ -599,10 +614,12 @@ class PointSourceConstruction { // create a ray construction using raphael.js
               var p5  = paper.path( ["M", X1, Y1,  "L", X1 + dx, i1 ]);    // O  -> H1   (ray through F1)
               this.cd_set.push(p5);
 
+
             } else {
 
 
-              // standard converging rays  
+              // real image 
+              
               var p4 = paper.path( ["M", X1, Y1,  "L", XI, YI ]);         
               p4.attr(real);
               this.cd_set.push(p4);
