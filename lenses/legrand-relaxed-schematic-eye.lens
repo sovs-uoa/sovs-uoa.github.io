@@ -7,13 +7,13 @@
 
 
 
-	"viewBox" : [ -10, 7, 40, 14 ],
+	"viewBox" : [ -0.010, 0.007, 0.040, 0.014 ],
 
 
 	"sources" : [ { "id" 		: 1, 
 					"type" 		: "beam",
 					"which"		: "object",
-					"beamwidth" : 4.0,
+					"beamwidth" : 0.004,
 					"z"			: NaN, 
 					"h"			: NaN,
 					"t"			: 10 } ],
@@ -35,64 +35,96 @@
     "prescription": [{
 		"id": "0001",
 		"type": "index",
-		"description": "air",
+		"description": "air#1",
 		"args": {
 			"index": 1.000
 		}
 	}, {		
 		"id": "0002",
+		"type": "thin",
+		"description": "spectacle correction",
+		"args": {
+			"power": 6,
+			"height": 0.01
+		}
+	}, {
+		"id": "0003",
+		"type": "index",
+		"description": "air#2",
+		"args": {
+			"index": 1.0,
+			"thickness": 0.0015
+		}
+	}, {		
+		"id": "0004",
+		"type": "thin",
+		"description": "accommodating lens",
+		"args": {
+			"power": -1.93,
+			"height": 0.01
+		}
+	}, {
+		"id": "0005",
+		"type": "index",
+		"description": "air#3",
+		"args": {
+			"index": 1.0,
+			"thickness": 0.0
+		}
+	}, {		
+		"id": "0006",
 		"group": "cornea",
 		"type": "sphere",
 		"description": "anterior cornea",
 		"args": {
-			"radius": 7.800,
-			"height": 10
+			"radius": 0.007800,
+			"height": 0.01
 		}
 	}, {
-		"id": "0003",
+		"id": "0007",
 		"group": "cornea",
 		"type": "index",
 		"description": "cornea",
 		"args": {
 			"index": 1.3771,
-			"thickness": 0.55
+			"thickness": 0.00055
 		}
 	}, {
-		"id": "0004",
+		"id": "0008",
 		"group": "cornea",		
 		"type": "sphere",
 		"description": "posterior cornea",
 		"args": {
-			"radius": 6.500,
-			"height": 10
+			"radius": 0.006500,
+			"height": 0.01
 		}
 	}, {
-		"id": "0005",
+		"id": "0009",
 		"type": "index",
 		"description": "aqueous",
 		"args": {
 			"index": 1.3374,
-			"thickness": 3.05
+			"thickness": 0.00305
 		}
 	}, {
-		"id": "0006",
+		"id": "00010",
 		"group": "lens",
 		"type": "sphere",
 		"description": "anterior lens",
 		"args": {
-			"radius"   : 10.200,
+			"radius"   : 0.010200,
 			"stop"     : true,
-			"height"   : 10.0,			
+			"height"   : 0.01,			
 			"aperture" : 1
 		}
 	}, {
-		"id": "0007",
+		"id": "00011",
 		"group": "lens",
 		"type": "index",
 		"description": "lens",
 		"args": {
 			"index": 1.4200,
-			"thickness": 4.000
+			"thickness": 0.004
 		}
 	}, {
 		"id": "0012",
@@ -100,8 +132,8 @@
 		"type": "sphere",
 		"description": "posterior lens",
 		"args": {
-			"radius": -6.000,
-			"height": 10.0
+			"radius": -0.006000,
+			"height": 0.01
 		}
 	}, {
 		"id": "0013",
@@ -109,7 +141,7 @@
 		"description": "vitreous",
 		"args": {
 			"index": 1.336,
-			"thickness": 15.000
+			"thickness": 0.016597
 		}
 	}, {
 		"id": "0014",
@@ -117,7 +149,7 @@
 		"description": "retinal plane",
 		"args": {
 			"radius": -100.000,
-			"height": 10.0
+			"height": 0.01
 		}
 	}]
 }

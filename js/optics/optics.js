@@ -510,7 +510,7 @@ function calculatePairFromObject (object, systemInfo) {
          } else { 
 
 
-          console.log (`INFINITY CONJUGATE ANGLE = ${t}`);
+           //console.log (` - Object at Infinity (Angle = ${t})`);
 
            zp  = +n2/curr.F;  // PF            
 

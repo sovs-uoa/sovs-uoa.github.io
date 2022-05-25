@@ -7,7 +7,7 @@
   var   renderableLens;
   var   lensTable;
   var   ps, cd_set;
-  const gridSnapSize = 0.0005;
+  const gridSnapSize = 0.000025;
   var   summaryTemplate;
   var   reportTamplate;
 
@@ -49,7 +49,69 @@
                       // { id: "12", filename: "./lenses/reduced-eye-with-accommodation.lens", title: "Reduced Eye with Accommodation" },
 
 
-    displayOptions = { height             : 0.05, 
+
+  /* load configuration */
+
+  async function load_configuration(config_file) {
+
+    try {
+
+      const response = await fetch(config_file);
+      const txt = await response.json();
+      return txt;
+
+    } catch(err) {      
+      
+      console.log(err);
+    
+    }
+  }
+
+
+
+
+ /* CREATE A MENU FROM THE PROFILE */
+//  <div id="dropdown-lens-menu" class="dropdown-menu">
+
+ function build_lenses_menu (configuration, id, profile_name) {
+
+
+    var this_element = document.getElementById (id);
+    this_element.innerHTML = "";
+    
+    /* main profile and main model  */
+    this_profile = configuration.profiles.find (profile_item => { return (profile_item.name === profile_name); });    
+    this_model   = configuration.models.find (model_item => { return (model_item.id == this_profile.main); });
+
+    //console.log (profile_name);
+    //console.log (this_profile);
+    
+    console.log (`located model ... "${this_model.title}"`);    
+    this_profile.list.forEach( this_id => {
+
+        /* add an item */ 
+
+        var a_href = document.createElement('a');
+        a_href.classList.add("dropdown-item");
+        a_href.classList.add("file-selection");            
+        a_href.href  ="#";
+        a_href.setAttribute("data-id", this_id);
+
+        model_item = configuration.models.find(item => {return item.id == this_id });
+        a_href.innerHTML = model_item.title;
+        this_element.appendChild (a_href);
+
+      });
+
+    return this_profile;
+ }
+
+
+ /* OTHER */
+
+
+
+  displayOptions = { height             : 0.05, 
                      showCardinalPoints   : true,
                      showFocalPoints      : true,
                      showNodalPoints      : false, 
@@ -348,20 +410,22 @@ getConjuugateTo
   function updatePrescriptionView() {
 
     // read the lens table 
-    console.log("Updating prescription table");
+    console.log("Updating the PRESCRIPTION VIEW.");
+
+
+    // Update the Optics Object 
+
 
     lensTable = lens.table.getData();    
     renderableLens = Optics.analyze(lensTable); // create matrices / we should have group caridnals in here as well
 
 
     isafocal = (renderableLens.total.F == 0);
-
     var vertHeight = 0.3;
     if (response.hasOwnProperty("general")) {
         if(response.general.hasOwnProperty("cardinalVertHeight")) {
           vertHeight = response.general.cardinalVertHeight;
         }
-
     }
 
 
@@ -401,6 +465,8 @@ getConjuugateTo
 
     // Only do this - if there are rays in the table 
     if (lens.pointsTable !== null ) {
+
+      console.log ('Updating CONSTRUCTIONS');
       refreshAllConstruction ();
     }
 
@@ -411,7 +477,7 @@ getConjuugateTo
 
   function updateSummaryView () {
 
-    console.log ("Updating the summary view.");
+    console.log ("Updating the SUMMARY VIEW.");
 
     //console.log(summaryTemplate);
     // output
@@ -481,11 +547,16 @@ getConjuugateTo
 
   function updatePointsView() {
 
+
+    console.log ("Updating the POINTS VIEW.");
+
     // re-calculate positions
     totalLens   = renderableLens.total;
     pointsTable = lens.pointsTable.getData();    
     pointsList  = Optics.calculatePointToPoint(totalLens, pointsTable); // a bunch of points !!!
 
+
+    console.log (pointsTable);
 
     /* --------------------------------------------------------------------------
 
@@ -580,10 +651,12 @@ getConjuugateTo
       lens.raphael.constructions.forEach (elem => {
 
 
+            // elem is a CONSTRUCTION 
+
 
             /* NEGATIVE HEIGHT BECAUSE TABLE AND GRAPH HAVE OPPOSITELY SIGNED DIRECTIONS */
 
-            console.log (`refresh ray construction, id = ${elem.getId()}`);
+            console.log (`- REFRESH construction ID = ${elem.getId()}`);
             aRow       = lens.pointsTable.getRow(elem.getId()).getData();
             aPoint     = { id: aRow.id, which: "object", z:aRow.zo, h:-aRow.ho, t:aRow.to };
 
@@ -594,6 +667,10 @@ getConjuugateTo
             elem.setPairData(pairData);       
             elem.setLens(totalLens); // <--- this should change 
             elem.refresh();
+
+            // update on POINTS TABLE 
+            console.log (`- CALLED Update on Points Table`);            
+            updatePointsTable(aPoint.id, pairData);
     });
   }
 
@@ -665,22 +742,20 @@ getConjuugateTo
 
   function updateConstruction (cell) {
 
-    console.log("updating the construction from altered cell.");
 
-    //console.log(e);
-    
-
-    console.log(cell);
+    // console.log(cell);
 
     if (cell == null) {
+        console.log("Cell altered ... but value was NULL.");
         return;
     }
+
+    console.log("Cell altered ... searching for matching construction.");
+
 
 
     var aPoint = getPointFromCell(cell);
     var fieldname = cell.getColumn().getField();    
-
-    console.log("find the related construction");
     for (let elem of lens.raphael.constructions) {
 
       console.log("Testing id = " + elem.getId() + " ==" + aPoint.id);
@@ -699,6 +774,8 @@ getConjuugateTo
         } else {
 
             // a point was changed 
+
+            console.log("Cell altered ... Construction FOUND!");
             console.log("- Retrieve point object from the cell");
             console.log("- Found the appropriate constuction");
 
@@ -717,6 +794,9 @@ getConjuugateTo
 
       }
     }
+
+   console.log("Cell altered ... But construction was NOT FOUND!");
+
 
 /*
 
@@ -756,7 +836,6 @@ getConjuugateTo
     }
 */
 
-    console.log("construction not found!");
 
 /*
     var n = lens.raphael.constructions;
@@ -1022,8 +1101,11 @@ getConjuugateTo
 
 
 
+     console.log (`loading id = ${id}`);
+
      found = findLensById(id);
 
+     console.log (found);
 
 
 
@@ -1128,12 +1210,8 @@ getConjuugateTo
 
 
                                     console.log (' - intializing point table (sources).');
- 
-
                                     initializePointsTable ([], updateConstruction, function () {
                                           
-
-
                                           // delete lenses  
 
                                           $("#lens-points-del-row").click(function(){
@@ -1161,8 +1239,7 @@ getConjuugateTo
 
                                               if (eachPoint.h) 
                                                 eachPoint.h = -eachPoint.h;
-
-                                              addConstruction (eachPoint);
+                                                addConstruction (eachPoint);
                                           });
 
 
@@ -1177,14 +1254,15 @@ getConjuugateTo
                                           $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
                                             
 
+
                                             switch (e.target.id) {
-
                                                case "objects-images-nav" :
-
+                                                  console.log ('Switch to POINTS table TAB!');
                                                   lens.pointsTable.redraw(true); 
                                                   break;
 
                                                case "prescription-nav" :
+                                                  console.log ('Switch to PRESCRIPTION table TAB!');
                                                   lens.table.redraw(true);
                                                   break;
 

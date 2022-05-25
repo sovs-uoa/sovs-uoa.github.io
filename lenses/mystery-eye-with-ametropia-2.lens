@@ -50,7 +50,7 @@ Mystery reduced eye with accommodation #2 (58D cornea)
 		"type": "thin",
 		"description": "ametropia lens",
 		"args": {
-			"power":  0,
+			"power":  -2,
 			"height": 0.01
 		}
 	},{
@@ -82,7 +82,7 @@ Mystery reduced eye with accommodation #2 (58D cornea)
 		"type": "sphere",
 		"description": "anterior cornea",
 		"args": {
-			"radius": 0.005689,
+			"radius": 0.0055,
 			"height": 0.01
 		}
 	}, {

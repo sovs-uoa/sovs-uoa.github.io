@@ -27,7 +27,7 @@ function onstart ()   { console.log("onstart picker"); };
 function onmove (th)  { 
 
       // this => AnglePicker
-      console.log("angle picker passed angle = " + th);
+      //console.log("angle picker passed angle = " + th);
 
 
       // update the graphic + associated table 
@@ -366,7 +366,7 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
      // console.log(lens);
 
 
-     console.log("-- draw beam construction.");
+     //console.log("-- draw beam construction.");
 
      displayOptions = this.displayOptions;
 
