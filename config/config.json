@@ -31,9 +31,17 @@
                       { "id": "32",  "filename": "./lenses/assignment/2021/assignment-2021-ametropic-eye.lens", "title": "Question 2 Ametropia with Anisometropia" },
                       { "id": "33",  "filename": "./lenses/assignment/2021/assignment-2021-accommodation.lens", "title": "Question 3 Accommodation" },               
                       { "id": "34",  "filename": "./lenses/assignment/2021/assignment-2021-add.lens",           "title": "Question 4 The Add" },
-                      { "id": "35",  "filename": "./lenses/assignment/2021/assignment-2021-vertometer.lens",    "title": "Question 5 Vertometer" }  ],
+                      { "id": "35",  "filename": "./lenses/assignment/2021/assignment-2021-vertometer.lens",    "title": "Question 5 Vertometer" },
 
+                      { "id": "36",  "filename": "./lenses/assignment/2022/assignment-2022-q1-emmetropic-eye.lens",        "title": "Question 1   - The Emmetropic Eye" },                      
+                      { "id": "37",  "filename": "./lenses/assignment/2022/assignment-2022-q2-fluid-lens.lens",            "title": "Question 2   - Fluid Lens" },
+                      { "id": "38",  "filename": "./lenses/assignment/2022/assignment-2022-q3-low-vision-magnifier.lens",  "title": "Question 3.1 - Magnifier" },
+                      { "id": "39",  "filename": "./lenses/assignment/2022/assignment-2022-q3-low-vision-telescope.lens",  "title": "Question 3.2 - Telescope" },
+                      { "id": "40",  "filename": "./lenses/assignment/2022/assignment-2022-q4-add.lens",                   "title": "Question 4   - Accommodation" },               
+                      { "id": "41",  "filename": "./lenses/assignment/2022/assignment-2022-q5-keratometer-cornea.lens",    "title": "Question 5.1 - The Keratometer (Cornea)" },
+                      { "id": "42",  "filename": "./lenses/assignment/2022/assignment-2022-q5-keratometer.lens",           "title": "Question 5.2 - The Keratometer (Full)" }],
 
     "profiles" : [ { "name" : "assignment",       "main" : "19", "list" : [ "19", "20", "21", "28'" ] }, 
-                   { "name" : "assignment-2021",  "main" : "31", "list" : [ "31", "32", "33", "34", "35" ] } ]
+                   { "name" : "assignment-2021",  "main" : "31", "list" : [ "31", "32", "33", "34", "35" ] },
+                   { "name" : "assignment-2022",  "main" : "36", "list" : [ "36", "37", "38", "39", "40", "41", "42" ] } ]
 }

@@ -1,0 +1,137 @@
+/*--------------------------------------------
+
+Assignment : simple magnifier with basic eye 
+
+----------------------------------------------*/
+{
+	"title": "Simple magnifier with basic eye",
+	"visible": { 	"radius": true,
+				 	"power":true,
+				 	"curvature":true,
+				 	"aperture":true },	
+
+	"viewBox" : [ -0.04, 0.02, 0.08, 0.04 ],
+
+
+	"sources" : [  {"id" 		: 1, 
+					"type" 		: "source",
+					"which"		: "object",
+					"beamwidth" : 0.0025,
+					"z"			: -0.2, 
+					"h"			: 0.00,
+					"t"			: NaN } ],
+
+
+	"prescription": [ {
+		"id": "0001",
+		"type": "index",
+		"description": "air#1",
+		"args": {
+			"index": 1.000
+		}
+	},{		
+		"id": "0002",
+		"type": "thin",
+		"description": "the magnifier",
+		"args": {
+			"power":  5,
+			"height": 0.01
+		}
+	}, {
+		"id": "0003",
+		"type": "index",
+		"description": "air#1",
+		"args": {
+			"index": 1.000,
+			"thickness": 0.1
+		}
+	},{		
+		"id": "0004",
+		"type": "thin",
+		"description": "the add",
+		"args": {
+			"power":  0,
+			"height": 0.01
+		}
+	},{
+		"id": "0005",
+		"type": "index",
+		"description": "air#2",
+		"args": {
+			"index": 1.000,
+			"thickness": 0
+		}
+	},{		
+		"id": "0006",
+		"type": "thin",
+		"description": "spectacle lens",
+		"args": {
+			"power":  -3.0,
+			"height": 0.01
+		}
+	}, {
+		"id": "0007",
+		"type": "index",
+		"description": "air gap",
+		"args": {
+			"index": 1.000,
+			"thickness": 0.014			
+		}
+	},{		
+		"id": "0008",
+		"type": "thin",
+		"description": "ametropia lens",
+		"args": {
+			"power":  1.439539347408829,
+			"height": 0.01
+		}
+	},{
+		"id": "0009",
+		"type": "index",
+		"description": "air#3",
+		"args": {
+			"index": 1.000,
+			"thickness": 0.0
+		}
+	}, {		
+		"id": "0010",
+		"type": "thin",
+		"description": "accommodating lens",
+		"args": {
+			"power":  0.00,
+			"height": 0.01
+		}
+	}, {
+		"id": "0011",
+		"type": "index",
+		"description": "air#4",
+		"args": {
+			"index": 1.0,
+			"thickness": 0.0
+		}
+	}, {		
+		"id": "0012",
+		"type": "sphere",
+		"description": "anterior cornea",
+		"args": {
+			"radius": 0.0055,
+			"height": 0.01
+		}
+	}, {
+		"id": "0013",
+		"type": "index",
+		"description": "aqueous/vitreous",
+		"args": {
+			"index": 1.33,
+			"thickness": 0.022711569977057
+		}
+	}, {
+		"id": "0014",
+		"type": "img",
+		"description": "retina",
+		"args" : {
+			"radius": -0.01,
+			"height": 0.01		
+		}
+	}]
+}
