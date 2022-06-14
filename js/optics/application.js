@@ -864,14 +864,45 @@ getConjuugateTo
       // canvg("target_canvas", (new XMLSerializer).serializeToString(container.firstElementChild));
 
       function replaceNaN(data) {
+        
+        function isObject ( obj ) {
+           return obj && (typeof obj  === "object");
+        }
+
+        function isArray ( obj ) { 
+          return isObject(obj) && (obj instanceof Array);
+        }
+
+        function isNumericNaN (value) {
+            return typeof value === 'number' && isNaN(value);
+        }
+
+
+        if (!isArray(data)) {
+
+          console.log ('Detected a non-array output');
+
+          all_keys = Object.keys(data);
+          
+          all_keys.forEach ( key => {            
+            if (isNumericNaN(data[key])) {
+              data[key] = '';
+            };
+          });
+
+          console.log (all_keys);
+
+          return data
+        }
+
+
+        // This is an array  
+
+        console.log ('Detected array output');
+
         data.forEach (datum => {
           all_keys = Object.keys(datum);
-          all_keys.forEach ( key => {
-            
-            function isNumericNaN (value) {
-            return typeof value === 'number' && isNaN(value);
-            }
-
+          all_keys.forEach ( key => {            
 
             if (isNumericNaN(datum[key])) {
               datum[key] = '';
@@ -891,15 +922,15 @@ getConjuugateTo
       output.date_string   = getFormattedDate();
       output.lens_table    = replaceNaN(lens.table.getData()); 
       output.points_table  = replaceNaN(lens.pointsTable.getData());
-      //output.summary_table = renderableLens.total;
+      output.summary_table = replaceNaN(renderableLens.total);
       output.asJSON        = JSON.stringify(output);
       output.summary       = Mustache.render(summaryTemplate, renderableLens.total); 
 
 
-      // replace any NaNs tih "---"
+      // replace any NaNs with "---"
 
-
-      console.log (output);
+      //console.log (renderableLens.total);
+      //console.log (output);
 
       // download the information 
       download_report_html = Mustache.render(download_report_template, output);  
