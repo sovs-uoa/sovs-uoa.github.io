@@ -1,0 +1,80 @@
+/*--------------------------------------------
+
+Assignment : Keratometer 
+
+----------------------------------------------*/
+{
+	"title": "Mirror",
+	"visible": { 	"radius": true,
+				 	"power":true,
+				 	"curvature":true,
+				 	"aperture":true },	
+
+	"viewBox" : [ -0.24, 0.04, 0.32, 0.08 ],
+
+
+	"sources" : [ { "id" 		: 1, 
+					"type" 		: "source",
+					"which"		: "object",
+					"beamwidth" : 0.0025,
+					"z"			: -0.04, 
+					"h"			: 0.005,
+					"t"			: NaN } ],
+					
+
+	"prescription": [{
+		"id": "0001",
+		"type": "index",
+		"description": "air#1",
+		"args": {
+			"index": 1.000
+		}
+	}, {		
+		"id": "0002",
+		"type": "sphere",
+		"description": "mirror",
+		"args": {
+			"radius": 0.008,
+			"height": 0.005
+		}
+	}, {
+		"id": "0003",
+		"type": "index",
+		"description": "air#2",
+		"args": {
+			"index": -1,
+			"thickness": -0.04
+		}
+	},{	
+		"id": "0004",
+		"type": "thin",
+		"description": "thin lens",
+		"args": {
+			"power": 20,
+			"height": 0.05
+		}
+	}, {
+		"id": "0005",
+		"type": "index",
+		"description": "air",
+		"args": {
+			"index": -1.0,
+			"thickness": -0.08
+		}
+	}, {	
+		"id": "0006",
+		"type": "thin",
+		"description": "thin lens",
+		"args": {
+			"power": 40,
+			"height": 0.05
+		}
+	}, {
+		"id": "0007",
+		"type": "index",
+		"description": "air",
+		"args": {
+			"index": -1.0
+		}
+	}]
+}
