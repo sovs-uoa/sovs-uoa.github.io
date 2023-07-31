@@ -814,6 +814,7 @@ function drawAxis () {
 
   function drawSurface(x, y, R, h, displayOptions) {
 
+
     var lens = paper.set();
     var c1;
 
@@ -823,8 +824,20 @@ function drawAxis () {
     //var c = paper.path( ["M", x, y-h/2, "L", x, y+h/2  ] );
     //lens.push(c);
 
-    if (R < 0) {   // negative curvature
+    console.log (`drawing surface ... ${R} is_finite = ${isFinite(R)}`);
 
+    if (!isFinite(R)) { 
+
+      // plano 
+
+      console.log (`plano called`);
+
+      c1 = paper.path( ["M", x, y-h/2, "L", x, y+h/2  ] );
+
+      lens.attr(lens_edge);
+      lens.push(c1);
+
+    } else if (R < 0) {   // negative curvature
 
       var r = Math.abs(R);
       var Z = r - Math.sqrt(Math.pow(R,2) - Math.pow(h/2,2));
@@ -878,11 +891,10 @@ function drawAxis () {
         c1 = paper.path([ "M",x+Z,y-h/2,"a",r,r,0,0,0,0,h ]);
       };
 
-
       lens.attr(lens_edge);
       lens.push(c1);
 
-    } else { // afocal
+    } else   { // afocal
       
       //c1 = paper.circle(x, y + h/2, 0.1);
       //c2 = paper.circle(x, y - h/2, 0.1);   

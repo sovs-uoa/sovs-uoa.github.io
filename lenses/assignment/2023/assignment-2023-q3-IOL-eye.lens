@@ -1,10 +1,10 @@
 /*--------------------------------------------
 
-Assignment : Fluid lens  
+Assignment : basic eye model 
 
 ----------------------------------------------*/
 {
-	"title": "Fluid lens",
+	"title": "Basic eye",
 	"visible": { 	"radius": true,
 				 	"power":true,
 				 	"curvature":true,
@@ -32,47 +32,31 @@ Assignment : Fluid lens
 	},{		
 		"id": "0002",
 		"type": "thin",
-		"description": "contact lens",
+		"description": "correcting lens",
 		"args": {
-			"power":  -5,
+			"power":  0,
 			"height": 0.01
 		}
 	},{
 		"id": "0003",
 		"type": "index",
-		"description": "air#2",
+		"description": "air gap",
 		"args": {
 			"index": 1.000,
 			"thickness": 0.0			
 		}
 	},{		
 		"id": "0004",
-		"type": "sphere",
-		"description": "fluid lens - base curve",
+		"type": "thin",
+		"description": "ametropia lens",
 		"args": {
-			"radius": 0.0078488372,			
+			"power":  0,
 			"height": 0.01
 		}
-	},{		
+	},{
 		"id": "0005",
 		"type": "index",
-		"description": "fluid lens",
-		"args": {
-			"index":  1.3375,
-			"thickness": 0.0
-		}
-	},{		
-		"id": "0004",
-		"type": "sphere",
-		"description": "fluid lens - corneal curve",
-		"args": {
-			"radius": 0.00767045454,
-			"height": 0.01
-		}
-	},	{
-		"id": "0005",
-		"type": "index",
-		"description": "air#3",
+		"description": "air#2",
 		"args": {
 			"index": 1.000,
 			"thickness": 0.0
@@ -94,36 +78,52 @@ Assignment : Fluid lens
 			"thickness": 0.0
 		}
 	}, {		
-		"id": "0006",
-		"type": "thin",
-		"description": "ametropia lens",
-		"args": {
-			"power":  6,
-			"height": 0.01
-		}
-	},{
-		"id": "0007",
-		"type": "index",
-		"description": "air#5",
-		"args": {
-			"index": 1.0,
-			"thickness": 0.0
-		}
-	}, {		
 		"id": "0008",
 		"type": "sphere",
 		"description": "anterior cornea",
 		"args": {
-			"radius": 0.0055,
+			"radius": 0.0078,
 			"height": 0.01
 		}
 	}, {
 		"id": "0009",
 		"type": "index",
-		"description": "aqueous/vitreous",
+		"description": "aqueous",
 		"args": {
 			"index": 1.33,
-			"thickness": 0.02216666666
+			"thickness": 0.002
+		}
+	}, {		
+		"id": "0008",
+		"type": "sphere",
+		"description": "anterior IOL lens",
+		"args": {
+			"radius": 0.008,
+			"height": 0.005
+		}
+	}, {
+		"id": "0009",
+		"type": "index",
+		"description": "IOL material",
+		"args": {
+			"index": 1.45,
+			"thickness": 0.001
+		}
+	}, {		
+		"id": "0008",
+		"type": "sphere",
+		"description": "anterior IOL lens",
+		"args": {
+			"radius": -0.008,
+			"height": 0.005
+		}
+	}, {
+		"id": "0009",
+		"type": "index",
+		"description": "vitreous",
+		"args": {
+			"index": 1.33,
+			"thickness": 0.01995
 		}
 	}, {
 		"id": "0010",
