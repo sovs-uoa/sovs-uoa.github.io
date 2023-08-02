@@ -112,7 +112,7 @@ Assignment : basic eye model
 	}, {		
 		"id": "0008",
 		"type": "sphere",
-		"description": "anterior IOL lens",
+		"description": "posterior IOL lens",
 		"args": {
 			"radius": -0.008,
 			"height": 0.005

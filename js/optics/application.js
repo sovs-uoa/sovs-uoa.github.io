@@ -780,6 +780,7 @@ getConjuugateTo
             console.log("- Found the appropriate constuction");
 
             console.log (elem);
+            console.log (aPoint);
 
 
             totalLens  = renderableLens.total;

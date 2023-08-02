@@ -45,13 +45,11 @@
                       { "id": "43",  "filename": "./lenses/assignment/2023/assignment-2023-q1-legrand-relaxed-schematic-eye.lens",   "title": "Ass 2023 Question 1   - Le Grand Eye (Relaxed)" },                      
                       { "id": "44",  "filename": "./lenses/assignment/2023/assignment-2023-q2-emmetropic-eye.lens",                  "title": "Ass 2023 Question 2   - Emmetropic Eye" },
                       { "id": "45",  "filename": "./lenses/assignment/2023/assignment-2023-q3-IOL-eye.lens",                         "title": "Ass 2023 Question 3   - IOL eye" },
-                      { "id": "46",  "filename": "./lenses/assignment/2023/assignment-2023-q3-low-vision-telescope.lens",            "title": "Ass 2023 Question 3.2 - Telescope" },
-                      { "id": "47",  "filename": "./lenses/assignment/2023/assignment-2023-q4-add.lens",                             "title": "Ass 2023 Question 4   - Accommodation" },               
-                      { "id": "48",  "filename": "./lenses/assignment/2023/assignment-2023-q5-keratometer-cornea.lens",              "title": "Ass 2023 Question 5.1 - The Keratometer (Cornea)" },
-                      { "id": "49",  "filename": "./lenses/assignment/2023/assignment-2023-q5-keratometer.lens",                     "title": "Ass 2023 Question 5.2 - The Keratometer (Full)" }],
+                      { "id": "46",  "filename": "./lenses/assignment/2023/assignment-2023-q4-add.lens",                             "title": "Ass 2023 Question 4   - Accommodation" },               
+                      { "id": "47",  "filename": "./lenses/assignment/2023/assignment-2023-q5-mystery-eye.lens",                     "title": "Ass 2023 Question 5   - Mystery Eye" }],
 
     "profiles" : [ { "name" : "assignment",       "main" : "19", "list" : [ "19", "20", "21", "28'" ] }, 
                    { "name" : "assignment-2021",  "main" : "31", "list" : [ "31", "32", "33", "34", "35" ] },
                    { "name" : "assignment-2022",  "main" : "36", "list" : [ "36", "37", "38", "39", "40", "41", "42" ] },
-                   { "name" : "assignment-2023",  "main" : "43", "list" : [ "43", "44", "45", "46", "47", "48", "49" ] } ]
+                   { "name" : "assignment-2023",  "main" : "43", "list" : [ "43", "44", "45", "46", "47" ] } ]
 }

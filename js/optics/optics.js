@@ -389,21 +389,27 @@ function calculateConjugatePairFrom(point, systemInfo) {
 
             case "image":
 
+              console.log ("Calculating from Image Information");
+              console.log (point);
+
               // axial ray gives axial image point 
               //var id  = point.id;
-              var X2  = point.z; 
+              var ZI  = point.z; 
               var Y2  = point.h;
               var T2  = point.t;
 
               // results are relative to back vertex
-              result    = calculatePairFromImage ({ z: X2-V2, h: Y2, t: T2}, systemInfo); // distances assumed from vertices 
+              result    = calculatePairFromImage ({ z: ZI, h: Y2, t: T2}, systemInfo); // distances assumed from vertices 
 
               // add in global co-ordiates 
               result.id = point.id;
-              result.X2 = X2; 
+              result.X2 = V2 + ZI; 
               result.Y2 = Y2;
               result.X1 = V1 + result.VO;
               result.Y1 = result.OQ;
+
+              console.log (result);
+
               return result;
 
             break;

@@ -1,6 +1,6 @@
 /*--------------------------------------------
 
-Assignment : basic eye model 
+Assignment : Mystery Eye 
 
 ----------------------------------------------*/
 {
@@ -32,61 +32,61 @@ Assignment : basic eye model
 	},{		
 		"id": "0002",
 		"type": "thin",
-		"description": "the add",
+		"description": "Badal lens",
 		"args": {
-			"power":  1.50,
+			"power":  10,
+			"height": 0.01
+		}
+	},{
+		"id": "0001",
+		"type": "index",
+		"description": "air#2",
+		"args": {
+			"index": 1.000,
+			"thickness": 0.1
+		}
+	},{		
+		"id": "0002",
+		"type": "thin",
+		"description": "correcting lens",
+		"args": {
+			"power":  0,
 			"height": 0.01
 		}
 	},{
 		"id": "0003",
 		"type": "index",
-		"description": "air#2",
+		"description": "air gap",
 		"args": {
 			"index": 1.000,
-			"thickness": 0
+			"thickness": 0.0			
 		}
 	},{		
 		"id": "0004",
 		"type": "thin",
-		"description": "spectacle lens",
-		"args": {
-			"power":  -4.0,
-			"height": 0.01
-		}
-	}, {
-		"id": "0005",
-		"type": "index",
-		"description": "air gap",
-		"args": {
-			"index": 1.000,
-			"thickness": 0.014			
-		}
-	},{		
-		"id": "0006",
-		"type": "thin",
 		"description": "ametropia lens",
 		"args": {
-			"power":  1.0,
+			"power":  0,
 			"height": 0.01
 		}
 	},{
-		"id": "0007",
+		"id": "0005",
 		"type": "index",
-		"description": "air#3",
+		"description": "air#2",
 		"args": {
 			"index": 1.000,
 			"thickness": 0.0
 		}
 	}, {		
-		"id": "0008",
+		"id": "0006",
 		"type": "thin",
 		"description": "accommodating lens",
 		"args": {
-			"power":  0.00,
+			"power":  0,
 			"height": 0.01
 		}
 	}, {
-		"id": "0009",
+		"id": "0007",
 		"type": "index",
 		"description": "air#4",
 		"args": {
@@ -94,7 +94,7 @@ Assignment : basic eye model
 			"thickness": 0.0
 		}
 	}, {		
-		"id": "0010",
+		"id": "0008",
 		"type": "sphere",
 		"description": "anterior cornea",
 		"args": {
@@ -102,15 +102,15 @@ Assignment : basic eye model
 			"height": 0.01
 		}
 	}, {
-		"id": "0011",
+		"id": "0009",
 		"type": "index",
 		"description": "aqueous/vitreous",
 		"args": {
 			"index": 1.33,
-			"thickness": 0.022711569977057
+			"thickness": 0.023963963963964
 		}
 	}, {
-		"id": "0012",
+		"id": "0010",
 		"type": "img",
 		"description": "retina",
 		"args" : {
