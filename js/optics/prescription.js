@@ -266,6 +266,47 @@ function editCheck (cell) {
 
 
 
+function updateRow (row) {
+
+    //get data for the row 
+
+    var data       = row.getData();
+    console.log("- Updating ROW = ");
+    console.log(data);
+
+    switch (data.type) {
+
+      case "sphere": case "img":
+
+          // update the row 
+
+          var nextRow = row.getNextRow().getData();
+          var prevRow = row.getPrevRow().getData();
+          row.update({ "power" : (nextRow.index - prevRow.index)/data.radius});
+          
+          // row.update({ "radius" : (nextRow.index - prevRow.index)/data.power});
+
+      break;
+
+
+    // added 18/6/24
+
+    case "index":
+
+        var nextRow = row.getNextRow();
+        updateRow (nextRow);
+
+        var prevRow = row.getPrevRow();
+        updateRow (last);
+        break;
+
+    }
+
+   // default den
+}
+
+
+
 function updatedFieldCheck (cell) {
 
     //get data for the row 
@@ -300,6 +341,17 @@ function updatedFieldCheck (cell) {
               //return true; 
           }; 
       break;
+
+
+    case "index":
+
+        var nextRow = row.getNextRow();
+        updateRow (nextRow);
+
+        var prevRow = row.getPrevRow();
+        updateRow (prevRow);
+
+
     }
 
    // default den

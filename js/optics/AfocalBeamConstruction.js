@@ -575,6 +575,7 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
 
         // afocal system 
 
+         console.log ('AFOCAL SYSTEM / OUTPUT IS AFOCAL');
 
          var dX = 10;
          for (var i=0; i <  M ; i++) {

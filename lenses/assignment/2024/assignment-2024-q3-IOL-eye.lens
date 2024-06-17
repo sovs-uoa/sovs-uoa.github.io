@@ -1,0 +1,137 @@
+/*--------------------------------------------
+
+Assignment : basic eye model 
+
+----------------------------------------------*/
+{
+	"title": "Basic eye",
+	"visible": { 	"radius": true,
+				 	"power":true,
+				 	"curvature":true,
+				 	"aperture":true },	
+
+	"viewBox" : [ -0.04, 0.02, 0.08, 0.04 ],
+
+
+	"sources" : [ { "id" 		: 1, 
+					"type" 		: "beam",
+					"which"		: "object",
+					"beamwidth" : 0.01,
+					"z"			: NaN, 
+					"h"			: NaN,
+					"t"			: 10 } ],
+
+
+	"prescription": [{
+		"id": "0001",
+		"type": "index",
+		"description": "air#1",
+		"args": {
+			"index": 1.000
+		}
+	},{		
+		"id": "0002",
+		"type": "thin",
+		"description": "correcting lens",
+		"args": {
+			"power":  0,
+			"height": 0.01
+		}
+	},{
+		"id": "0003",
+		"type": "index",
+		"description": "air gap",
+		"args": {
+			"index": 1.000,
+			"thickness": 0.0			
+		}
+	},{		
+		"id": "0004",
+		"type": "thin",
+		"description": "ametropia lens",
+		"args": {
+			"power":  0,
+			"height": 0.01
+		}
+	},{
+		"id": "0005",
+		"type": "index",
+		"description": "air#2",
+		"args": {
+			"index": 1.000,
+			"thickness": 0.0
+		}
+	}, {		
+		"id": "0006",
+		"type": "thin",
+		"description": "accommodating lens",
+		"args": {
+			"power":  0,
+			"height": 0.01
+		}
+	}, {
+		"id": "0007",
+		"type": "index",
+		"description": "air#4",
+		"args": {
+			"index": 1.0,
+			"thickness": 0.0
+		}
+	}, {		
+		"id": "0008",
+		"type": "sphere",
+		"description": "anterior cornea",
+		"args": {
+			"radius": 0.0078,
+			"height": 0.01
+		}
+	}, {
+		"id": "0009",
+		"type": "index",
+		"description": "aqueous",
+		"args": {
+			"index": 1.33,
+			"thickness": 0.002
+		}
+	}, {		
+		"id": "0008",
+		"type": "sphere",
+		"description": "anterior IOL lens",
+		"args": {
+			"radius": 0.008,
+			"height": 0.005
+		}
+	}, {
+		"id": "0009",
+		"type": "index",
+		"description": "IOL material",
+		"args": {
+			"index": 1.45,
+			"thickness": 0.001
+		}
+	}, {		
+		"id": "0008",
+		"type": "sphere",
+		"description": "posterior IOL lens",
+		"args": {
+			"radius": -0.008,
+			"height": 0.005
+		}
+	}, {
+		"id": "0009",
+		"type": "index",
+		"description": "vitreous",
+		"args": {
+			"index": 1.33,
+			"thickness": 0.01995
+		}
+	}, {
+		"id": "0010",
+		"type": "img",
+		"description": "retina",
+		"args" : {
+			"radius": -0.01,
+			"height": 0.01		
+		}
+	}]
+}
