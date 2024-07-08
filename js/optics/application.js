@@ -859,6 +859,9 @@ getConjuugateTo
 
       //var grab_canvas = document.getElementById('target_canvas');
       var container = document.getElementById('lens-container');
+      var submit_UPI = document.getElementById('submit_UPI').value;
+      var submit_ID  = document.getElementById('submit_ID').value;
+
 
       //var svg_element = container.firstElementChild;
       //importSVG(svg_element, grab_canvas);
@@ -919,7 +922,12 @@ getConjuugateTo
       var output = {};      
 
 
+
+
+
       output.id            = uuidv4();
+      output.submit_ID     = submit_ID;
+      output.submit_UPI    = submit_UPI;      
       output.date_string   = getFormattedDate();
       output.lens_table    = replaceNaN(lens.table.getData()); 
       output.points_table  = replaceNaN(lens.pointsTable.getData());

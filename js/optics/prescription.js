@@ -276,8 +276,9 @@ function updateRow (row) {
 
     switch (data.type) {
 
-      case "sphere": case "img":
-
+      case "sphere": 
+        
+          // case "img":
           // update the row 
 
           var nextRow = row.getNextRow().getData();

@@ -48,11 +48,11 @@
                       { "id": "46",  "filename": "./lenses/assignment/2023/assignment-2023-q4-add.lens",                             "title": "Ass 2023 Question 4   - Accommodation" },               
                       { "id": "47",  "filename": "./lenses/assignment/2023/assignment-2023-q5-mystery-eye.lens",                     "title": "Ass 2023 Question 5   - Mystery Eye" },
 
-                      { "id": "48",  "filename": "./lenses/assignment/2024/assignment-2023-q1-legrand-relaxed-schematic-eye.lens",   "title": "Ass 2024 Question 1   - Le Grand Eye (Relaxed)" },                      
-                      { "id": "49",  "filename": "./lenses/assignment/2024/assignment-2024-q2-emmetropic-eye.lens",  "title": "Ass 2024 Question 2   - Emmetropic Eye" },
-                      { "id": "50",  "filename": "./lenses/assignment/2024/assignment-2024-q3-IOL-eye.lens",         "title": "Ass 2024 Question 3   - IOL eye" },
-                      { "id": "51",  "filename": "./lenses/assignment/2024/assignment-2024-q4-add.lens",             "title": "Ass 2024 Question 4   - Accommodation" },               
-                      { "id": "52",  "filename": "./lenses/assignment/2024/assignment-2024-q5-mystery-eye.lens",     "title": "Ass 2024 Question 5   - Mystery Eye" }],
+                      { "id": "48",  "filename": "./lenses/assignment/2024/assignment-2024-q1-add.lens",            "title": "Ass 2024 Question 1 and 2 - The Add and Accommodation" },                      
+                      { "id": "49",  "filename": "./lenses/assignment/2024/assignment-2024-q1-add.lens",            "title": "Ass 2024 Question 2  - Emmetropic Eye" },
+                      { "id": "50",  "filename": "./lenses/assignment/2024/assignment-2024-q3-IOL-eye.lens",        "title": "Ass 2024 Question 3  - IOL eye" },
+                      { "id": "51",  "filename": "./lenses/assignment/2024/assignment-2024-q4-add.lens",            "title": "Ass 2024 Question 4  - Accommodation" },               
+                      { "id": "52",  "filename": "./lenses/assignment/2024/assignment-2024-q5-mystery-eye.lens",    "title": "Ass 2024 Question 5  - Mystery Eye" }],
 
 
     "profiles" : [ { "name" : "assignment",       "main" : "19", "list" : [ "19", "20", "21", "28'" ] }, 

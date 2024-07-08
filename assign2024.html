@@ -79,7 +79,7 @@
    /* configuration infromation */
 
    var config = { summary_template: 'mustache/lab5_report_tables_html.mustache', 
-                  download_report_template : 'mustache/optics_report_template_v1.0.mustache.htm' };
+                  download_report_template : 'mustache/optics_report_template_v2.0.mustache.htm' };
 
 
    function initializeApp () {
@@ -254,10 +254,59 @@
 
     <!--  Report button -->  
 
-
+<!--
     <button class='btn btn-primary float-right' id="optics_report" > 
        <i class="fas fa-download"></i>Report
     </button>
+-->
+
+    <!-- Button trigger modal -->
+    <button type="button" class="btn btn-primary float-right" data-toggle="modal" data-target="#exampleModal">
+       <i class="fas fa-download"></i>Report
+    </button>
+
+
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Fill in your details below, then hit download :</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            
+
+            <!-- download a report with information -->
+
+            <div class="form-group">
+              <label for="usr">Login ID/UPI:</label>
+              <input type="text" class="form-control" id="submit_UPI">
+            </div>
+            <div class="form-group">
+              <label for="pwd">SIS ID:</label>
+              <input type="text" class="form-control" id="submit_ID">
+            </div>
+
+            <i>
+            These details get  added to your downloaded optics report 
+            </i>
+          
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" data-dismiss="modal" id="optics_report" >Download</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+
+
 
 
    </div>
