@@ -368,10 +368,10 @@ function calculateConjugatePairFrom(point, systemInfo) {
               // results are relative to back vertex
               result    = calculatePairFromObject ({ z: ZO, h: Y1, t: T1 }, systemInfo); // distances assumed from vertices 
 
-              // fill in information if we have an afocal system 
+              // fill in information if the image is infinite 
               if (!isFinite(result.IQ) & !isFinite(result.OQ)) {
                     result.T2 = calculateExitAngle(T1, systemInfo);
-              }               
+              }
 
 
               // add in global co-ordinates 
@@ -443,6 +443,9 @@ CALCULATEEXITANGLE Determine the exit angle of the ray from the system
 --------------------------------------------------------------------------- */
 
 function calculateExitAngle(T1, systemInfo) {
+
+  // aim a ray at the axis of the lens 
+
   outray = rayMultiply(systemInfo.S, { u: deg2rad(T1), h: 0})
   return rad2deg(outray.u);
 }

@@ -271,7 +271,7 @@
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">Fill in your details below, then hit download :</h5>
+            <h5 class="modal-title" id="exampleModalLabel">Fill in details below. Then hit download :</h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
@@ -280,19 +280,58 @@
             
 
             <!-- download a report with information -->
+            <div class="form-group">
 
+              <!-- textbox -->
+
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                
+                  <!-- dropdown -->             
+
+                  <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      Question
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" id="QuestionBox">
+ 
+                    <!--
+                    
+                      Start Empty!
+
+                     <button id="2.1" class="dropdown-item" type="button" data-question="2" data-sub-question="1" onclick="updateQuestionBox(this.id);">Q2.1</button>
+                     <button id="2.2" class="dropdown-item" type="button" data-question="2" data-sub-question="2" onclick="updateQuestionBox(this.id);">Q2.2</button>
+                     <button id="2.3" class="dropdown-item" type="button" data-question="2" data-sub-question="3" onclick="updateQuestionBox(this.id);">Q2.3</button>
+
+                    -->
+
+
+
+                    </div>
+                  </div>
+
+
+                </div>
+                <input type="text" class="form-control" id="submit_question" aria-describedby="basic-addon3" Placeholder="Select the question this report answers">
+              </div>
+
+
+
+
+            </div>
             <div class="form-group">
               <label for="usr">Login ID/UPI:</label>
-              <input type="text" class="form-control" id="submit_UPI">
+              <input type="text" class="form-control" id="submit_UPI" Placeholder="Enter your UPI here">
             </div>
             <div class="form-group">
               <label for="pwd">SIS ID:</label>
-              <input type="text" class="form-control" id="submit_ID">
+              <input type="text" class="form-control" id="submit_ID" Placeholder="Enter your ID here">
             </div>
 
-            <i>
-            These details get  added to your downloaded optics report 
-            </i>
+
+            <div class="alert alert-warning" role="alert">
+              <i>Once the report is downloaded it can be uploaded to Canvas (Do not change it!)</i>
+            </div>
           
           </div>
           <div class="modal-footer">

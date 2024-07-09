@@ -852,13 +852,29 @@ getConjuugateTo
 
   /* REPORT */
 
+
+ let SelectedQuestionBoxValue = null;
+
+
+  function updateQuestionBox (id) {
+
+       console.log (`updating with TEXT = ${id}`)
+
+      var this_button          = document.getElementById(id);
+      var this_question        = document.getElementById("submit_question");
+      this_question.value      = id;
+
+  }
+
+
+
   function downloadOpticsReport () {
 
       // lens prescription summary 
 
 
       //var grab_canvas = document.getElementById('target_canvas');
-      var container = document.getElementById('lens-container');
+      var container  = document.getElementById('lens-container');
       var submit_UPI = document.getElementById('submit_UPI').value;
       var submit_ID  = document.getElementById('submit_ID').value;
 
@@ -922,9 +938,6 @@ getConjuugateTo
       var output = {};      
 
 
-
-
-
       output.id            = uuidv4();
       output.submit_ID     = submit_ID;
       output.submit_UPI    = submit_UPI;      
@@ -935,17 +948,27 @@ getConjuugateTo
       output.asJSON        = JSON.stringify(output);
       output.summary       = Mustache.render(summaryTemplate, renderableLens.total); 
 
-
+      
       // replace any NaNs with "---"
+      // console.log (renderableLens.total);
+      // console.log (output);
 
-      //console.log (renderableLens.total);
-      //console.log (output);
 
       // download the information 
       download_report_html = Mustache.render(download_report_template, output);  
       var a  = window.document.createElement('a');
       a.href = window.URL.createObjectURL(new Blob([download_report_html], {type: 'text/html'}));
-      a.download = 'report.html';
+
+      /* requires that found is GLOBAL */ 
+
+      if (found.hasOwnProperty("question") & found.hasOwnProperty("total") ) {
+        a.download = document.getElementById("submit_question").value.replace(".", "_"); + ".html";
+        console.log ('downloading specifcally named file ... ${a.download}');
+
+      } else {
+        a.download = 'report.html';
+      }
+
       document.body.appendChild(a); a.click();
       setTimeout( function () { document.body.removeChild(a); }, 1000); 
 
@@ -1142,10 +1165,44 @@ getConjuugateTo
 
 
      console.log (`loading id = ${id}`);
-
      found = findLensById(id);
 
-     console.log (found);
+
+     /* build a QuestionBox if the details exist */
+
+     if (found.hasOwnProperty("question") & found.hasOwnProperty("total") ) {
+
+
+          // <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+          // <button id="2.1" class="dropdown-item" type="button"  onclick="updateQuestionBox(this.id); ">Q2.1</button>
+
+           var QuestionTextBox  = document.getElementById("submit_question");
+           var QuestionBox      = document.getElementById("QuestionBox");
+
+            while (QuestionBox.firstChild) {
+              QuestionBox.removeChild(QuestionBox.firstChild);
+            }
+
+           // Default Question Box VALUE 
+
+           QuestionTextBox.value='Q' + found.question + '.' + 1;
+
+           for(var i=1; i <= found.total; i++)
+           {
+            var btn       = document.createElement("button");
+            btn.id        = 'Q' + found.question + '.' + i;
+            btn.class     = "dropdown-item";
+            btn.type      = "button";
+            btn.onclick   = function () { updateQuestionBox(this.id); };
+            btn.innerHTML ='Q' + found.question + '.' + i;
+            btn.value     ='Q' + found.question + '.' + i;
+            QuestionBox.appendChild(btn);
+            };
+
+
+
+
+     }
 
 
 
@@ -1157,7 +1214,6 @@ getConjuugateTo
                   /* loaded lens prescription */
 
                   console.log (`lens file ... ${found.filename}`);
-
                   response = JSON5.parse(data);
 
 
