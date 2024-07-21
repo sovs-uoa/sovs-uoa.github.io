@@ -48,9 +48,9 @@
                       { "id": "46",  "filename": "./lenses/assignment/2023/assignment-2023-q4-add.lens",                             "title": "Ass 2023 Question 4   - Accommodation" },               
                       { "id": "47",  "filename": "./lenses/assignment/2023/assignment-2023-q5-mystery-eye.lens",                     "title": "Ass 2023 Question 5   - Mystery Eye" },
 
-                      { "id": "48",  "filename": "./lenses/assignment/2024/assignment-2024-q1-add.lens",            "title": "Ass 2024 Question 1  - The Add",  "question": 1, "total":3 },                      
+                      { "id": "48",  "filename": "./lenses/assignment/2024/assignment-2024-q1-add.lens",            "title": "Ass 2024 Question 1  - The Add & Simple Magnifier",  "question": 1, "total":3 },                      
                       { "id": "49",  "filename": "./lenses/assignment/2024/assignment-2024-q2-accommodation.lens",  "title": "Ass 2024 Question 2  - Accomodation", "question": 2, "total":5 },
-                      { "id": "50",  "filename": "./lenses/assignment/2024/assignment-2024-q3-magnifier.lens",      "title": "Ass 2024 Question 3  - The Stand Magnifier", "question": 3, "total":2 },
+                      { "id": "50",  "filename": "./lenses/assignment/2024/assignment-2024-q3-stand-magnifier.lens",      "title": "Ass 2024 Question 3  - The Stand Magnifier", "question": 3, "total":2 },
                       { "id": "51",  "filename": "./lenses/assignment/2024/assignment-2024-q4-thick-lens.lens",     "title": "Ass 2024 Question 4  - The Size Lens", "question": 4, "total":2 } ],
 
     "profiles" : [ { "name" : "assignment",       "main" : "19", "list" : [ "19", "20", "21", "28'" ] }, 
