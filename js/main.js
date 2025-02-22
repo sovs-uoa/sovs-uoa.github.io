@@ -1,4 +1,6 @@
 
+
+
    function initializeApp () {
 
     
@@ -20,19 +22,23 @@
     }
 
 
+
     $( document ).ready(function() {      
 
 
             load_configuration ('./config/config.json').then(configuration => {
 
 
-              // globally accessible 
+              // OVERWRITE globally accessible FILELIST 
+
               fileList = configuration.models;
 
 
               // configuration 
               var main_profile = build_lenses_menu (configuration, "dropdown-lens-menu", config.lenses_menu);
               console.log (`profile = ${main_profile.name}, main = "${main_profile.main}"`);
+
+              fileProfile = main_profile;
 
               // Trigger on a SELECTION 
               $('.file-selection').on('click', function () {

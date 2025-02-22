@@ -16,6 +16,10 @@
   var    mouseIsDown = false;
   
   var   etol = 5e-4;
+
+
+  /* DEFAULT FILELIST + PROFILE */
+
   var   fileList  = [ { id: "0",  filename: "./lenses/thick-lens-positive.lens", title: "Thick Lens in Air (Positive Power)" }, 
                       { id: "1",  filename: "./lenses/thick-lens-negative.lens", title: "Thick Lens in Air (Negative Power)" },
                       { id: "2",  filename: "./lenses/thin-lens-positive.lens", title: "Thin Lens in Air (Positive)"  },
@@ -47,6 +51,9 @@
                       { id: "30",  filename: "./lenses/keratometer.lens", title: "Keratometer" } ];
 
                       // { id: "12", filename: "./lenses/reduced-eye-with-accommodation.lens", title: "Reduced Eye with Accommodation" },
+
+
+  var fileProfile = {};
 
 
 
@@ -1095,13 +1102,7 @@ getConjuugateTo
 
 
     function findLensById(id) {
-
-      //console.log (fileList);
-
       found = fileList.find(function (elem) {
-
-          //console.log (elem);
-
           return elem.id == id;
       });
 
@@ -1111,6 +1112,7 @@ getConjuugateTo
 
       return found;
     }
+
 
 
 
@@ -1163,46 +1165,80 @@ getConjuugateTo
       });
 
 
+      // This is the particular PROFILE 
+
+
+
+
+      // This is the particular LENS 
 
      console.log (`loading id = ${id}`);
      found = findLensById(id);
 
 
-     /* build a QuestionBox if the details exist */
+     /* BUILD QuestionBox IF ASSIGNMENT ENABLED  */
 
-     if (found.hasOwnProperty("question") & found.hasOwnProperty("total") ) {
+     console.log (fileProfile);
+     console.log (fileProfile);
 
-
-          // <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-          // <button id="2.1" class="dropdown-item" type="button"  onclick="updateQuestionBox(this.id); ">Q2.1</button>
-
-           var QuestionTextBox  = document.getElementById("submit_question");
-           var QuestionBox      = document.getElementById("QuestionBox");
-
-            while (QuestionBox.firstChild) {
-              QuestionBox.removeChild(QuestionBox.firstChild);
-            }
-
-           // Default Question Box VALUE 
-
-           QuestionTextBox.value='Q' + found.question + '.' + 1;
-
-           for(var i=1; i <= found.total; i++)
-           {
-            var btn       = document.createElement("button");
-            btn.id        = 'Q' + found.question + '.' + i;
-            btn.class     = "dropdown-item";
-            btn.type      = "button";
-            btn.onclick   = function () { updateQuestionBox(this.id); };
-            btn.innerHTML ='Q' + found.question + '.' + i;
-            btn.value     ='Q' + found.question + '.' + i;
-            QuestionBox.appendChild(btn);
-            };
+     if (!fileProfile.assignment & fileProfile.hasOwnProperty("uploads")) {
 
 
+             var QuestionTextBox  = document.getElementById("submit_question");
+             var QuestionBox      = document.getElementById("QuestionBox");
+
+             // clear out quiestion boxes  
+             while (QuestionBox.firstChild) {
+                QuestionBox.removeChild(QuestionBox.firstChild);
+              }
+
+             // Default Question Box VALUE 
+
+             QuestionTextBox.value='upload_' + 1;
+
+             for(var i=1; i <= fileProfile.uploads; i++)
+             {
+              var btn       = document.createElement("button");
+              btn.id        = 'upload_' + i;
+              btn.class     = "dropdown-item";
+              btn.type      = "button";
+              btn.onclick   = function () { updateQuestionBox(this.id); };
+              btn.innerHTML ='upload_' + i;
+              btn.value     ='upload_' + i;
+              QuestionBox.appendChild(btn);
+              };
 
 
-     }
+      } else {
+
+       if (found.hasOwnProperty("question") & found.hasOwnProperty("total") & fileProfile.assignment ) {
+
+             var QuestionTextBox  = document.getElementById("submit_question");
+             var QuestionBox      = document.getElementById("QuestionBox");
+
+             // clear out quiestion boxes  
+             while (QuestionBox.firstChild) {
+                QuestionBox.removeChild(QuestionBox.firstChild);
+              }
+
+             // Default Question Box VALUE 
+
+             QuestionTextBox.value='Q' + found.question + '.' + 1;
+
+             for(var i=1; i <= found.total; i++)
+             {
+              var btn       = document.createElement("button");
+              btn.id        = 'Q' + found.question + '.' + i;
+              btn.class     = "dropdown-item";
+              btn.type      = "button";
+              btn.onclick   = function () { updateQuestionBox(this.id); };
+              btn.innerHTML ='Q' + found.question + '.' + i;
+              btn.value     ='Q' + found.question + '.' + i;
+              QuestionBox.appendChild(btn);
+              };
+        }
+
+      }
 
 
 
@@ -1215,7 +1251,6 @@ getConjuugateTo
 
                   console.log (`lens file ... ${found.filename}`);
                   response = JSON5.parse(data);
-
 
                   startDrawing("lens-container", response); // uses paper 
 

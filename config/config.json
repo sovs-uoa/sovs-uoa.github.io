@@ -55,6 +55,9 @@
 
     "profiles" : [ { "name" : "lab-1",  "main" : "2", "list" : [ "2", "3" ], "assignment" : false, "uploads": 2 }, 
                    { "name" : "lab-2",  "main" : "4", "list" : [ "0", "1", "4", "5" ], "assignment" : false, "uploads": 2 },
+                   { "name" : "lab-3",  "main" : "13", "list" : [ "13", "10" ], "assignment" : false, "uploads": 2 },
+                   { "name" : "lab-4",  "main" : "13", "list" : [ "13", "14", "15" ], "assignment" : false, "uploads": 2 },        
+                   
                    { "name" : "assignment",       "main" : "19", "list" : [ "19", "20", "21", "28'" ], "assignment" : true }, 
                    { "name" : "assignment-2021",  "main" : "31", "list" : [ "31", "32", "33", "34", "35" ], "assignment" : true },
                    { "name" : "assignment-2022",  "main" : "36", "list" : [ "36", "37", "38", "39", "40", "41", "42" ], "assignment" : true },
