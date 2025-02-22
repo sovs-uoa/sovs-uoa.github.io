@@ -1002,14 +1002,14 @@ getConjuugateTo
           /* create an element to hold picture then press click */ 
 
           downloadTxt = paper.toSVG ();
-          //console.log (svgString);
-
           var a  = window.document.createElement('a');
-          a.href = window.URL.createObjectURL(new Blob([downloadTxt], {type: 'image/svg+xml'}));
           a.download = 'picture.svg';
+          a.type = 'image/svg+xml';
+          blob  = new Blob([downloadTxt], {"type": "image/svg+xml"});
+          a.href = window.URL.createObjectURL(blob);
           document.body.appendChild(a);
           a.click();
-          setTimeout( function () { document.body.removeChild(a); }, 1000);          
+          setTimeout( function () { document.body.removeChild(a); }, 5000);          
           console.log (`Download activated ... ${a.download}`);
           return;
 
