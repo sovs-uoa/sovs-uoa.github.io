@@ -62,9 +62,8 @@
   <script src="js/optics/PointSourceConstruction.js"></script>    
   <script src="js/optics/DataTableHandler.js"></script>      
   <script src="js/utils.js"></script>  
-
-
-
+  <script src="js/main.js"></script>  
+  
 
   <link rel="stylesheet" type="text/css" href="css/optics.css">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
@@ -76,102 +75,19 @@
 <script>
 
 
-   /* configuration infromation */
+   /* configuration for lab-1  */
 
    var config = { summary_template: 'mustache/lab5_report_tables_html.mustache', 
                   download_report_template : 'mustache/optics_report_template_v2.0.mustache.htm',
                   lenses_menu: 'lab-1' };
 
 
-   function initializeApp () {
-
-    
-     // report template 
-     $.get(config.download_report_template, function (data) {
-        console.log(`loaded download report ... ${config.download_report_template}`);
-        download_report_template = data;
-    });
-
-
-     // report template 
-     console.log('starting ... main app');
-     $.get('mustache/report.htm', function (data) {
-        console.log('loaded ... reportTemplate');
-        reportTemplate = data;
-    });
-
-
-    }
-
-
-    $( document ).ready(function() {      
-
-
-            load_configuration ('./config/config.json').then(configuration => {
-
-
-              // globally accessible 
-              fileList = configuration.models;
-
-
-              // configuration 
-              var main_profile = build_lenses_menu (configuration, "dropdown-lens-menu", config.lenses_menu);
-              console.log (`profile = ${main_profile.name}, main = "${main_profile.main}"`);
-
-              // Trigger on a SELECTION 
-              $('.file-selection').on('click', function () {
-                console.log("file selection made.");
-                var id  = $(this).data ("id"); // get the data id field 
-                var ndx = fileList.findIndex( function (element) { return element.id == id } );                
-                if (ndx > -1) {
-                  clearLens ();
-                  load(id);
-                  var txt = $(this).text();             // selection 
-                  $("#filename_display").val(txt);      // show it 
-                }
-              });
-
-
-
-              // trigger on a selection
-              $('#optics_report').on('click', function () {
-                downloadOpticsReport();
-              });
-
-
-              initializeApp ();
-
-              load (main_profile.main); // 12 = Reduced Eye with Accommodation 
-
-
-            // load ("19"); // 12 = Reduced Eye with Accommodation 
-
-
-
-            $( "#objects-images-tab" ).focus(function() {
-              alert( "Handler for .focus() called." );
-            });
-
-
-
-
-       });
-
-
-
-      
-
-
-    });
-
-
-
+    /* see main.js for initialization */
 
 
 </script>
 
 <body>
-
 
   <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
 
