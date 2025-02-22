@@ -53,7 +53,8 @@
                       { "id": "50",  "filename": "./lenses/assignment/2024/assignment-2024-q3-stand-magnifier.lens",      "title": "Ass 2024 Question 3  - The Stand Magnifier", "question": 3, "total":2 },
                       { "id": "51",  "filename": "./lenses/assignment/2024/assignment-2024-q4-thick-lens.lens",     "title": "Ass 2024 Question 4  - The Size Lens", "question": 4, "total":2 } ],
 
-    "profiles" : [ { "name" : "assignment",       "main" : "19", "list" : [ "19", "20", "21", "28'" ] }, 
+    "profiles" : [ { "name" : "lab-1",       "main" : "2", "list" : [ "2", "3" ] }, 
+                   { "name" : "assignment",       "main" : "19", "list" : [ "19", "20", "21", "28'" ] }, 
                    { "name" : "assignment-2021",  "main" : "31", "list" : [ "31", "32", "33", "34", "35" ] },
                    { "name" : "assignment-2022",  "main" : "36", "list" : [ "36", "37", "38", "39", "40", "41", "42" ] },
                    { "name" : "assignment-2023",  "main" : "43", "list" : [ "43", "44", "45", "46", "47" ] },
