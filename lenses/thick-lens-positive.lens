@@ -29,7 +29,7 @@
 	"sources" : [ { "id" 		: 1, 
 					"type" 		: "beam",
 					"which"		: "object",
-					"beamwidth" : 0.01,
+					"beamwidth" : 0.03,
 					"z"			: NaN, 
 					"h"			: NaN,
 					"t"			: 10 } ],
