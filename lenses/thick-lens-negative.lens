@@ -10,22 +10,29 @@
 	/* VIEWBOX */
 
 
-	"viewBox" : [ -1.0, 0.5, 2.0, 1.0 ],
+	"viewBox" : [ -0.25, 0.125, 0.5, 0.25 ],
 
-
-
+	// general 
 	"general" :  { "cardinalVertHeight" : 0.15 },
 
 
 	// sources 
-	"sources" : [ { "id" 		: 1, 
-					"type" 		: "point",
-					"which"		: "object",
-					"beamwidth" : NaN,
-					"z"			: -0.1, 
-					"h"			: 0.04,
-					"t"			: NaN } ],
+	// "sources" : [ { "id" 		: 1, 
+	//				"type" 		: "point",
+	//				"which"		: "object",
+	//				"beamwidth" : NaN,
+	//				"z"			: -0.2, 
+	//				"h"			: 0.08,
+	//				"t"			: NaN } ],
 
+
+	"sources" : [ { "id" 		: 1, 
+					"type" 		: "beam",
+					"which"		: "object",
+					"beamwidth" : 0.03,
+					"z"			: NaN, 
+					"h"			: NaN,
+					"t"			: 10 } ],
 
 	// lens prescription 
 	"title": "Thick Lens",
@@ -41,8 +48,8 @@
 		"type": "sphere",
 		"description": "front surface",
 		"args": {
-			"radius": -0.1,
-			"height": 0.05
+			"radius": -0.10,
+			"height": 0.06
 		}
 	}, {
 		"id": "0003",
@@ -57,8 +64,8 @@
 		"type": "sphere",
 		"description": "back surface",
 		"args": {
-			"radius": +0.1,
-			"height": 0.05
+			"radius": 0.10,
+			"height": 0.06
 		}
 	}, {
 		"id": "0003",
