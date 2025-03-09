@@ -17,13 +17,22 @@
 
 
 	// sources 
+	// "sources" : [ { "id" 		: 1, 
+	//				"type" 		: "point",
+	//				"which"		: "object",
+	//				"beamwidth" : NaN,
+	//				"z"			: -0.2, 
+	//				"h"			: 0.08,
+	//				"t"			: NaN } ],
+
+
 	"sources" : [ { "id" 		: 1, 
-					"type" 		: "point",
+					"type" 		: "beam",
 					"which"		: "object",
-					"beamwidth" : NaN,
-					"z"			: -0.2, 
-					"h"			: 0.08,
-					"t"			: NaN } ],
+					"beamwidth" : 0.01,
+					"z"			: NaN, 
+					"h"			: NaN,
+					"t"			: 10 } ],
 
 	// lens prescription 
 	"title": "Thick Lens",
