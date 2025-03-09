@@ -1,0 +1,104 @@
+/*--------------------------------------------
+
+ Two Thick Lenses in Air 
+
+----------------------------------------------*/
+
+{
+
+
+	/* VIEWBOX */
+
+
+	"viewBox" : [ -0.5, 0.1, 1.0, 0.5 ],
+
+	// general 
+	"general" :  { "cardinalVertHeight" : 0.15 },
+
+
+	// sources 
+	// "sources" : [ { "id" 		: 1, 
+	// 				"type" 		: "point",
+	// 				"which"		: "object",
+	// 				"beamwidth" : NaN,
+	// 				"z"			: -0.2, 
+	// 				"h"			: 0.02,
+	// 				"t"			: NaN } ],
+
+	"sources" : [ ],
+
+
+	// lens prescription 
+	"title": "Thick Lens",
+    "prescription": [{
+		"id": "0001",
+		"type": "index",
+		"description": "air#1",
+		"args": {
+			"index": 1.000
+		}
+	}, {		
+		"id": "0002",
+		"type": "sphere",
+		"description": "lens#1:front",
+		"args": {
+			"radius": 0.10,
+			"height": 0.05
+		}
+	}, {
+		"id": "0003",
+		"type": "index",
+		"description": "lens#1:glass",
+		"args": {
+			"index": 1.523,
+			"thickness": 0.01
+		}
+	}, {		
+		"id": "0004",
+		"type": "sphere",
+		"description": "lens#1:back",
+		"args": {
+			"radius": -0.10,
+			"height": 0.05
+		}
+	}, {
+		"id": "0005",
+		"type": "index",		
+		"description": "air#2",
+		"args": {
+			"thickness": 0.02,
+			"index": 1.0
+		}
+	}, {		
+		"id": "0006",
+		"type": "sphere",
+		"description": "lens#2:front",
+		"args": {
+			"radius": 0.10,
+			"height": 0.05
+		}
+	}, {
+		"id": "0007",
+		"type": "index",
+		"description": "lens#2:glass",
+		"args": {
+			"index": 1.523,
+			"thickness": 0.01
+		}
+	}, {		
+		"id": "0008",
+		"type": "sphere",
+		"description": "lens#2:back",
+		"args": {
+			"radius": -0.10,
+			"height": 0.05
+		}
+	}, {
+		"id": "0009",
+		"type": "index",
+		"description": "air#3",
+		"args": {
+			"index": 1.0
+		}
+	} ]
+}

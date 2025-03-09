@@ -10,7 +10,7 @@
 	/* VIEWBOX */
 
 
-	"viewBox" : [ -1.0, 0.5, 2.0, 1.0 ],
+	"viewBox" : [ -0.25, 0.125, 0.5, 0.25 ],
 
 	// general 
 	"general" :  { "cardinalVertHeight" : 0.15 },
@@ -40,7 +40,7 @@
 		"description": "front surface",
 		"args": {
 			"radius": 0.10,
-			"height": 0.05
+			"height": 0.06
 		}
 	}, {
 		"id": "0003",
@@ -56,7 +56,7 @@
 		"description": "back surface",
 		"args": {
 			"radius": -0.10,
-			"height": 0.05
+			"height": 0.06
 		}
 	}, {
 		"id": "0003",

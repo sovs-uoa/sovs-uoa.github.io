@@ -51,10 +51,14 @@
                       { "id": "48",  "filename": "./lenses/assignment/2024/assignment-2024-q1-add.lens",            "title": "Ass 2024 Question 1  - The Add & Simple Magnifier",  "question": 1, "total":3 },                      
                       { "id": "49",  "filename": "./lenses/assignment/2024/assignment-2024-q2-accommodation.lens",  "title": "Ass 2024 Question 2  - Accomodation", "question": 2, "total":5 },
                       { "id": "50",  "filename": "./lenses/assignment/2024/assignment-2024-q3-stand-magnifier.lens",      "title": "Ass 2024 Question 3  - The Stand Magnifier", "question": 3, "total":2 },
-                      { "id": "51",  "filename": "./lenses/assignment/2024/assignment-2024-q4-thick-lens.lens",     "title": "Ass 2024 Question 4  - The Size Lens", "question": 4, "total":2 } ],
+                      { "id": "51",  "filename": "./lenses/assignment/2024/assignment-2024-q4-thick-lens.lens",     "title": "Ass 2024 Question 4  - The Size Lens", "question": 4, "total":2 },
+
+                      { "id": "52",  "filename": "./lenses/two-thick-lenses-positive.lens", "title": "Two Thick Lenses in Air"  }   
+
+                  ],
 
     "profiles" : [ { "name" : "lab-1",  "main" : "2", "list" : [ "2", "3" ], "assignment" : false, "uploads": 2 }, 
-                   { "name" : "lab-2",  "main" : "4", "list" : [ "0", "1", "4", "5" ], "assignment" : false, "uploads": 2 },
+                   { "name" : "lab-2",  "main" : "0", "list" : [ "0", "1", "4", "5", "52" ], "assignment" : false, "uploads": 5 },
                    { "name" : "lab-3",  "main" : "13", "list" : [ "13", "10" ], "assignment" : false, "uploads": 2 },
                    { "name" : "lab-4",  "main" : "13", "list" : [ "13", "14", "15" ], "assignment" : false, "uploads": 2 },        
                    
