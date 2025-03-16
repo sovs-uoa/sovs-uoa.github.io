@@ -1192,19 +1192,21 @@ getConjuugateTo
                 QuestionBox.removeChild(QuestionBox.firstChild);
               }
 
+
+              console.log (fileProfile.uploads);
+
              // Default Question Box VALUE 
+            // QuestionTextBox.value='upload_' + 1;
 
-             QuestionTextBox.value='upload_' + 1;
-
-             for(var i=1; i <= fileProfile.uploads; i++)
+             for(var i=0; i < fileProfile.uploads.length; i++)
              {
               var btn       = document.createElement("button");
-              btn.id        = 'upload_' + i;
+              btn.id        = fileProfile.uploads[i];
               btn.class     = "dropdown-item";
               btn.type      = "button";
               btn.onclick   = function () { updateQuestionBox(this.id); };
-              btn.innerHTML ='upload_' + i;
-              btn.value     ='upload_' + i;
+              btn.innerHTML =fileProfile.uploads[i];
+              btn.value     =fileProfile.uploads[i];
               QuestionBox.appendChild(btn);
               };
 
