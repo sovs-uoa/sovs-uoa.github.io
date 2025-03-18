@@ -58,7 +58,7 @@
                   ],
 
     "profiles" : [ { "name" : "lab-1",  "main" : "2", "list" : [ "2", "3" ], "assignment" : false, "uploads": [ "Q1","Q4","Q5", "Q8", "Q9" ] }, 
-                   { "name" : "lab-2",  "main" : "0", "list" : [ "0", "1", "4", "5", "52" ], "assignment" : false, "uploads": 5 },
+                   { "name" : "lab-2",  "main" : "0", "list" : [ "0", "1", "4", "5", "52" ], "assignment" : false, "uploads": [ "Q3","Q4", "Q5", "Q6", "Q7", "Q8" ] },
                    { "name" : "lab-3",  "main" : "13", "list" : [ "13", "10" ], "assignment" : false, "uploads": 2 },
                    { "name" : "lab-4",  "main" : "13", "list" : [ "13", "14", "15" ], "assignment" : false, "uploads": 2 },        
                    
