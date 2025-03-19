@@ -968,9 +968,12 @@ getConjuugateTo
 
       /* requires that found is GLOBAL */ 
 
+      console.log ('Information.');
+      console.log (found);
+
       if (found.hasOwnProperty("question") & found.hasOwnProperty("total") ) {
         a.download = document.getElementById("submit_question").value.replace(".", "_"); + ".html";
-        console.log ('downloading specifcally named file ... ${a.download}');
+        console.log (`downloading specifcally named file ... ${a.download}`);
 
       } else {
         a.download = 'report.html';

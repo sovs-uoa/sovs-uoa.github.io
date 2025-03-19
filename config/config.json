@@ -1,5 +1,5 @@
-{ "models" : [        { "id": "0",  "filename": "./lenses/thick-lens-positive.lens", "title": "Thick Lens in Air (Positive Power)" }, 
-                      { "id": "1",  "filename": "./lenses/thick-lens-negative.lens", "title": "Thick Lens in Air (Negative Power)" },
+{ "models" : [        { "id": "0",  "filename": "./lenses/thick-lens-positive.lens", "title": "Thick Lens in Air (Positive Power)", "question": 1, "total":1 }, 
+                      { "id": "1",  "filename": "./lenses/thick-lens-negative.lens", "title": "Thick Lens in Air (Negative Power)",  "question": 2, "total":1 },
                       { "id": "2",  "filename": "./lenses/thin-lens-positive.lens", "title": "Thin Lens in Air (Positive)",  "question": 1, "total":1   },
                       { "id": "3",  "filename": "./lenses/thin-lens-negative.lens", "title": "Thin Lens in Air (Negative)",  "question": 2, "total":1   },
                       { "id": "4",  "filename": "./lenses/two-thin-lenses-positive.lens", "title": "Two Thin Lenses in Air (Nominal Positive Power)"  },   
@@ -58,7 +58,7 @@
                   ],
 
     "profiles" : [ { "name" : "lab-1",  "main" : "2", "list" : [ "2", "3" ], "assignment" : false, "uploads": [ "Q1","Q4","Q5", "Q8", "Q9" ] }, 
-                   { "name" : "lab-2",  "main" : "0", "list" : [ "0", "1", "4", "5", "52" ], "assignment" : false, "uploads": [ "Q3","Q4", "Q5", "Q6", "Q7", "Q8" ] },
+                   { "name" : "lab-2",  "main" : "0", "list" : [ "0", "1" ], "assignment" : false, "uploads": [ "Q3","Q4", "Q5", "Q6", "Q7", "Q8" ] },
                    { "name" : "lab-3",  "main" : "13", "list" : [ "13", "10" ], "assignment" : false, "uploads": 2 },
                    { "name" : "lab-4",  "main" : "13", "list" : [ "13", "14", "15" ], "assignment" : false, "uploads": 2 },        
                    
