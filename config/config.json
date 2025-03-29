@@ -54,16 +54,16 @@
                       { "id": "51",  "filename": "./lenses/assignment/2024/assignment-2024-q4-thick-lens.lens",     "title": "Ass 2024 Question 4  - The Size Lens", "question": 4, "total":2 },
 
                       { "id": "52",  "filename": "./lenses/two-thick-lenses-positive.lens", "title": "Two Thick Lenses in Air"  },
-                      { "id": "53", "filename": "./lenses/mystery-eye-with-ametropia-3.lens", "title": "Mystery reduced eye" },
-                      { "id": "54", "filename": "./lenses/emmetropic-eye-with-presbyopia-n-spectacles.lens", "title": "Summary problem reduced eye" }
-                      
-   
+                      { "id": "53", "filename": "./lenses/mystery-eye-with-ametropia-3.lens", "title": "Mystery reduced eye", "question": 1, "total":1 },
+                      { "id": "54", "filename": "./lenses/emmetropic-eye-with-presbyopia-n-spectacles.lens", "title": "Summary problem reduced eye", "question": 1, "total":1 },
+                      { "id": "55", "filename": "./lenses/reduced-eye-with-ametropia.lens",   "title": "Reduced emmetropic eye", "question": 1, "total":1 }
+                     
 
                   ],
 
     "profiles" : [ { "name" : "lab-1",  "main" : "2", "list" : [ "2", "3" ], "assignment" : false, "uploads": [ "Q1","Q4","Q5", "Q8", "Q9" ] }, 
                    { "name" : "lab-2",  "main" : "0", "list" : [ "0", "1" ], "assignment" : false, "uploads": [ "Q3","Q4", "Q5", "Q6", "Q7", "Q8" ] },
-                   { "name" : "lab-3",  "main" : "13", "list" : [ "13", "53", "54" ], "assignment" : false, "uploads": [ "Q4","Q8", "Q9", "Q10" ]  },
+                   { "name" : "lab-3",  "main" : "55", "list" : [ "55", "53", "54" ], "assignment" : false, "uploads": [ "Q4","Q8", "Q9" ]  },
                    { "name" : "lab-4",  "main" : "13", "list" : [ "13", "14", "15" ], "assignment" : false, "uploads": 2 },        
                    
                    { "name" : "assignment",       "main" : "19", "list" : [ "19", "20", "21", "28'" ], "assignment" : true }, 

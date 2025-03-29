@@ -82,7 +82,7 @@ Mystery reduced eye with accommodation (axial Rx 3.25D length 0.021027667984190)
 		"type": "sphere",
 		"description": "anterior cornea",
 		"args": {
-			"radius": 0.0055,
+			"radius": 0.005217391304347827,
 			"height": 0.01
 		}
 	}, {
@@ -91,7 +91,7 @@ Mystery reduced eye with accommodation (axial Rx 3.25D length 0.021027667984190)
 		"description": "aqueous/vitreous",
 		"args": {
 			"index": 1.33,
-			"thickness": 0.021027667984190
+			"thickness": 0.02216666666
 		}
 	}, {
 		"id": "0010",
