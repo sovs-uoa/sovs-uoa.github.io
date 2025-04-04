@@ -78,7 +78,7 @@
    /* configuration for lab-1  */
 
    var config = { summary_template: 'mustache/lab5_report_tables_html.mustache', 
-                  download_report_template : 'mustache/optics_report_template_v2.0.mustache.htm',
+                  download_report_template : 'mustache/optics_report_template_v2.1.mustache.htm',
                   lenses_menu: 'lab-4' };
 
     /* see main.js for initialization */
@@ -228,24 +228,30 @@
 
 
                 </div>
-                <input type="text" class="form-control" id="submit_question" aria-describedby="basic-addon3" Placeholder="Select the question this report answers">
+                <input type="text" class="form-control" id="submit_question" aria-describedby="basic-addon3" Placeholder="Select the question this report answers" disabled>
               </div>
 
 
 
 
             </div>
-            <div class="form-group" hidden>
+            <div class="form-group">
               <label for="submit_UPI">Login ID/UPI:</label>
               <input type="text" class="form-control" id="submit_UPI" Placeholder="Enter your UPI here">
             </div>
 
 
-
-            <div class="form-group" hidden>
+            <div class="form-group">
               <label for="submit_ID">Student ID:</label>
               <input type="text" class="form-control" id="submit_ID" Placeholder="Enter your ID here">
             </div>
+
+
+            <div class="form-group">
+              <label for="extra_comment">Extra comment:</label>
+              <input type="text" class="form-control" id="extra_comment" Placeholder="Enter extra information here">
+            </div>
+
 
             <div class="alert alert-warning" role="alert">
               <i>Upload the downloaded report to Canvas  (<b>do not change it!</b>)</i>
