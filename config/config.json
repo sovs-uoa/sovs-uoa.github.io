@@ -66,7 +66,7 @@
     "profiles" : [ { "name" : "lab-1",  "main" : "2", "list" : [ "2", "3" ], "assignment" : false, "uploads": [ "Q1","Q4","Q5", "Q8", "Q9" ] }, 
                    { "name" : "lab-2",  "main" : "0", "list" : [ "0", "1" ], "assignment" : false, "uploads": [ "Q3","Q4", "Q5", "Q6", "Q7", "Q8" ] },
                    { "name" : "lab-3",  "main" : "55", "list" : [ "55", "53", "54" ], "assignment" : false, "uploads": [ "Q4","Q8", "Q9" ]  },
-                   { "name" : "lab-4",  "main" : "58", "list" : [ "58", "56", "57" ], "assignment" : false, "uploads": [ "Q3","Q4", "Q6", "Q7","Q9", "Q10", "Q12" ] },        
+                   { "name" : "lab-4",  "main" : "58", "list" : [ "58", "56", "57" ], "assignment" : false, "uploads": [ "Q3","Q4", "Q6", "Q7", "Q10", "Q12", "Q14" ] },        
                    
                    { "name" : "assignment",       "main" : "19", "list" : [ "19", "20", "21", "28'" ], "assignment" : true }, 
                    { "name" : "assignment-2021",  "main" : "31", "list" : [ "31", "32", "33", "34", "35" ], "assignment" : true },
