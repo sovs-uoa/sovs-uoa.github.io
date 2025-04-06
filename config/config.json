@@ -59,7 +59,7 @@
                       { "id": "55", "filename": "./lenses/reduced-eye-with-ametropia.lens",   "title": "Reduced emmetropic eye", "question": 1, "total":1 },                     
                       { "id": "56", "filename": "./lenses/mystery-eye-with-ametropia-1.lens", "title": "Mystery eye #1", "question": 1, "total":1 },
                       { "id": "57", "filename": "./lenses/mystery-eye-with-ametropia-2.lens", "title": "Mystery eye #2", "question": 1, "total":1 },
-                      { "id": "58", "filename": "./lenses/reduced-eye-with-ametropia.lens",   "title": "Reduced eye", "question": 1, "total":1 }                     
+                      { "id": "58", "filename": "./lenses/reduced-eye-with-ametropia-lab4.lens",   "title": "Reduced eye", "question": 1, "total":1 }                     
                       
                   ],
 
