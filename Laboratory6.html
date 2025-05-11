@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>SOVS ray-tracer</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+<!--
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+-->
+
+
+  <!-- Raphael-->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.2.7/raphael.js" integrity="sha256-MPXjTSEImVJI1834JAHubdK7Lts1VTUPJmCQ9zKAjyA=" crossorigin="anonymous"></script>  
+
+
+  <!-- Bootstrap -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+
+  <!-- Tabulator -->
+  
+  <!--
+  <script type="text/javascript" src="https://unpkg.com/tabulator-tables@4.1.4/dist/js/tabulator.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabulator/4.1.5/css/bootstrap/tabulator_bootstrap4.css" integrity="sha256-N36ogArERHqDaggYouT90GwTJ75LsbMbwBUAWuf66s4=" crossorigin="anonymous" />
+  -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tabulator/4.2.3/js/tabulator.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabulator/4.2.3/css/bootstrap/tabulator_bootstrap4.css" />
+
+  <!-- Mustache -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/3.0.1/mustache.min.js"></script>
+
+  <!-- Mustache Extension -->
+  <script src="js/mustache-wax.js"></script>
+
+
+  <!-- Required to convert named colors to RGB -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/canvg/1.4/rgbcolor.min.js"></script>
+  <!-- Optional if you want blur -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/stackblur-canvas/1.4.1/stackblur.min.js"></script>
+  <!-- Main canvg code -->
+  <script src="https://cdn.jsdelivr.net/npm/canvg@2.0.0-beta.0/dist/browser/canvg.min.js"></script>
+
+
+  <!-- Other -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/json5/0.5.1/json5.js"></script>
+  <script src="js/optics/optics.js"></script>
+  <script src="js/optics/renderer.js"></script>  
+  <script src="js/optics/RayConstruction.js"></script>    
+  <script src="js/optics/prescription.js"></script>
+  <script src="js/optics/raphael.export.js"></script>
+  <script src="js/optics/AnglePicker.js"></script>  
+  <script src="js/optics/PrincipalRayConstruction.js"></script>  
+  <script src="js/optics/ParallelBeamConstruction.js"></script>  
+  <script src="js/optics/AfocalBeamConstruction.js"></script>    
+  <script src="js/optics/PointSourceConstruction.js"></script>    
+  <script src="js/optics/DataTableHandler.js"></script>      
+  <script src="js/utils.js"></script>  
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="css/optics.css">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+
+
+</head>
+
+
+<script>
+
+
+   /* configuration infromation */
+
+   var config = { summary_template: 'mustache/lab5_report_tables_html.mustache', 
+                  download_report_template : 'mustache/optics_report_template_v1.0.mustache.htm' };
+
+
+   function initializeApp () {
+
+    
+     // report template 
+     $.get(config.download_report_template, function (data) {
+        console.log(`loaded download report ... ${config.download_report_template}`);
+        download_report_template = data;
+    });
+
+
+
+
+     // report template 
+     console.log('starting ... main app');
+     $.get('mustache/report.htm', function (data) {
+        console.log('loaded ... reportTemplate');
+        reportTemplate = data;
+    });
+
+
+    load ("16"); // 12 = Reduced Eye with Accommodation 
+    }
+
+
+    $( document ).ready(function() {      
+
+      // trigger on a selection
+      $('.file-selection').on('click', function () {
+
+        console.log("file selection made.");
+        var id  = $(this).data ("id"); // get the data id field 
+        var ndx = fileList.findIndex( function (element) { return element.id == id } );
+          
+        // info.
+        if (ndx > -1) {
+          reload(id);
+          var txt = $(this).text();             // selection 
+          $("#filename_display").val(txt);      // show it 
+        }
+      });
+
+
+
+      // trigger on a selection
+      $('#optics_report').on('click', function () {
+        downloadOpticsReport();
+      });
+
+
+      initializeApp ();
+
+
+      $( "#objects-images-tab" ).focus(function() {
+        alert( "Handler for .focus() called." );
+      });
+
+
+      
+
+
+    });
+
+
+
+
+
+</script>
+
+<body>
+
+
+  <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+
+  <svg width="100" height="100">
+        <pattern id="diagonalHatch" width="10" height="10" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+            <line x1="0" y1="0" x2="0" y2="10" style="stroke:black; stroke-width:1" />
+        </pattern>  
+    </svg>
+
+
+  <defs>
+    <pattern id="smallGrid" width="8" height="8" patternUnits="userSpaceOnUse">
+      <path d="M 8 0 L 0 0 0 8" fill="none" stroke="gray" stroke-width="0.5"/>
+    </pattern>
+    <pattern id="grid" width="80" height="80" patternUnits="userSpaceOnUse">
+      <rect width="80" height="80" fill="url(#smallGrid)"/>
+      <path d="M 80 0 L 0 0 0 80" fill="none" stroke="gray" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+<!--
+  <rect width="100%" height="100%" fill="url(#grid)" />
+
+-->  
+</svg>
+
+<!-- Control the column width, and how they should appear on different devices -->
+
+<div class="container">
+
+<div class="row">
+  <div class="col">
+
+    <div class="input-group mb-3">
+      <div class="input-group-prepend">
+
+      <!-- Buttons -->
+        <button class="btn btn-secondary dropdown-toggle float-left" type="button" id="importer" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Load</button>
+
+        <!-- TO DO: need to build this list fron the javascript array --> 
+        <div id="dropdown-lens-menu" class="dropdown-menu">
+<!--
+          <a class="dropdown-item file-selection"  href="#" data-id="0" >Thick Lens in Air (Positive)</a>
+          <a class="dropdown-item file-selection"  href="#" data-id="1" >Thick lens in Air (Negative)</a>
+          <a class="dropdown-item file-selection"  href="#" data-id="2" >Thin lens in Air (Positive)</a>
+          <a class="dropdown-item file-selection"  href="#" data-id="3" >Thin Lens in Air (Negative)</a>
+          <a class="dropdown-item file-selection"  href="#" data-id="4" >Two Thin lens in Air (Positive)</a>
+          <a class="dropdown-item file-selection"  href="#" data-id="5" >Two Thin Lens in Air (Negative)</a>
+-->          
+          <a class="dropdown-item file-selection"  href="#" data-id="16" >Telescope model</a>
+
+<!--          
+          <a class="dropdown-item file-selection"  href="#" data-id="7" >Galilean telescope</a>
+          <a class="dropdown-item file-selection"  href="#" data-id="17" >Reduced eye with ametropia</a>
+          <a class="dropdown-item file-selection"  href="#" data-id="18" >Galilean model no retina</a>
+-->
+
+<!--
+          <a class="dropdown-item file-selection"  href="#" data-id="7" >Galilean Telescope</a>
+-->
+
+<!--
+          <a class="dropdown-item file-selection"  href="#" data-id="4" >Multiple thin lenses</a>
+          <a class="dropdown-item file-selection"  href="#" data-id="5" >Gullstrand Eye Model (Relaxed)</a>
+          <a class="dropdown-item file-selection"  href="#" data-id="6" >Gullstrand Eye Model (Accommodated)</a>
+          <div role="separator" class="dropdown-divider"></div>
+          <a class="dropdown-item file-selection"  href="#" data-id="7" >New</a>          
+-->          
+        </div>            
+
+     </div>
+    <input id="filename_display" type="text" class="form-control" aria-label="Text input with dropdown button" placeholder="Load a prescription" readonly>
+
+
+    <!--  Report button -->  
+
+
+    <button class='btn btn-primary float-right' id="optics_report" > 
+       <i class="fas fa-download"></i>Report
+    </button>
+
+
+   </div>
+    
+
+   </div>
+</div>
+
+
+
+
+<!-- VIEW -->
+<div class="row">
+  <div class="col">
+
+<!--
+        <div class="tab-pane fade show active"  id="lens-tab" role="tabpanel" aria-labelledby = "lens-nav">
+-->
+
+        <div id="lens-container" class="border border-dark"></div>
+
+  </div>
+</div>
+
+<!-- CONTROLS -->
+<div class="row">
+  <div class="col" style="" >
+
+        <!--------------------------------------------------------------------------------------------------------------------------------------------- 
+
+          NAVIGATION TABS  
+
+        ----------------------------------------------------------------------------------------------------------------------------------------------->
+
+      <ul class="nav nav-pills" id="myTab" role="tablist">
+
+<!--
+        <li class="nav-item">
+          <a class="nav-link active" id="lens-nav" data-toggle="tab" href="#lens-tab" role="tab" aria-controls="home" aria-selected="true">View</a>
+        </li>
+-->        
+        <li class="nav-item">
+          <a class="nav-link active" id="prescription-nav" data-toggle="tab" href="#prescription-tab" role="tab" aria-controls="home" aria-selected="true">Lens Prescription</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="objects-images-nav" data-toggle="tab" href="#objects-images-tab" role="tab" aria-controls="profile" aria-selected="false">Objects and Images</a>
+        </li>
+        
+        <li class="nav-item">
+          <a class="nav-link" id="summary-nav" data-toggle="tab" href="#summary-tab" role="tab" aria-controls="contact" aria-selected="false">Summary</a>
+        </li>
+      </ul>
+
+
+      <div class="tab-content" id="myTabContent" >
+
+
+        <!--------------------------------------------------------------------------------------------------------------------------------------------- 
+
+          VIEW TAB   
+
+        ----------------------------------------------------------------------------------------------------------------------------------------------->
+
+<!--
+
+        <div class="tab-pane fade show active"  id="lens-tab" role="tabpanel" aria-labelledby = "lens-nav">
+             <div class="container">
+                <div id="lens-container"></div>
+             </div>
+        </div>
+-->
+
+        <!--------------------------------------------------------------------------------------------------------------------------------------------- 
+
+          PRESCRIPTION TAB   
+
+        ----------------------------------------------------------------------------------------------------------------------------------------------->
+
+        <!-- Prescription addition tab -->
+        <div class="tab-pane show active" id="prescription-tab" role="tabpanel" aria-labelledby = "prescription-nav">    
+
+            <!-- Prescription addition tab -->    
+            <div class="container">
+                <div id="lens-table" class="table-striped" ></div>                        
+            </div>
+
+            <!-- Buttons -->
+            <div class="container">
+              <div class="btn-group" role="group" aria-label="Basic example">
+                      <div class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="lens-table-add-row" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" disabled>
+                          New
+                        </button>
+
+                        <div class="dropdown-menu">
+                          <a class="dropdown-item" href="#" data-short-id="index"  onclick="lensTypeSelector(this); return false;">Refractive Index</a>
+                          <a class="dropdown-item" href="#" data-short-id="thin"   onclick="lensTypeSelector(this); return false;">Thin Lens</a>
+                          <a class="dropdown-item" href="#" data-short-id="thick"  onclick="lensTypeSelector(this); return false;">Thick Lens</a>
+                          <a class="dropdown-item" href="#" data-short-id="sphere" onclick="lensTypeSelector(this); return false;">Spherical Surface</a>
+                        </div>            
+                      </div>
+
+                    <button id="lens-table-del-row" class="btn btn-secondary"  disabled>Delete Selected</button>
+                    <button id="lens-table-clear" class="btn btn-secondary" disabled>Clear</button>
+                    <button id="lens-table-reset" class="btn btn-secondary" disabled>Reset</button>
+              </div>
+        
+          </div>
+      </div>
+
+        <!--------------------------------------------------------------------------------------------------------------------------------------------- 
+
+          OBJECTS AND IMAGES TAB   
+
+        ----------------------------------------------------------------------------------------------------------------------------------------------->
+
+        <div class="tab-pane" id="objects-images-tab" role="tabpanel" aria-labelledby = "objects-images-nav">
+          
+            <div class="container">
+                <div id="lens-points" class="table-striped" ></div>        
+            </div>
+
+            <div class="container">
+                <div class="btn-group" role="group" aria-label="Basic example">       
+                     <div class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="lens-points-add-row" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                          New 
+                        </button>
+
+                        <div class="dropdown-menu">
+                          <a class="dropdown-item" href="#" data-short-id="point"  onclick="lensObjectSelector(this); return false;">point (focal systems only)</a>
+                          <a class="dropdown-item" href="#" data-short-id="source" onclick="lensObjectSelector(this); return false;">source (rays)</a>
+                          <a class="dropdown-item" href="#" data-short-id="beam"   onclick="lensObjectSelector(this); return false;">beam (from infinity, focal systems only)</a>
+                          <a class="dropdown-item" href="#" data-short-id="afocal" onclick="lensObjectSelector(this); return false;">beam (from infinity, afocal system)</a>
+                        </div>            
+                      </div>
+
+                      <button id="lens-points-del-row" class="btn btn-secondary" >Delete Selected</button>
+                      <button id="lens-points-clear" class="btn btn-secondary">Clear</button>                    
+                      <button id="lens-points-reset" class="btn btn-secondary" disabled>Reset</button>
+               </div>
+            </div>
+            
+        </div>
+
+        <!--------------------------------------------------------------------------------------------------------------------------------------------- 
+
+          SUMMARY TAB   
+
+        ----------------------------------------------------------------------------------------------------------------------------------------------->
+
+        <div class="tab-pane"  id="summary-tab"  role="tabpanel" aria-labelledby = "summary-nav" >
+          Summary Information goes here!
+        </div>
+
+
+      </div>
+
+
+    </div>
+   </div>
+</div>
+
+
+
+<!--------------------------------------------------------------------------------------------------------------------------------------------- 
+
+  SUMMARY TAB   
+
+----------------------------------------------------------------------------------------------------------------------------------------------->
+
+
+<div class="modal fade" id="modalLoginForm" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add Lens Element</h5>
+        
+
+        <!-- Details for the type  -->
+
+      </div>
+
+
+      <div class="modal-body">
+
+
+
+        <!-- Lens Type Selector -->
+        Type
+        <div class="input-group mb-3">
+          <input id="lens-type-text-readonly" type="text" class="form-control" aria-label="Text input with dropdown button" placeholder="Select the type of lens element" >
+        </div>
+
+        <!-- Lens Group Name -->
+        <div class="input-group mb-3" style="display:none;">
+          <input id="modal-lens-group-name" type="text" class="form-control" aria-label="Description" placeholder="Enter the group name. (Optional)" >
+        </div>
+
+        <!-- Lens Description -->
+        Description
+        <div class="input-group mb-3">
+          <input id="modal-lens-element-description" type="text" class="form-control" aria-label="Description" placeholder="Enter the element description." >
+        </div>
+
+        <!-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+        TYPES LENS INPUTS  
+
+        ------------------------------------------------------------------------------------------------------------------------------------------------------->
+
+
+        <!-- Index -->
+        <div id = "lens-type-index"  style="display:none;">
+
+          Value
+          <div class="input-group mb-3">
+              <input id="modal-lens-refractive-index"  type="text" class="form-control" aria-label="Description"  value="1.0" >
+          </div>
+
+          Thickness
+          <div class="input-group mb-3">
+              <input id="modal-lens-thickness"  type="text" class="form-control" aria-label="Description" placeholder="Enter the thickness." value="1.0" >
+          </div>
+
+        </div>
+
+        <!-- Surface -->
+        <div id = "lens-type-sphere" style="display:none;">
+
+          Radius of curvature 
+          <div class="input-group mb-3">
+              <input id="modal-lens-radius-of-curvature" type="text" class="form-control" aria-label="Description" placeholder="Enter the radius of curvature." value="7.8">
+          </div>
+
+          Aperture diameter
+          <div class="input-group mb-3">
+              <input id="modal-lens-aperture-diameter" type="text" class="form-control" aria-label="Description" placeholder="Enter the aperture diameter" value="5.0" >
+          </div>
+      </div>
+
+
+        <!-- Thin Lens -->
+        <div id = "lens-type-thin" style="display:none;">
+
+          Lens power 
+          <div class="input-group mb-3">
+              <input id="modal-thin-power" type="text" class="form-control" aria-label="Description" placeholder="Enter the lens power." value="0.05" >
+          </div>
+
+          Aperture diameter
+          <div class="input-group mb-3">
+              <input id="modal-thin-height" type="text" class="form-control" aria-label="Description" placeholder="Enter the aperture diameter" value="5.0" >
+          </div>
+      </div>
+
+
+        <!-- Thick Lens -->
+        <div id = "lens-type-thick" style="display:none;">
+
+          Front radius of curvature 
+          <div class="input-group mb-3">
+              <input id="modal-thick-front-radius" type="text" class="form-control" aria-label="Description" placeholder="Enter the front radius." value="10" >
+          </div>
+
+          Refractive index 
+          <div class="input-group mb-3">
+              <input id="modal-thick-refractive-index" type="text" class="form-control" aria-label="Description" placeholder="Enter the lens refractive index." value="1.523" >
+          </div>
+
+          Thickness
+          <div class="input-group mb-3">
+              <input id="modal-thick-thickness" type="text" class="form-control" aria-label="Description" placeholder="Enter the lens thickness." value="1">
+          </div>
+
+          Back radius of curvature 
+          <div class="input-group mb-3">
+              <input id="modal-thick-back-radius" type="text" class="form-control" aria-label="Description" placeholder="Enter the back radius." value="-10" >
+          </div>
+
+          Aperture diameter
+          <div class="input-group mb-3">
+              <input id="modal-thick-height" type="text" class="form-control" aria-label="Description" placeholder="Enter the lens height" value="5" >
+          </div>
+      </div>
+
+
+
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" onclick="addModalInfoToTable();" >Add</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- 
+
+      OBJECTS AND IMAGES - POITNS  
+
+-->
+
+<div class="modal fade" id="pointAddForm" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add Source</h5>
+        
+
+        <!-- Details for the type  -->
+
+      </div>
+
+
+      <div class="modal-body">
+
+
+        <!-- Lens Type Selector -->
+        <div class="input-group mb-3">
+          <input id="point-type-text-readonly" type="text" class="form-control" placeholder="Select whether you want to add object or image point." >
+        </div>
+
+        
+        <!-- Lens Description -->        
+        <div class="input-group mb-3" style="display:none;" >
+          <input id="modal-point-id" type="text" class="form-control" aria-label="Description" placeholder="Enter the id" >
+        </div>
+
+        <!-- Point Input Form -->
+        <div id = "lens-type-point" style="display:none;">
+          Object distance 
+          <div class="input-group mb-3">
+              <input id="modal-point-z"  type="text" class="form-control" aria-label="Description" placeholder="Enter the axial distance." value="-0.5">
+          </div>
+
+          Object height
+          <div class="input-group mb-3">
+              <input id="modal-point-h"  type="text" class="form-control" aria-label="Description" placeholder="Enter the height." value="0.1">
+          </div>
+        </div>
+
+
+        <!-- Source Input Form -->
+        <div id = "lens-type-source" style="display:none;">
+          Object distance 
+          <div class="input-group mb-3">
+              <input id="modal-source-z"  type="text" class="form-control" aria-label="Description" placeholder="Enter the axial distance." value="-0.5">
+          </div>
+
+          Object height
+          <div class="input-group mb-3">
+              <input id="modal-source-h"  type="text" class="form-control" aria-label="Description" placeholder="Enter the height." value="0.1">
+          </div>
+
+
+          Object beam width
+          <div class="input-group mb-3">
+              <input id="modal-source-beam-width"  type="text" class="form-control" aria-label="Description" placeholder="Enter the beam width." value="0.01" >
+          </div>
+        </div>
+
+
+
+        <!-- Beam Input Form -->
+        <div id = "lens-type-beam" style="display:none;">
+
+          This will add a beam from infinity to the system. The beam will pass through the cardinal points. This type of light source will not work if the system is afocal. 
+
+
+          Object beam angle 
+          <div class="input-group mb-3">
+              <input id="modal-beam-angle"  type="text" class="form-control" aria-label="Description" placeholder="Enter the beam angle." value="30" >
+          </div>
+
+          Object beam width
+          <div class="input-group mb-3">
+              <input id="modal-beam-width"  type="text" class="form-control" aria-label="Description" placeholder="Enter the beam width." value="5.0" >
+          </div>
+        </div>
+
+
+
+        <!-- Beam Input Form -->
+        <div id = "lens-type-afocal" style="display:none;">
+
+           This will add a beam from infinity to the system. The beam will pass through the system but not through the cardinal points. This type of light source will work if the system is afocal/focal. If the outgoing rays are detected as collimated - the exit angle will be reported. 
+          <div class="well">
+          </div>
+
+          Object beam angle 
+          <div class="input-group mb-3">
+              <input id="modal-afocal-angle"  type="text" class="form-control" aria-label="Description" placeholder="Enter the beam angle." value="30" >
+          </div>
+
+          Object beam width
+          <div class="input-group mb-3">
+              <input id="modal-afocal-width"  type="text" class="form-control" aria-label="Description" placeholder="Enter the beam width." value="5.0" >
+          </div>
+        </div>
+
+
+
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-primary" onclick="addModalInfoToPointsTable();" >Add</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!--
+<div class="panel panel-default fixed-panel center-panel">
+ <div class="panel-body">
+  <ul class="nav nav-tabs">
+    <li class="active"><a data-toggle="tab" href="#lens">Lens Prescription</a></li>
+    <li><a data-toggle="tab" href="#conjugates">Objects and Images</a></li>
+    <li><a data-toggle="tab" href="#summary">System Summary</a></li>
+    <li><a data-toggle="tab" href="#raysout">Rays</a></li>
+    <li><a data-toggle="tab" href="#extra">Miscellaneous</a></li>    
+  </ul>
+
+  <div class="tab-content">
+    
+    <div id="lens" class="tab-pane fade in active">
+    </div>
+    
+    <div id="conjugates" class="tab-pane fade">
+      <div id="conjugates-content">
+        <p>conjugates</p>
+      </div>
+      <div class="center">
+        <button data-toggle="modal" data-target="#conjugateModal" class="btn btn-primary center-block">Add Conjugate Pair</button>
+       </div>
+    </div>
+    
+    <div id="summary" class="tab-pane fade">
+      <p>summary</p>
+    </div>
+    
+    <div id="raysout" class="tab-pane fade">
+      <div id="raysout-content">
+              <p>raysout</p>
+      </div>
+      <div class="center">        
+        <button data-toggle="modal" data-target="#raysModal" class="btn btn-primary center-block">Add Ray</button>
+       </div>
+
+    </div>
+    
+    <div id="extra" class="tab-pane fade">
+      <div class="center"><button data-toggle="modal" data-target="#squarespaceModal" class="btn btn-primary center-block">Click Me</button></div>
+    </div>
+  
+  </div>
+
+
+  <div class="panel-footer">
+  Jason Turuwhenua, Auckland Bioengineering Institute, The University of Auckland, New Zealand 
+  </div>
+
+ </div> 
+</div>
+-->
+
+
+
+
+
+
+
+
+</body>
+
+
+
+  <!-- main application -->
+  <script src="js/optics/application.js"></script>  
+
+
+</html>
