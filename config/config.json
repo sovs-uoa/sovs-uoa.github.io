@@ -12,7 +12,7 @@
                       { "id": "13", "filename": "./lenses/reduced-eye-with-ametropia.lens",   "title": "Reduced emmetropic eye" },
                       { "id": "14", "filename": "./lenses/mystery-eye-with-ametropia-1.lens", "title": "Mystery eye #1" },
                       { "id": "15", "filename": "./lenses/mystery-eye-with-ametropia-2.lens", "title": "Mystery eye #2" },
-                      { "id": "16", "filename": "./lenses/telescope-with-reduced-eye-with-ametropia.lens", "title": "Telescope" },
+                      { "id": "16", "filename": "./lenses/telescope-with-reduced-eye-with-ametropia.lens", "title": "Telescope", "question": 1, "total":1 },
                       { "id": "17", "filename": "./lenses/reduced-eye-with-ametropia.lens", "title": "Reduced eye with ametropia" },
                       { "id": "18", "filename": "./lenses/telescope-with-reduced-eye-with-ametropia-no-retina.lens", "title": "Telescope with no retina" },
                       { "id": "19",  "filename": "./lenses/assign-thick-lens.lens", "title": "Thick Lens" },
@@ -67,7 +67,9 @@
                    { "name" : "lab-2",  "main" : "0", "list" : [ "0", "1" ], "assignment" : false, "uploads": [ "Q3","Q4", "Q5", "Q6", "Q7", "Q8" ] },
                    { "name" : "lab-3",  "main" : "55", "list" : [ "55", "53", "54" ], "assignment" : false, "uploads": [ "Q4","Q8", "Q9" ]  },
                    { "name" : "lab-4",  "main" : "58", "list" : [ "58", "56", "57" ], "assignment" : false, "uploads": [ "Q3","Q4", "Q6", "Q7", "Q10", "Q12", "Q14" ] },        
-                   
+                   { "name" : "lab-6",  "main" : "16", "list" : [ "16" ], "assignment" : false, "uploads": [ "Q3" ] },
+
+
                    { "name" : "assignment",       "main" : "19", "list" : [ "19", "20", "21", "28'" ], "assignment" : true }, 
                    { "name" : "assignment-2021",  "main" : "31", "list" : [ "31", "32", "33", "34", "35" ], "assignment" : true },
                    { "name" : "assignment-2022",  "main" : "36", "list" : [ "36", "37", "38", "39", "40", "41", "42" ], "assignment" : true },
