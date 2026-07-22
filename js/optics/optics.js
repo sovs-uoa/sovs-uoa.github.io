@@ -612,7 +612,7 @@ function calculatePairFromImage (image, systemInfo) {
                               TH  : h/n1 * curr.F,                              
                                }; // w.r.t. PF1 and PF2 
 
-                      throw "infinite image distance detected";              
+                      // throw "infinite image distance detected";              
               }
 
 

@@ -427,8 +427,8 @@ class PointSourceConstruction { // create a ray construction using raphael.js
      //var F1 = lens.cardinal.VF1;
      //var F2 = lens.L + lens.cardinal.VF2;
 
-     console.log("LENS");
-     console.log(lens);
+     //console.log("LENS");
+     //console.log(lens);
 
 
      ////console.log("-- draw PointSource beam construction.");
@@ -450,9 +450,16 @@ class PointSourceConstruction { // create a ray construction using raphael.js
 
 
      /* inital rays */  
+
+
+     // This should be the source 
+
      dX = -1;
      var X1 = this.data.X1;
      var Y1 = this.data.Y1;
+
+     console.warn (`X1 = ${X1}`);
+
      for (var i=0; i <  M ; i++) {
         
         var u2 = ray[0][i].u;         
@@ -460,7 +467,26 @@ class PointSourceConstruction { // create a ray construction using raphael.js
         var Y2 = ray[0][i].h;        
 
 
-        if (X1 > V1) {
+        if  (X1 === -Infinity) {
+
+
+            console.warn ('Detected object @ -Infinity');
+            console.warn (`X1=${X1} Y1=${Y1}`);
+            console.warn (`X2=${X2} Y2=${Y2}`);
+
+            console.warn (`u2=${u2}`);
+            console.warn (`X2=${X2}`);
+            console.warn (`Y2=${Y2}`);
+
+            console.warn ('This data dump.');
+
+            console.warn(ray)
+            console.warn(this.inputRays)
+            console.warn(this.data)
+
+
+
+        } else if (X1 > V1) {
 
             // var X2 = X1 + dX; var Y2 = Y1 + dX*u1;
             var p4 = paper.path( ["M", X1, Y1,  "L", X2, Y2 ]); 
@@ -477,10 +503,25 @@ class PointSourceConstruction { // create a ray construction using raphael.js
 
         } else {
 
+            console.warn ('Object less than V1');
+            console.warn (`X1=${X1} Y1=${Y1}`);
+            console.warn (`X2=${X2} Y2=${Y2}`);
+
+            if (isFinite(X1)) { 
+
             // var X2 = X1 + dX; var Y2 = Y1 + dX*u1;
             var p4 = paper.path( ["M", X1, Y1,  "L", X2, Y2 ]); 
             p4.attr(real);
             this.cd_set.push(p4);
+
+            } else {
+
+                console.log (ray);
+
+                throw "Unhandled infinite object point!"
+
+            }
+
 
         }
 
