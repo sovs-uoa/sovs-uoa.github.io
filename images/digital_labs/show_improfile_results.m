@@ -10,22 +10,47 @@
 %   Ip_A_max, Ip_A_min, Ip_B_max, Ip_B_min,    - the max/min pixel value
 %   Ip_C_max, Ip_C_min, Ip_D_max, Ip_D_min       for each patch
 %
+% Optionally, set a variable called 'prefix' before running this script
+% (e.g. prefix = 'sigma2';) to instead use the variables Ip_A_sigma2,
+% Ip_B_sigma2, ..., Ip_A_max_sigma2, Ip_A_min_sigma2, etc. This lets you
+% reuse the same script for different datasets (e.g. 'sigma2', 'sigma3')
+% without renaming variables back to the plain Ip_A form each time.
+%
+
+% no suffix is added if prefix does not exist, or if it is '' or []
+% (isempty() is true for both '' and [], so both are handled the same way)
+if ~exist('prefix', 'var')
+    prefix = '';
+end
+if isempty(prefix)
+    suffix = '';
+else
+    suffix = ['_' prefix];
+end
 
 % check that everything needed is already in the workspace
-required_vars = {'Ip_A', 'Ip_B', 'Ip_C', 'Ip_D', ...
+base_names = {'Ip_A', 'Ip_B', 'Ip_C', 'Ip_D', ...
     'Ip_A_max', 'Ip_A_min', 'Ip_B_max', 'Ip_B_min', ...
     'Ip_C_max', 'Ip_C_min', 'Ip_D_max', 'Ip_D_min'};
 
 missing_vars = {};
-for k = 1:numel(required_vars)
-    if ~exist(required_vars{k}, 'var')
-        missing_vars{end+1} = required_vars{k}; %#ok<AGROW>
+for k = 1:numel(base_names)
+    full_name = [base_names{k} suffix];
+    if ~exist(full_name, 'var')
+        missing_vars{end+1} = full_name; %#ok<AGROW>
     end
 end
 
 if ~isempty(missing_vars)
     error('show_improfile_results:missingVariables', ...
         'Missing variable(s) in the workspace: %s', strjoin(missing_vars, ', '));
+end
+
+% pull the (possibly suffixed) variables into the plain local names used
+% by the rest of this script
+for k = 1:numel(base_names)
+    full_name = [base_names{k} suffix];
+    eval([base_names{k} ' = ' full_name ';']);
 end
 
 profiles = {Ip_A, Ip_B, Ip_C, Ip_D};
