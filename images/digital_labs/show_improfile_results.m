@@ -22,6 +22,18 @@
 if ~exist('prefix', 'var')
     prefix = '';
 end
+% force prefix to a char array. Handle numbers specially: char(2) does
+% NOT give the text '2', it gives an unprintable control character (char
+% treats a number as a character CODE, not as text to display) - use
+% num2str for numeric prefixes so prefix = 2 behaves like prefix = '2'.
+% For string/char input, char() normalizes "2" (string) the same way as
+% '2' (char), avoiding the multi-element string array that ['_' prefix]
+% would otherwise silently produce.
+if isnumeric(prefix)
+    prefix = num2str(prefix);
+else
+    prefix = char(prefix);
+end
 if isempty(prefix)
     suffix = '';
 else
