@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fourier Image Explorer</title>
+<style>
+  :root {
+    --bg: #eef0f3;
+    --panel: #ffffff;
+    --panel-2: #f5f6f8;
+    --border: #d7dbe0;
+    --text: #1b2027;
+    --text-dim: #5b6570;
+    --accent: #b5720a;
+    --accent-soft: rgba(181, 114, 10, 0.14);
+    --bad: #b5453a;
+    --mono: ui-monospace, "SFMono-Regular", "JetBrains Mono", Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --radius: 5px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0d1117;
+      --panel: #161b22;
+      --panel-2: #12161c;
+      --border: #2a3138;
+      --text: #e6e9ed;
+      --text-dim: #8b95a1;
+      --accent: #e8a33d;
+      --accent-soft: rgba(232, 163, 61, 0.16);
+      --bad: #e8776a;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0d1117; --panel: #161b22; --panel-2: #12161c; --border: #2a3138;
+    --text: #e6e9ed; --text-dim: #8b95a1; --accent: #e8a33d;
+    --accent-soft: rgba(232, 163, 61, 0.16); --bad: #e8776a;
+  }
+  :root[data-theme="light"] {
+    --bg: #eef0f3; --panel: #ffffff; --panel-2: #f5f6f8; --border: #d7dbe0;
+    --text: #1b2027; --text-dim: #5b6570; --accent: #b5720a;
+    --accent-soft: rgba(181, 114, 10, 0.14); --bad: #b5453a;
+  }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--sans); }
+
+  .console { max-width: 1180px; margin: 0 auto; padding: 28px 20px 44px; }
+
+  .console__eyebrow {
+    font-size: 11px; letter-spacing: 0.09em; text-transform: uppercase;
+    color: var(--text-dim); margin-bottom: 4px;
+  }
+  .console__title { font-size: 22px; font-weight: 650; letter-spacing: -0.01em; margin: 0 0 6px; text-wrap: balance; }
+  .console__desc { font-size: 13.5px; line-height: 1.6; color: var(--text-dim); max-width: 72ch; margin: 0 0 20px; }
+
+  .panel {
+    background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 16px 18px; margin-bottom: 14px;
+  }
+
+  .panel__label {
+    font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--text-dim); margin-bottom: 12px;
+  }
+
+  /* ---- source row ---- */
+  .source-row { display: flex; flex-wrap: wrap; align-items: end; gap: 16px; }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label { font-size: 12px; color: var(--text-dim); }
+  .field input[type="text"], .field input[type="url"] {
+    font-family: var(--mono); font-size: 13px; color: var(--text); background: var(--panel-2);
+    border: 1px solid var(--border); border-radius: 4px; padding: 7px 9px; width: 260px;
+  }
+  select {
+    font-family: var(--sans); font-size: 13px; color: var(--text); background: var(--panel-2);
+    border: 1px solid var(--border); border-radius: 4px; padding: 7px 9px;
+  }
+  .btn {
+    font-family: var(--sans); font-size: 13px; font-weight: 600; letter-spacing: 0.01em;
+    color: var(--text); background: var(--panel-2); border: 1px solid var(--border);
+    border-radius: 4px; padding: 8px 14px; cursor: pointer; white-space: nowrap;
+  }
+  .btn:hover { border-color: var(--accent); }
+  .btn--accent { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+  input[type="file"] { font-family: var(--sans); font-size: 12px; color: var(--text-dim); max-width: 190px; }
+
+  .status { font-family: var(--mono); font-size: 12px; margin-top: 10px; color: var(--text-dim); min-height: 1.4em; }
+  .status--error { color: var(--bad); }
+
+  /* ---- spectrum grid ---- */
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .grid2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  @media (max-width: 820px) { .grid3, .grid2 { grid-template-columns: 1fr; } }
+
+  .scope { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+  .scope__label { font-size: 11px; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-dim); }
+  .canvas-stack { position: relative; width: 100%; aspect-ratio: 1/1; border-radius: 3px; overflow: hidden; background: var(--panel-2); }
+  .canvas-stack canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .canvas-stack canvas.overlay { pointer-events: none; }
+
+  /* ---- filter rail ---- */
+  .filter-rail { display: grid; grid-template-columns: 1.1fr 1fr 1.3fr 1.3fr auto; gap: 20px; align-items: end; }
+  @media (max-width: 900px) { .filter-rail { grid-template-columns: repeat(2, 1fr); } }
+
+  .control__row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+  .control label { font-size: 12px; letter-spacing: 0.03em; color: var(--text-dim); }
+  .readout { font-family: var(--mono); font-size: 14px; font-weight: 600; color: var(--accent); font-variant-numeric: tabular-nums; }
+
+  input[type="range"] {
+    -webkit-appearance: none; width: 100%; height: 3px; background: var(--border); border-radius: 2px; outline-offset: 6px;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 15px; height: 15px; border-radius: 50%;
+    background: var(--accent); border: 2px solid var(--panel); box-shadow: 0 0 0 1px var(--accent);
+    cursor: pointer; margin-top: -6px;
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 13px; height: 13px; border-radius: 50%; background: var(--accent);
+    border: 2px solid var(--panel); box-shadow: 0 0 0 1px var(--accent); cursor: pointer;
+  }
+  input[type="range"]::-moz-range-track { height: 3px; background: var(--border); border-radius: 2px; }
+  input[type="range"]:disabled::-webkit-slider-thumb { background: var(--text-dim); box-shadow: 0 0 0 1px var(--border); }
+  input[type="range"]:disabled { opacity: 0.5; }
+
+  .toggle { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-dim); cursor: pointer; user-select: none; }
+  .toggle input { width: 15px; height: 15px; accent-color: var(--accent); cursor: pointer; }
+
+  .radio-row { display: flex; gap: 14px; }
+  .radio-row label { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--text); cursor: pointer; }
+  .radio-row input { accent-color: var(--accent); cursor: pointer; }
+
+  .filter-legend {
+    display: flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 11.5px; color: var(--text-dim);
+  }
+  .filter-legend__swatch { width: 10px; height: 10px; border-radius: 50%; border: 1.5px dashed var(--accent); }
+
+  .hint { font-size: 12.5px; line-height: 1.55; color: var(--text-dim); max-width: 80ch; }
+
+  input:focus-visible, button:focus-visible, select:focus-visible { outline: 2px solid var(--accent); }
+</style>
+</head>
+<body>
+
+<div class="console">
+  <div class="console__eyebrow">OPTOM 263 &middot; Fourier Transforms</div>
+  <h1 class="console__title">Fourier Image Explorer</h1>
+  <p class="console__desc">
+    Load an image, see its magnitude and phase spectra, and apply frequency-domain filters
+    (ideal / Gaussian / Butterworth, low-pass or high-pass) &mdash; the filter's shape is drawn
+    directly on top of the spectra so you can see exactly which frequencies survive.
+  </p>
+
+  <div class="panel">
+    <div class="panel__label">1. Image source</div>
+    <div class="source-row">
+      <div class="field">
+        <label for="fileInput">Upload a local image</label>
+        <input type="file" id="fileInput" accept="image/*">
+      </div>
+      <div class="field">
+        <label for="urlInput">...or load from a URL</label>
+        <input type="url" id="urlInput" placeholder="https://example.com/photo.jpg">
+      </div>
+      <button class="btn" id="loadUrlBtn" type="button">Load URL</button>
+      <button class="btn btn--accent" id="loadSampleBtn" type="button">Load sample image</button>
+      <div class="field">
+        <label for="sizeSelect">Analysis size</label>
+        <select id="sizeSelect">
+          <option value="128">128 &times; 128</option>
+          <option value="256" selected>256 &times; 256</option>
+          <option value="512">512 &times; 512</option>
+        </select>
+      </div>
+    </div>
+    <div class="status" id="statusMsg"></div>
+  </div>
+
+  <div class="panel">
+    <div class="panel__label">2. Spatial &amp; frequency domain</div>
+    <div class="grid3">
+      <div class="scope">
+        <div class="scope__label">Image (grayscale)</div>
+        <div class="canvas-stack"><canvas id="imgCanvas"></canvas></div>
+      </div>
+      <div class="scope">
+        <div class="scope__label">Magnitude spectrum</div>
+        <div class="canvas-stack">
+          <canvas id="magCanvas"></canvas>
+          <canvas id="magOverlay" class="overlay"></canvas>
+        </div>
+      </div>
+      <div class="scope">
+        <div class="scope__label">Phase spectrum</div>
+        <div class="canvas-stack">
+          <canvas id="phaseCanvas"></canvas>
+          <canvas id="phaseOverlay" class="overlay"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="control__row" style="margin-top:12px; margin-bottom:0;">
+      <div class="radio-row" id="scaleRadios">
+        <label><input type="radio" name="scaleMode" value="log" checked> Log magnitude</label>
+        <label><input type="radio" name="scaleMode" value="linear"> Linear magnitude</label>
+      </div>
+      <span class="hint" style="margin:0;">+f<sub>y</sub> is up (Cartesian convention), zero-centred (DC at middle)</span>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel__label">3. Frequency-domain filter</div>
+    <div class="filter-rail">
+      <div class="control">
+        <div class="control__row"><label for="filterFamily">Filter</label></div>
+        <select id="filterFamily" style="width:100%;">
+          <option value="none">None</option>
+          <option value="ideal">Ideal (hard cutoff)</option>
+          <option value="gaussian">Gaussian</option>
+          <option value="butterworth" selected>Butterworth</option>
+        </select>
+      </div>
+      <div class="control">
+        <div class="control__row"><label for="passType">Pass type</label></div>
+        <select id="passType" style="width:100%;">
+          <option value="low" selected>Low-pass</option>
+          <option value="high">High-pass</option>
+        </select>
+      </div>
+      <div class="control">
+        <div class="control__row">
+          <label for="d0Slider">Cutoff D<sub>0</sub> <span style="color:var(--text-dim)">(cyc/image)</span></label>
+          <span class="readout" id="d0Readout">32</span>
+        </div>
+        <input type="range" id="d0Slider" min="1" max="128" step="1" value="32">
+      </div>
+      <div class="control">
+        <div class="control__row">
+          <label for="orderSlider">Order n <span style="color:var(--text-dim)">(Butterworth only)</span></label>
+          <span class="readout" id="orderReadout">2</span>
+        </div>
+        <input type="range" id="orderSlider" min="1" max="10" step="1" value="2">
+      </div>
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <label class="toggle"><input type="checkbox" id="overlayToggle" checked><span>Show filter overlay</span></label>
+        <span class="filter-legend"><span class="filter-legend__swatch"></span> D<sub>0</sub> cutoff (half-power point)</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel__label">4. Filtered result</div>
+    <div class="grid2">
+      <div class="scope">
+        <div class="scope__label">Filtered image (inverse FFT)</div>
+        <div class="canvas-stack"><canvas id="filtImgCanvas"></canvas></div>
+      </div>
+      <div class="scope">
+        <div class="scope__label">Filtered magnitude spectrum</div>
+        <div class="canvas-stack">
+          <canvas id="filtMagCanvas"></canvas>
+          <canvas id="filtMagOverlay" class="overlay"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="hint">
+    Everything after the first FFT is computed locally in your browser &mdash; no image or URL is
+    ever uploaded anywhere. URL images need the host to allow cross-origin pixel access (CORS);
+    if loading fails, download the image and use &ldquo;Upload a local image&rdquo; instead.
+  </p>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  // ======================================================================
+  // FFT core (verified against a direct O(N^4) 2D DFT and round-trip test
+  // before being embedded here)
+  // ======================================================================
+  function fft1d(re, im, invert) {
+    const n = re.length;
+    for (let i = 1, j = 0; i < n; i++) {
+      let bit = n >> 1;
+      for (; j & bit; bit >>= 1) j ^= bit;
+      j ^= bit;
+      if (i < j) {
+        let t = re[i]; re[i] = re[j]; re[j] = t;
+        t = im[i]; im[i] = im[j]; im[j] = t;
+      }
+    }
+    for (let len = 2; len <= n; len <<= 1) {
+      const ang = (invert ? 1 : -1) * 2 * Math.PI / len;
+      const wr = Math.cos(ang), wi = Math.sin(ang);
+      for (let i = 0; i < n; i += len) {
+        let curWr = 1, curWi = 0;
+        const half = len / 2;
+        for (let j = 0; j < half; j++) {
+          const ur = re[i + j], ui = im[i + j];
+          const vr = re[i + j + half] * curWr - im[i + j + half] * curWi;
+          const vi = re[i + j + half] * curWi + im[i + j + half] * curWr;
+          re[i + j] = ur + vr; im[i + j] = ui + vi;
+          re[i + j + half] = ur - vr; im[i + j + half] = ui - vi;
+          const nextWr = curWr * wr - curWi * wi;
+          const nextWi = curWr * wi + curWi * wr;
+          curWr = nextWr; curWi = nextWi;
+        }
+      }
+    }
+    if (invert) { for (let i = 0; i < n; i++) { re[i] /= n; im[i] /= n; } }
+  }
+
+  function fft2d(re, im, N, invert) {
+    const rowR = new Float64Array(N), rowI = new Float64Array(N);
+    for (let y = 0; y < N; y++) {
+      for (let x = 0; x < N; x++) { rowR[x] = re[y * N + x]; rowI[x] = im[y * N + x]; }
+      fft1d(rowR, rowI, invert);
+      for (let x = 0; x < N; x++) { re[y * N + x] = rowR[x]; im[y * N + x] = rowI[x]; }
+    }
+    const colR = new Float64Array(N), colI = new Float64Array(N);
+    for (let x = 0; x < N; x++) {
+      for (let y = 0; y < N; y++) { colR[y] = re[y * N + x]; colI[y] = im[y * N + x]; }
+      fft1d(colR, colI, invert);
+      for (let y = 0; y < N; y++) { re[y * N + x] = colR[y]; im[y * N + x] = colI[y]; }
+    }
+  }
+
+  // swap quadrants in place (N assumed even -- always true here, powers of 2)
+  function fftshift2d(re, im, N) {
+    const half = N / 2;
+    for (let y = 0; y < half; y++) {
+      for (let x = 0; x < N; x++) {
+        const x2 = (x + half) % N, y2 = y + half;
+        const i1 = y * N + x, i2 = y2 * N + x2;
+        let t = re[i1]; re[i1] = re[i2]; re[i2] = t;
+        t = im[i1]; im[i1] = im[i2]; im[i2] = t;
+      }
+    }
+  }
+
+  function clamp(v, lo, hi) { return Math.min(hi, Math.max(lo, v)); }
+
+  // ======================================================================
+  // Filter masks -- built directly on the SHIFTED grid (DC at centre).
+  // D0 is defined the standard (Gonzalez-Woods) way: H(D0) = 0.5.
+  // ======================================================================
+  function buildFilterMask(N, family, passType, D0, order) {
+    const H = new Float64Array(N * N);
+    const cx = N / 2, cy = N / 2;
+    for (let y = 0; y < N; y++) {
+      for (let x = 0; x < N; x++) {
+        const dx = x - cx, dy = y - cy;
+        const D = Math.hypot(dx, dy);
+        let lp;
+        if (family === 'ideal') {
+          lp = D <= D0 ? 1 : 0;
+        } else if (family === 'gaussian') {
+          lp = Math.exp(-(D * D) / (2 * D0 * D0));
+        } else { // butterworth
+          lp = D === 0 ? 1 : 1 / (1 + Math.pow(D / D0, 2 * order));
+        }
+        H[y * N + x] = passType === 'low' ? lp : 1 - lp;
+      }
+    }
+    return H;
+  }
+
+  // ======================================================================
+  // State
+  // ======================================================================
+  const state = {
+    N: 256,
+    gray: null,       // Float64Array N*N, 0..255
+    reS: null, imS: null,  // shifted FFT (DC centred)
+    magMax: 1,
+    scaleMode: 'log',
+    filterFamily: 'butterworth',
+    passType: 'low',
+    D0: 32,
+    order: 2,
+    overlay: true
+  };
+
+  // ======================================================================
+  // DOM refs
+  // ======================================================================
+  const $ = (id) => document.getElementById(id);
+  const fileInput = $('fileInput'), urlInput = $('urlInput'), loadUrlBtn = $('loadUrlBtn'), loadSampleBtn = $('loadSampleBtn');
+  const sizeSelect = $('sizeSelect'), statusMsg = $('statusMsg');
+  const imgCanvas = $('imgCanvas'), magCanvas = $('magCanvas'), magOverlay = $('magOverlay');
+  const phaseCanvas = $('phaseCanvas'), phaseOverlay = $('phaseOverlay');
+  const filtImgCanvas = $('filtImgCanvas'), filtMagCanvas = $('filtMagCanvas'), filtMagOverlay = $('filtMagOverlay');
+  const filterFamily = $('filterFamily'), passTypeSel = $('passType'), d0Slider = $('d0Slider'), d0Readout = $('d0Readout');
+  const orderSlider = $('orderSlider'), orderReadout = $('orderReadout'), overlayToggle = $('overlayToggle');
+
+  function setStatus(msg, isError) {
+    statusMsg.textContent = msg || '';
+    statusMsg.className = 'status' + (isError ? ' status--error' : '');
+  }
+
+  function fitCanvas(canvas) {
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    const w = Math.max(1, Math.round(rect.width * dpr));
+    const h = Math.max(1, Math.round(rect.height * dpr));
+    if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
+    return { w, h };
+  }
+
+  // Draw an N x N float array (already in "natural" row-major order, row 0
+  // = smallest y) to a canvas, flipping vertically so screen-top = largest
+  // y -- Cartesian (+up) convention, matching the other demos in this set.
+  function drawFieldToCanvas(canvas, field, N, toByte, flipY) {
+    const dims = fitCanvas(canvas);
+    const ctx = canvas.getContext('2d');
+    // draw at native N resolution then scale up, for speed + crisp blockiness at small N
+    const off = document.createElement('canvas');
+    off.width = N; off.height = N;
+    const octx = off.getContext('2d');
+    const img = octx.createImageData(N, N);
+    for (let y = 0; y < N; y++) {
+      const srcY = flipY ? (N - 1 - y) : y;
+      for (let x = 0; x < N; x++) {
+        const v = toByte(field[srcY * N + x]);
+        const idx = (y * N + x) * 4;
+        img.data[idx] = v; img.data[idx + 1] = v; img.data[idx + 2] = v; img.data[idx + 3] = 255;
+      }
+    }
+    octx.putImageData(img, 0, 0);
+    ctx.imageSmoothingEnabled = N < dims.w; // smooth when upscaling, crisp when native/downscaling
+    ctx.clearRect(0, 0, dims.w, dims.h);
+    ctx.drawImage(off, 0, 0, dims.w, dims.h);
+  }
+
+  function drawOverlayCircle(canvas, N, D0show) {
+    const dims = fitCanvas(canvas);
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, dims.w, dims.h);
+    if (!state.overlay || state.filterFamily === 'none') return;
+    const scale = dims.w / N;
+    const cx = dims.w / 2, cy = dims.h / 2;
+    const r = D0show * scale;
+    ctx.save();
+    ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+    ctx.lineWidth = Math.max(1, 1.5 * (window.devicePixelRatio || 1));
+    ctx.setLineDash([5 * (window.devicePixelRatio || 1), 4 * (window.devicePixelRatio || 1)]);
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, 2 * Math.PI);
+    ctx.stroke();
+    // soft tint over the REJECTED region (low-pass: outside circle; high-pass: inside)
+    ctx.setLineDash([]);
+    ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+    ctx.globalAlpha = 0.08;
+    if (state.passType === 'low') {
+      ctx.beginPath();
+      ctx.rect(0, 0, dims.w, dims.h);
+      ctx.moveTo(cx + r, cy);
+      ctx.arc(cx, cy, r, 0, 2 * Math.PI, true);
+      ctx.fill('evenodd');
+    } else {
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, 2 * Math.PI);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  // ======================================================================
+  // Image loading pipeline
+  // ======================================================================
+  function processLoadedImage(imgEl) {
+    try {
+      const N = state.N;
+      const srcSize = Math.min(imgEl.naturalWidth || imgEl.width, imgEl.naturalHeight || imgEl.height);
+      const sx = ((imgEl.naturalWidth || imgEl.width) - srcSize) / 2;
+      const sy = ((imgEl.naturalHeight || imgEl.height) - srcSize) / 2;
+
+      const off = document.createElement('canvas');
+      off.width = N; off.height = N;
+      const octx = off.getContext('2d');
+      octx.drawImage(imgEl, sx, sy, srcSize, srcSize, 0, 0, N, N);
+      const data = octx.getImageData(0, 0, N, N).data; // throws if tainted
+
+      const gray = new Float64Array(N * N);
+      for (let i = 0; i < N * N; i++) {
+        const r = data[i * 4], g = data[i * 4 + 1], b = data[i * 4 + 2];
+        gray[i] = 0.299 * r + 0.587 * g + 0.114 * b;
+      }
+      state.gray = gray;
+      runPipeline();
+      setStatus('Loaded ' + N + 'x' + N + ' (centre-cropped, converted to grayscale).', false);
+    } catch (err) {
+      setStatus('Could not read image pixels (' + (err && err.message ? err.message : err) +
+        '). If this was a URL image, its server likely blocks cross-origin pixel access (CORS) -- ' +
+        'download it and use "Upload a local image" instead.', true);
+    }
+  }
+
+  function loadFile(file) {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = function () { processLoadedImage(img); URL.revokeObjectURL(url); };
+    img.onerror = function () { setStatus('Could not read that file as an image.', true); };
+    img.src = url;
+  }
+
+  function loadUrl(url) {
+    setStatus('Loading...', false);
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = function () { processLoadedImage(img); };
+    img.onerror = function () { setStatus('Failed to load that URL (network error, or the host blocks cross-origin loading).', true); };
+    img.src = url;
+  }
+
+  function loadSample() {
+    const N = state.N;
+    const off = document.createElement('canvas');
+    off.width = N; off.height = N;
+    const ctx = off.getContext('2d');
+    ctx.fillStyle = '#808080';
+    ctx.fillRect(0, 0, N, N);
+    const grad = ctx.createRadialGradient(N * 0.35, N * 0.4, 0, N * 0.35, N * 0.4, N * 0.28);
+    grad.addColorStop(0, '#f2f2f2');
+    grad.addColorStop(1, '#808080');
+    ctx.fillStyle = grad;
+    ctx.beginPath(); ctx.arc(N * 0.35, N * 0.4, N * 0.28, 0, 2 * Math.PI); ctx.fill();
+
+    ctx.fillStyle = '#202020';
+    ctx.fillRect(N * 0.06, N * 0.72, N * 0.28, N * 0.16);
+
+    const img = ctx.getImageData(0, 0, N, N);
+    const patchX0 = N * 0.55, patchY0 = N * 0.52, patchX1 = N * 0.94, patchY1 = N * 0.94;
+    for (let y = 0; y < N; y++) {
+      for (let x = 0; x < N; x++) {
+        if (x >= patchX0 && x < patchX1 && y >= patchY0 && y < patchY1) {
+          const v = Math.round(128 + 100 * Math.sin(2 * Math.PI * x / 6));
+          const idx = (y * N + x) * 4;
+          img.data[idx] = v; img.data[idx + 1] = v; img.data[idx + 2] = v;
+        }
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+
+    const gray = new Float64Array(N * N);
+    const finalData = ctx.getImageData(0, 0, N, N).data;
+    for (let i = 0; i < N * N; i++) {
+      gray[i] = 0.299 * finalData[i * 4] + 0.587 * finalData[i * 4 + 1] + 0.114 * finalData[i * 4 + 2];
+    }
+    state.gray = gray;
+    runPipeline();
+    setStatus('Loaded synthetic sample: a soft low-frequency blob, a fine high-frequency grating patch, and a sharp-edged block.', false);
+  }
+
+  // ======================================================================
+  // Core pipeline: forward FFT once per image; filtering + redraw are cheap
+  // ======================================================================
+  function runPipeline() {
+    if (!state.gray) return;
+    const N = state.N;
+    const re = Float64Array.from(state.gray);
+    const im = new Float64Array(N * N);
+    fft2d(re, im, N, false);
+    fftshift2d(re, im, N);
+    state.reS = re; state.imS = im;
+
+    let maxMag = 0;
+    for (let i = 0; i < N * N; i++) { const m = Math.hypot(re[i], im[i]); if (m > maxMag) maxMag = m; }
+    state.magMax = maxMag || 1;
+
+    drawFieldToCanvas(imgCanvas, state.gray, N, (v) => clamp(Math.round(v), 0, 255), false);
+    redrawSpectra();
+    redrawFiltered();
+  }
+
+  function magToByte(mVal, maxVal, useLog) {
+    let v;
+    if (useLog) {
+      v = Math.log(1 + mVal) / Math.log(1 + maxVal);
+    } else {
+      v = mVal / maxVal;
+    }
+    return clamp(Math.round(v * 255), 0, 255);
+  }
+
+  function redrawSpectra() {
+    if (!state.reS) return;
+    const N = state.N;
+    const re = state.reS, im = state.imS;
+    const mag = new Float64Array(N * N);
+    const phase = new Float64Array(N * N);
+    let maxMag = 0;
+    for (let i = 0; i < N * N; i++) {
+      mag[i] = Math.hypot(re[i], im[i]);
+      phase[i] = Math.atan2(im[i], re[i]);
+      if (mag[i] > maxMag) maxMag = mag[i];
+    }
+    const useLog = state.scaleMode === 'log';
+    drawFieldToCanvas(magCanvas, mag, N, (v) => magToByte(v, maxMag, useLog), true);
+
+    const thresh = maxMag * 1e-4;
+    const phaseByte = new Float64Array(N * N);
+    for (let i = 0; i < N * N; i++) {
+      phaseByte[i] = mag[i] < thresh ? 128 : clamp(Math.round((phase[i] / Math.PI) * 127 + 128), 0, 255);
+    }
+    drawFieldToCanvas(phaseCanvas, phaseByte, N, (v) => v, true);
+
+    drawOverlayCircle(magOverlay, N, state.D0);
+    drawOverlayCircle(phaseOverlay, N, state.D0);
+  }
+
+  function redrawFiltered() {
+    if (!state.reS) return;
+    const N = state.N;
+    const reF = Float64Array.from(state.reS);
+    const imF = Float64Array.from(state.imS);
+
+    if (state.filterFamily !== 'none') {
+      const H = buildFilterMask(N, state.filterFamily, state.passType, state.D0, state.order);
+      for (let i = 0; i < N * N; i++) { reF[i] *= H[i]; imF[i] *= H[i]; }
+    }
+
+    // filtered magnitude display (before inverting back)
+    const mag = new Float64Array(N * N);
+    let maxMag = 0;
+    for (let i = 0; i < N * N; i++) { mag[i] = Math.hypot(reF[i], imF[i]); if (mag[i] > maxMag) maxMag = mag[i]; }
+    const useLog = state.scaleMode === 'log';
+    drawFieldToCanvas(filtMagCanvas, mag, N, (v) => magToByte(v, maxMag || 1, useLog), true);
+    drawOverlayCircle(filtMagOverlay, N, state.D0);
+
+    // inverse FFT back to spatial domain
+    fftshift2d(reF, imF, N); // un-shift (shift is its own inverse for even N)
+    fft2d(reF, imF, N, true);
+
+    let mn = Infinity, mx = -Infinity;
+    for (let i = 0; i < N * N; i++) { if (reF[i] < mn) mn = reF[i]; if (reF[i] > mx) mx = reF[i]; }
+    const range = (mx - mn) || 1;
+    drawFieldToCanvas(filtImgCanvas, reF, N, (v) => clamp(Math.round(((v - mn) / range) * 255), 0, 255), false);
+  }
+
+  // ======================================================================
+  // Wiring
+  // ======================================================================
+  fileInput.addEventListener('change', (e) => { if (e.target.files[0]) loadFile(e.target.files[0]); });
+  loadUrlBtn.addEventListener('click', () => { if (urlInput.value.trim()) loadUrl(urlInput.value.trim()); });
+  loadSampleBtn.addEventListener('click', loadSample);
+  sizeSelect.addEventListener('change', (e) => {
+    state.N = parseInt(e.target.value, 10);
+    const half = state.N / 2;
+    d0Slider.max = String(half);
+    if (state.D0 > half) { state.D0 = half; d0Slider.value = String(half); d0Readout.textContent = String(half); }
+    if (state.gray) {
+      // re-run sample or ask user to reload; simplest: regenerate sample if that's what's loaded, else just resample gray via a fresh canvas is not trivial without original -- request reload
+      setStatus('Size changed -- reload your image/URL/sample to analyze at the new resolution.', false);
+    }
+  });
+
+  document.getElementById('scaleRadios').addEventListener('change', (e) => {
+    state.scaleMode = e.target.value;
+    redrawSpectra(); redrawFiltered();
+  });
+
+  filterFamily.addEventListener('change', (e) => {
+    state.filterFamily = e.target.value;
+    orderSlider.disabled = state.filterFamily !== 'butterworth';
+    redrawSpectra(); redrawFiltered();
+  });
+  passTypeSel.addEventListener('change', (e) => { state.passType = e.target.value; redrawSpectra(); redrawFiltered(); });
+  d0Slider.addEventListener('input', (e) => {
+    state.D0 = parseFloat(e.target.value); d0Readout.textContent = e.target.value;
+    redrawSpectra(); redrawFiltered();
+  });
+  orderSlider.addEventListener('input', (e) => {
+    state.order = parseFloat(e.target.value); orderReadout.textContent = e.target.value;
+    redrawFiltered(); redrawSpectra();
+  });
+  overlayToggle.addEventListener('change', (e) => { state.overlay = e.target.checked; redrawSpectra(); redrawFiltered(); });
+
+  window.addEventListener('resize', () => { redrawAll(); });
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', redrawAll);
+  new MutationObserver(redrawAll).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+  function redrawAll() {
+    if (!state.gray) return;
+    drawFieldToCanvas(imgCanvas, state.gray, state.N, (v) => clamp(Math.round(v), 0, 255), false);
+    redrawSpectra();
+    redrawFiltered();
+  }
+
+  orderSlider.disabled = state.filterFamily !== 'butterworth';
+
+  // initial content
+  loadSample();
+})();
+</script>
+</body>
+</html>
