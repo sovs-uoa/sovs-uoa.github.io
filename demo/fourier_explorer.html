@@ -1,0 +1,582 @@
+<title>R, I &harr; Magnitude, Phase</title>
+<style>
+  :root {
+    --bg: #eef0f3;
+    --panel: #ffffff;
+    --panel-2: #f5f6f8;
+    --border: #d7dbe0;
+    --text: #1b2027;
+    --text-dim: #5b6570;
+    --accent: #b5720a;
+    --accent-soft: rgba(181, 114, 10, 0.14);
+    --mono: ui-monospace, "SFMono-Regular", "JetBrains Mono", Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --radius: 5px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0d1117;
+      --panel: #161b22;
+      --panel-2: #12161c;
+      --border: #2a3138;
+      --text: #e6e9ed;
+      --text-dim: #8b95a1;
+      --accent: #e8a33d;
+      --accent-soft: rgba(232, 163, 61, 0.16);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #0d1117;
+    --panel: #161b22;
+    --panel-2: #12161c;
+    --border: #2a3138;
+    --text: #e6e9ed;
+    --text-dim: #8b95a1;
+    --accent: #e8a33d;
+    --accent-soft: rgba(232, 163, 61, 0.16);
+  }
+
+  :root[data-theme="light"] {
+    --bg: #eef0f3;
+    --panel: #ffffff;
+    --panel-2: #f5f6f8;
+    --border: #d7dbe0;
+    --text: #1b2027;
+    --text-dim: #5b6570;
+    --accent: #b5720a;
+    --accent-soft: rgba(181, 114, 10, 0.14);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+  }
+
+  .console {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 28px 20px 40px;
+  }
+
+  .console__eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 4px;
+  }
+
+  .console__title {
+    font-size: 22px;
+    font-weight: 650;
+    letter-spacing: -0.01em;
+    margin: 0 0 20px;
+    text-wrap: balance;
+  }
+
+  .theta-note {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-dim);
+    margin: -12px 0 18px;
+  }
+
+  .theta-note span { color: var(--accent); }
+
+  .displays {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr auto 1fr;
+    gap: 10px;
+    align-items: center;
+  }
+
+  @media (max-width: 760px) {
+    .displays { grid-template-columns: 1fr; }
+    .connector { padding: 2px 0; }
+  }
+
+  .scope {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+    height: 100%;
+  }
+
+  .scope__label {
+    font-size: 11px;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  .connector {
+    font-size: 26px;
+    font-weight: 300;
+    color: var(--text-dim);
+    text-align: center;
+  }
+
+  .canvas-wrap {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    border-radius: 3px;
+    overflow: hidden;
+    background: var(--panel-2);
+  }
+
+  canvas { display: block; width: 100%; height: 100%; }
+
+  .scope__formula {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-dim);
+    font-variant-numeric: tabular-nums;
+    min-height: 2.6em;
+  }
+
+  .scope__formula--accent { color: var(--accent); font-weight: 600; }
+
+  .rail {
+    margin-top: 16px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+  }
+
+  .rail-primary {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+  }
+
+  @media (max-width: 700px) {
+    .rail-primary { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 420px) {
+    .rail-primary { grid-template-columns: 1fr; }
+  }
+
+  .rail-secondary {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  .control__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 8px;
+  }
+
+  .control label {
+    font-size: 12px;
+    letter-spacing: 0.03em;
+    color: var(--text-dim);
+  }
+
+  .control .unit {
+    color: var(--accent);
+    font-family: var(--mono);
+  }
+
+  .readout {
+    font-family: var(--mono);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    outline-offset: 6px;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid var(--panel);
+    box-shadow: 0 0 0 1px var(--accent);
+    cursor: pointer;
+    margin-top: -6px;
+  }
+
+  input[type="range"]::-moz-range-thumb {
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid var(--panel);
+    box-shadow: 0 0 0 1px var(--accent);
+    cursor: pointer;
+  }
+
+  input[type="range"]::-moz-range-track {
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+  }
+
+  .control--freq { display: flex; flex-direction: column; gap: 8px; }
+  .control--freq > label:first-child {
+    font-size: 12px; letter-spacing: 0.03em; color: var(--text-dim);
+  }
+
+  .freq-inputs { display: flex; gap: 8px; }
+
+  .freq-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+
+  .freq-field input {
+    width: 52px;
+    font-family: var(--mono);
+    font-size: 14px;
+    font-variant-numeric: tabular-nums;
+    color: var(--text);
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 5px 6px;
+  }
+
+  .playbtn {
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--text);
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 9px 16px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .playbtn[aria-pressed="true"] {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  input:focus-visible,
+  button:focus-visible {
+    outline: 2px solid var(--accent);
+  }
+
+  .hint {
+    margin: 14px 2px 0;
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: var(--text-dim);
+    max-width: 68ch;
+  }
+</style>
+
+<div class="console">
+  <div class="console__eyebrow">OPTOM 263 &middot; Fourier Transforms</div>
+  <h1 class="console__title">R, I &harr; Magnitude, Phase — same co-sinusoid</h1>
+  <div class="theta-note">&theta; = 2&pi;(f<span id="fxLabel">3</span>x + f<span id="fyLabel">2</span>y) &nbsp; — &nbsp; every tile below is a function of the same &theta;</div>
+
+  <div class="displays">
+    <section class="scope" aria-label="Cosine component">
+      <div class="scope__label">Cosine component</div>
+      <div class="canvas-wrap"><canvas id="cosCanvas"></canvas></div>
+      <div class="scope__formula" id="cosFormula"></div>
+    </section>
+
+    <div class="connector" aria-hidden="true">+</div>
+
+    <section class="scope" aria-label="Sine component">
+      <div class="scope__label">Sine component</div>
+      <div class="canvas-wrap"><canvas id="sinCanvas"></canvas></div>
+      <div class="scope__formula" id="sinFormula"></div>
+    </section>
+
+    <div class="connector" aria-hidden="true">=</div>
+
+    <section class="scope" aria-label="Combined co-sinusoid">
+      <div class="scope__label">Co-sinusoid (R, I combined)</div>
+      <div class="canvas-wrap"><canvas id="combCanvas"></canvas></div>
+      <div class="scope__formula scope__formula--accent" id="combFormula"></div>
+    </section>
+  </div>
+
+  <div class="rail">
+    <div class="rail-primary">
+      <div class="control">
+        <div class="control__row">
+          <label for="rSlider">R <span class="unit">(cos wt.)</span></label>
+          <span class="readout" id="rReadout">1.00</span>
+        </div>
+        <input type="range" id="rSlider" min="-1.5" max="1.5" step="0.01" value="1">
+      </div>
+
+      <div class="control">
+        <div class="control__row">
+          <label for="iSlider">I <span class="unit">(sin wt.)</span></label>
+          <span class="readout" id="iReadout">0.00</span>
+        </div>
+        <input type="range" id="iSlider" min="-1.5" max="1.5" step="0.01" value="0">
+      </div>
+
+      <div class="control">
+        <div class="control__row">
+          <label for="magSlider">Magnitude <span class="unit">A</span></label>
+          <span class="readout" id="magReadout">1.00</span>
+        </div>
+        <input type="range" id="magSlider" min="0" max="2.2" step="0.01" value="1">
+      </div>
+
+      <div class="control">
+        <div class="control__row">
+          <label for="phaseSlider">Phase <span class="unit">&phi;</span></label>
+          <span class="readout" id="phaseReadout">0&deg;</span>
+        </div>
+        <input type="range" id="phaseSlider" min="-180" max="180" step="1" value="0">
+      </div>
+    </div>
+
+    <div class="rail-secondary">
+      <div class="control control--freq">
+        <label>Frequency (cyc/image)</label>
+        <div class="freq-inputs">
+          <label class="freq-field">f<sub>x</sub>
+            <input type="number" id="fxInput" min="-8" max="8" step="1" value="3">
+          </label>
+          <label class="freq-field">f<sub>y</sub>
+            <input type="number" id="fyInput" min="-8" max="8" step="1" value="2">
+          </label>
+        </div>
+      </div>
+
+      <button id="playBtn" class="playbtn" type="button" aria-pressed="false">&#9654; Play phase sweep</button>
+    </div>
+  </div>
+
+  <p class="hint">
+    Drag R or I to set the cosine/sine weights directly, or drag magnitude/phase instead — the two
+    pairs describe the same complex number and stay in sync automatically. The combined tile always
+    equals <strong>R&middot;cos&theta; + I&middot;sin&theta; = magnitude&middot;cos(&theta; &minus; phase)</strong>.
+  </p>
+</div>
+
+<script>
+(function () {
+  var state = { fx: 3, fy: 2, R: 1, I: 0, mag: 1, phase: 0, playing: false };
+
+  var cosCanvas = document.getElementById('cosCanvas');
+  var sinCanvas = document.getElementById('sinCanvas');
+  var combCanvas = document.getElementById('combCanvas');
+
+  var rSlider = document.getElementById('rSlider');
+  var iSlider = document.getElementById('iSlider');
+  var magSlider = document.getElementById('magSlider');
+  var phaseSlider = document.getElementById('phaseSlider');
+  var fxInput = document.getElementById('fxInput');
+  var fyInput = document.getElementById('fyInput');
+
+  var rReadout = document.getElementById('rReadout');
+  var iReadout = document.getElementById('iReadout');
+  var magReadout = document.getElementById('magReadout');
+  var phaseReadout = document.getElementById('phaseReadout');
+
+  var cosFormula = document.getElementById('cosFormula');
+  var sinFormula = document.getElementById('sinFormula');
+  var combFormula = document.getElementById('combFormula');
+  var fxLabel = document.getElementById('fxLabel');
+  var fyLabel = document.getElementById('fyLabel');
+
+  var playBtn = document.getElementById('playBtn');
+
+  function cssVar(name) {
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  }
+
+  function clamp(v, lo, hi) { return Math.min(hi, Math.max(lo, v)); }
+
+  function fitCanvas(canvas) {
+    var dpr = window.devicePixelRatio || 1;
+    var rect = canvas.getBoundingClientRect();
+    var w = Math.max(1, Math.round(rect.width * dpr));
+    var h = Math.max(1, Math.round(rect.height * dpr));
+    if (canvas.width !== w || canvas.height !== h) {
+      canvas.width = w;
+      canvas.height = h;
+    }
+    return { w: w, h: h };
+  }
+
+  function drawTile(canvas, valueFn) {
+    var dims = fitCanvas(canvas);
+    var ctx = canvas.getContext('2d');
+    var w = dims.w, h = dims.h;
+    var img = ctx.createImageData(w, h);
+    var fx = state.fx, fy = state.fy;
+    for (var j = 0; j < h; j++) {
+      // Canvas row 0 is the top (screen convention), but we want +y
+      // pointing UP (Cartesian convention) to match the frequency-axis
+      // fix made in the MATLAB mosaic -- so flip: top row = largest yN.
+      var yN = 1 - j / h;
+      for (var i = 0; i < w; i++) {
+        var xN = i / w;
+        var theta = 2 * Math.PI * (fx * xN + fy * yN);
+        var v = clamp(valueFn(theta), -1, 1);
+        var g = Math.round((v + 1) / 2 * 255);
+        var idx = (j * w + i) * 4;
+        img.data[idx] = g;
+        img.data[idx + 1] = g;
+        img.data[idx + 2] = g;
+        img.data[idx + 3] = 255;
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+  }
+
+  var drawScheduled = false;
+  function scheduleDraw() {
+    if (drawScheduled) return;
+    drawScheduled = true;
+    requestAnimationFrame(function () {
+      drawScheduled = false;
+      drawTile(cosCanvas, function (theta) { return state.R * Math.cos(theta); });
+      drawTile(sinCanvas, function (theta) { return state.I * Math.sin(theta); });
+      drawTile(combCanvas, function (theta) {
+        return state.R * Math.cos(theta) + state.I * Math.sin(theta);
+      });
+    });
+  }
+
+  function reflectControls() {
+    rSlider.value = state.R;
+    iSlider.value = state.I;
+    magSlider.value = state.mag;
+    phaseSlider.value = state.phase;
+  }
+
+  function sync() {
+    rReadout.textContent = state.R.toFixed(2);
+    iReadout.textContent = state.I.toFixed(2);
+    magReadout.textContent = state.mag.toFixed(2);
+    phaseReadout.textContent = Math.round(state.phase) + '°';
+
+    cosFormula.textContent = state.R.toFixed(2) + ' · cos(θ)';
+    sinFormula.textContent = state.I.toFixed(2) + ' · sin(θ)';
+    combFormula.textContent =
+      state.mag.toFixed(2) + ' · cos(θ − ' + Math.round(state.phase) + '°)';
+
+    fxLabel.textContent = state.fx;
+    fyLabel.textContent = state.fy;
+
+    scheduleDraw();
+  }
+
+  function setFromRI(R, I) {
+    state.R = R;
+    state.I = I;
+    state.mag = Math.hypot(R, I);
+    state.phase = Math.atan2(I, R) * 180 / Math.PI;
+    reflectControls();
+    sync();
+  }
+
+  function setFromMagPhase(mag, phaseDeg) {
+    state.mag = mag;
+    state.phase = phaseDeg;
+    var phi = phaseDeg * Math.PI / 180;
+    state.R = mag * Math.cos(phi);
+    state.I = mag * Math.sin(phi);
+    reflectControls();
+    sync();
+  }
+
+  rSlider.addEventListener('input', function (e) {
+    setFromRI(parseFloat(e.target.value), state.I);
+  });
+  iSlider.addEventListener('input', function (e) {
+    setFromRI(state.R, parseFloat(e.target.value));
+  });
+  magSlider.addEventListener('input', function (e) {
+    setFromMagPhase(parseFloat(e.target.value), state.phase);
+  });
+  phaseSlider.addEventListener('input', function (e) {
+    setFromMagPhase(state.mag, parseFloat(e.target.value));
+  });
+
+  fxInput.addEventListener('change', function (e) {
+    state.fx = clamp(parseInt(e.target.value || '0', 10), -8, 8);
+    e.target.value = state.fx;
+    sync();
+  });
+  fyInput.addEventListener('change', function (e) {
+    state.fy = clamp(parseInt(e.target.value || '0', 10), -8, 8);
+    e.target.value = state.fy;
+    sync();
+  });
+
+  var animFrame = null, lastTs = null;
+  var DEG_PER_SEC = 45;
+
+  function animStep(ts) {
+    if (lastTs == null) lastTs = ts;
+    var dt = (ts - lastTs) / 1000;
+    lastTs = ts;
+    var newPhase = state.phase + DEG_PER_SEC * dt;
+    if (newPhase > 180) newPhase -= 360;
+    setFromMagPhase(state.mag, newPhase);
+    if (state.playing) animFrame = requestAnimationFrame(animStep);
+  }
+
+  playBtn.addEventListener('click', function () {
+    state.playing = !state.playing;
+    playBtn.textContent = state.playing ? '⏸ Stop' : '▶ Play phase sweep';
+    playBtn.setAttribute('aria-pressed', String(state.playing));
+    if (state.playing) {
+      lastTs = null;
+      animFrame = requestAnimationFrame(animStep);
+    } else if (animFrame) {
+      cancelAnimationFrame(animFrame);
+    }
+  });
+
+  window.addEventListener('resize', scheduleDraw);
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', scheduleDraw);
+  new MutationObserver(scheduleDraw).observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['data-theme']
+  });
+
+  sync();
+})();
+</script>
