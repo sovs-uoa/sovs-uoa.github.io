@@ -179,12 +179,32 @@
   </div>
 
   <div class="panel">
-    <div class="panel__label">2. Spatial &amp; frequency domain</div>
+    <div class="panel__label">2. Spatial domain &rarr; raw FFT (R, I)</div>
     <div class="grid3">
       <div class="scope">
         <div class="scope__label">Image (grayscale)</div>
         <div class="canvas-stack"><canvas id="imgCanvas"></canvas></div>
       </div>
+      <div class="scope">
+        <div class="scope__label">Real part (R)</div>
+        <div class="canvas-stack">
+          <canvas id="realCanvas"></canvas>
+          <canvas id="realOverlay" class="overlay"></canvas>
+        </div>
+      </div>
+      <div class="scope">
+        <div class="scope__label">Imaginary part (I)</div>
+        <div class="canvas-stack">
+          <canvas id="imagCanvas"></canvas>
+          <canvas id="imagOverlay" class="overlay"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel__label">2b. R, I &rarr; magnitude &amp; phase (same complex spectrum, polar form)</div>
+    <div class="grid2">
       <div class="scope">
         <div class="scope__label">Magnitude spectrum</div>
         <div class="canvas-stack">
@@ -202,10 +222,10 @@
     </div>
     <div class="control__row" style="margin-top:12px; margin-bottom:0;">
       <div class="radio-row" id="scaleRadios">
-        <label><input type="radio" name="scaleMode" value="log" checked> Log magnitude</label>
-        <label><input type="radio" name="scaleMode" value="linear"> Linear magnitude</label>
+        <label><input type="radio" name="scaleMode" value="log" checked> Log scale</label>
+        <label><input type="radio" name="scaleMode" value="linear"> Linear scale</label>
       </div>
-      <span class="hint" style="margin:0;">+f<sub>y</sub> is up (Cartesian convention), zero-centred (DC at middle)</span>
+      <span class="hint" style="margin:0;">+f<sub>y</sub> is up (Cartesian convention), zero-centred (DC at middle). R/I: mid-grey = 0, white = positive, black = negative.</span>
     </div>
   </div>
 
@@ -392,6 +412,8 @@
   const sizeSelect = $('sizeSelect'), statusMsg = $('statusMsg');
   const imgCanvas = $('imgCanvas'), magCanvas = $('magCanvas'), magOverlay = $('magOverlay');
   const phaseCanvas = $('phaseCanvas'), phaseOverlay = $('phaseOverlay');
+  const realCanvas = $('realCanvas'), realOverlay = $('realOverlay');
+  const imagCanvas = $('imagCanvas'), imagOverlay = $('imagOverlay');
   const filtImgCanvas = $('filtImgCanvas'), filtMagCanvas = $('filtMagCanvas'), filtMagOverlay = $('filtMagOverlay');
   const filterFamily = $('filterFamily'), passTypeSel = $('passType'), d0Slider = $('d0Slider'), d0Readout = $('d0Readout');
   const orderSlider = $('orderSlider'), orderReadout = $('orderReadout'), overlayToggle = $('overlayToggle');
@@ -586,6 +608,22 @@
     return clamp(Math.round(v * 255), 0, 255);
   }
 
+  // Signed values (R, I) can be +/-, so map through 0 -> mid-grey (128),
+  // not black. Log mode uses a sign-preserving log (symlog): compresses
+  // large dynamic range the same way magnitude's log view does, without
+  // losing the +/- sign that makes R and I meaningful.
+  function signedToByte(v, maxAbs, useLog) {
+    const denom = maxAbs || 1;
+    let scaled;
+    if (useLog) {
+      const logMax = Math.log(1 + denom) || 1;
+      scaled = (Math.sign(v) * Math.log(1 + Math.abs(v))) / logMax;
+    } else {
+      scaled = v / denom;
+    }
+    return clamp(Math.round(128 + scaled * 127), 0, 255);
+  }
+
   function redrawSpectra() {
     if (!state.reS) return;
     const N = state.N;
@@ -608,8 +646,19 @@
     }
     drawFieldToCanvas(phaseCanvas, phaseByte, N, (v) => v, true);
 
+    // R and I share one scale (the larger of the two maxima) so their
+    // brightness is directly comparable panel-to-panel.
+    let maxAbsRI = 0;
+    for (let i = 0; i < N * N; i++) {
+      maxAbsRI = Math.max(maxAbsRI, Math.abs(re[i]), Math.abs(im[i]));
+    }
+    drawFieldToCanvas(realCanvas, re, N, (v) => signedToByte(v, maxAbsRI, useLog), true);
+    drawFieldToCanvas(imagCanvas, im, N, (v) => signedToByte(v, maxAbsRI, useLog), true);
+
     drawOverlayCircle(magOverlay, N, state.D0);
     drawOverlayCircle(phaseOverlay, N, state.D0);
+    drawOverlayCircle(realOverlay, N, state.D0);
+    drawOverlayCircle(imagOverlay, N, state.D0);
   }
 
   function redrawFiltered() {
