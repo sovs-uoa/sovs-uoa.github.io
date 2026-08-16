@@ -222,13 +222,18 @@
         </div>
       </div>
     </div>
-    <div class="control__row" style="margin-top:12px; margin-bottom:0;">
+    <div style="display:flex; flex-wrap:wrap; align-items:center; gap:24px; margin-top:12px;">
       <div class="radio-row" id="scaleRadios">
         <label><input type="radio" name="scaleMode" value="log" checked> Log scale</label>
         <label><input type="radio" name="scaleMode" value="linear"> Linear scale</label>
       </div>
-      <span class="hint" style="margin:0;">+f<sub>y</sub> is up (Cartesian convention), zero-centred (DC at middle). R/I: mid-grey = 0, white = positive, black = negative.</span>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <label for="gammaSlider" style="font-size:12px; color:var(--text-dim);">Spectrum contrast (&gamma;)</label>
+        <input type="range" id="gammaSlider" min="1" max="4" step="0.1" value="2" style="width:110px;">
+        <span class="readout" id="gammaReadout">2.0</span>
+      </div>
     </div>
+    <p class="hint" style="margin:8px 2px 0;">+f<sub>y</sub> is up (Cartesian convention), zero-centred (DC at middle). R/I: mid-grey = 0, white = positive, black = negative. Higher &gamma; pushes weak/background frequency content further toward black (matches typical textbook spectrum figures) while the strongest features stay bright.</p>
   </div>
 
   <div class="panel">
@@ -277,6 +282,44 @@
         <label class="toggle"><input type="checkbox" id="overlayToggle" checked><span>Show filter overlay</span></label>
         <span class="filter-legend"><span class="filter-legend__swatch"></span> <span id="legendText">D<sub>0</sub> cutoff (half-power point for ideal/Butterworth; &sigma; for Gaussian)</span></span>
       </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel__label">3b. Notch filter (periodic-noise removal)</div>
+    <p class="hint" style="margin:0 0 12px;">
+      Rejects a small square patch of frequencies at a chosen frequency and orientation &mdash;
+      the classic "manual editing" fix for periodic noise (Lecture 7, Fig 7.10). Since a real
+      image's spectrum is symmetric about DC, a mirrored square is added automatically on the
+      opposite side. "Extend to edge" turns each square into a radial spoke running outward to
+      the edge of the spectrum (away from DC, not toward it) &mdash; useful when noise energy
+      smears along a whole radial direction rather than staying isolated at one frequency.
+      Combines with whatever filter is set above (or use it alone with Filter = None).
+    </p>
+    <div class="filter-rail" style="grid-template-columns: auto 1.2fr 1.2fr 1.2fr auto;">
+      <label class="toggle"><input type="checkbox" id="notchToggle"><span>Enable notch</span></label>
+      <div class="control">
+        <div class="control__row">
+          <label for="notchFreqSlider">Frequency <span style="color:var(--text-dim)">(cyc/image)</span></label>
+          <span class="readout" id="notchFreqReadout">40</span>
+        </div>
+        <input type="range" id="notchFreqSlider" min="1" max="128" step="1" value="40">
+      </div>
+      <div class="control">
+        <div class="control__row">
+          <label for="notchAngleSlider">Orientation <span style="color:var(--text-dim)">(&deg;)</span></label>
+          <span class="readout" id="notchAngleReadout">45</span>
+        </div>
+        <input type="range" id="notchAngleSlider" min="0" max="179" step="1" value="45">
+      </div>
+      <div class="control">
+        <div class="control__row">
+          <label for="notchWidthSlider">Width <span style="color:var(--text-dim)">(cyc/image)</span></label>
+          <span class="readout" id="notchWidthReadout">12</span>
+        </div>
+        <input type="range" id="notchWidthSlider" min="2" max="64" step="1" value="12">
+      </div>
+      <label class="toggle"><input type="checkbox" id="notchConnectToggle"><span>Extend to edge</span></label>
     </div>
   </div>
 
@@ -410,6 +453,58 @@
     return H;
   }
 
+  // Localized square notch, positioned by (frequency, angle) in standard
+  // math convention (0deg = +x/right, 90deg = +y/up -- matches this
+  // tool's established +f_y-up display convention, verified separately).
+  // A real image's spectrum is Hermitian-symmetric, so a physically
+  // meaningful notch always needs its mirror on the opposite side too --
+  // added automatically here, matching the paired dark squares in the
+  // Lecture 7 periodic-noise example.
+  function buildNotchMask(N, freq, angleDeg, width, connect) {
+    const H = new Float64Array(N * N).fill(1);
+    const cx = N / 2, cy = N / 2;
+    const rad = angleDeg * Math.PI / 180;
+    const du = freq * Math.cos(rad), dv = freq * Math.sin(rad);
+    const half = width / 2;
+    function stampSquare(u, v) {
+      const xlo = Math.max(0, Math.round(cx + u - half));
+      const xhi = Math.min(N - 1, Math.round(cx + u + half));
+      const ylo = Math.max(0, Math.round(cy + v - half));
+      const yhi = Math.min(N - 1, Math.round(cy + v + half));
+      for (let y = ylo; y <= yhi; y++) {
+        for (let x = xlo; x <= xhi; x++) H[y * N + x] = 0;
+      }
+    }
+    stampSquare(du, dv);
+    stampSquare(-du, -dv);
+
+    if (connect) {
+      // Extend each notch square OUTWARD (away from DC) to the edge of
+      // the spectrum, as two separate radial spokes -- not a bridge
+      // connecting the pair through the middle. DC itself stays clear
+      // (it sits perpendicular-ish to each spoke, at distance = freq).
+      // A magnitude of N guarantees the far endpoint is past any
+      // in-bounds pixel regardless of orientation.
+      const ux = Math.cos(rad), uy = Math.sin(rad);
+      function stampRay(sx, sy, ex, ey) {
+        const abx = ex - sx, aby = ey - sy;
+        const abLenSq = (abx * abx + aby * aby) || 1;
+        for (let y = 0; y < N; y++) {
+          for (let x = 0; x < N; x++) {
+            const apx = x - sx, apy = y - sy;
+            let t = (apx * abx + apy * aby) / abLenSq;
+            t = Math.max(0, Math.min(1, t));
+            const px = sx + t * abx, py = sy + t * aby;
+            if (Math.hypot(x - px, y - py) <= half) H[y * N + x] = 0;
+          }
+        }
+      }
+      stampRay(cx + du, cy + dv, cx + N * ux, cy + N * uy);
+      stampRay(cx - du, cy - dv, cx - N * ux, cy - N * uy);
+    }
+    return H;
+  }
+
   // ======================================================================
   // State
   // ======================================================================
@@ -419,12 +514,18 @@
     reS: null, imS: null,  // shifted FFT (DC centred)
     magMax: 1,
     scaleMode: 'log',
+    gamma: 2.0,
     filterFamily: 'butterworth',
     passType: 'low',
     D0: 32,
     D1: 64,
     order: 2,
-    overlay: true
+    overlay: true,
+    notchEnabled: false,
+    notchFreq: 40,
+    notchAngle: 45,
+    notchWidth: 12,
+    notchConnect: false
   };
 
   // ======================================================================
@@ -442,6 +543,12 @@
   const d1Slider = $('d1Slider'), d1Readout = $('d1Readout'), d0Label = $('d0Label'), legendText = $('legendText');
   const filterRail = document.querySelector('.filter-rail');
   const orderSlider = $('orderSlider'), orderReadout = $('orderReadout'), overlayToggle = $('overlayToggle');
+  const gammaSlider = $('gammaSlider'), gammaReadout = $('gammaReadout');
+  const notchToggle = $('notchToggle');
+  const notchFreqSlider = $('notchFreqSlider'), notchFreqReadout = $('notchFreqReadout');
+  const notchAngleSlider = $('notchAngleSlider'), notchAngleReadout = $('notchAngleReadout');
+  const notchWidthSlider = $('notchWidthSlider'), notchWidthReadout = $('notchWidthReadout');
+  const notchConnectToggle = $('notchConnectToggle');
 
   function setStatus(msg, isError) {
     statusMsg.textContent = msg || '';
@@ -539,6 +646,72 @@
       ctx.arc(cx, cy, rOuter, 0, 2 * Math.PI);
       ctx.arc(cx, cy, rInner, 0, 2 * Math.PI);
       ctx.fill('evenodd');
+    }
+    ctx.restore();
+  }
+
+  // Draws the notch square(s) on top of whatever drawFilterOverlay already
+  // drew (does NOT clear the canvas). Array-space -> canvas-space mapping
+  // matches drawFieldToCanvas's flipY behaviour for these frequency panels:
+  // canvasY = (N - arrayY) * scale.
+  function drawNotchOverlay(canvas, N) {
+    if (!state.notchEnabled || !state.overlay) return;
+    const dims = fitCanvas(canvas);
+    const ctx = canvas.getContext('2d');
+    const scale = dims.w / N;
+    const dpr = window.devicePixelRatio || 1;
+    const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+
+    const rad = state.notchAngle * Math.PI / 180;
+    const du = state.notchFreq * Math.cos(rad), dv = state.notchFreq * Math.sin(rad);
+    const half = state.notchWidth / 2;
+    const cxArr = N / 2, cyArr = N / 2;
+
+    function toCanvas(arrX, arrY) {
+      return { x: arrX * scale, y: (N - arrY) * scale };
+    }
+    function drawSquare(u, v) {
+      const p1 = toCanvas(cxArr + u - half, cyArr + v - half);
+      const p2 = toCanvas(cxArr + u + half, cyArr + v + half);
+      const x = Math.min(p1.x, p2.x), y = Math.min(p1.y, p2.y);
+      ctx.strokeRect(x, y, Math.abs(p2.x - p1.x), Math.abs(p2.y - p1.y));
+    }
+
+    ctx.save();
+    ctx.strokeStyle = accent;
+    ctx.lineWidth = Math.max(1, 1.5 * dpr);
+    drawSquare(du, dv);
+    drawSquare(-du, -dv);
+
+    if (state.notchConnect) {
+      // Extended box: a rectangle running from just past the square's
+      // outer edge to the spectrum boundary, same width as the square --
+      // drawn as an explicit quad (all four corners mapped through
+      // toCanvas) rather than a stroked line, so it reads as a clean box
+      // outline like the squares themselves instead of a translucent
+      // round-capped stroke.
+      const ux = Math.cos(rad), uy = Math.sin(rad);
+      const px = -uy, py = ux; // unit vector perpendicular to the ray
+      function drawBox(sux, suy) { // (sux,suy) = direction away from DC for this side
+        const nearX = cxArr + sux * (state.notchFreq + half), nearY = cyArr + suy * (state.notchFreq + half);
+        const farX = cxArr + sux * N, farY = cyArr + suy * N;
+        const corners = [
+          toCanvas(nearX + px * half, nearY + py * half),
+          toCanvas(nearX - px * half, nearY - py * half),
+          toCanvas(farX - px * half, farY - py * half),
+          toCanvas(farX + px * half, farY + py * half)
+        ];
+        ctx.beginPath();
+        ctx.moveTo(corners[0].x, corners[0].y);
+        for (let i = 1; i < corners.length; i++) ctx.lineTo(corners[i].x, corners[i].y);
+        ctx.closePath();
+        ctx.stroke();
+      }
+      ctx.save();
+      ctx.lineWidth = Math.max(1, 1.5 * dpr);
+      drawBox(ux, uy);
+      drawBox(-ux, -uy);
+      ctx.restore();
     }
     ctx.restore();
   }
@@ -651,13 +824,19 @@
     redrawFiltered();
   }
 
-  function magToByte(mVal, maxVal, useLog) {
+  // gamma > 1 pushes moderate/weak content further toward black while the
+  // true peak (DC or the strongest feature) stays at white -- plain
+  // log(1+x) alone isn't a steep enough curve to suppress "background"
+  // frequency content the way textbook spectrum figures usually look
+  // (mostly black, with only the genuinely strong features standing out).
+  function magToByte(mVal, maxVal, useLog, gamma) {
     let v;
     if (useLog) {
       v = Math.log(1 + mVal) / Math.log(1 + maxVal);
     } else {
       v = mVal / maxVal;
     }
+    v = Math.pow(clamp(v, 0, 1), gamma);
     return clamp(Math.round(v * 255), 0, 255);
   }
 
@@ -690,7 +869,7 @@
       if (mag[i] > maxMag) maxMag = mag[i];
     }
     const useLog = state.scaleMode === 'log';
-    drawFieldToCanvas(magCanvas, mag, N, (v) => magToByte(v, maxMag, useLog), true);
+    drawFieldToCanvas(magCanvas, mag, N, (v) => magToByte(v, maxMag, useLog, state.gamma), true);
 
     const thresh = maxMag * 1e-4;
     const phaseByte = new Float64Array(N * N);
@@ -712,6 +891,10 @@
     drawFilterOverlay(phaseOverlay, N, state.D0, state.D1, state.passType);
     drawFilterOverlay(realOverlay, N, state.D0, state.D1, state.passType);
     drawFilterOverlay(imagOverlay, N, state.D0, state.D1, state.passType);
+    drawNotchOverlay(magOverlay, N);
+    drawNotchOverlay(phaseOverlay, N);
+    drawNotchOverlay(realOverlay, N);
+    drawNotchOverlay(imagOverlay, N);
   }
 
   function redrawFiltered() {
@@ -724,14 +907,19 @@
       const H = buildFilterMask(N, state.filterFamily, state.passType, state.D0, state.D1, state.order);
       for (let i = 0; i < N * N; i++) { reF[i] *= H[i]; imF[i] *= H[i]; }
     }
+    if (state.notchEnabled) {
+      const Hn = buildNotchMask(N, state.notchFreq, state.notchAngle, state.notchWidth, state.notchConnect);
+      for (let i = 0; i < N * N; i++) { reF[i] *= Hn[i]; imF[i] *= Hn[i]; }
+    }
 
     // filtered magnitude display (before inverting back)
     const mag = new Float64Array(N * N);
     let maxMag = 0;
     for (let i = 0; i < N * N; i++) { mag[i] = Math.hypot(reF[i], imF[i]); if (mag[i] > maxMag) maxMag = mag[i]; }
     const useLog = state.scaleMode === 'log';
-    drawFieldToCanvas(filtMagCanvas, mag, N, (v) => magToByte(v, maxMag || 1, useLog), true);
+    drawFieldToCanvas(filtMagCanvas, mag, N, (v) => magToByte(v, maxMag || 1, useLog, state.gamma), true);
     drawFilterOverlay(filtMagOverlay, N, state.D0, state.D1, state.passType);
+    drawNotchOverlay(filtMagOverlay, N);
 
     // inverse FFT back to spatial domain
     fftshift2d(reF, imF, N); // un-shift (shift is its own inverse for even N)
@@ -760,8 +948,10 @@
     const half = state.N / 2;
     d0Slider.max = String(half);
     d1Slider.max = String(half);
+    notchFreqSlider.max = String(half);
     if (state.D0 > half) { state.D0 = half; d0Slider.value = String(half); d0Readout.textContent = String(half); }
     if (state.D1 > half) { state.D1 = half; d1Slider.value = String(half); d1Readout.textContent = String(half); }
+    if (state.notchFreq > half) { state.notchFreq = half; notchFreqSlider.value = String(half); notchFreqReadout.textContent = String(half); }
     if (state.gray) {
       // re-run sample or ask user to reload; simplest: regenerate sample if that's what's loaded, else just resample gray via a fresh canvas is not trivial without original -- request reload
       setStatus('Size changed -- reload your image/URL/sample to analyze at the new resolution.', false);
@@ -770,6 +960,12 @@
 
   document.getElementById('scaleRadios').addEventListener('change', (e) => {
     state.scaleMode = e.target.value;
+    redrawSpectra(); redrawFiltered();
+  });
+
+  gammaSlider.addEventListener('input', (e) => {
+    state.gamma = parseFloat(e.target.value);
+    gammaReadout.textContent = state.gamma.toFixed(1);
     redrawSpectra(); redrawFiltered();
   });
 
@@ -808,6 +1004,27 @@
     redrawFiltered(); redrawSpectra();
   });
   overlayToggle.addEventListener('change', (e) => { state.overlay = e.target.checked; redrawSpectra(); redrawFiltered(); });
+
+  notchToggle.addEventListener('change', (e) => {
+    state.notchEnabled = e.target.checked;
+    redrawSpectra(); redrawFiltered();
+  });
+  notchFreqSlider.addEventListener('input', (e) => {
+    state.notchFreq = parseFloat(e.target.value); notchFreqReadout.textContent = e.target.value;
+    redrawSpectra(); redrawFiltered();
+  });
+  notchAngleSlider.addEventListener('input', (e) => {
+    state.notchAngle = parseFloat(e.target.value); notchAngleReadout.textContent = e.target.value;
+    redrawSpectra(); redrawFiltered();
+  });
+  notchWidthSlider.addEventListener('input', (e) => {
+    state.notchWidth = parseFloat(e.target.value); notchWidthReadout.textContent = e.target.value;
+    redrawSpectra(); redrawFiltered();
+  });
+  notchConnectToggle.addEventListener('change', (e) => {
+    state.notchConnect = e.target.checked;
+    redrawSpectra(); redrawFiltered();
+  });
 
   window.addEventListener('resize', () => { redrawAll(); });
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', redrawAll);
