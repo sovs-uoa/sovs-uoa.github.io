@@ -102,7 +102,9 @@
   .canvas-stack canvas.overlay { pointer-events: none; }
 
   /* ---- filter rail ---- */
-  .filter-rail { display: grid; grid-template-columns: 1.1fr 1fr 1.3fr 1.3fr auto; gap: 20px; align-items: end; }
+  .filter-rail { display: grid; grid-template-columns: 1.1fr 1fr 1.2fr 1.2fr 1.3fr auto; gap: 20px; align-items: end; }
+  .filter-rail .control--d1 { display: none; }
+  .filter-rail.has-band .control--d1 { display: block; }
   @media (max-width: 900px) { .filter-rail { grid-template-columns: repeat(2, 1fr); } }
 
   .control__row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
@@ -246,14 +248,23 @@
         <select id="passType" style="width:100%;">
           <option value="low" selected>Low-pass</option>
           <option value="high">High-pass</option>
+          <option value="bandpass">Band-pass</option>
+          <option value="bandstop">Band-stop</option>
         </select>
       </div>
       <div class="control">
         <div class="control__row">
-          <label for="d0Slider">Cutoff D<sub>0</sub> <span style="color:var(--text-dim)">(cyc/image)</span></label>
+          <label for="d0Slider" id="d0Label">Cutoff D<sub>0</sub> <span style="color:var(--text-dim)">(cyc/image)</span></label>
           <span class="readout" id="d0Readout">32</span>
         </div>
         <input type="range" id="d0Slider" min="1" max="128" step="1" value="32">
+      </div>
+      <div class="control control--d1">
+        <div class="control__row">
+          <label for="d1Slider">Outer cutoff D<sub>1</sub> <span style="color:var(--text-dim)">(band modes)</span></label>
+          <span class="readout" id="d1Readout">64</span>
+        </div>
+        <input type="range" id="d1Slider" min="1" max="128" step="1" value="64">
       </div>
       <div class="control">
         <div class="control__row">
@@ -264,7 +275,7 @@
       </div>
       <div style="display:flex; flex-direction:column; gap:10px;">
         <label class="toggle"><input type="checkbox" id="overlayToggle" checked><span>Show filter overlay</span></label>
-        <span class="filter-legend"><span class="filter-legend__swatch"></span> D<sub>0</sub> cutoff (half-power point)</span>
+        <span class="filter-legend"><span class="filter-legend__swatch"></span> <span id="legendText">D<sub>0</sub> cutoff (half-power point for ideal/Butterworth; &sigma; for Gaussian)</span></span>
       </div>
     </div>
   </div>
@@ -365,24 +376,35 @@
 
   // ======================================================================
   // Filter masks -- built directly on the SHIFTED grid (DC at centre).
-  // D0 is defined the standard (Gonzalez-Woods) way: H(D0) = 0.5.
+  // D0 is defined the standard (Gonzalez-Woods) way: H(D0) = 0.5 for ideal
+  // and Butterworth. For Gaussian, D0 plays the role of sigma (H(D0) ~ 0.61).
+  // Band-pass/band-stop are built the same way the lecture describes them:
+  // a low-pass at the OUTER cutoff combined with a high-pass at the INNER
+  // cutoff (verified algebraically: 1 - bandpass == bandstop everywhere).
   // ======================================================================
-  function buildFilterMask(N, family, passType, D0, order) {
+  function lpValue(family, D, D0, order) {
+    if (family === 'ideal') return D <= D0 ? 1 : 0;
+    if (family === 'gaussian') return Math.exp(-(D * D) / (2 * D0 * D0));
+    return D === 0 ? 1 : 1 / (1 + Math.pow(D / D0, 2 * order)); // butterworth
+  }
+
+  function buildFilterMask(N, family, passType, D0, D1, order) {
     const H = new Float64Array(N * N);
     const cx = N / 2, cy = N / 2;
+    const inner = Math.min(D0, D1), outer = Math.max(D0, D1);
     for (let y = 0; y < N; y++) {
       for (let x = 0; x < N; x++) {
-        const dx = x - cx, dy = y - cy;
-        const D = Math.hypot(dx, dy);
-        let lp;
-        if (family === 'ideal') {
-          lp = D <= D0 ? 1 : 0;
-        } else if (family === 'gaussian') {
-          lp = Math.exp(-(D * D) / (2 * D0 * D0));
-        } else { // butterworth
-          lp = D === 0 ? 1 : 1 / (1 + Math.pow(D / D0, 2 * order));
+        const D = Math.hypot(x - cx, y - cy);
+        let val;
+        if (passType === 'low') {
+          val = lpValue(family, D, D0, order);
+        } else if (passType === 'high') {
+          val = 1 - lpValue(family, D, D0, order);
+        } else {
+          const bp = lpValue(family, D, outer, order) * (1 - lpValue(family, D, inner, order));
+          val = passType === 'bandpass' ? bp : 1 - bp;
         }
-        H[y * N + x] = passType === 'low' ? lp : 1 - lp;
+        H[y * N + x] = val;
       }
     }
     return H;
@@ -400,6 +422,7 @@
     filterFamily: 'butterworth',
     passType: 'low',
     D0: 32,
+    D1: 64,
     order: 2,
     overlay: true
   };
@@ -416,6 +439,8 @@
   const imagCanvas = $('imagCanvas'), imagOverlay = $('imagOverlay');
   const filtImgCanvas = $('filtImgCanvas'), filtMagCanvas = $('filtMagCanvas'), filtMagOverlay = $('filtMagOverlay');
   const filterFamily = $('filterFamily'), passTypeSel = $('passType'), d0Slider = $('d0Slider'), d0Readout = $('d0Readout');
+  const d1Slider = $('d1Slider'), d1Readout = $('d1Readout'), d0Label = $('d0Label'), legendText = $('legendText');
+  const filterRail = document.querySelector('.filter-rail');
   const orderSlider = $('orderSlider'), orderReadout = $('orderReadout'), overlayToggle = $('overlayToggle');
 
   function setStatus(msg, isError) {
@@ -457,35 +482,63 @@
     ctx.drawImage(off, 0, 0, dims.w, dims.h);
   }
 
-  function drawOverlayCircle(canvas, N, D0show) {
+  // Draws the cutoff circle(s) on a spectrum panel and a soft tint over
+  // whichever region the filter REJECTS, for all four pass types.
+  function drawFilterOverlay(canvas, N, D0show, D1show, passType) {
     const dims = fitCanvas(canvas);
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, dims.w, dims.h);
     if (!state.overlay || state.filterFamily === 'none') return;
+    const dpr = window.devicePixelRatio || 1;
     const scale = dims.w / N;
     const cx = dims.w / 2, cy = dims.h / 2;
-    const r = D0show * scale;
+    const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+    const isBand = passType === 'bandpass' || passType === 'bandstop';
+    const r0 = D0show * scale;
+    const rInner = Math.min(D0show, D1show) * scale;
+    const rOuter = Math.max(D0show, D1show) * scale;
+
     ctx.save();
-    ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
-    ctx.lineWidth = Math.max(1, 1.5 * (window.devicePixelRatio || 1));
-    ctx.setLineDash([5 * (window.devicePixelRatio || 1), 4 * (window.devicePixelRatio || 1)]);
-    ctx.beginPath();
-    ctx.arc(cx, cy, r, 0, 2 * Math.PI);
-    ctx.stroke();
-    // soft tint over the REJECTED region (low-pass: outside circle; high-pass: inside)
+    ctx.strokeStyle = accent;
+    ctx.lineWidth = Math.max(1, 1.5 * dpr);
+    ctx.setLineDash([5 * dpr, 4 * dpr]);
+    if (isBand) {
+      ctx.beginPath(); ctx.arc(cx, cy, rInner, 0, 2 * Math.PI); ctx.stroke();
+      ctx.beginPath(); ctx.arc(cx, cy, rOuter, 0, 2 * Math.PI); ctx.stroke();
+    } else {
+      ctx.beginPath(); ctx.arc(cx, cy, r0, 0, 2 * Math.PI); ctx.stroke();
+    }
+
     ctx.setLineDash([]);
-    ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+    ctx.fillStyle = accent;
     ctx.globalAlpha = 0.08;
-    if (state.passType === 'low') {
+
+    if (passType === 'low') {
+      // reject outside D0
       ctx.beginPath();
       ctx.rect(0, 0, dims.w, dims.h);
-      ctx.moveTo(cx + r, cy);
-      ctx.arc(cx, cy, r, 0, 2 * Math.PI, true);
+      ctx.arc(cx, cy, r0, 0, 2 * Math.PI);
+      ctx.fill('evenodd');
+    } else if (passType === 'high') {
+      // reject inside D0
+      ctx.beginPath();
+      ctx.arc(cx, cy, r0, 0, 2 * Math.PI);
+      ctx.fill();
+    } else if (passType === 'bandpass') {
+      // reject inner disk AND outside outer ring
+      ctx.beginPath();
+      ctx.arc(cx, cy, rInner, 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.rect(0, 0, dims.w, dims.h);
+      ctx.arc(cx, cy, rOuter, 0, 2 * Math.PI);
       ctx.fill('evenodd');
     } else {
+      // bandstop: reject only the ring itself
       ctx.beginPath();
-      ctx.arc(cx, cy, r, 0, 2 * Math.PI);
-      ctx.fill();
+      ctx.arc(cx, cy, rOuter, 0, 2 * Math.PI);
+      ctx.arc(cx, cy, rInner, 0, 2 * Math.PI);
+      ctx.fill('evenodd');
     }
     ctx.restore();
   }
@@ -655,10 +708,10 @@
     drawFieldToCanvas(realCanvas, re, N, (v) => signedToByte(v, maxAbsRI, useLog), true);
     drawFieldToCanvas(imagCanvas, im, N, (v) => signedToByte(v, maxAbsRI, useLog), true);
 
-    drawOverlayCircle(magOverlay, N, state.D0);
-    drawOverlayCircle(phaseOverlay, N, state.D0);
-    drawOverlayCircle(realOverlay, N, state.D0);
-    drawOverlayCircle(imagOverlay, N, state.D0);
+    drawFilterOverlay(magOverlay, N, state.D0, state.D1, state.passType);
+    drawFilterOverlay(phaseOverlay, N, state.D0, state.D1, state.passType);
+    drawFilterOverlay(realOverlay, N, state.D0, state.D1, state.passType);
+    drawFilterOverlay(imagOverlay, N, state.D0, state.D1, state.passType);
   }
 
   function redrawFiltered() {
@@ -668,7 +721,7 @@
     const imF = Float64Array.from(state.imS);
 
     if (state.filterFamily !== 'none') {
-      const H = buildFilterMask(N, state.filterFamily, state.passType, state.D0, state.order);
+      const H = buildFilterMask(N, state.filterFamily, state.passType, state.D0, state.D1, state.order);
       for (let i = 0; i < N * N; i++) { reF[i] *= H[i]; imF[i] *= H[i]; }
     }
 
@@ -678,7 +731,7 @@
     for (let i = 0; i < N * N; i++) { mag[i] = Math.hypot(reF[i], imF[i]); if (mag[i] > maxMag) maxMag = mag[i]; }
     const useLog = state.scaleMode === 'log';
     drawFieldToCanvas(filtMagCanvas, mag, N, (v) => magToByte(v, maxMag || 1, useLog), true);
-    drawOverlayCircle(filtMagOverlay, N, state.D0);
+    drawFilterOverlay(filtMagOverlay, N, state.D0, state.D1, state.passType);
 
     // inverse FFT back to spatial domain
     fftshift2d(reF, imF, N); // un-shift (shift is its own inverse for even N)
@@ -700,7 +753,9 @@
     state.N = parseInt(e.target.value, 10);
     const half = state.N / 2;
     d0Slider.max = String(half);
+    d1Slider.max = String(half);
     if (state.D0 > half) { state.D0 = half; d0Slider.value = String(half); d0Readout.textContent = String(half); }
+    if (state.D1 > half) { state.D1 = half; d1Slider.value = String(half); d1Readout.textContent = String(half); }
     if (state.gray) {
       // re-run sample or ask user to reload; simplest: regenerate sample if that's what's loaded, else just resample gray via a fresh canvas is not trivial without original -- request reload
       setStatus('Size changed -- reload your image/URL/sample to analyze at the new resolution.', false);
@@ -712,14 +767,34 @@
     redrawSpectra(); redrawFiltered();
   });
 
+  function updateFilterLabels() {
+    const isBand = state.passType === 'bandpass' || state.passType === 'bandstop';
+    filterRail.classList.toggle('has-band', isBand);
+    d0Label.innerHTML = isBand
+      ? 'Inner cutoff D<sub>0</sub> <span style="color:var(--text-dim)">(cyc/image)</span>'
+      : 'Cutoff D<sub>0</sub> <span style="color:var(--text-dim)">(cyc/image)</span>';
+    legendText.innerHTML = isBand
+      ? 'D<sub>0</sub>/D<sub>1</sub>: inner/outer cutoffs of the passed or stopped band'
+      : 'D<sub>0</sub> cutoff (half-power point for ideal/Butterworth; &sigma; for Gaussian)';
+  }
+
   filterFamily.addEventListener('change', (e) => {
     state.filterFamily = e.target.value;
     orderSlider.disabled = state.filterFamily !== 'butterworth';
+    updateFilterLabels();
     redrawSpectra(); redrawFiltered();
   });
-  passTypeSel.addEventListener('change', (e) => { state.passType = e.target.value; redrawSpectra(); redrawFiltered(); });
+  passTypeSel.addEventListener('change', (e) => {
+    state.passType = e.target.value;
+    updateFilterLabels();
+    redrawSpectra(); redrawFiltered();
+  });
   d0Slider.addEventListener('input', (e) => {
     state.D0 = parseFloat(e.target.value); d0Readout.textContent = e.target.value;
+    redrawSpectra(); redrawFiltered();
+  });
+  d1Slider.addEventListener('input', (e) => {
+    state.D1 = parseFloat(e.target.value); d1Readout.textContent = e.target.value;
     redrawSpectra(); redrawFiltered();
   });
   orderSlider.addEventListener('input', (e) => {
