@@ -737,10 +737,16 @@
     fftshift2d(reF, imF, N); // un-shift (shift is its own inverse for even N)
     fft2d(reF, imF, N, true);
 
-    let mn = Infinity, mx = -Infinity;
-    for (let i = 0; i < N * N; i++) { if (reF[i] < mn) mn = reF[i]; if (reF[i] > mx) mx = reF[i]; }
-    const range = (mx - mn) || 1;
-    drawFieldToCanvas(filtImgCanvas, reF, N, (v) => clamp(Math.round(((v - mn) / range) * 255), 0, 255), false);
+    // Clip to [0,255] rather than min-max stretching the display range.
+    // High-pass (and band-pass/band-stop) results have zero mean, so flat
+    // regions go slightly negative and edges ring both above and below
+    // their true value. Stretching the display to the data's actual min
+    // (a ringing undershoot, not the background) drags a black background
+    // up into grey. Clipping instead matches the standard convention (see
+    // Lecture 6's Fig 4.39 "edge only" result) -- the background clips
+    // to black, undershoots are invisible, and only real edge energy
+    // shows up bright.
+    drawFieldToCanvas(filtImgCanvas, reF, N, (v) => clamp(Math.round(v), 0, 255), false);
   }
 
   // ======================================================================
