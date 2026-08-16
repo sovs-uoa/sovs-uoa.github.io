@@ -663,56 +663,46 @@
     const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
 
     const rad = state.notchAngle * Math.PI / 180;
-    const du = state.notchFreq * Math.cos(rad), dv = state.notchFreq * Math.sin(rad);
     const half = state.notchWidth / 2;
     const cxArr = N / 2, cyArr = N / 2;
+    const ux = Math.cos(rad), uy = Math.sin(rad);
+    const px = -uy, py = ux; // unit vector perpendicular to the notch direction
 
     function toCanvas(arrX, arrY) {
       return { x: arrX * scale, y: (N - arrY) * scale };
     }
-    function drawSquare(u, v) {
-      const p1 = toCanvas(cxArr + u - half, cyArr + v - half);
-      const p2 = toCanvas(cxArr + u + half, cyArr + v + half);
-      const x = Math.min(p1.x, p2.x), y = Math.min(p1.y, p2.y);
-      ctx.strokeRect(x, y, Math.abs(p2.x - p1.x), Math.abs(p2.y - p1.y));
+
+    // One filled rectangle spanning radius [rNear, rFar] along direction
+    // (sux,suy) from DC, width = notchWidth. Plain notch: rNear/rFar =
+    // freq -+ half (a square). Extended: rFar = N instead, so it's a
+    // single continuous shape reaching the edge -- not a square plus a
+    // separate box glued on next to it.
+    function drawRect(sux, suy, rNear, rFar) {
+      const nearX = cxArr + sux * rNear, nearY = cyArr + suy * rNear;
+      const farX = cxArr + sux * rFar, farY = cyArr + suy * rFar;
+      const corners = [
+        toCanvas(nearX + px * half, nearY + py * half),
+        toCanvas(nearX - px * half, nearY - py * half),
+        toCanvas(farX - px * half, farY - py * half),
+        toCanvas(farX + px * half, farY + py * half)
+      ];
+      ctx.beginPath();
+      ctx.moveTo(corners[0].x, corners[0].y);
+      for (let i = 1; i < corners.length; i++) ctx.lineTo(corners[i].x, corners[i].y);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
     }
 
     ctx.save();
     ctx.strokeStyle = accent;
+    ctx.fillStyle = '#000';
     ctx.lineWidth = Math.max(1, 1.5 * dpr);
-    drawSquare(du, dv);
-    drawSquare(-du, -dv);
 
-    if (state.notchConnect) {
-      // Extended box: a rectangle running from just past the square's
-      // outer edge to the spectrum boundary, same width as the square --
-      // drawn as an explicit quad (all four corners mapped through
-      // toCanvas) rather than a stroked line, so it reads as a clean box
-      // outline like the squares themselves instead of a translucent
-      // round-capped stroke.
-      const ux = Math.cos(rad), uy = Math.sin(rad);
-      const px = -uy, py = ux; // unit vector perpendicular to the ray
-      function drawBox(sux, suy) { // (sux,suy) = direction away from DC for this side
-        const nearX = cxArr + sux * (state.notchFreq + half), nearY = cyArr + suy * (state.notchFreq + half);
-        const farX = cxArr + sux * N, farY = cyArr + suy * N;
-        const corners = [
-          toCanvas(nearX + px * half, nearY + py * half),
-          toCanvas(nearX - px * half, nearY - py * half),
-          toCanvas(farX - px * half, farY - py * half),
-          toCanvas(farX + px * half, farY + py * half)
-        ];
-        ctx.beginPath();
-        ctx.moveTo(corners[0].x, corners[0].y);
-        for (let i = 1; i < corners.length; i++) ctx.lineTo(corners[i].x, corners[i].y);
-        ctx.closePath();
-        ctx.stroke();
-      }
-      ctx.save();
-      ctx.lineWidth = Math.max(1, 1.5 * dpr);
-      drawBox(ux, uy);
-      drawBox(-ux, -uy);
-      ctx.restore();
-    }
+    const rNear = state.notchFreq - half;
+    const rFar = state.notchConnect ? N : state.notchFreq + half;
+    drawRect(ux, uy, rNear, rFar);
+    drawRect(-ux, -uy, rNear, rFar);
     ctx.restore();
   }
 
