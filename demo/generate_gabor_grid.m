@@ -15,7 +15,12 @@
 % cutoff with no gap, patches near the boundary would only be
 % partially attenuated instead of cleanly kept-or-zapped.
 
-clear; close all; rng(1);   % fixed seed -> reproducible lab handout
+% Each student should get a different grid, so the RNG is seeded from
+% the clock (not a fixed value) -- every run produces a different
+% arrangement, freqs, orientations and phases. gabor_grid_16_truth.mat
+% is regenerated alongside it each time, so it always matches whichever
+% image was just produced.
+clear; close all; rng('shuffle');
 
 %% Parameters
 % spaceScale grows the tile (and canvas) while sigma stays fixed in
