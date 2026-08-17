@@ -222,6 +222,7 @@
       <div class="scope">
         <div class="scope__label">Hybrid (low-pass A + high-pass B)</div>
         <div class="canvas-wrap"><canvas id="hybridCanvas"></canvas></div>
+        <button class="btn btn--accent" id="downloadHybridBtn" type="button" style="margin-top:10px;">Download hybrid image</button>
       </div>
       <div>
         <div class="scope__label">Viewed from a distance (simulated)</div>
@@ -352,6 +353,7 @@
   const origACanvas = $('origACanvas'), origBCanvas = $('origBCanvas');
   const lowACanvas = $('lowACanvas'), highBCanvas = $('highBCanvas');
   const hybridCanvas = $('hybridCanvas'), hybridFarCanvas = $('hybridFarCanvas');
+  const downloadHybridBtn = $('downloadHybridBtn');
 
   function setStatus(el, msg, isError) {
     el.textContent = msg || '';
@@ -562,6 +564,13 @@
     runPipeline();
   });
   matchContrastToggle.addEventListener('change', (e) => { state.matchContrast = e.target.checked; runPipeline(); });
+
+  downloadHybridBtn.addEventListener('click', () => {
+    const link = document.createElement('a');
+    link.download = 'hybrid-image.png';
+    link.href = hybridCanvas.toDataURL('image/png');
+    link.click();
+  });
 
   window.addEventListener('resize', () => runPipeline());
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => runPipeline());
