@@ -18,10 +18,18 @@
 clear; close all; rng(1);   % fixed seed -> reproducible lab handout
 
 %% Parameters
-tileSize   = 80;              % pixels per patch
+% spaceScale grows the tile (and canvas) while sigma stays fixed in
+% pixels, so each patch keeps its current size but sits in a bigger
+% cell -- i.e. more empty gutter between neighbouring patches. The
+% frequency ranges are scaled by the same factor so cyc/pixel (how
+% fine the stripes actually look) is unchanged -- only the gutter grows.
+spaceScale = 1.5;
+
+tileSize   = round(80*spaceScale);   % pixels per patch cell
 gridN      = 4;                % 4x4 grid
-N          = tileSize*gridN;   % full image size (320 x 320)
-sigma      = 14;               % Gaussian envelope std (pixels)
+N          = tileSize*gridN;   % full image size
+sigma      = 14;               % Gaussian envelope std (pixels) -- fixed,
+                                % so patches themselves do not grow
 amplitude  = 0.42;              % contrast of the sinusoid around mid-grey
 background = 0.5;
 
@@ -31,8 +39,8 @@ background = 0.5;
 % overlap into one indistinguishable, interference-fringed blob. Out
 % here the ring circumference is large enough that all 8 blobs in a
 % band stay visually separated.
-lowFreqRange  = [28 40];       % cyc/image
-highFreqRange = [65 90];       % cyc/image -- gap (40 to 65) keeps every
+lowFreqRange  = [28 40]  * spaceScale;   % cyc/image
+highFreqRange = [65 90]  * spaceScale;   % cyc/image -- gap keeps every
                                 % patch's spectral blob well clear of a
                                 % cutoff placed in the middle of it
 
