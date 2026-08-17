@@ -25,25 +25,49 @@ sigma      = 14;               % Gaussian envelope std (pixels)
 amplitude  = 0.42;              % contrast of the sinusoid around mid-grey
 background = 0.5;
 
-lowFreqRange  = [4  9];        % cyc/image
-highFreqRange = [28 45];       % cyc/image -- gap (9 to 28) keeps every
+% Both bands are pushed well away from DC: at sigma=14px each patch's
+% spectral blob has radius ~9-11 cyc/image, so 8 orientations packed
+% into a ring near DC (as when the low band sat at 4-9 cyc/image)
+% overlap into one indistinguishable, interference-fringed blob. Out
+% here the ring circumference is large enough that all 8 blobs in a
+% band stay visually separated.
+lowFreqRange  = [28 40];       % cyc/image
+highFreqRange = [65 90];       % cyc/image -- gap (40 to 65) keeps every
                                 % patch's spectral blob well clear of a
                                 % cutoff placed in the middle of it
 
 %% Assign each of the 16 grid cells to a group, then shuffle positions
 nPatches = gridN*gridN;
-isLow = [true(1, nPatches/2), false(1, nPatches/2)];
+nPerBand = nPatches/2;
+isLow = [true(1, nPerBand), false(1, nPerBand)];
 isLow = isLow(randperm(nPatches));
 
+% A real-valued grating at orientation theta produces TWO mirrored
+% blobs in the spectrum, at theta and theta+180deg. Evenly spacing each
+% band's nPerBand orientations across 0..180deg (with a random phase
+% offset, then a random per-patch assignment) therefore places all
+% 2*nPerBand blobs of that band evenly around the full circle, instead
+% of risking two random orientations landing close together and their
+% blobs merging.
+lowOrients  = mod(rand()*pi/nPerBand + (0:nPerBand-1)*(pi/nPerBand), pi);
+highOrients = mod(rand()*pi/nPerBand + (0:nPerBand-1)*(pi/nPerBand), pi);
+lowOrients  = lowOrients(randperm(nPerBand));
+highOrients = highOrients(randperm(nPerBand));
+
 freqs   = zeros(1, nPatches);
-orients = pi*rand(1, nPatches);      % 0..180 deg
+orients = zeros(1, nPatches);
 phases  = 2*pi*rand(1, nPatches);
 
+iLow = 0; iHigh = 0;
 for k = 1:nPatches
     if isLow(k)
-        freqs(k) = lowFreqRange(1) + diff(lowFreqRange)*rand();
+        iLow = iLow + 1;
+        freqs(k)   = lowFreqRange(1) + diff(lowFreqRange)*rand();
+        orients(k) = lowOrients(iLow);
     else
-        freqs(k) = highFreqRange(1) + diff(highFreqRange)*rand();
+        iHigh = iHigh + 1;
+        freqs(k)   = highFreqRange(1) + diff(highFreqRange)*rand();
+        orients(k) = highOrients(iHigh);
     end
 end
 

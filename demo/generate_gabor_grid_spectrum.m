@@ -11,7 +11,10 @@
 
 clear; close all;
 
+load('gabor_grid_16_truth.mat', 'highFreqRange');
 img = im2double(imread('gabor_grid_16.png'));
+N = size(img, 1);
+cx = N/2; cy = N/2;
 
 F = fftshift(fft2(img));
 amplitude_spectrum = abs(F);
@@ -32,6 +35,11 @@ nexttile();
 imagesc(display_amplitude);
 colormap(gca, gray); clim([0 1]); axis image;
 set(gca, 'YDir', 'normal');
+% All the energy sits within highFreqRange(2) of DC -- zoom the display
+% to that region instead of showing the mostly-empty full-size spectrum.
+zoomR = highFreqRange(2) * 1.4;
+xlim([cx-zoomR, cx+zoomR]);
+ylim([cy-zoomR, cy+zoomR]);
 title(sprintf('Amplitude spectrum (log, \\gamma=%g)', gamma));
 fontsize(14, 'points');
 colorbar;
