@@ -1,6 +1,6 @@
 % generate_gabor_grid_spectrum.m
 %
-% Shows the magnitude spectrum of gabor_grid_16.png (run
+% Shows the magnitude spectrum of gabor_16.png (run
 % generate_gabor_grid.m first). Expect 8 bright blobs on a ring at the
 % low-frequency radius and 8 on a ring at the high-frequency radius,
 % one pair of blobs per patch (each real sinusoid contributes energy at
@@ -12,7 +12,7 @@
 clear; close all;
 
 load('gabor_grid_16_truth.mat', 'highFreqRange');
-img = im2double(imread('gabor_grid_16.png'));
+img = im2double(imread('gabor_16.png'));
 N = size(img, 1);
 cx = N/2; cy = N/2;
 

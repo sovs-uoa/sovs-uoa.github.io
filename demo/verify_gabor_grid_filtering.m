@@ -10,7 +10,7 @@
 clear; close all;
 
 load('gabor_grid_16_truth.mat');
-img = im2double(imread('gabor_grid_16.png'));
+img = im2double(imread('gabor_16.png'));
 N = size(img, 1);
 
 D0 = mean([lowFreqRange(2), highFreqRange(1)]);  % midpoint of the gap

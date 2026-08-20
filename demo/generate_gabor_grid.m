@@ -107,7 +107,7 @@ end
 img = min(max(img, 0), 1);
 
 %% Save the lab image
-imwrite(img, 'gabor_grid_16.png');
+imwrite(img, 'gabor_16.png');
 
 % Ground truth (which grid cells are low/high) for YOUR reference when
 % checking student results -- not meant to be handed out.
@@ -121,4 +121,4 @@ imshow(img);
 title('16 Gabor patches (8 low-freq, 8 high-freq, shuffled)');
 exportgraphics(gcf, 'gabor_grid_16_preview.png', 'Resolution', 300);
 
-fprintf('Saved gabor_grid_16.png (%dx%d) and gabor_grid_16_truth.mat\n', N, N);
+fprintf('Saved gabor_16.png (%dx%d) and gabor_grid_16_truth.mat\n', N, N);
