@@ -62,10 +62,8 @@
   <script src="js/optics/PointSourceConstruction.js"></script>    
   <script src="js/optics/DataTableHandler.js"></script>      
   <script src="js/utils.js"></script>  
-
-  <!-- main application -->
-  <script src="js/optics/application.js"></script>  
-
+  <script src="js/main.js"></script>  
+  
 
   <link rel="stylesheet" type="text/css" href="css/optics.css">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
@@ -76,74 +74,19 @@
 
 <script>
 
-   function initializeApp () {
 
+   /* configuration for lab-1  */
 
-    // laod configuration 
-    
+   var config = { summary_template: 'mustache/lab5_report_tables_html.mustache', 
+                  download_report_template : 'mustache/optics_report_template_v2.1.mustache.htm',
+                  lenses_menu: 'eye' };
 
-
-     // try and load 
-     console.log('starting ... main app');
-
-     // report template 
-     $.get('mustache/report.htm', function (data) {
-        console.log('loaded ... reportTemplate');
-        reportTemplate = data;
-    });
-
-    load ("10"); // 10 = Eye 
-    }
-
-
-    $( document ).ready(function() {      
-
-      // trigger on a selection
-      $('.file-selection').on('click', function () {
-
-        console.log("file selection made.");
-        var id  = $(this).data ("id"); // get the data id field 
-        var ndx = fileList.findIndex( function (element) { return element.id == id } );
-          
-        // info.
-        if (ndx > -1) {
-          reload(id);
-          var txt = $(this).text();             // selection 
-          $("#filename_display").val(txt);      // show it 
-        }
-      });
-
-
-
-      // trigger on a selection
-      $('.report-selection').on('click', function () {
-        var id  = $(this).data ("id"); // get the data id field 
-        console.log("report selection made = " + id);
-        downloadReport(id);
-      });
-
-
-      initializeApp ();
-
-
-      $( "#objects-images-tab" ).focus(function() {
-        alert( "Handler for .focus() called." );
-      });
-
-
-      
-
-
-    });
-
-
-
+    /* see main.js for initialization */
 
 
 </script>
 
 <body>
-
 
   <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
 
@@ -181,7 +124,7 @@
       <div class="input-group-prepend">
 
       <!-- Buttons -->
-        <button class="btn btn-secondary dropdown-toggle float-left" type="button" id="importer" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Load</button>
+        <button class="btn btn-secondary dropdown-toggle float-left" type="button" id="importer" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Model</button>
 
         <!-- TO DO: need to build this list fron the javascript array --> 
         <div id="dropdown-lens-menu" class="dropdown-menu">
@@ -193,8 +136,20 @@
           <a class="dropdown-item file-selection"  href="#" data-id="4" >Two Thin lens in Air (Positive)</a>
           <a class="dropdown-item file-selection"  href="#" data-id="5" >Two Thin Lens in Air (Negative)</a>
 -->          
-          <a class="dropdown-item file-selection"  href="#" data-id="10" >Gullstrand Relaxed Eye</a>
-          <a class="dropdown-item file-selection"  href="#" data-id="11" >Gullstrand Relaxed Eye (No Retina)</a>
+
+<!--
+
+          <a class="dropdown-item file-selection"  href="#" data-id="19" >Thick Lens</a>
+          <a class="dropdown-item file-selection"  href="#" data-id="20" >Eye Model</a>
+          <a class="dropdown-item file-selection"  href="#" data-id="21" >Telescope</a>
+          <a class="dropdown-item file-selection"  href="#" data-id="28" >Vertometer</a>
+-->
+
+<!--          
+          <a class="dropdown-item file-selection"  href="#" data-id="7" >Galilean telescope</a>
+          <a class="dropdown-item file-selection"  href="#" data-id="17" >Reduced eye with ametropia</a>
+          <a class="dropdown-item file-selection"  href="#" data-id="18" >Galilean model no retina</a>
+-->
 
 <!--
           <a class="dropdown-item file-selection"  href="#" data-id="7" >Galilean Telescope</a>
@@ -215,17 +170,108 @@
 
     <!--  Report button -->  
 
-    <div class="dropdown">
-    <button class='btn btn-primary dropdown-toggle float-right' data-toggle="dropdown" id="dropdownReportButton" > 
+<!--
+    <button class='btn btn-primary float-right' id="optics_report" > 
+       <i class="fas fa-download"></i>Report
+    </button>
+-->
+
+    <!-- Button trigger modal -->
+    <button type="button" class="btn btn-primary float-right" data-toggle="modal" data-target="#exampleModal">
        <i class="fas fa-download"></i>Report
     </button>
 
-    <!-- TO DO: need to build this list fron the javascript array --> 
-    <div id="dropdown-report-menu" class="dropdown-menu"  aria-labelledby="dropdownReportButton">
-      <a class="dropdown-item report-selection"  href="#" data-id="report" >Report as HTML</a>
-      <a class="dropdown-item report-selection"  href="#" data-id="picture" >Picture as SVG</a>
-    </div>            
+
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Choose a label. Then hit download :</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            
+
+            <!-- download a report with information -->
+            <div class="form-group">
+
+              <!-- textbox -->
+
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                
+                  <!-- dropdown -->             
+
+                  <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      Label
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton" id="QuestionBox">
+ 
+                    <!--
+                    
+                      Start Empty!
+
+                     <button id="2.1" class="dropdown-item" type="button" data-question="2" data-sub-question="1" onclick="updateQuestionBox(this.id);">Q2.1</button>
+                     <button id="2.2" class="dropdown-item" type="button" data-question="2" data-sub-question="2" onclick="updateQuestionBox(this.id);">Q2.2</button>
+                     <button id="2.3" class="dropdown-item" type="button" data-question="2" data-sub-question="3" onclick="updateQuestionBox(this.id);">Q2.3</button>
+
+                    -->
+
+
+
+                    </div>
+                  </div>
+
+
+                </div>
+                <input type="text" class="form-control" id="submit_question" aria-describedby="basic-addon3" Placeholder="Select the question this report answers" disabled>
+              </div>
+
+
+
+
+            </div>
+            <div class="form-group">
+              <label for="submit_UPI">Login ID/UPI:</label>
+              <input type="text" class="form-control" id="submit_UPI" Placeholder="Enter your UPI here">
+            </div>
+
+
+            <div class="form-group">
+              <label for="submit_ID">Student ID:</label>
+              <input type="text" class="form-control" id="submit_ID" Placeholder="Enter your ID here">
+            </div>
+
+
+            <div class="form-group">
+              <label for="extra_comment">Extra comment:</label>
+              <input type="text" class="form-control" id="extra_comment" Placeholder="Enter extra information here">
+            </div>
+
+
+            <div class="alert alert-warning" role="alert">
+              <i>Upload the downloaded report to Canvas  (<b>do not change it!</b>)</i>
+            </div>
+          
+
+
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" data-dismiss="modal" id="optics_report" >Download</button>
+          </div>
+        </div>
+      </div>
     </div>
+
+
+
+
+
 
 
    </div>
@@ -582,12 +628,12 @@
           <div class="input-group mb-3">
               <input id="modal-source-h"  type="text" class="form-control" aria-label="Description" placeholder="Enter the height." value="0.1">
           </div>
-
-
+          
           Object beam width
           <div class="input-group mb-3">
               <input id="modal-source-beam-width"  type="text" class="form-control" aria-label="Description" placeholder="Enter the beam width." value="0.01" >
           </div>
+
 
         </div>
 
@@ -704,4 +750,11 @@
 
 
 </body>
+
+
+
+  <!-- main application -->
+  <script src="js/optics/application.js"></script>  
+
+
 </html>

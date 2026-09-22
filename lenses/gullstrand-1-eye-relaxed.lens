@@ -9,6 +9,8 @@
 				 	"power":true,
 				 	"curvature":true,
 				 	"aperture":true },		
+	"viewBox" : [ -0.0125, 0.00875, 0.050, 0.0175 ],
+
 	"objects": 	[ 	{ "type": "object", "VO" : -1, "OQ" : 1 },
 	 				{ "type": "image",  "VI" : 3, "IQ" : -1 } ],				 					 	
 	"prescription": [{
@@ -61,7 +63,7 @@
 		"args": {
 			"radius"   : 10.000,
 			"stop"     : true,
-			"height"   : 12.0,			
+			"height"   : 9.57084543,			
 			"aperture" : 1
 		}
 	}, {
@@ -80,7 +82,7 @@
 		"description": "anterior core",
 		"args": {
 			"radius": 7.911,
-			"height": 9
+			"height": 7.62138561
 		}
 	}, {
 		"id": "0009",
@@ -98,7 +100,7 @@
 		"description": "posterior core",
 		"args": {
 			"radius": -5.760,
-			"height": 10
+			"height": 7.62138561
 		}
 	}, {
 		"id": "0011",
@@ -116,7 +118,7 @@
 		"description": "posterior cortex",
 		"args": {
 			"radius": -6.000,
-			"height": 13.0
+			"height": 9.57084543
 		}
 	}, {
 		"id": "0013",

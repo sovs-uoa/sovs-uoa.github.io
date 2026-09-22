@@ -59,8 +59,11 @@
                       { "id": "55", "filename": "./lenses/reduced-eye-with-ametropia.lens",   "title": "Reduced emmetropic eye", "question": 1, "total":1 },                     
                       { "id": "56", "filename": "./lenses/mystery-eye-with-ametropia-1.lens", "title": "Mystery eye #1", "question": 1, "total":1 },
                       { "id": "57", "filename": "./lenses/mystery-eye-with-ametropia-2.lens", "title": "Mystery eye #2", "question": 1, "total":1 },
-                      { "id": "58", "filename": "./lenses/reduced-eye-with-ametropia-lab4.lens",   "title": "Reduced eye", "question": 1, "total":1 }                     
-                      
+                      { "id": "58", "filename": "./lenses/reduced-eye-with-ametropia-lab4.lens",   "title": "Reduced eye", "question": 1, "total":1 },
+                      { "id": "59", "filename": "./lenses/gullstrand-1-eye-relaxed.lens", "title": "Gullstrand Schematic Eye (Relaxed)" },
+                      { "id": "60", "filename": "./lenses/gullstrand-1-eye-accommodated.lens", "title": "Gullstrand Schematic Eye (Accommodated)" },
+                      { "id": "61", "filename": "./lenses/gullstrand-1-lens-only.lens", "title": "Gullstrand Isolated Lens" }
+
                   ],
 
     "profiles" : [ { "name" : "lab-1",  "main" : "2", "list" : [ "2", "3" ], "assignment" : false, "uploads": [ "Q1","Q4","Q5", "Q8", "Q9" ] }, 
@@ -68,6 +71,7 @@
                    { "name" : "lab-3",  "main" : "55", "list" : [ "55", "53", "54" ], "assignment" : false, "uploads": [ "Q4","Q8", "Q9" ]  },
                    { "name" : "lab-4",  "main" : "58", "list" : [ "58", "56", "57" ], "assignment" : false, "uploads": [ "Q3","Q4", "Q6", "Q7", "Q10", "Q12", "Q14" ] },        
                    { "name" : "lab-6",  "main" : "16", "list" : [ "16" ], "assignment" : false, "uploads": [ "Q3" ] },
+                   { "name" : "eye",    "main" : "10", "list" : [ "10", "11", "59", "60", "61" ], "assignment" : false },
 
 
                    { "name" : "assignment",       "main" : "19", "list" : [ "19", "20", "21", "28'" ], "assignment" : true }, 

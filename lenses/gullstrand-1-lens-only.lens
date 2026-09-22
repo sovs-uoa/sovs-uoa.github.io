@@ -1,0 +1,119 @@
+/*--------------------------------------------
+
+ Gullstrand 1 Eye — Isolated Crystalline Lens
+
+ The full crystalline lens (anterior lens, cortex, nucleus, cortex,
+ posterior lens) from the Gullstrand No. 1 relaxed eye, lifted out of
+ the whole eye: bounded by aqueous in front and vitreous behind, with
+ the cornea removed. A parallel beam from an axial + off-axis distant
+ object is traced through the lens.
+
+ Equivalent power of the isolated lens:      Fe  = +19.1109 D
+ Front principal plane (from V1, lens):      H   = +2.0779 mm
+ Back principal plane (from V4, lens):       H'  = -1.3931 mm
+ Back focal distance (from V4, lens):        BFD = +68.5148 mm
+
+----------------------------------------------*/
+{
+	"title": "Gullstrand 1 eye — isolated lens",
+	"visible": { 	"radius": true,
+				 	"power":true,
+				 	"curvature":true,
+				 	"aperture":true },
+
+	"viewBox" : [ -0.0005, -0.006, 0.006, 0.012 ],
+
+	"sources" : [ { "id" 		: 1,
+					"type" 		: "beam",
+					"which"		: "object",
+					"beamwidth" : 0.006,
+					"z"			: NaN,
+					"h"			: NaN,
+					"t"			: 0 },
+				  { "id" 		: 2,
+					"type" 		: "beam",
+					"which"		: "object",
+					"beamwidth" : 0.006,
+					"z"			: NaN,
+					"h"			: NaN,
+					"t"			: 10 } ],
+
+	"prescription": [{
+		"id": "0001",
+		"type": "index",
+		"description": "aqueous",
+		"args": {
+			"index": 1.336
+		}
+	}, {
+		"id": "0002",
+		"group": "lens",
+		"type": "sphere",
+		"description": "anterior lens",
+		"args": {
+			"radius": 0.010000,
+			"height": 0.0076
+		}
+	}, {
+		"id": "0003",
+		"group": "lens",
+		"type": "index",
+		"description": "lens: cortex",
+		"args": {
+			"index": 1.386,
+			"thickness": 0.000546
+		}
+	}, {
+		"id": "0004",
+		"group": "lens",
+		"type": "sphere",
+		"description": "anterior core",
+		"args": {
+			"radius": 0.007911,
+			"height": 0.0076
+		}
+	}, {
+		"id": "0005",
+		"group": "lens",
+		"type": "index",
+		"description": "lens: core",
+		"args": {
+			"index": 1.406,
+			"thickness": 0.002419
+		}
+	}, {
+		"id": "0006",
+		"group": "lens",
+		"type": "sphere",
+		"description": "posterior core",
+		"args": {
+			"radius": -0.005760,
+			"height": 0.0076
+		}
+	}, {
+		"id": "0007",
+		"group": "lens",
+		"type": "index",
+		"description": "lens: cortex",
+		"args": {
+			"index": 1.386,
+			"thickness": 0.000635
+		}
+	}, {
+		"id": "0008",
+		"group": "lens",
+		"type": "sphere",
+		"description": "posterior lens",
+		"args": {
+			"radius": -0.006000,
+			"height": 0.0076
+		}
+	}, {
+		"id": "0009",
+		"type": "index",
+		"description": "vitreous",
+		"args": {
+			"index": 1.336
+		}
+	}]
+}

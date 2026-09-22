@@ -4,6 +4,8 @@
 				 	"power":true,
 				 	"curvature":true,
 				 	"aperture":true },	
+	"viewBox" : [ -0.0125, 0.00875, 0.050, 0.0175 ],
+
 	"objects": 	[ 	{ "type": "object", "VO" : -10, "OQ" : 10 },
 	 				{ "type": "image",  "VI" : -20, "IQ" : 10 } ],				 	
 	"prescription": [{
@@ -48,7 +50,8 @@
 		"type": "sphere",
 		"description": "anterior lens",
 		"args": {
-			"radius": 10.0
+			"radius": 10.0,
+			"height": 9.57084543
 		}
 	}, {
 		"id": "0007",
@@ -63,7 +66,8 @@
 		"type": "sphere",
 		"description": "anterior core",
 		"args": {
-			"radius": 7.911
+			"radius": 7.911,
+			"height": 7.62138561
 		}
 	}, {
 		"id": "0009",
@@ -78,7 +82,8 @@
 		"type": "sphere",
 		"description": "posterior core",
 		"args": {
-			"radius": -5.760
+			"radius": -5.760,
+			"height": 7.62138561
 		}
 	}, {
 		"id": "0011",
@@ -93,7 +98,8 @@
 		"type": "sphere",
 		"description": "posterior cortex",
 		"args": {
-			"radius": -6.000
+			"radius": -6.000,
+			"height": 9.57084543
 		}
 	}, {
 		"id": "0013",
