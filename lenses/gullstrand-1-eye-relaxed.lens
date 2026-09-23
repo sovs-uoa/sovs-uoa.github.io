@@ -1,6 +1,11 @@
 /*--------------------------------------------
 
- Gullstrand 1 Eye Relaxed 
+ Gullstrand 1 Eye Relaxed
+
+ NOTE: all radii / thicknesses / heights are in metres, matching the
+ convention used everywhere else in the app (e.g. legrand-relaxed-schematic-eye.lens).
+ The values were previously entered in millimetres, which put this file's
+ geometry 1000x larger than its viewBox and made the ray diagram unusable.
 
 ----------------------------------------------*/
 {
@@ -8,11 +13,19 @@
 	"visible": { 	"radius": true,
 				 	"power":true,
 				 	"curvature":true,
-				 	"aperture":true },		
+				 	"aperture":true },
 	"viewBox" : [ -0.0125, 0.00875, 0.050, 0.0175 ],
 
 	"objects": 	[ 	{ "type": "object", "VO" : -1, "OQ" : 1 },
-	 				{ "type": "image",  "VI" : 3, "IQ" : -1 } ],				 					 	
+	 				{ "type": "image",  "VI" : 3, "IQ" : -1 } ],
+	"sources" : [ { "id" 		: 1, 
+					"type" 		: "beam",
+					"which"		: "object",
+					"beamwidth" : 0.004,
+					"z"			: NaN, 
+					"h"			: NaN,
+					"t"			: 10 } ],
+
 	"prescription": [{
 		"id": "0001",
 		"type": "index",
@@ -20,14 +33,14 @@
 		"args": {
 			"index": 1.000
 		}
-	}, {		
+	}, {
 		"id": "0002",
 		"group": "cornea",
 		"type": "sphere",
 		"description": "anterior cornea",
 		"args": {
-			"radius": 7.700,
-			"height": 12
+			"radius": 0.0077,
+			"height": 0.012
 		}
 	}, {
 		"id": "0003",
@@ -36,16 +49,16 @@
 		"description": "stroma",
 		"args": {
 			"index": 1.376,
-			"thickness": 0.5
+			"thickness": 0.0005
 		}
 	}, {
 		"id": "0004",
-		"group": "cornea",		
+		"group": "cornea",
 		"type": "sphere",
 		"description": "posterior cornea",
 		"args": {
-			"radius": 6.800,
-			"height": 12
+			"radius": 0.0068,
+			"height": 0.012
 		}
 	}, {
 		"id": "0005",
@@ -53,7 +66,7 @@
 		"description": "aqueous",
 		"args": {
 			"index": 1.336,
-			"thickness": 3.100
+			"thickness": 0.0031
 		}
 	}, {
 		"id": "0006",
@@ -61,9 +74,9 @@
 		"type": "sphere",
 		"description": "anterior lens",
 		"args": {
-			"radius"   : 10.000,
+			"radius"   : 0.01,
 			"stop"     : true,
-			"height"   : 9.57084543,			
+			"height"   : 0.00957084543,
 			"aperture" : 1
 		}
 	}, {
@@ -73,7 +86,7 @@
 		"description": "lens: cortex",
 		"args": {
 			"index": 1.386,
-			"thickness": 0.546
+			"thickness": 0.000546
 		}
 	}, {
 		"id": "0008",
@@ -81,51 +94,60 @@
 		"type": "sphere",
 		"description": "anterior core",
 		"args": {
-			"radius": 7.911,
-			"height": 7.62138561
+			"radius": 0.007911,
+			"height": 0.00762138561
 		}
 	}, {
 		"id": "0009",
-		"group": "lens",		
+		"group": "lens",
 		"type": "index",
 		"description": "lens: core",
 		"args": {
 			"index": 1.406,
-			"thickness": 2.419
+			"thickness": 0.002419
 		}
 	}, {
 		"id": "0010",
-		"group": "lens",		
+		"group": "lens",
 		"type": "sphere",
 		"description": "posterior core",
 		"args": {
-			"radius": -5.760,
-			"height": 7.62138561
+			"radius": -0.00576,
+			"height": 0.00762138561
 		}
 	}, {
 		"id": "0011",
-		"group": "lens",		
+		"group": "lens",
 		"type": "index",
 		"description": "lens: cortex",
 		"args": {
 			"index": 1.386,
-			"thickness": 0.635
+			"thickness": 0.000635
 		}
 	}, {
 		"id": "0012",
-		"group": "lens",		
+		"group": "lens",
 		"type": "sphere",
 		"description": "posterior cortex",
 		"args": {
-			"radius": -6.000,
-			"height": 9.57084543
+			"radius": -0.006,
+			"height": 0.00957084543
 		}
 	}, {
 		"id": "0013",
 		"type": "index",
 		"description": "vitreous",
 		"args": {
-			"index": 1.336
+			"index": 1.336,
+			"thickness": 0.017185
+		}
+	}, {
+		"id": "0014",
+		"type": "img",
+		"description": "retinal plane",
+		"args": {
+			"radius": -0.012,
+			"height": 0.024
 		}
 	}]
 }

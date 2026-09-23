@@ -1080,7 +1080,7 @@ function drawAxis () {
 
     var c = paper.text(x, y, text);
     c.attr({ "font-family": "arial", fill: "black", "font-size": 1.0, "text-anchor" : "middle" });
-    c.transform([  "t",x,y, "s", 20*kx, 20*kx,0,0]);
+    c.transform([  "t",x,y, "s", 20*kx, 20*ky,0,0]);
 
     //.attr({"fill": color, "stroke": "#000000", "stroke-width": 1, "font-size": 1});
 

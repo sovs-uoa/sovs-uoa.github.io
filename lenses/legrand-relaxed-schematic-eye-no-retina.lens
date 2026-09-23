@@ -113,7 +113,15 @@
 		"description": "vitreous",
 		"args": {
 			"index": 1.336,
-			"thickness": 15.000
+			"thickness": 16.597
+		}
+	}, {
+		"id": "0014",
+		"type": "img",
+		"description": "retinal plane",
+		"args": {
+			"radius": -12,
+			"height": 24
 		}
 	}]
 }

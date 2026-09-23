@@ -609,8 +609,8 @@ function calculatePairFromImage (image, systemInfo) {
                               M   : undefined,
                               T1  : td,
                               T2  : undefined,
-                              TH  : h/n1 * curr.F,                              
-                               }; // w.r.t. PF1 and PF2 
+                              TH  : hd/n1 * curr.F,
+                               }; // w.r.t. PF1 and PF2
 
                       // throw "infinite image distance detected";              
               }
@@ -630,7 +630,7 @@ function calculatePairFromImage (image, systemInfo) {
                        IQ  : +Infinity,
                        M   : undefined,
                        T1  : undefined,
-                       T2  : t }; //
+                       T2  : td }; //
 
         }
 
