@@ -550,7 +550,35 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
 
       p7.attr(ret.xF1);
       p8.attr(ret.xF2);
-      p9.attr(ret.xN1); 
+      p9.attr(ret.xN1);
+
+      this.cd_set.push(p7, p8, p9);
+
+    } else {
+
+      // real image: these are still real, physical rays - they keep going (diverging
+      // again) past where they cross at the cyan ball, rather than just stopping
+      // there. Same construction as the extension above, just continued from the
+      // crossing point onward instead of projected back from it.
+
+      var X = 1000;
+      var dx  = X - P2; // effective infinity
+
+      var t1 = (Y2 - y1)/(X2 - P2);
+      var t2 = (Y2 - y2)/(X2 - P2);
+      var t3 = (Y2 - y3)/(X2 - P2);
+
+      var i1  = t1 * dx + y1;
+      var i2  = t2 * dx - y2;
+      var i3  = t3 * dx + y3;
+
+      var p7 = paper.path( ["M", X2, Y2,  "L", X, i1 ]);
+      var p8 = paper.path( ["M", X2, Y2,  "L", X, i2 ]);
+      var p9 = paper.path( ["M", X2, Y2,  "L", X, i3 ]);
+
+      p7.attr(real);
+      p8.attr(real);
+      p9.attr(real);
 
       this.cd_set.push(p7, p8, p9);
 

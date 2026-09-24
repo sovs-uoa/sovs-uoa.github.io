@@ -673,11 +673,20 @@ class PointSourceConstruction { // create a ray construction using raphael.js
             } else {
 
 
-              // real image 
-              
-              var p4 = paper.path( ["M", X1, Y1,  "L", XI, YI ]);         
+              // real image
+
+              var p4 = paper.path( ["M", X1, Y1,  "L", XI, YI ]);
               p4.attr(real);
               this.cd_set.push(p4);
+
+              // these are still real rays - continue them past the crossing point
+              // (diverging again beyond focus) rather than stopping exactly at the
+              // cyan ball, same convention as the virtual-image extension above
+              var dx  = + 10*direction;
+              var i1  = u1 * dx + YI;
+              var p5  = paper.path( ["M", XI, YI,  "L", XI + dx, i1 ]);
+              p5.attr(real);
+              this.cd_set.push(p5);
 
 
             }
