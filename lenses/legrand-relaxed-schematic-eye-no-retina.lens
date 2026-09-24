@@ -5,6 +5,11 @@
 ----------------------------------------------*/
 {
 
+	/* UNITS: this file's radii/thicknesses/viewBox/etc. are genuinely authored in
+	   millimetres, not the app's usual metres - "units" tells the loader to convert
+	   them to metres at load time, same as any other lens file's internal values. */
+	"units" : "mm",
+
 
 	/* VIEWBOX */
 

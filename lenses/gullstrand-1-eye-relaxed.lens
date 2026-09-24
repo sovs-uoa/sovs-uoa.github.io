@@ -10,6 +10,7 @@
 ----------------------------------------------*/
 {
 	"title": "Gullstrand 1 eye relaxed",
+	"units" : "m",
 	"visible": { 	"radius": true,
 				 	"power":true,
 				 	"curvature":true,

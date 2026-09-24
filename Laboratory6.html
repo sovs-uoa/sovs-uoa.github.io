@@ -320,31 +320,36 @@
 
         ----------------------------------------------------------------------------------------------------------------------------------------------->
 
+      <div class="d-flex justify-content-between align-items-center">
+
       <ul class="nav nav-pills" id="myTab" role="tablist">
 
 <!--
         <li class="nav-item">
           <a class="nav-link active" id="lens-nav" data-toggle="tab" href="#lens-tab" role="tab" aria-controls="home" aria-selected="true">View</a>
         </li>
--->        
+-->
         <li class="nav-item">
           <a class="nav-link active" id="prescription-nav" data-toggle="tab" href="#prescription-tab" role="tab" aria-controls="home" aria-selected="true">Lens Prescription</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" id="objects-images-nav" data-toggle="tab" href="#objects-images-tab" role="tab" aria-controls="profile" aria-selected="false">Objects and Images</a>
         </li>
-        
+
         <li class="nav-item">
           <a class="nav-link" id="summary-nav" data-toggle="tab" href="#summary-tab" role="tab" aria-controls="contact" aria-selected="false">Summary</a>
         </li>
       </ul>
 
       <!-- Distance units - affects the distances shown in the tabs below only; powers always stay in dioptres -->
-      <select id="distance-unit-selector" class="form-control form-control-sm float-right" style="max-width:80px;width:auto;" aria-label="Distance units" onchange="setDistanceUnit(this.value);" title="Distance units (powers always stay in dioptres)">
+      <select id="distance-unit-selector" class="form-control form-control-sm" style="max-width:80px;width:auto;" aria-label="Distance units" onchange="setDistanceUnit(this.value);" title="Distance units (powers always stay in dioptres)">
+        <option value="um">&micro;m</option>
         <option value="mm" selected>mm</option>
         <option value="cm">cm</option>
         <option value="m">m</option>
       </select>
+
+      </div>
 
 
       <div class="tab-content" id="myTabContent" >

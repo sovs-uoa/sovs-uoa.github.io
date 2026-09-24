@@ -30,7 +30,13 @@
 
   ------------------------------------------------------------------------------- */
 
-  var DISTANCE_UNIT_SCALE = { m: 1, cm: 100, mm: 1000 };
+  var DISTANCE_UNIT_SCALE = { m: 1, cm: 100, mm: 1000, um: 1000000 };
+
+  // display-only labels for the internal unit keys above (used in the Summary tab's
+  // headers - "um" is the identifier used everywhere else, e.g. in a .lens file's
+  // "units" field, kept plain ASCII to avoid the two lookalike Unicode "mu"
+  // characters; this is just what a person reads)
+  var DISTANCE_UNIT_LABEL = { m: "m", cm: "cm", mm: "mm", um: "µm" };
   var currentDistanceUnit = "mm"; // matches what the Summary tab already hardcoded
 
   function getDistanceUnitScale () {
@@ -62,6 +68,71 @@
     if (lens.pointsTable) { lens.pointsTable.redraw(true); }
     if (typeof updateSummaryView === 'function' && renderableLens) { updateSummaryView(); }
 
+  }
+
+
+  /* -------------------------------------------------------------------------------
+
+  NORMALIZELENSFILEUNITS
+
+  Every distance-bearing number the app works with is assumed to already be in
+  metres (see DISTANCE UNITS above) - but a .lens file's radii/thicknesses/etc.
+  are plain JSON numbers with no unit attached to them, so that assumption was
+  previously silent and unenforced (which is exactly how the Gullstrand eye files
+  ended up authored in millimetres earlier: nothing caught it).
+
+  A .lens file may now declare a top-level "units" field ("m", "cm", "mm" or "um")
+  saying what unit ITS OWN numbers are written in. This runs once, right after a .lens
+  file is parsed, and scales every distance field it contains (prescription
+  radius/thickness/aperture/height, the viewBox, and sources' z/h/beamwidth -
+  angles are left alone) into metres, so everything downstream can keep assuming
+  metres exactly as before. Omitting "units" defaults to "m", so every existing
+  .lens file (already authored in metres) is unaffected.
+
+  ------------------------------------------------------------------------------- */
+
+  function normalizeLensFileUnits (response) {
+
+    var declaredUnit = response.units || "m";
+
+    if (!DISTANCE_UNIT_SCALE.hasOwnProperty(declaredUnit)) {
+      console.log(`unknown .lens "units" value: "${declaredUnit}" - assuming metres`);
+      declaredUnit = "m";
+    }
+
+    // DISTANCE_UNIT_SCALE is metres -> unit (e.g. mm: 1000), so invert it here
+    var scale = 1 / DISTANCE_UNIT_SCALE[declaredUnit];
+
+    if (scale === 1) { return response; } // already metres - nothing to convert
+
+    console.log(`.lens declares units: "${declaredUnit}" - converting to metres (x${scale})`);
+
+    if (Array.isArray(response.prescription)) {
+      response.prescription.forEach(function (elem) {
+        if (!elem.args) { return; }
+        ["radius", "thickness", "aperture", "height"].forEach(function (field) {
+          if (typeof elem.args[field] === "number") {
+            elem.args[field] = elem.args[field] * scale;
+          }
+        });
+      });
+    }
+
+    if (Array.isArray(response.viewBox)) {
+      response.viewBox = response.viewBox.map(function (v) { return v * scale; });
+    }
+
+    if (Array.isArray(response.sources)) {
+      response.sources.forEach(function (src) {
+        ["z", "h", "beamwidth"].forEach(function (field) {
+          if (typeof src[field] === "number") {
+            src[field] = src[field] * scale;
+          }
+        });
+      });
+    }
+
+    return response;
   }
 
 
@@ -692,7 +763,7 @@ getConjuugateTo
     //console.log ('TEMPLATE TEXT');
     //console.log (summaryTemplate);
 
-    var summaryContext = Object.assign({}, renderableLens.total, { distUnitLabel: currentDistanceUnit });
+    var summaryContext = Object.assign({}, renderableLens.total, { distUnitLabel: DISTANCE_UNIT_LABEL[currentDistanceUnit] });
 
     summary.innerHTML = Mustache.render(summaryTemplate, summaryContext);
 
@@ -1386,7 +1457,7 @@ getConjuugateTo
             success : function (data) {
 
 
-                  response = JSON5.parse(data);
+                  response = normalizeLensFileUnits(JSON5.parse(data));
                   // ("lens-container"); // uses paper 
                    
                   // initialize the prescription that will execite on change to table 
@@ -1510,7 +1581,7 @@ getConjuugateTo
                   /* loaded lens prescription */
 
                   console.log (`lens file ... ${found.filename}`);
-                  response = JSON5.parse(data);
+                  response = normalizeLensFileUnits(JSON5.parse(data));
 
                   startDrawing("lens-container", response); // uses paper 
 

@@ -13,6 +13,7 @@
 ----------------------------------------------*/
 {
 	"title": "Gullstrand 1 eye accommodated",
+	"units" : "m",
 	"visible": { 	"radius": true,
 				 	"power":true,
 				 	"curvature":true,
