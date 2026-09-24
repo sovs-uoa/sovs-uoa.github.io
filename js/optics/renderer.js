@@ -88,11 +88,23 @@ function hslToRgb(h, s, l){
 
   function setScaleFactor() {
 
-    // virtual unit / pixel unit 
-    paperWidth  = $("#lens-container").width(); 
-    paperHeight = $("#lens-container").height(); 
-    kx = viewBoxWidth/paperWidth;     // units/pix 
-    ky = viewBoxHeight/paperHeight;   // units/pix 
+    // virtual unit / pixel unit
+    paperWidth  = $("#lens-container").width();
+    paperHeight = $("#lens-container").height();
+
+    // The SVG uses the default preserveAspectRatio ("meet"): it's scaled
+    // UNIFORMLY to fit within the container (letterboxed on whichever axis has
+    // slack), not stretched independently per axis. kx and ky must therefore be
+    // equal - computing them separately from the container's raw width/height
+    // (as before) is only correct when the container's pixel aspect ratio
+    // happens to match the viewBox's, and otherwise skews anything built from
+    // them: label text (stretched along whichever axis was less constrained)
+    // and drag deltas (mouse movement no longer tracked 1:1).
+    var rawKx = viewBoxWidth/paperWidth;     // units/pix if width were the constraint
+    var rawKy = viewBoxHeight/paperHeight;   // units/pix if height were the constraint
+
+    kx = Math.max(rawKx, rawKy);   // the more constraining (larger) of the two
+    ky = kx;
 
   }
 
