@@ -38,15 +38,23 @@ function movePointSource (dx, dy) {
       // update the point 
       this.attr({ cx: nowX, cy: nowY });
 
-      // update the conjugate 
+      // update the conjugate
       var thisPoint = this.data("data-attr");
 
       ////console.log(thisPoint);
 
       totalLens = renderableLens.total;  // I should make this local if I can
-      pairData  = Optics.calculateConjugatePairFrom({   id     : thisPoint.id, 
-                                                        which  : thisPoint.type, 
-                                                        z      : nowX, 
+
+      // nowX is in the laboratory (paper) frame. calculateConjugatePairFrom expects an
+      // "object" z relative to the front vertex (which sits at the global origin, so no
+      // conversion needed) but an "image" z relative to the BACK vertex - without
+      // subtracting that offset here, dragging the image point jumps it away from the
+      // cursor by roughly the system length.
+      var zLocal = (thisPoint.type === "image") ? (nowX - (totalLens.Z + totalLens.L)) : nowX;
+
+      pairData  = Optics.calculateConjugatePairFrom({   id     : thisPoint.id,
+                                                        which  : thisPoint.type,
+                                                        z      : zLocal,
                                                         h      : nowY }, totalLens);
       updateInterface (thisPoint, pairData);  // update table (and conjugate points / will remove) 
       thisPoint.parent.setPairData(pairData);
@@ -365,9 +373,10 @@ class PointSourceConstruction { // create a ray construction using raphael.js
         var Y1 = this.data.Y1; var Y2 = this.data.Y2;
 
         // draggable construction points s
-        this.objectPoint = drawPoint(X1, Y1, "red");  // object  
-        this.objectPoint.drag (movePointSource, startPointSource, upPointSource);      
-        this.objectPoint.id = "point-" + this.data.id + "-object";          
+        this.objectPoint = drawPoint(X1, Y1, "red");  // object
+        this.objectPoint.drag (movePointSource, startPointSource, upPointSource);
+        this.objectPoint.attr({ cursor: "grab" });
+        this.objectPoint.id = "point-" + this.data.id + "-object";
         this.objectPoint.data("data-attr", {  "element_id"   : "point-" + this.data.id + "-object",
                                               "conjugate_id" : "point-" + this.data.id + "-image",
                                               "id"           : this.data.id, 
@@ -375,8 +384,9 @@ class PointSourceConstruction { // create a ray construction using raphael.js
                                               "parent"       : this });
 
 
-        this.imagePoint  = drawPoint(X2, Y2, "cyan"); // image  
+        this.imagePoint  = drawPoint(X2, Y2, "cyan"); // image
         this.imagePoint.drag (movePointSource, startPointSource, upPointSource);
+        this.imagePoint.attr({ cursor: "grab" });
         this.imagePoint.id = "point-" + this.data.id + "-image";
         this.imagePoint.data("data-attr", {  "element_id"     : "point-" + this.data.id + "-image",
                                               "conjugate_id"  : "point-" + this.data.id + "-object",

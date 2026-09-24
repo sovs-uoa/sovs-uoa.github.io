@@ -11,7 +11,8 @@
 
 
 	"sources" : [ { "id" 		: 1, 
-					"type" 		: "beam",
+					"type" 		: "object",
+					"infinity"	: true,
 					"which"		: "object",
 					"beamwidth" : 0.004,
 					"z"			: NaN, 

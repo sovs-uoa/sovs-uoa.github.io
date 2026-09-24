@@ -171,6 +171,20 @@ class AnglePicker { // create a ray construction using raphael.js
    }
 
 
+    hide () {
+      this.extender.hide();
+      this.clicker.hide();
+      this.clicker.attr({ "pointer-events": "none" }); // stays undraggable while hidden
+    }
+
+
+    show () {
+      this.extender.show();
+      this.clicker.show();
+      this.clicker.attr({ "pointer-events": "" });
+    }
+
+
 
     data (...args) {
 
@@ -202,21 +216,24 @@ class AnglePicker { // create a ray construction using raphael.js
     setAnchor (anchorX, anchorY) {
       this.anchorX = anchorX;
       this.anchorY = anchorY;
-      var cx = this.clicker.attr("cx");
-      var cy = this.clicker.attr("cy");      
-      this.extender.attr({ "path": ["M", anchorX, anchorY, "L", cx, cy ]});
+
+      // re-derive the clicker's position from the (unchanged) angle/radius relative to
+      // the NEW anchor - it used to just redraw the line from the new anchor to wherever
+      // the clicker already was (relative to the OLD anchor, or the origin on first
+      // construction), leaving the handle mispositioned/near-degenerate.
+      var radius = this.radius;
+      var theta  = this.angle;
+      var point  = polar2cartesian(radius, deg2rad(theta));
+      var x      = anchorX + point.x;
+      var y      = anchorY + point.y;
+
+      this.clicker.attr({ cx: x, cy: y });
+      this.extender.attr({ "path": ["M", anchorX, anchorY, "L", x, y ]});
 
 
       this.extender.toFront();
       this.clicker.toFront();
 
-
-      //console.log(this.extender);
-      //console.log("set anchor called ...");
-      //console.log("cx = " + cx);
-      //console.log("cy = " + cy);
-      //console.log("anchorX = " + anchorX);
-      //console.log("anchorY = " + anchorY);
     }
 
 
@@ -227,11 +244,13 @@ class AnglePicker { // create a ray construction using raphael.js
       var anchorX = this.anchorX;
       var anchorY = this.anchorY;
       var point   = polar2cartesian(length, deg2rad(theta));
+      var x       = anchorX + point.x;
+      var y       = anchorY + point.y;
 
 
-      // ... this should change the position of the picker 
-      this.clicker.attr({ cx: point.x, cy: point.y });
-      this.extender.attr("path", ["M", anchorX, anchorY, "L", point.x, point.y ]);  
+      // ... this should change the position of the picker
+      this.clicker.attr({ cx: x, cy: y });
+      this.extender.attr("path", ["M", anchorX, anchorY, "L", x, y ]);
 
 
       this.extender.toFront();
@@ -248,18 +267,15 @@ class AnglePicker { // create a ray construction using raphael.js
       var anchorY = this.anchorY;
       var radius  = this.radius;
       var point   = polar2cartesian(radius, deg2rad(theta));
+      var x       = anchorX + point.x;
+      var y       = anchorY + point.y;
 
-      // ... this should change the position of the picker 
-      this.clicker.attr({ cx: point.x, cy: point.y });
-      this.extender.attr("path", ["M", anchorX, anchorY, "L", point.x, point.y ]);  
-      
+      // ... this should change the position of the picker
+      this.clicker.attr({ cx: x, cy: y });
+      this.extender.attr("path", ["M", anchorX, anchorY, "L", x, y ]);
+
       this.extender.toFront();
       this.clicker.toFront();
-
-      //var point  = polar2cartesian(radius, deg2rad(theta));
-      //var x      = anchorX + point.x;
-      //var y      = anchorY + point.y;
-      //this.extender.attr({ "path": ["M", anchorX, anchorY, "L", cx, cy ]});
 
     }
 

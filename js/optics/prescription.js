@@ -115,30 +115,37 @@ function lensObjectSelector(elem) {
 
     // hide everything
     $("#lens-type-point").hide();
+    $("#lens-type-object").hide();
+    $("#lens-type-source").hide();
     $("#lens-type-beam").hide();
     $("#lens-type-afocal").hide();
-    $("#lens-type-source").hide();
 
 
     switch (objectType) {
-
-      case "source":
-        $("#lens-type-source").show();
-        //console.log("point/source type selected");
-        break;
 
       case "point":
         $("#lens-type-point").show();
         console.log("point/source type selected");
         break;
 
-      case "beam": // show those elements for the sphere 
-        $("#lens-type-beam").show();        
+      case "object": // collates source / beam / afocal into one, decided at Add time
+        $("#lens-type-object").show();
+        toggleObjectInfinity();
+        console.log("object type selected");
+        break;
+
+      case "source":
+        $("#lens-type-source").show();
+        //console.log("point/source type selected");
+        break;
+
+      case "beam": // show those elements for the sphere
+        $("#lens-type-beam").show();
         console.log("beam type selected");
         break;
 
-      case "afocal": // show those elements for the sphere 
-        $("#lens-type-afocal").show();        
+      case "afocal": // show those elements for the sphere
+        $("#lens-type-afocal").show();
         console.log("beam type selected");
         break;
 
@@ -149,6 +156,61 @@ function lensObjectSelector(elem) {
 
 
   $("#pointAddForm").modal("show");
+ }
+
+
+/* ------------------------------------------------------------------------------------------------------
+
+TOGGLEOBJECTINFINITY  Swap the "Add Object" modal between a finite point (z/h) and a beam from
+infinity (angle only), based on the "At infinity" checkbox.
+
+----------------------------------------------------------------------------------------------------------- */
+
+function toggleObjectInfinity() {
+
+    var atInfinity = document.getElementById("modal-object-infinity").checked;
+
+    if (atInfinity) {
+      $("#lens-type-object-finite").hide();
+      $("#lens-type-object-infinite").show();
+    } else {
+      $("#lens-type-object-finite").show();
+      $("#lens-type-object-infinite").hide();
+    }
+ }
+
+
+/* ------------------------------------------------------------------------------------------------------
+
+TOGGLEOBJECTINFINITYCELL  Click handler for the "&infin;" column in the Objects and Images table.
+Only meaningful for a row of type "object" - other types (point/source/beam/afocal) are fixed at
+creation and the cell stays blank/inert for them. Flipping the flag swaps the row between a finite
+object (z/h) and a beam from infinity (angle), filling in sensible defaults for whichever side wasn't
+in use, then asks application.js to rebuild the drawn construction (which may be a different
+Construction class - e.g. PointSourceConstruction vs. ParallelBeamConstruction/AfocalBeamConstruction).
+
+----------------------------------------------------------------------------------------------------------- */
+
+function toggleObjectInfinityCell (e, cell) {
+
+    var data = cell.getRow().getData();
+    if (data.type !== "object") { return; } // not applicable - leave blank/inert
+
+    var atInfinity = !data.infinity;
+    var update = { id: data.id, infinity: atInfinity };
+
+    if (atInfinity) {
+        update.to = isFinite(data.to) ? data.to : 30;
+        update.zo = undefined;
+        update.ho = undefined;
+    } else {
+        update.zo = isFinite(data.zo) ? data.zo : -0.5;
+        update.ho = isFinite(data.ho) ? data.ho : 0.1;
+        update.to = undefined;
+    }
+
+    lens.pointsTable.updateData([update]);
+    updateConstruction(cell);
  }
 
 
@@ -502,52 +564,81 @@ POINTS = OBJECTS + IMAGES TABLE
     // lens.modal.source.type    = document.getElementById("modal-point-type").value;          // finite or parallel
 
 
-    var chooseBeam   = $("#lens-type-beam").is(":visible");
     var choosePoint  = $("#lens-type-point").is(":visible");
+    var chooseObject = $("#lens-type-object").is(":visible");
+    var chooseBeam   = $("#lens-type-beam").is(":visible");
     var chooseAfocal = $("#lens-type-afocal").is(":visible");
     var chooseSource = $("#lens-type-source").is(":visible");
-    
 
-    if (chooseBeam & !choosePoint & !chooseAfocal  & !chooseSource) {
+
+    if (choosePoint & !chooseObject) {
+
+        lens.modal.source.z  = Number(document.getElementById("modal-point-z").value);
+        lens.modal.source.h  = Number(document.getElementById("modal-point-h").value);
+        lens.modal.source.type  = "point";
+        lens.modal.source.which = "object";
+        lens.modal.source.t     = undefined;
+        lens.modal.source.beamwidth    = undefined;
+
+    } else if (chooseObject & !choosePoint) {
+
+        // collates source / beam / afocal into one persistent "object" type. The infinity flag
+        // (also editable later, as a checkbox in the Objects and Images table) picks finite vs.
+        // beam-from-infinity, and for a beam, the lens's own equivalent power picks afocal vs.
+        // beam construction - see resolveObjectConstructionType() in application.js.
+
+        var atInfinity = document.getElementById("modal-object-infinity").checked;
+
+        lens.modal.source.which    = "object";
+        lens.modal.source.type     = "object";
+        lens.modal.source.infinity = atInfinity;
+
+        if (atInfinity) {
+
+            lens.modal.source.t         = Number(document.getElementById("modal-object-angle").value);
+            lens.modal.source.beamwidth = Number(document.getElementById("modal-object-infinite-beam-width").value);
+            lens.modal.source.z         = undefined;
+            lens.modal.source.h         = undefined;
+
+        } else {
+
+            lens.modal.source.z         = Number(document.getElementById("modal-object-z").value);
+            lens.modal.source.h         = Number(document.getElementById("modal-object-h").value);
+            lens.modal.source.beamwidth = Number(document.getElementById("modal-object-finite-beam-width").value);
+            lens.modal.source.t         = undefined;
+
+        }
+
+    } else if (chooseBeam) {
 
         lens.modal.source.t  = Number(document.getElementById("modal-beam-angle").value);
         lens.modal.source.beamwidth= Number(document.getElementById("modal-beam-width").value);  // beamwidth not shown
         lens.modal.source.type  = "beam";
         lens.modal.source.which = "object";
         lens.modal.source.z     = undefined;
-        lens.modal.source.h     = undefined;        
+        lens.modal.source.h     = undefined;
 
-    } else if (choosePoint & !chooseBeam & !chooseAfocal  & !chooseSource) {
-
-        lens.modal.source.z  = Number(document.getElementById("modal-point-z").value);
-        lens.modal.source.h  = Number(document.getElementById("modal-point-h").value); 
-        lens.modal.source.type  = "point";
-        lens.modal.source.which = "object";
-        lens.modal.source.t     = undefined;
-        lens.modal.source.beamwidth    = undefined;      
-
-    } else if (!choosePoint & !chooseBeam & chooseAfocal  & !chooseSource) {  
+    } else if (chooseAfocal) {
 
         lens.modal.source.type  = "afocal";
         lens.modal.source.which = "object";
         lens.modal.source.t  = Number(document.getElementById("modal-afocal-angle").value);
         lens.modal.source.beamwidth = Number(document.getElementById("modal-afocal-width").value);  // beamwidth not shown
         lens.modal.source.z  = undefined;
-        lens.modal.source.h  = undefined;      
+        lens.modal.source.h  = undefined;
 
-    } else if (!choosePoint & !chooseBeam & !chooseAfocal  & chooseSource) {  
+    } else if (chooseSource) {
         lens.modal.source.z  = Number(document.getElementById("modal-source-z").value);
         lens.modal.source.h  = Number(document.getElementById("modal-source-h").value);  // beamwidth not shown
         lens.modal.source.type  = "source";
         lens.modal.source.which = "object";
         lens.modal.source.t     = undefined;
-        lens.modal.source.beamwidth    = undefined;
         lens.modal.source.beamwidth= Number(document.getElementById("modal-source-beam-width").value);  // beamwidth not shown
 
     }
 
 
-    // add construction  + update table 
+    // add construction  + update table
     addConstruction (lens.modal.source);
     $("#pointAddForm").modal("hide");
  }
@@ -699,8 +790,12 @@ function initializePointsTable(data, updatePointsCallback, success) {
         cellEditCancelled:function(cell){ cell.getRow().select(); },
         columns:[
             {rowHandle:true, formatter:"handle", headerSort:false, frozen:true, width:30, minWidth:30},
-            {title:"id",     field:"id",       width:50, headerSort:false},                  
-            {title:"type",   field:"type",     width:100, headerSort:false},       
+            {title:"id",     field:"id",       width:50, headerSort:false},
+            {title:"type",   field:"type",     width:100, headerSort:false},
+            {title:"&infin;", field:"infinity", width:50, align:"center", headerSort:false,
+             formatter:"tickCross",
+             formatterParams:{ allowEmpty:true, allowTruthy:true, tickElement:"<span class=\"badge badge-info\">&infin;</span>", crossElement:"" },
+             cellClick: toggleObjectInfinityCell },
             //{title:"X1",     field:"X1",       width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" } },                  
             //{title:"Y1",     field:"Y1",       width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" }, accessor: flipVal },
             {title:"X1",                          field:"X1", visible:false, width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 6, emptyVal: "--" },  cellEdited:  defaultEditFunction, editable:editPointCheck },                  

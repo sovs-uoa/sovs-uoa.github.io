@@ -24,14 +24,18 @@ These functions are called as the picker is dragged
 
 function onstart ()   { console.log("onstart picker"); };
 
-function onmove (th)  { 
+function onmove (th)  {
 
       // this => AnglePicker
       //console.log("angle picker passed angle = " + th);
 
+      // the handle itself is drawn perpendicular to the ray (see addBeamConstruction/
+      // refresh, which set its angle to T1+90) so it doesn't overlap the rays it
+      // controls - convert its own (raw) geometric angle back to the ray angle here.
+      var T1 = th - 90;
 
-      // update the graphic + associated table 
-      myPoint   = { id:this.parent.getId(), type: "beam", which: "object", t: th };
+      // update the graphic + associated table
+      myPoint   = { id:this.parent.getId(), type: "beam", which: "object", t: T1 };
       totalLens = renderableLens.total;    
       PairData  = Optics.calculateConjugatePairFrom(myPoint, totalLens); 
       this.parent.setPairData(PairData);
@@ -59,7 +63,49 @@ function onup ()      { console.log("onup picker"); };
 
 /*   -----------------------------------------------------------------
 
-UPDATE BEAM CONJUGATE Update conjugate point in table and on-screen 
+MOVEBEAMIMAGEPOINT  drag handlers for the cyan image point on a beam-from-infinity
+construction. A beam's image always forms at the fixed back focal plane, so only the
+height (dy) is meaningful; it is converted to the equivalent incoming angle using the
+same relationship calculatePairFromObject's infinite-object branch uses to go the other
+way (IQ = (n2/F)*tan(angle)), then redrawn exactly like dragging the angle picker does.
+
+--------------------------------------------------------------------- */
+
+function startBeamImagePoint () {
+
+      this.oy = this.attr("cy");
+
+};
+
+function moveBeamImagePoint (dx, dy) {
+
+      dy = ky*dy;
+
+      var nowY = this.oy + dy;
+      nowY = Math.round(nowY / gridSnapSize) * gridSnapSize;
+
+      var thisPoint = this.data("data-attr");
+      totalLens     = renderableLens.total;
+
+      var zp = totalLens.n2 / totalLens.F;
+      var th = rad2deg(Math.atan(nowY / zp));
+
+      var myPoint = { id: thisPoint.id, type: "beam", which: "object", t: th };
+      pairData    = Optics.calculateConjugatePairFrom(myPoint, totalLens);
+      updatePointsTable(myPoint.id, pairData);
+
+      thisPoint.parent.setPairData(pairData);
+      thisPoint.parent.refresh(); // also re-anchors/re-angles the angle-picker handle,
+                                   // keeping it in sync with this drag too
+
+};
+
+function upBeamImagePoint ()  {};
+
+
+/*   -----------------------------------------------------------------
+
+UPDATE BEAM CONJUGATE Update conjugate point in table and on-screen
 
 --------------------------------------------------------------------- */
 /*
@@ -252,8 +298,8 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
         var N1 = this.lens.cardinal.VN1; 
         this.anglePicker.setAnchor(N1, 0);  // change the anchor
 
-        var T1 = this.data.T1; 
-        this.anglePicker.setAngle(T1);  // change the angle of the picker
+        var T1 = this.data.T1;
+        this.anglePicker.setAngle(T1 + 90);  // perpendicular to the ray, so the handle doesn't overlap it
 
         this.remove ();            
         this.draw ();    
@@ -302,8 +348,9 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
         //var N1 = this.data.N1; var T2 = this.data.N2;
 
 
-        this.imagePoint  = drawPoint(X2, Y2, "cyan"); // image  
-        //this.imagePoint.drag (moveBeam, startBeam, upBeam); // actually its not draggable !!!!
+        this.imagePoint  = drawPoint(X2, Y2, "cyan"); // image
+        this.imagePoint.drag (moveBeamImagePoint, startBeamImagePoint, upBeamImagePoint);
+        this.imagePoint.attr({ cursor: "grab" });
         this.imagePoint.id = "point-" + this.data.id + "-image";
         this.imagePoint.data("data-attr", {  "element_id"     : "point-" + this.data.id + "-image",
                                               "id"            : this.data.id, 
@@ -322,11 +369,12 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
 
         var defaultHandleLength = lens.cardinal.VF2 * 1.5;
 
-        // this will add an anglePicker 
-        this.anglePicker = new AnglePicker (0, 0, defaultHandleLength, T1);
+        // this will add an anglePicker, drawn perpendicular to the ray (T1+90) so its
+        // handle and line don't overlap the ray itself
+        this.anglePicker = new AnglePicker (0, 0, defaultHandleLength, T1 + 90);
         this.anglePicker.setAnchor(N1, 0); // move to default point is N1
         this.anglePicker.data("data-attr-info", {  "conjugate_id"  : "point-" + this.data.id + "-image",
-                                                   "id"            : this.data.id, 
+                                                   "id"            : this.data.id,
                                                    "type"          : "object",
                                                    "parent"        : this });
         this.anglePicker.parent = this;

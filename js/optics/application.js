@@ -275,12 +275,13 @@ getConjuugateTo
 
 
       lens.pointsTableHandler.addRow([ {  id: aPoint.id,
-                                          type: aPoint.type, 
+                                          type: aPoint.type,
+                                          infinity: aPoint.infinity,   // only meaningful for type "object"
                                           X1: pairData.X1, Y1: pairData.Y1,
                                           X2: pairData.X2, Y2: pairData.Y2,
-                                          l:  pairData.PO, ld: pairData.PI,                                            
-                                          to: pairData.T1, ti: pairData.T2,                                                                                              
-                                          zo: pairData.VO, zi: pairData.VI, 
+                                          l:  pairData.PO, ld: pairData.PI,
+                                          to: pairData.T1, ti: pairData.T2,
+                                          zo: pairData.VO, zi: pairData.VI,
                                           ho: pairData.OQ, hi: pairData.IQ,
                                           beamwidth: aPoint.beamwidth }]);
 
@@ -615,8 +616,8 @@ getConjuugateTo
     /* field information */
     
     switch (fieldname) {
-      case "zo": case "ho": case "to": 
-        return { id: aPoint.id, which: "object", z: Number(aPoint.zo), h: Number(aPoint.ho), t: Number(aPoint.to)};
+      case "zo": case "ho": case "to": case "infinity":
+        return { id: aPoint.id, which: "object", z: Number(aPoint.zo), h: Number(aPoint.ho), t: Number(aPoint.to), infinity: aPoint.infinity, type: aPoint.type };
 
       case "zi": case "hi": case "ti":
         return { id: aPoint.id, which: "image", z: Number(aPoint.zi), h: Number(aPoint.hi), t: Number(aPoint.ti) };
@@ -682,6 +683,62 @@ getConjuugateTo
   }
 
 
+  /* ----------------------------------------------------------------------------------------------------------------
+
+      RESOLVEOBJECTCONSTRUCTIONTYPE  the unified "object" type collates source/beam/afocal: a finite
+      object always draws as a "source" (pencil of rays); an object at infinity draws as "afocal" if
+      the loaded system's equivalent power is zero, else "beam".
+
+  ----------------------------------------------------------------------------------------------------------------   */
+
+  function resolveObjectConstructionType (aPoint) {
+
+    if (!aPoint.infinity) { return "source"; }
+
+    var isafocal = (renderableLens.total.F == 0);
+    return isafocal ? "afocal" : "beam";
+
+  }
+
+
+  /* ----------------------------------------------------------------------------------------------------------------
+
+      INSTANTIATECONSTRUCTION  build the Raphael construction object for a (possibly resolved) type.
+      Shared by addConstruction (new row) and updateConstruction (an "object" row whose infinity flag
+      was toggled, which needs the drawing itself swapped for a different Construction class).
+
+  ----------------------------------------------------------------------------------------------------------------   */
+
+  function instantiateConstruction (aPoint, pairData, constructionType) {
+
+     switch (constructionType) {
+
+            case "source":   // finite placed beam
+              var beamWidth = aPoint.beamwidth;
+              return new PointSourceConstruction (renderableLens.total, pairData, beamWidth);
+
+            case "finite": case "point":   // finite placed beam
+              return new PrincipalRayConstruction (renderableLens.total, pairData);
+
+            case "parallel": case "beam": // infinitely placed beam
+              var beamWidth = aPoint.beamwidth;
+              console.log (`beamWidth = ${beamWidth}`);
+              return new ParallelBeamConstruction (renderableLens.total, pairData, beamWidth);
+
+           case "afocal": // infinitely placed beam
+
+              var beamWidth = aPoint.beamwidth;
+              return new AfocalBeamConstruction (renderableLens.total, pairData, beamWidth);
+
+            default:
+              error ('unknown point construction.');
+              return null;
+      }
+
+  }
+
+
+
   function addConstruction (aPoint) {
 
     /* update the points table */
@@ -694,34 +751,10 @@ getConjuugateTo
 
      console.log (` - adding ${aPoint.type}`);
 
-     switch (aPoint.type) {
+     var constructionType = (aPoint.type === "object") ? resolveObjectConstructionType(aPoint) : aPoint.type;
+     var construction     = instantiateConstruction (aPoint, pairData, constructionType);
 
-            case "source":   // finite placed beam 
-              var beamWidth = aPoint.beamwidth;     
-              lens.raphael.constructions.push( new PointSourceConstruction (totalLens, pairData, beamWidth));
-              break;
-
-            case "finite": case "point":   // finite placed beam 
-              lens.raphael.constructions.push( new PrincipalRayConstruction (totalLens, pairData));
-              break;
-
-            case "parallel": case "beam": // infinitely placed beam 
-              var beamWidth = aPoint.beamwidth;     
-              console.log (`beamWidth = ${beamWidth}`);
-              lens.raphael.constructions.push( new ParallelBeamConstruction (totalLens, pairData, beamWidth));
-              break;
-
-           case "afocal": // infinitely placed beam 
-
-              var beamWidth = aPoint.beamwidth;     
-              var afocal = new AfocalBeamConstruction (totalLens, pairData, beamWidth);
-              lens.raphael.constructions.push(afocal);
-              break;
-            
-            default: 
-              error ('unknown point construction.');
-              break;
-      }
+     if (construction) { lens.raphael.constructions.push(construction); }
 
   }
 
@@ -769,7 +802,30 @@ getConjuugateTo
 
       if (elem.getId() === aPoint.id) {
 
-        if ((fieldname == "beamwidth") & (typeof elem.setBeamWidth === 'function')) {
+        if (fieldname == "infinity") {
+
+            // the infinity flag was flipped on an "object" row: this may require a different
+            // Construction class entirely (e.g. PointSourceConstruction <-> ParallelBeamConstruction
+            // /AfocalBeamConstruction), so the existing drawing is removed and rebuilt rather than
+            // just updated in place.
+
+            console.log ("infinity flag toggled - rebuilding construction");
+
+            elem.delete ();
+            lens.raphael.constructions = lens.raphael.constructions.filter( c => c.getId() !== aPoint.id );
+
+            totalLens  = renderableLens.total;
+            pairData   = Optics.calculateConjugatePairFrom(aPoint, totalLens);
+            updatePointsTable(aPoint.id, pairData);
+
+            var constructionType = resolveObjectConstructionType(aPoint);
+            var beamRow          = lens.pointsTable.getRow(aPoint.id).getData();
+            var construction     = instantiateConstruction ({ ...beamRow, ...aPoint }, pairData, constructionType);
+
+            if (construction) { lens.raphael.constructions.push(construction); }
+            return;
+
+        } else if ((fieldname == "beamwidth") & (typeof elem.setBeamWidth === 'function')) {
 
             console.log ("updating beamwidth");
 
@@ -1336,13 +1392,18 @@ getConjuugateTo
                                             points = response.sources;
                                     } else {
                                             console.log (' - using default');
-                                            points  = [ { id    : 1, 
-                                                          type  : "afocal",
-                                                          which : "object",
-                                                          z     : undefined, 
-                                                          h     : undefined,
-                                                          t     : 30,
-                                                          bw    : NaN } ];
+                                            // "object" resolves itself to "beam" or "afocal" from the
+                                            // loaded system's own equivalent power - see
+                                            // resolveObjectConstructionType() - so this default no longer
+                                            // has to guess whether the system is focal or afocal.
+                                            points  = [ { id        : 1,
+                                                          type      : "object",
+                                                          which     : "object",
+                                                          infinity  : true,
+                                                          z         : undefined,
+                                                          h         : undefined,
+                                                          t         : 30,
+                                                          beamwidth : 5.0 } ];
                                     }
 
 

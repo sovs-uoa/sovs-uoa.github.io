@@ -15,7 +15,8 @@
 	/* SOURCE POINTS */
 
 	"sources" : [ { "id"   		: 1, 
-                    "type" 		: "afocal",
+                    "type" 		: "object",
+                    "infinity"	: true,
                     "which"		: "object",
                     "beamwidth" : 5,
                     "z"    		: NaN, 

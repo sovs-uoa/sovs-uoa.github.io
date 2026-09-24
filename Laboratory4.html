@@ -403,6 +403,8 @@
 
                         <div class="dropdown-menu">
                           <a class="dropdown-item" href="#" data-short-id="point"  onclick="lensObjectSelector(this); return false;">point (focal systems only)</a>
+                          <a class="dropdown-item" href="#" data-short-id="object" onclick="lensObjectSelector(this); return false;">object (finite, or from infinity)</a>
+                          <div class="dropdown-divider"></div>
                           <a class="dropdown-item" href="#" data-short-id="source" onclick="lensObjectSelector(this); return false;">source (rays)</a>
                           <a class="dropdown-item" href="#" data-short-id="beam"   onclick="lensObjectSelector(this); return false;">beam (from infinity, focal systems only)</a>
                           <a class="dropdown-item" href="#" data-short-id="afocal" onclick="lensObjectSelector(this); return false;">beam (from infinity, afocal system)</a>
@@ -658,7 +660,7 @@
 
 
 
-        <!-- Beam Input Form -->
+        <!-- Afocal Input Form -->
         <div id = "lens-type-afocal" style="display:none;">
 
            This will add a beam from infinity to the system. The beam will pass through the system but not through the cardinal points. This type of light source will work if the system is afocal/focal. If the outgoing rays are detected as collimated - the exit angle will be reported. 
@@ -674,6 +676,60 @@
           <div class="input-group mb-3">
               <input id="modal-afocal-width"  type="text" class="form-control" aria-label="Description" placeholder="Enter the beam width." value="5.0" >
           </div>
+        </div>
+
+
+
+        <!-- Object Input Form: collates source / beam / afocal - resolved at Add time -->
+        <div id = "lens-type-object" style="display:none;">
+
+          This adds an object, either at a finite distance (a pencil of rays is drawn from it) or from
+          infinity (a parallel beam). For a beam from infinity, whether it is drawn through the cardinal
+          points or straight through the system is decided automatically from the loaded system's
+          equivalent power (afocal vs. focal).
+
+          <div class="input-group mb-3">
+              <div class="input-group-prepend">
+                <div class="input-group-text">
+                  <input id="modal-object-infinity" type="checkbox" aria-label="At infinity" onclick="toggleObjectInfinity();">
+                </div>
+              </div>
+              <input type="text" class="form-control" disabled value="At infinity (parallel beam)">
+          </div>
+
+          <div id="lens-type-object-finite">
+
+            Object distance 
+            <div class="input-group mb-3">
+                <input id="modal-object-z"  type="text" class="form-control" aria-label="Description" placeholder="Enter the axial distance." value="-0.5">
+            </div>
+
+            Object height
+            <div class="input-group mb-3">
+                <input id="modal-object-h"  type="text" class="form-control" aria-label="Description" placeholder="Enter the height." value="0.1">
+            </div>
+
+            Object beam width
+            <div class="input-group mb-3">
+                <input id="modal-object-finite-beam-width"  type="text" class="form-control" aria-label="Description" placeholder="Enter the beam width." value="0.01" >
+            </div>
+
+          </div>
+
+          <div id="lens-type-object-infinite" style="display:none;">
+
+            Object beam angle 
+            <div class="input-group mb-3">
+                <input id="modal-object-angle"  type="text" class="form-control" aria-label="Description" placeholder="Enter the beam angle." value="30" >
+            </div>
+
+            Object beam width
+            <div class="input-group mb-3">
+                <input id="modal-object-infinite-beam-width"  type="text" class="form-control" aria-label="Description" placeholder="Enter the beam width." value="5.0" >
+            </div>
+
+          </div>
+
         </div>
 
 
