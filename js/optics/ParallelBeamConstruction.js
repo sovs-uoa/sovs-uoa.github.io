@@ -75,6 +75,8 @@ function startBeamImagePoint () {
 
       this.oy = this.attr("cy");
 
+      setGrabbingCursor(true);
+
 };
 
 function moveBeamImagePoint (dx, dy) {
@@ -100,7 +102,7 @@ function moveBeamImagePoint (dx, dy) {
 
 };
 
-function upBeamImagePoint ()  {};
+function upBeamImagePoint ()  { setGrabbingCursor(false); };
 
 
 /*   -----------------------------------------------------------------

@@ -102,18 +102,22 @@ function moveConstruction (dx, dy) {
   
   function startConstruction () {
 
-      //console.log("--- called construction start point id = " + this.id);  
+      //console.log("--- called construction start point id = " + this.id);
 
       // storing original coordinates
       this.ox = this.attr("cx");
       this.oy = this.attr("cy");
 
+      setGrabbingCursor(true);
+
   }
 
-  
+
   function upConstruction () {
 
-      //console.log("--- called construction up point id = " + this.id);  
+      //console.log("--- called construction up point id = " + this.id);
+
+      setGrabbingCursor(false);
 
   }
 

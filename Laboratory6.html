@@ -182,7 +182,7 @@
     <input id="filename_display" type="text" class="form-control" aria-label="Text input with dropdown button" placeholder="Load a prescription" readonly>
 
 
-    <!--  Report button -->  
+    <!--  Report button -->
 
 <!--
     <button class='btn btn-primary float-right' id="optics_report" > 
@@ -338,6 +338,13 @@
           <a class="nav-link" id="summary-nav" data-toggle="tab" href="#summary-tab" role="tab" aria-controls="contact" aria-selected="false">Summary</a>
         </li>
       </ul>
+
+      <!-- Distance units - affects the distances shown in the tabs below only; powers always stay in dioptres -->
+      <select id="distance-unit-selector" class="form-control form-control-sm float-right" style="max-width:80px;width:auto;" aria-label="Distance units" onchange="setDistanceUnit(this.value);" title="Distance units (powers always stay in dioptres)">
+        <option value="mm" selected>mm</option>
+        <option value="cm">cm</option>
+        <option value="m">m</option>
+      </select>
 
 
       <div class="tab-content" id="myTabContent" >

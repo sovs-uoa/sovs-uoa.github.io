@@ -14,8 +14,183 @@
   var   download_report_template; 
 
   var    mouseIsDown = false;
-  
+
   var   etol = 5e-4;
+
+
+  /* -------------------------------------------------------------------------------
+
+  DISTANCE UNITS
+
+  All distances are stored internally in metres (the .lens file convention). This
+  is purely a DISPLAY (and, for editable cells, entry) unit - it never touches the
+  underlying data, and never applies to powers (dioptres are unit-independent by
+  definition: 1/m regardless of what a distance is shown in) or to angles/ref.
+  indices, which have no distance unit to begin with.
+
+  ------------------------------------------------------------------------------- */
+
+  var DISTANCE_UNIT_SCALE = { m: 1, cm: 100, mm: 1000 };
+  var currentDistanceUnit = "mm"; // matches what the Summary tab already hardcoded
+
+  function getDistanceUnitScale () {
+    return DISTANCE_UNIT_SCALE[currentDistanceUnit];
+  }
+
+  // metres -> current display unit
+  function toDisplayDistance (metres) {
+    return Number(metres) * getDistanceUnitScale();
+  }
+
+  // current display unit -> metres
+  function fromDisplayDistance (displayValue) {
+    return Number(displayValue) / getDistanceUnitScale();
+  }
+
+  function setDistanceUnit (unit) {
+
+    if (!DISTANCE_UNIT_SCALE.hasOwnProperty(unit)) {
+      console.log("unknown distance unit: " + unit);
+      return;
+    }
+
+    currentDistanceUnit = unit;
+
+    // re-render every view that shows a distance, so they all reflect the new unit
+    // immediately and stay consistent with each other
+    if (lens.table)       { lens.table.redraw(true); }
+    if (lens.pointsTable) { lens.pointsTable.redraw(true); }
+    if (typeof updateSummaryView === 'function' && renderableLens) { updateSummaryView(); }
+
+  }
+
+
+  /* -------------------------------------------------------------------------------
+
+  DISTANCEFORMATTER / DISTANCEEDITOR
+
+  A Tabulator formatter+editor pair for any column whose underlying value is a
+  distance stored in metres. The formatter displays it (and the editor reads/
+  writes it) in whatever unit setDistanceUnit() last selected, converting back to
+  metres on save - mirroring decimalPlaces()/the built-in "input" editor, which
+  this replaces on distance columns only (never on power, ref. index, angle, or
+  other non-distance columns).
+
+  ------------------------------------------------------------------------------- */
+
+  function distanceFormatter (cell, formatterParams, onRendered) {
+
+    var val = cell.getValue();
+    if ((val == null) | isNaN(val)) {
+      return formatterParams.emptyVal;
+    }
+
+    var scaled = toDisplayDistance(val);
+    if (formatterParams.flipVal) {
+      scaled = -scaled;
+    }
+
+    return Number(scaled).toFixed(formatterParams.precision);
+  }
+
+
+  function distanceEditor (cell, onRendered, success, cancel, editorParams) {
+
+    var rawVal     = cell.getValue();
+    var displayVal = isFinite(rawVal) ? toDisplayDistance(rawVal) : "";
+
+    var input = document.createElement("input");
+    input.setAttribute("type", "text");
+    input.style.width  = "100%";
+    input.style.boxSizing = "border-box";
+    input.value = displayVal;
+
+    onRendered(function () {
+      input.focus();
+      input.select();
+    });
+
+    function saveValue () {
+      var typed = input.value;
+      if (typed === "" || isNaN(Number(typed))) {
+        cancel();
+        return;
+      }
+      success(fromDisplayDistance(Number(typed)));
+    }
+
+    input.addEventListener("blur", saveValue);
+
+    input.addEventListener("keydown", function (e) {
+      if (e.key === "Enter")  { saveValue(); }
+      if (e.key === "Escape") { cancel(); }
+    });
+
+    return input;
+  }
+
+
+  /* -------------------------------------------------------------------------------
+
+  SETGRABBINGCURSOR
+
+  Called from the start/up drag handlers on the draggable object/image points
+  (their resting cursor is "grab", set once when each point is drawn). Setting it
+  on document.body rather than the point itself keeps the closed-hand cursor shown
+  for the whole drag even if a fast mouse movement momentarily leaves the point's
+  small hit area, and is reverted the same way whatever ends the drag.
+
+  ------------------------------------------------------------------------------- */
+
+  function setGrabbingCursor (active) {
+    document.body.style.cursor = active ? "grabbing" : "";
+  }
+
+
+  /* -------------------------------------------------------------------------------
+
+  COPYTOCLIPBOARD
+
+  Used by the small copy icons in the Summary tab (see mustache/lab5_report_tables_
+  html.mustache). Copies the exact text passed in - already formatted in whatever
+  unit is currently selected - and gives brief visual feedback on the icon that was
+  clicked (a checkmark, reverting after a second) rather than a popup/alert.
+
+  ------------------------------------------------------------------------------- */
+
+  function copyToClipboard (text, iconEl) {
+
+    function showCopied () {
+      if (!iconEl) { return; }
+      var original = iconEl.className;
+      iconEl.className = original.replace("fa-copy", "fa-check");
+      setTimeout(function () { iconEl.className = original; }, 1000);
+    }
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(String(text)).then(showCopied, function (err) {
+        console.log("copy failed: " + err);
+      });
+      return;
+    }
+
+    // fallback for browsers/contexts without the async Clipboard API
+    var scratch = document.createElement("textarea");
+    scratch.value = String(text);
+    scratch.style.position = "fixed";
+    scratch.style.opacity  = "0";
+    document.body.appendChild(scratch);
+    scratch.focus();
+    scratch.select();
+    try {
+      document.execCommand("copy");
+      showCopied();
+    } catch (err) {
+      console.log("copy failed: " + err);
+    }
+    document.body.removeChild(scratch);
+
+  }
 
 
   /* DEFAULT FILELIST + PROFILE */
@@ -168,8 +343,28 @@
        var value = value.toFixed(decimals); // Number(Math.round(value+'e'+decimals)+'e-'+decimals);
 
         return value
+      },
+
+
+      // unit-aware replacement for "m2mm" - respects the current distance-unit
+      // selector instead of always converting to mm
+      "dist": function (value, decimals) {
+
+        var value = toDisplayDistance(value);
+
+        if (isNaN(value)) {
+          return "undefined";
+        }
+
+        if (!isFinite(value) | value == null) {
+          return "undefined";
+        }
+
+       var value = value.toFixed(decimals);
+
+        return value
       }
-    
+
     }
 
 
@@ -497,7 +692,9 @@ getConjuugateTo
     //console.log ('TEMPLATE TEXT');
     //console.log (summaryTemplate);
 
-    summary.innerHTML = Mustache.render(summaryTemplate, renderableLens.total);
+    var summaryContext = Object.assign({}, renderableLens.total, { distUnitLabel: currentDistanceUnit });
+
+    summary.innerHTML = Mustache.render(summaryTemplate, summaryContext);
 
     // renderableLens 
     // Total Summary 

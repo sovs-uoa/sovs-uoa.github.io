@@ -81,4 +81,16 @@ table, th, td, tr {
     padding : 0px;
 }
 
+/* Copy icons in the Summary tab */
+.copy-icon {
+    color: #adb5bd;
+    cursor: pointer;
+    margin-left: 6px;
+    font-size: 0.85em;
+}
+
+.copy-icon:hover {
+    color: #495057;
+}
+
 /* End important CSS stuff */
