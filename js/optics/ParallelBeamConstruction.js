@@ -16,6 +16,89 @@ var changed         = { "stroke": "blue", "stroke-width": 1, "stroke-dasharray":
 var globalElem;
 
 
+/* -------------------------------------------------------------------------------
+
+BEAM SHADING (experimental)
+
+Shades the region between a beam's bounding rays yellow. A region that is
+genuinely bounded (the beam actually converges to a point) is filled solid; a
+region that runs out toward the "effectively infinite" sentinel distance used
+elsewhere in this file (representing a beam that never converges, or has already
+crossed and is diverging again) is filled with a gradient that fades to
+transparent at that far end, so it doesn't read as a solid yellow wedge running
+off the edge of the diagram.
+
+------------------------------------------------------------------------------- */
+
+var beamShadeGradientCounter = 0;
+
+function shadeBoundedBeamRegion (cd_set, pts) {
+
+    var path = ["M"].concat(pts[0], pts.slice(1).reduce(function (acc, p) { return acc.concat(["L"], p); }, []), ["Z"]);
+    var poly = paper.path(path);
+    poly.attr({ fill: "#ffee00", "fill-opacity": 0.25, stroke: "none" });
+    poly.toBack();
+    cd_set.push(poly);
+    return poly;
+}
+
+// fadeFromXY/fadeToXY: the userSpace points the fade gradient runs between -
+// opaque at fadeFromXY, transparent at fadeToXY (the "infinity" end)
+function shadeFadingBeamRegion (cd_set, pts, fadeFromXY, fadeToXY) {
+
+    var defs = paper.canvas.querySelector("defs");
+    if (!defs) {
+      defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+      paper.canvas.insertBefore(defs, paper.canvas.firstChild);
+    }
+
+    var gradId = "beam-fade-" + (beamShadeGradientCounter++);
+    var grad = document.createElementNS("http://www.w3.org/2000/svg", "linearGradient");
+    grad.setAttribute("id", gradId);
+    grad.setAttribute("gradientUnits", "userSpaceOnUse");
+    grad.setAttribute("x1", fadeFromXY[0]); grad.setAttribute("y1", fadeFromXY[1]);
+    grad.setAttribute("x2", fadeToXY[0]);   grad.setAttribute("y2", fadeToXY[1]);
+
+    var stop1 = document.createElementNS("http://www.w3.org/2000/svg", "stop");
+    stop1.setAttribute("offset", "0");
+    stop1.setAttribute("stop-color", "#ffee00");
+    stop1.setAttribute("stop-opacity", "0.35");
+
+    var stop2 = document.createElementNS("http://www.w3.org/2000/svg", "stop");
+    stop2.setAttribute("offset", "1");
+    stop2.setAttribute("stop-color", "#ffee00");
+    stop2.setAttribute("stop-opacity", "0");
+
+    grad.appendChild(stop1);
+    grad.appendChild(stop2);
+    defs.appendChild(grad);
+
+    var path = ["M"].concat(pts[0], pts.slice(1).reduce(function (acc, p) { return acc.concat(["L"], p); }, []), ["Z"]);
+    var poly = paper.path(path);
+    poly.attr({ stroke: "none" });
+    // Raphael's own .attr({fill:"url(...)"}) treats any url(...) string as a raster
+    // image fill (wraps it in <pattern><image>), not a direct SVG paint-server
+    // reference - set it on the raw node instead to actually get the gradient.
+    poly.node.setAttribute("fill", "url(#" + gradId + ")");
+    poly.toBack();
+    poly.node.setAttribute("data-beam-fade-gradient", gradId); // see clearBeamFadeGradients()
+    cd_set.push(poly);
+
+    return poly;
+}
+
+// the <defs><linearGradient> nodes shadeFadingBeamRegion() creates aren't part of
+// the Raphael set, so cd_set.remove() on the next redraw won't clean them up -
+// drawBeamConstruction() calls this first each time to avoid piling them up
+function clearBeamFadeGradients () {
+    var defs = paper.canvas.querySelector("defs");
+    if (!defs) { return; }
+    Array.from(defs.querySelectorAll("linearGradient[id^='beam-fade-']")).forEach(function (g) {
+      defs.removeChild(g);
+    });
+}
+
+
 /*   -------------------------------------------------
 
 These functions are called as the picker is dragged 
@@ -447,6 +530,7 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
                                T1 : T1 });
 
     this.cd_set.remove ();
+    clearBeamFadeGradients ();
 
     //console.log(T1);
 
@@ -479,14 +563,17 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
     //var i3  = deg2rad(T1) * dx + y3; // height @ infiinity from N1 
 
 
-    // ... show incoming rays 
-	  var p1 = paper.path( ["M", P1, y1,  "L", X, i1 ]);    // O -> upper P1 
-	  var p2 = paper.path( ["M", P1, y2,  "L", X, i2 ]);    // O -> lower P1 
-    var p3 = paper.path( ["M", P1, y3,  "L", X, i3 ]);    // o -> mid P1    (ray through N1)
+    // ... show incoming rays (upper/lower only - the central/nodal ray is
+    // redundant once the region between them is shaded)
+	  var p1 = paper.path( ["M", P1, y1,  "L", X, i1 ]);    // O -> upper P1
+	  var p2 = paper.path( ["M", P1, y2,  "L", X, i2 ]);    // O -> lower P1
 	  p1.attr(ret.F1);
 	  p2.attr(ret.F2);
-    p3.attr(ret.N1); 
-    this.cd_set.push(p1, p2, p3);
+    this.cd_set.push(p1, p2);
+
+    // EXPERIMENTAL: shade the incoming beam - it runs out to the "infinity"
+    // sentinel (X), so fade it out towards that end rather than P1
+    shadeFadingBeamRegion(this.cd_set, [[P1,y1],[X,i1],[X,i2],[P1,y2]], [P1, (y1+y2)/2], [X, (i1+i2)/2]);
 
     // console.log("adding the image space construction");
 
@@ -502,16 +589,22 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
 
     var p4 = paper.path( ["M", P2, y1,  "L", X2, Y2 ]);    // Y1 -> I   (ray through F1)
     var p5 = paper.path( ["M", P2, y2,  "L", X2, Y2 ]);    // Y2 -> I   (ray through F1)
-    var p6 = paper.path( ["M", P2, y3,  "L", X2, Y2 ]);    // N2 -> I   (ray through F1)
 
 
     //drawPoint(N1, 0, "magenta");
 
     p4.attr(ret.F1);
     p5.attr(ret.F2);
-    p6.attr(ret.N1); 
 
-	  this.cd_set.push(p4, p5, p6);
+	  this.cd_set.push(p4, p5);
+
+    // EXPERIMENTAL: this triangle is bounded (the beam genuinely converges to a
+    // point here), so a plain solid fill is enough - no fade needed. Only do this
+    // for a real image; for a virtual one, this segment is a dashed back-
+    // projection construction line, not real light, so shading it would mislead.
+    if (!ret.extend) {
+      shadeBoundedBeamRegion(this.cd_set, [[P2,y1],[X2,Y2],[P2,y2]]);
+    }
 
 
     /* --------------------------------------------
@@ -519,14 +612,17 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
       --------------------------------------------- */
     
 
-    // ADD P1 - P2 RAYS 
+    // ADD P1 - P2 RAYS (upper/lower only - see the incoming-ray comment above)
     var p10 = paper.path( ["M", P1, y1,  "L", P2, y1 ]);   // O  -> P1   (ray through F1)
     var p11 = paper.path( ["M", P1, y2,  "L", P2, y2 ]);   // O  -> P1   (ray through F1)
-    var p12 = paper.path( ["M", P1, y3,  "L", P2, y3 ]);   // O  -> P1   (ray through F1)
     p10.attr(real);
-    p11.attr(real); 
-    p12.attr(real);
-    this.cd_set.push(p10, p11, p12);
+    p11.attr(real);
+    this.cd_set.push(p10, p11);
+
+    // EXPERIMENTAL: the P1->P2 bridge is bounded (both ends are finite, real
+    // points) same as the converging region, so a plain solid fill is enough here
+    // too - this was the gap between P and P' that was left unshaded before.
+    shadeBoundedBeamRegion(this.cd_set, [[P1,y1],[P2,y1],[P2,y2],[P1,y2]]);
 
 
 
@@ -546,13 +642,16 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
 
       var p7 = paper.path( ["M", P2, y1,  "L", X, i1 ]);    // O  -> H1   (ray through F1)
       var p8 = paper.path( ["M", P2, y2,  "L", X, i2 ]);    // H1 -> N1   (ray through F1)
-      var p9 = paper.path( ["M", P2, y3,  "L", X, i3 ]);    // H1 -> N1   (ray through F1)
 
       p7.attr(ret.xF1);
       p8.attr(ret.xF2);
-      p9.attr(ret.xN1);
 
-      this.cd_set.push(p7, p8, p9);
+      this.cd_set.push(p7, p8);
+
+      // EXPERIMENTAL: virtual image - these rays are real, diverging light that
+      // never actually converges, running out to the "infinity" sentinel (X), so
+      // fade towards that end, same as the incoming beam.
+      shadeFadingBeamRegion(this.cd_set, [[P2,y1],[X,i1],[X,i2],[P2,y2]], [P2, (y1+y2)/2], [X, (i1+i2)/2]);
 
     } else {
 
@@ -574,13 +673,16 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
 
       var p7 = paper.path( ["M", X2, Y2,  "L", X, i1 ]);
       var p8 = paper.path( ["M", X2, Y2,  "L", X, i2 ]);
-      var p9 = paper.path( ["M", X2, Y2,  "L", X, i3 ]);
 
       p7.attr(real);
       p8.attr(real);
-      p9.attr(real);
 
-      this.cd_set.push(p7, p8, p9);
+      this.cd_set.push(p7, p8);
+
+      // EXPERIMENTAL: real image - these rays are diverging again past the
+      // crossing point (the cyan ball), running out to the "infinity" sentinel
+      // (X), so fade towards that end, starting opaque right at the crossing.
+      shadeFadingBeamRegion(this.cd_set, [[X2,Y2],[X,i1],[X,i2]], [X2, Y2], [X, (i1+i2)/2]);
 
     }
 

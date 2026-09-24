@@ -884,7 +884,7 @@ getConjuugateTo
     /* field information */
     
     switch (fieldname) {
-      case "zo": case "ho": case "to": case "infinity":
+      case "zo": case "ho": case "to":
         return { id: aPoint.id, which: "object", z: Number(aPoint.zo), h: Number(aPoint.ho), t: Number(aPoint.to), infinity: aPoint.infinity, type: aPoint.type };
 
       case "zi": case "hi": case "ti":
@@ -1070,30 +1070,7 @@ getConjuugateTo
 
       if (elem.getId() === aPoint.id) {
 
-        if (fieldname == "infinity") {
-
-            // the infinity flag was flipped on an "object" row: this may require a different
-            // Construction class entirely (e.g. PointSourceConstruction <-> ParallelBeamConstruction
-            // /AfocalBeamConstruction), so the existing drawing is removed and rebuilt rather than
-            // just updated in place.
-
-            console.log ("infinity flag toggled - rebuilding construction");
-
-            elem.delete ();
-            lens.raphael.constructions = lens.raphael.constructions.filter( c => c.getId() !== aPoint.id );
-
-            totalLens  = renderableLens.total;
-            pairData   = Optics.calculateConjugatePairFrom(aPoint, totalLens);
-            updatePointsTable(aPoint.id, pairData);
-
-            var constructionType = resolveObjectConstructionType(aPoint);
-            var beamRow          = lens.pointsTable.getRow(aPoint.id).getData();
-            var construction     = instantiateConstruction ({ ...beamRow, ...aPoint }, pairData, constructionType);
-
-            if (construction) { lens.raphael.constructions.push(construction); }
-            return;
-
-        } else if ((fieldname == "beamwidth") & (typeof elem.setBeamWidth === 'function')) {
+        if ((fieldname == "beamwidth") & (typeof elem.setBeamWidth === 'function')) {
 
             console.log ("updating beamwidth");
 

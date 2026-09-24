@@ -182,36 +182,11 @@ function toggleObjectInfinity() {
 
 /* ------------------------------------------------------------------------------------------------------
 
-TOGGLEOBJECTINFINITYCELL  Click handler for the "&infin;" column in the Objects and Images table.
-Only meaningful for a row of type "object" - other types (point/source/beam/afocal) are fixed at
-creation and the cell stays blank/inert for them. Flipping the flag swaps the row between a finite
-object (z/h) and a beam from infinity (angle), filling in sensible defaults for whichever side wasn't
-in use, then asks application.js to rebuild the drawn construction (which may be a different
-Construction class - e.g. PointSourceConstruction vs. ParallelBeamConstruction/AfocalBeamConstruction).
+The "&infin;" column in the Objects and Images table is fixed by the "At infinity"
+checkbox at Add time (see addModalInfoToPointsTable()) and stays read-only after
+that - it is not editable/toggleable from the table itself.
 
 ----------------------------------------------------------------------------------------------------------- */
-
-function toggleObjectInfinityCell (e, cell) {
-
-    var data = cell.getRow().getData();
-    if (data.type !== "object") { return; } // not applicable - leave blank/inert
-
-    var atInfinity = !data.infinity;
-    var update = { id: data.id, infinity: atInfinity };
-
-    if (atInfinity) {
-        update.to = isFinite(data.to) ? data.to : 30;
-        update.zo = undefined;
-        update.ho = undefined;
-    } else {
-        update.zo = isFinite(data.zo) ? data.zo : -0.5;
-        update.ho = isFinite(data.ho) ? data.ho : 0.1;
-        update.to = undefined;
-    }
-
-    lens.pointsTable.updateData([update]);
-    updateConstruction(cell);
- }
 
 
 
@@ -793,9 +768,10 @@ function initializePointsTable(data, updatePointsCallback, success) {
             {title:"id",     field:"id",       width:50, headerSort:false},
             {title:"type",   field:"type",     width:100, headerSort:false},
             {title:"&infin;", field:"infinity", width:50, align:"center", headerSort:false,
+             // read-only status: fixed by the "At infinity" checkbox at Add time,
+             // not editable afterwards - see toggleObjectInfinityCell()'s comment
              formatter:"tickCross",
-             formatterParams:{ allowEmpty:true, allowTruthy:true, tickElement:"<span class=\"badge badge-info\">&infin;</span>", crossElement:"" },
-             cellClick: toggleObjectInfinityCell },
+             formatterParams:{ allowEmpty:true, allowTruthy:true, tickElement:"<span class=\"badge badge-info\">&infin;</span>", crossElement:"" } },
             //{title:"X1",     field:"X1",       width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" } },                  
             //{title:"Y1",     field:"Y1",       width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" }, accessor: flipVal },
             {title:"X1",                          field:"X1", visible:false, width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 6, emptyVal: "--" },  cellEdited:  defaultEditFunction, editable:editPointCheck },                  

@@ -93,7 +93,7 @@
 			"radius"   : 10.200,
 			"stop"     : true,
 			"height"   : 10.0,			
-			"aperture" : 1
+			"aperture" : 4
 		}
 	}, {
 		"id": "0007",
