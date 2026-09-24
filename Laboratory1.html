@@ -1,4 +1,18 @@
 <!DOCTYPE html>
+<!--
+
+  GENERATED FILE - do not edit directly.
+
+  This page is generated from scripts/laboratory.template.html by
+  scripts/build-labs.js. To change shared markup/behaviour, edit the
+  template (or the referenced JS files) and run:
+
+      node scripts/build-labs.js
+
+  from the repository root, which regenerates every Laboratory*.html
+  and eye.html from the same template so they stay in sync.
+
+-->
 <html lang="en">
 <head>
   <title>SOVS ray-tracer</title>
@@ -183,11 +197,11 @@
 
 
     <!-- Modal -->
-    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">Choose a label.  Then hit download :</h5>
+            <h5 class="modal-title" id="exampleModalLabel">Choose a label. Then hit download :</h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
@@ -228,7 +242,7 @@
 
 
                 </div>
-                <input type="text" class="form-control" id="submit_question" aria-describedby="basic-addon3" Placeholder="Select question here" readonly="true">
+                <input type="text" class="form-control" id="submit_question" aria-describedby="basic-addon3" Placeholder="Select the question this report answers" disabled>
               </div>
 
 
@@ -241,14 +255,13 @@
             </div>
 
 
-
             <div class="form-group">
               <label for="submit_ID">Student ID:</label>
               <input type="text" class="form-control" id="submit_ID" Placeholder="Enter your ID here">
             </div>
 
 
-            <div class="form-group" hidden>
+            <div class="form-group">
               <label for="extra_comment">Extra comment:</label>
               <input type="text" class="form-control" id="extra_comment" Placeholder="Enter extra information here">
             </div>
@@ -268,7 +281,6 @@
         </div>
       </div>
     </div>
-
 
 
 

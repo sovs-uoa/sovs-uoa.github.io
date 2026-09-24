@@ -1,6 +1,17 @@
 NOTES.md
 
 
+Laboratory1.html, Laboratory2.html, Laboratory3.html, Laboratory4.html,
+Laboratory6.html and eye.html are GENERATED from scripts/laboratory.template.html
+by scripts/build-labs.js - do not hand-edit them directly, edit the template
+(or the linked js/optics/*.js files) and run:
+
+    node scripts/build-labs.js
+    (or: npm run build:labs)
+
+from the repo root to regenerate all six pages in sync.
+
+
 git submodule update --remote --merge
 
 
