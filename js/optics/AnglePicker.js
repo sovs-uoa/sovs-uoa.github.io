@@ -14,6 +14,8 @@ function startPicker() {
       anchorY = a.anchorY;
       a.parent.angle = rad2deg(Math.atan2(this.ox-anchorY, this.ox-anchorX));
       a.parent.startFunc();
+
+      setGrabbingCursor(true);
 }
 
 function movePicker(dx,dy) {
@@ -63,9 +65,10 @@ function upPicker() {
     anchorX     = a.anchorX;
     anchorY     = a.anchorY;
 
-    // information 
+    // information
     a.parent.upFunc();
 
+    setGrabbingCursor(false);
 
 }
 
@@ -307,8 +310,9 @@ class AnglePicker { // create a ray construction using raphael.js
       this.extender = paper.path(["M", anchorX, anchorY, "L", x, y ]);
       this.extender.attr({ "stroke-dasharray":"--" });
 
-      // baseic dragger information on the clicke   
+      // baseic dragger information on the clicke
       this.clicker    = drawPoint (x, y, "green");
+      this.clicker.attr({ cursor: "grab" });
       this.clicker.data("data-extender", this.extender);
       this.clicker.drag(movePicker, startPicker, upPicker);
 
