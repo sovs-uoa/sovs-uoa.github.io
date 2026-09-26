@@ -30,7 +30,8 @@ lens     = {  prescription : null,
                         index:       "",
                         thickness:   "",
                         stop:        "",
-                        aperture:    "", 
+                        aperture:    "",
+                        base:        "up",
                       
                         // modal source information 
                         source: {
@@ -64,7 +65,8 @@ function lensTypeSelector(elem) {
     $("#lens-type-index").hide();
     $("#lens-type-sphere").hide();
     $("#lens-type-thick").hide();
-    $("#lens-type-thin").hide();        
+    $("#lens-type-thin").hide();
+    $("#lens-type-prism").hide();
 
     switch (lensType) {
 
@@ -86,9 +88,15 @@ function lensTypeSelector(elem) {
         lens.modal.type = lensType;
         break;
 
-      case "thick": // show those elements for the sphere 
+      case "thick": // show those elements for the sphere
         $("#lens-type-thick").show();
         console.log("sphere selected");
+        lens.modal.type = lensType;
+        break;
+
+      case "prism": // idealized thin prism - constant angular deviation only
+        $("#lens-type-prism").show();
+        console.log("prism selected");
         lens.modal.type = lensType;
         break;
 
@@ -206,8 +214,15 @@ that - it is not editable/toggleable from the table itself.
     lens.modal.index        = Number(document.getElementById("modal-lens-refractive-index").value);
     lens.modal.thickness    = Number(document.getElementById("modal-lens-thickness").value); 
     lens.modal.radius       = Number(document.getElementById("modal-lens-radius-of-curvature").value);
-    lens.modal.power        = Number(document.getElementById("modal-thin-power").value);
     lens.modal.aperture     = Number(document.getElementById("modal-lens-aperture-diameter").value);
+
+    if (lens.modal.type == "prism") {
+      lens.modal.power    = Number(document.getElementById("modal-prism-power").value);
+      lens.modal.base     = document.getElementById("modal-prism-base").value;
+      lens.modal.aperture = Number(document.getElementById("modal-prism-aperture").value);
+    } else {
+      lens.modal.power    = Number(document.getElementById("modal-thin-power").value);
+    }
 
     // add a row to the table 
     // console.log(lens.modal);
@@ -237,7 +252,7 @@ var tickToggle = function(e, cell){
 
 
   var data = cell.getRow().getData();
-  if ((data.type == "thin") || (data.type == "sphere") || (data.type == "img") ) 
+  if ((data.type == "thin") || (data.type == "sphere") || (data.type == "img") || (data.type == "prism") )
   {
 
     // clear all cells except for the toggled one!
@@ -280,9 +295,16 @@ function editCheck (cell) {
       break;
 
       case "thin":
-      if (columnName == "power") { return true; }; 
-      if (columnName == "aperture") { return true; }; 
-      if (columnName == "stop")     { return true; };       
+      if (columnName == "power") { return true; };
+      if (columnName == "aperture") { return true; };
+      if (columnName == "stop")     { return true; };
+      break;
+
+      case "prism":
+      if (columnName == "power") { return true; };
+      if (columnName == "base")    { return true; };
+      if (columnName == "aperture") { return true; };
+      if (columnName == "stop")     { return true; };
       break;
 
 
@@ -471,6 +493,7 @@ function initializePrescriptionTable(data, updatePrescriptionCallback, success) 
           {title:"Ref. Index",    field:"index",            width:100, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "" }, align:"center", editor:"input", headerSort:false, editable: editCheck, validator:["min:1.0", "max:5.0"]},
           {title:"Surf. R.",      field:"radius",           width:100, mutator:Number, formatter: distanceFormatter, editor: distanceEditor, formatterParams:{ precision: 3, emptyVal: "" }, align:"center", headerSort:false, editable: editCheck},
           {title:"Power",         field:"power",            width:100, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "" }, align:"center", editor:"input", headerSort:false, editable: editCheck},
+          {title:"Base",          field:"base",             width:100, align:"center", headerSort:false, editor:"list", editorParams:{ values: { "up": "Base Up", "down": "Base Down" } }, formatter: function(cell) { var data = cell.getRow().getData(); if (data.type != "prism") { return ""; }; return (cell.getValue() == "down") ? "Base Down" : "Base Up"; }, editable: editCheck},
           {title:"Thickness",     field:"thickness",        width:100, mutator:Number, formatter: distanceFormatter, editor: distanceEditor, formatterParams:{ precision: 3, emptyVal: "" }, align:"center", headerSort:false, editable: editCheck},
           {title:"Ap. Diameter",  field:"aperture",         width:100, mutator:Number, formatter: distanceFormatter, editor: distanceEditor, formatterParams:{ precision: 3, emptyVal: "" }, align:"center", headerSort:false, editable: editCheck},
           {title:"Stop Flag",     field:"stop",             width:100, align:"center", width:100, headerSort:false, formatter:"tickCross", cellClick:tickToggle, formatterParams:{ allowEmpty:true, allowTruthy:true, tickElement:"<span class=\"badge badge-info\">STOP</span>", crossElement:"" }

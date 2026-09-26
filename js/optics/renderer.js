@@ -211,10 +211,11 @@ function hslToRgb(h, s, l){
   offset - how far from 0,0 to draw the axis - they show better at 2
 */
 
-var axis_set; 
+var axis_set;
 
 var lastdivSize = 0;
 var divSize     = 0;
+var lastAxisExtent = ""; // "left:top:width:height" the grid was last drawn for - see drawAxis()
 
 function drawAxis () {
   
@@ -241,14 +242,23 @@ function drawAxis () {
   var divNumerator = Math.round ( divExact / Math.pow(10, divOrder) );   // 3 x 10^{-3} 
 
   divNumerator = Math.max(1, 2.5*Math.floor( divNumerator / 2.5));
-  var divSize      = divNumerator * Math.pow(10, divOrder);  // 20 divs on screen 
+  var divSize      = divNumerator * Math.pow(10, divOrder);  // 20 divs on screen
   //console.log("divSize : " + divNumerator + " x 10^(" + divOrder + ")");
 
-  if (lastdivSize == divSize) {
+  // Skip redrawing only when NEITHER the division size NOR the visible extent
+  // has changed - e.g. during a zoom wheel-tick that doesn't cross a division
+  // threshold. Keying on divSize alone missed the case where a newly loaded
+  // lens model has a different (often much larger/smaller or off-centre)
+  // viewBox that happens to quantize to the same divSize as the previous
+  // model - the grid was then left stale, sized/positioned for the old
+  // viewBox, and so only partially covered the new one.
+  var thisAxisExtent = left + ":" + top + ":" + width + ":" + height;
+  if (lastdivSize == divSize && lastAxisExtent == thisAxisExtent) {
     return;
   }
   lastdivSize = divSize;
-  
+  lastAxisExtent = thisAxisExtent;
+
 
   divs        = 2*Math.floor(viewBoxWidth / divSize)
 
@@ -1027,6 +1037,26 @@ function drawAxis () {
   }
 
 
+  // A thin prism: a wedge with its thick edge (the "base") at the top or
+  // bottom of the aperture per its base direction, tapering to an apex at
+  // the opposite extreme - no curvature, just a triangular outline showing
+  // where the base is.
+  function drawPrism(x, y, base, h, displayOptions) {
+
+    var prism = paper.set();
+
+    var y1 = y-h/2, y2 = y+h/2;
+    var w  = h/6;
+    var baseY = (base === "down") ? y2 : y1;
+    var apexY = (base === "down") ? y1 : y2;
+
+    var c = paper.path( ["M", x-w/2, baseY, "L", x+w/2, baseY, "L", x, apexY, "Z"] );
+    prism.push(c);
+
+    return prism;
+  }
+
+
 
   /* ---------------------------------------------------------------------------------------------------------------
 
@@ -1793,7 +1823,18 @@ function drawAxis () {
 
           l = drawThinLens(axialPosition, 0, equivalentPower, height, displayOptions);
           optics_set.push(l);
-          console.log (`- ${curr.type} Z = ${axialPosition}, F = ${equivalentPower}, h = ${height}`);                    
+          console.log (`- ${curr.type} Z = ${axialPosition}, F = ${equivalentPower}, h = ${height}`);
+          break;
+
+
+        case "prism":
+
+          axialPosition = data.elem[i].Z;
+          height        = curr.height;
+
+          l = drawPrism(axialPosition, 0, curr.base, height, displayOptions);
+          optics_set.push(l);
+          console.log (`- ${curr.type} Z = ${axialPosition}, power = ${curr.power}, base = ${curr.base}, h = ${height}`);
           break;
 
 

@@ -397,6 +397,7 @@
                           <a class="dropdown-item" href="#" data-short-id="thin"   onclick="lensTypeSelector(this); return false;">Thin Lens</a>
                           <a class="dropdown-item" href="#" data-short-id="thick"  onclick="lensTypeSelector(this); return false;">Thick Lens</a>
                           <a class="dropdown-item" href="#" data-short-id="sphere" onclick="lensTypeSelector(this); return false;">Spherical Surface</a>
+                          <a class="dropdown-item" href="#" data-short-id="prism"  onclick="lensTypeSelector(this); return false;">Thin Prism</a>
                         </div>            
                       </div>
 
@@ -553,6 +554,29 @@
           Aperture diameter
           <div class="input-group mb-3">
               <input id="modal-thin-height" type="text" class="form-control" aria-label="Description" placeholder="Enter the aperture diameter" value="5.0" >
+          </div>
+      </div>
+
+
+        <!-- Thin Prism (idealized: no thickness/curvature, just a constant angular deviation) -->
+        <div id = "lens-type-prism" style="display:none;">
+
+          Prism power (prism dioptres)
+          <div class="input-group mb-3">
+              <input id="modal-prism-power" type="text" class="form-control" aria-label="Description" placeholder="Enter the prism power." value="1.0" >
+          </div>
+
+          Base direction
+          <div class="input-group mb-3">
+              <select id="modal-prism-base" class="form-control">
+                <option value="up">Base Up</option>
+                <option value="down">Base Down</option>
+              </select>
+          </div>
+
+          Aperture diameter
+          <div class="input-group mb-3">
+              <input id="modal-prism-aperture" type="text" class="form-control" aria-label="Description" placeholder="Enter the aperture diameter" value="5.0" >
           </div>
       </div>
 

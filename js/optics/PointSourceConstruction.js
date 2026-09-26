@@ -458,6 +458,7 @@ class PointSourceConstruction { // create a ray construction using raphael.js
 
 
      this.cd_set.remove ();
+     clearBeamFadeGradients ();
      var dimensions = [ ray.length, ray[0].length ];
      var K = dimensions[0]; // number of surfaces 
      var M = dimensions[1]; // number of rays 
@@ -475,10 +476,15 @@ class PointSourceConstruction { // create a ray construction using raphael.js
      console.warn (`X1 = ${X1}`);
 
      for (var i=0; i <  M ; i++) {
-        
-        var u2 = ray[0][i].u;         
-        var X2 = ray[0][i].z; 
-        var Y2 = ray[0][i].h;        
+
+        // the middle ray is redundant once the region between the outermost
+        // (bounding) rays is shaded - hide it so it doesn't draw a stray line
+        // straight through the middle of the fill.
+        if (i !== 0 && i !== M-1) { continue; }
+
+        var u2 = ray[0][i].u;
+        var X2 = ray[0][i].z;
+        var Y2 = ray[0][i].h;
 
 
         if  (X1 === -Infinity) {
@@ -543,15 +549,38 @@ class PointSourceConstruction { // create a ray construction using raphael.js
      }
 
 
-     /* transmitted rays */  
+     /* transmitted rays */
      for (var k=0; k < K-1; k++ ) {
          for (var i=0; i <  M ; i++) {
+            if (i !== 0 && i !== M-1) { continue; } // hide the redundant middle ray - see comment above
             var X1 = ray[k][i].z;   var Y1 = ray[k][i].h;
             var X2 = ray[k+1][i].z; var Y2 = ray[k+1][i].h;
-            var p4 = paper.path( ["M", X1, Y1,  "L", X2, Y2 ]); 
+            var p4 = paper.path( ["M", X1, Y1,  "L", X2, Y2 ]);
             p4.attr(real);
             this.cd_set.push(p4);
          }
+     }
+
+     // Only a REAL image has light actually filling the whole object->image
+     // path; a virtual image is where the diverging exit rays APPEAR to come
+     // from when extrapolated backwards (drawn dashed below) - no light
+     // travels there, so it must not be shaded. Detect real vs virtual the
+     // same way the final-ray loop further down does.
+     var shadeDirection  = Math.sign(lens.n2);
+     var isRealImagePath = isFinite(this.data.X2) && (this.data.X2*shadeDirection > V2*shadeDirection);
+
+     // EXPERIMENTAL: shade the whole object->image envelope (bounded at both
+     // ends, so a plain solid fill - no fade needed) in one shape, using the
+     // outermost ray (i=0) forward and the other outermost ray (i=M-1) back as
+     // its two edges, rather than shading each surface-to-surface gap separately.
+     // For a virtual (or non-existent/collimated) image, stop the fill at the
+     // system's exit surface instead - see the comment above.
+     if (isFinite(this.data.X1)) {
+        var envelope = [[this.data.X1, this.data.Y1]];
+        for (var k=0; k < K; k++) { envelope.push([ray[k][0].z, ray[k][0].h]); }
+        if (isRealImagePath) { envelope.push([this.data.X2, this.data.Y2]); }
+        for (var k=K-1; k >= 0; k--) { envelope.push([ray[k][M-1].z, ray[k][M-1].h]); }
+        shadeBoundedBeamRegion(this.cd_set, envelope);
      }
 
 /*
@@ -614,12 +643,17 @@ class PointSourceConstruction { // create a ray construction using raphael.js
         var XI = this.data.X2;
         var YI = this.data.Y2;
          var dX = 1;
+         var realImageExtension = null; // envelope corners for the post-crossing fade, filled in below
+         var virtualImageExitExtension = null; // envelope corners for the post-exit fade (virtual image case), filled in below
+         var collimatedExtension = null; // envelope corners for the post-exit fade (collimated/image-at-infinity case), filled in below
          for (var i=0; i <  M ; i++) {
 
-            var u1 = ray[K-1][i].u;       
-            var X1 = ray[K-1][i].z; 
+            if (i !== 0 && i !== M-1) { continue; } // hide the redundant middle ray - see comment above
+
+            var u1 = ray[K-1][i].u;
+            var X1 = ray[K-1][i].z;
             var Y1 = ray[K-1][i].h;
-            
+
             //console.log("X2 = " + X2 + ", V2 = " + V2);
 
             var direction = Math.sign(lens.n2);
@@ -631,15 +665,25 @@ class PointSourceConstruction { // create a ray construction using raphael.js
 
             //dX = dX * direction;
 
-            if (XI === Infinity) { 
+            if (XI === Infinity) {
 
-              // collimated beam
+              // collimated beam - real light that has genuinely exited the
+              // system, running out towards infinity without ever
+              // converging (parallel, not diverging, but the same "fade
+              // towards the far end" treatment applies)
 
-              var X2 = X1 + dX;  
-              var Y2 = Y1 + dX*u1;            
-              var p4 = paper.path( ["M", X1, Y1,  "L", X2, Y2 ]);         
+              var dxCol = 10*direction;
+              var X2 = X1 + dxCol;
+              var Y2 = Y1 + dxCol*u1;
+              var p4 = paper.path( ["M", X1, Y1,  "L", X2, Y2 ]);
               p4.attr(real);
               this.cd_set.push(p4);
+
+              if (i === 0 || i === M-1) {
+                if (!collimatedExtension) { collimatedExtension = {}; }
+                if (i === 0)   { collimatedExtension.exit0 = [X1, Y1]; collimatedExtension.end0 = [X2, Y2]; }
+                if (i === M-1) { collimatedExtension.exitM = [X1, Y1]; collimatedExtension.endM = [X2, Y2]; }
+              }
 
 
             } else if (XI*direction <= V2*direction) {
@@ -663,11 +707,23 @@ class PointSourceConstruction { // create a ray construction using raphael.js
               p4.attr(virtual);
               this.cd_set.push(p4);
 
-              // the extension part 
+              // the extension part
               var dx  = + 10*direction;
-              var i1  = u1 * dx + Y1; // upper height on N1 
+              var i1  = u1 * dx + Y1; // upper height on N1
               var p5  = paper.path( ["M", X1, Y1,  "L", X1 + dx, i1 ]);    // O  -> H1   (ray through F1)
               this.cd_set.push(p5);
+
+              // this segment is real light - it has genuinely exited the
+              // system here, just diverging rather than converging, which is
+              // what makes it *appear* to come from the virtual image point
+              // extrapolated behind it. Remember the outermost two rays'
+              // exit points and extended endpoints so that region (only) can
+              // be shaded, fading towards infinity.
+              if (i === 0 || i === M-1) {
+                if (!virtualImageExitExtension) { virtualImageExitExtension = {}; }
+                if (i === 0)   { virtualImageExitExtension.exit0 = [X1, Y1]; virtualImageExitExtension.end0 = [X1+dx, i1]; }
+                if (i === M-1) { virtualImageExitExtension.exitM = [X1, Y1]; virtualImageExitExtension.endM = [X1+dx, i1]; }
+              }
 
 
             } else {
@@ -688,9 +744,63 @@ class PointSourceConstruction { // create a ray construction using raphael.js
               p5.attr(real);
               this.cd_set.push(p5);
 
+              // remember the outermost two rays' extended endpoints (i=0 and
+              // i=M-1), to shade the fan they bound once the loop is done
+              if (i === 0 || i === M-1) {
+                if (!realImageExtension) { realImageExtension = { dx: dx }; }
+                if (i === 0)   { realImageExtension.i0 = [XI+dx, i1]; }
+                if (i === M-1) { realImageExtension.iM = [XI+dx, i1]; }
+              }
+
 
             }
 
+        }
+
+        // EXPERIMENTAL: real image - these rays are diverging again past the
+        // crossing point, running out towards "infinity", so fade towards that
+        // end, starting opaque right at the crossing (same convention as
+        // ParallelBeamConstruction's equivalent real-image extension).
+        if (realImageExtension && realImageExtension.i0 && realImageExtension.iM) {
+          shadeFadingBeamRegion(
+            this.cd_set,
+            [[XI,YI], realImageExtension.i0, realImageExtension.iM],
+            [XI, YI],
+            [XI + realImageExtension.dx, (realImageExtension.i0[1] + realImageExtension.iM[1]) / 2]
+          );
+        }
+
+        // EXPERIMENTAL: virtual image - only the diverging exit rays are real
+        // light; shade that region (exit surface outward), fading towards
+        // infinity - never the backward extrapolation to the virtual image
+        // point itself (drawn dashed above, no light travels there).
+        if (virtualImageExitExtension && virtualImageExitExtension.end0 && virtualImageExitExtension.endM) {
+          var exitMid = [ (virtualImageExitExtension.exit0[0] + virtualImageExitExtension.exitM[0]) / 2,
+                           (virtualImageExitExtension.exit0[1] + virtualImageExitExtension.exitM[1]) / 2 ];
+          var endMid  = [ (virtualImageExitExtension.end0[0]  + virtualImageExitExtension.endM[0])  / 2,
+                           (virtualImageExitExtension.end0[1]  + virtualImageExitExtension.endM[1])  / 2 ];
+          shadeFadingBeamRegion(
+            this.cd_set,
+            [virtualImageExitExtension.exit0, virtualImageExitExtension.end0, virtualImageExitExtension.endM, virtualImageExitExtension.exitM],
+            exitMid,
+            endMid
+          );
+        }
+
+        // EXPERIMENTAL: collimated beam (object at the front focal point) -
+        // real light that has exited the system and runs out to infinity
+        // without converging; shade it the same way, fading towards infinity.
+        if (collimatedExtension && collimatedExtension.end0 && collimatedExtension.endM) {
+          var collExitMid = [ (collimatedExtension.exit0[0] + collimatedExtension.exitM[0]) / 2,
+                               (collimatedExtension.exit0[1] + collimatedExtension.exitM[1]) / 2 ];
+          var collEndMid  = [ (collimatedExtension.end0[0]  + collimatedExtension.endM[0])  / 2,
+                               (collimatedExtension.end0[1]  + collimatedExtension.endM[1])  / 2 ];
+          shadeFadingBeamRegion(
+            this.cd_set,
+            [collimatedExtension.exit0, collimatedExtension.end0, collimatedExtension.endM, collimatedExtension.exitM],
+            collExitMid,
+            collEndMid
+          );
         }
 
 

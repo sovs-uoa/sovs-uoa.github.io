@@ -134,7 +134,8 @@ function convertToLensTable (response) {
                              index:       assignParameterValue(response[i].args.index, NaN),
                              thickness:   assignParameterValue(response[i].args.thickness, NaN),
                              stop:        assignParameterValue(response[i].args.stop, false),
-                             aperture:    assignParameterValue(response[i].args.aperture, NaN) };
+                             aperture:    assignParameterValue(response[i].args.aperture, NaN),
+                             base:        assignParameterValue(response[i].args.base, "up") };
 
         lens_table.push(each_element);        
     }
@@ -306,9 +307,16 @@ function calculateRayTrace(rays, lensTable ) {
           //console.log("Input Rays");
           //console.log(rays);
 
-          newrays = rayMultiply(each.S, rays);          
+          newrays = rayMultiply(each.S, rays);
           for (var j = 0; j < newrays.length; j++) {
               newrays[j].z = Z;
+              // a prism element carries an additive angular deviation
+              // (constant regardless of ray height) alongside its (identity)
+              // matrix - see getLensElementInfo's "prism" case
+              if (each.offset) {
+                newrays[j].u += each.offset.u;
+                newrays[j].h += each.offset.h;
+              }
           }
 
           //console.log("Output Rays");
@@ -488,15 +496,25 @@ function calculatePairFromObject (object, systemInfo) {
 
               if (isFinite(zd)) { // => finite image distance 
 
-                  var mag = (n1*ir.u)/(n2*q.u); // magnification 
+                  var mag = (n1*ir.u)/(n2*q.u); // magnification
 
-                  result = {  id  : undefined,     
+                  // A prism's constant angular deviation doesn't affect where the
+                  // image forms (zd) or the magnification - both come from the
+                  // system's linear part (S) alone, untouched above - but it does
+                  // add a constant lateral shift to the image height, growing with
+                  // distance from the prism: offset.h (always 0 for a prism, see
+                  // getLensElementInfo) plus offset.u times the distance to the
+                  // image plane (zd).
+                  var prismOffset  = curr.offset || { u: 0, h: 0 };
+                  var prismShiftIQ = prismOffset.h + zd*prismOffset.u;
+
+                  result = {  id  : undefined,
                               VO  : z,
-                              PO  : -curr.cardinal.VP1 + z, 
+                              PO  : -curr.cardinal.VP1 + z,
                               OQ  : h,
                               VI  : zd,
-                              PI  : -curr.cardinal.VP2 + zd, 
-                              IQ  : mag*h,
+                              PI  : -curr.cardinal.VP2 + zd,
+                              IQ  : mag*h + prismShiftIQ,
                               M   : mag,
                               T1  : undefined,
                               T2  : undefined }; //
@@ -525,17 +543,22 @@ function calculatePairFromObject (object, systemInfo) {
 
            //console.log (` - Object at Infinity (Angle = ${t})`);
 
-           zp  = +n2/curr.F;  // PF            
+           zp  = +n2/curr.F;  // PF
+
+           // same prism correction as the finite-object branch above, using
+           // VF2 (the image plane here) in place of zd
+           var prismOffsetInf  = curr.offset || { u: 0, h: 0 };
+           var prismShiftIQInf = prismOffsetInf.h + curr.cardinal.VF2*prismOffsetInf.u;
 
             // infinite object => finite image
-           result = {  id  : undefined,     
+           result = {  id  : undefined,
                        VO  : z,
-                       PO  : -curr.cardinal.VP1 + z, 
+                       PO  : -curr.cardinal.VP1 + z,
                        OQ  : undefined,
                        VI  : curr.cardinal.VF2,
-                       PI  : curr.cardinal.PF2, 
+                       PI  : curr.cardinal.PF2,
                        // IQ  : n1 * deg2rad(t)/ curr.F, // n2 * Math.tan (deg2rad(t))/ curr.F,
-                       IQ  : zp * Math.tan(deg2rad(t)), // n2 * Math.tan (deg2rad(t))/ curr.F,                       
+                       IQ  : zp * Math.tan(deg2rad(t)) + prismShiftIQInf, // n2 * Math.tan (deg2rad(t))/ curr.F,
                        M   : undefined,
                        T1  : t,
                        T2  : undefined }; //
@@ -584,12 +607,18 @@ function calculatePairFromImage (image, systemInfo) {
 
               if (isFinite(zl)) { // => finite object distance 
 
-                  var mag = (n1*q.u)/(n2*ir.u); // magnification 
+                  var mag = (n1*q.u)/(n2*ir.u); // magnification
 
-                  result = {  id  : undefined,     
+                  // mirror of calculatePairFromObject's prism-shift correction:
+                  // there, IQ = mag*OQ + prismShiftIQ; here hd (=IQ) is given
+                  // and OQ is being solved for, so invert that relation
+                  var prismOffset  = curr.offset || { u: 0, h: 0 };
+                  var prismShiftIQ = prismOffset.h + zd*prismOffset.u;
+
+                  result = {  id  : undefined,
                               VO  : zl,
-                              PO  : -curr.cardinal.VP1 + zl, 
-                              OQ  : hd/mag,
+                              PO  : -curr.cardinal.VP1 + zl,
+                              OQ  : (hd - prismShiftIQ)/mag,
                               VI  : zd,
                               PI  : -curr.cardinal.VP2 + zd, 
                               IQ  : hd,
@@ -1014,11 +1043,33 @@ function getLensElementInfo(elem, index) {
         elemPowers = getPowers (elemCardinalPoints, n1, n2);        
         return { S: S, invS: inverseMatrix2x2(S), cardinal: elemCardinalPoints, powers: elemPowers,  n1: n1, n2: n2, F: F, L : 0, elem: input_elem }; 
 
+      case "prism" :
+
+        // A (thin, idealized) prism doesn't change a ray's height, only its
+        // slope, by a roughly constant amount independent of where it's
+        // struck - unlike a lens, whose deviation is proportional to height.
+        // That can't be expressed as a linear 2x2 matrix alone (S stays
+        // identity: no height change, no power/focal effect); the deviation
+        // is instead carried as an additive "offset", which composes across
+        // the whole system the same way S does - see getTotalLensSystemInfo /
+        // appendOverallInformation, and calculateRayTrace for how it's
+        // applied when actually tracing a ray through one.
+        //
+        // "power" is a magnitude in prism dioptres (the clinical convention:
+        // always positive, with the base direction stated separately) -
+        // unlike a thin lens, a prism's sign isn't carried in "power" itself.
+        // "base" ("up"/"down") gives the direction the image shifts towards:
+        // tan(deviation) = power/100, signed positive for base up.
+        var prismPower = Math.abs(input_elem.power);
+        var deviation  = (input_elem.base === "down" ? -1 : 1) * prismPower / 100;
+
+        return { S: identitySystem, invS: identitySystem, X: identitySystem, offset: { u: deviation, h: 0 }, n1: n1, n2: n2, F: 0, L: 0, elem: input_elem };
+
       case "img" :
 
         // try and do nothing
-        var R = input_elem.radius; 
-        return { S: identitySystem, invS: identitySystem, X: identitySystem, L:0, elem: input_elem }; 
+        var R = input_elem.radius;
+        return { S: identitySystem, invS: identitySystem, X: identitySystem, L:0, elem: input_elem };
 
 
       case "plane" :
@@ -1074,7 +1125,8 @@ function getTotalLensSystemInfo (lensTable) {
                                     stopIndex : 0,
                                     stopDiameter : 1,
                                     S         : identitySystem,
-                                    invS      : identitySystem, 
+                                    offset    : { u: 0, h: 0 }, // additive deviation from any prism element(s) - see appendOverallInformation
+                                    invS      : identitySystem,
                                     X         : normalizedRefractionMatrix(identitySystem, first.index, last.index),
                                     cardinal  : null,
                                     n1        : first.index, n2: last.index,
@@ -1316,7 +1368,24 @@ function appendDisplayInformation (totalSystem) {
 
       }    
 
-      // Build Up System 
+      // A prism element's additive angular deviation composes through the
+      // system the same way S does. This loop runs backwards (last element
+      // first) and right-multiplies each new element's S onto what's
+      // accumulated so far, which - because of that ordering - already
+      // works out to the physically correct "last element leftmost" product
+      // (verified against a plain sequential per-surface ray trace). The
+      // matching rule for the offset is: transform the CURRENT element's own
+      // offset by whatever's already been accumulated from elements after it
+      // (totalSystem.total.S, before this iteration folds the current
+      // element in), then add that to the offset accumulated so far.
+      var elementOffset = eachElementInfo.offset || { u: 0, h: 0 };
+      var Sfollowing     = totalSystem.total.S;
+      totalSystem.total.offset = {
+        u: Sfollowing.A*elementOffset.u + Sfollowing.B*elementOffset.h + totalSystem.total.offset.u,
+        h: Sfollowing.C*elementOffset.u + Sfollowing.D*elementOffset.h + totalSystem.total.offset.h
+      };
+
+      // Build Up System
       totalSystem.total.S = systemMultiply(totalSystem.total.S, eachElementInfo.S);
 
     }
