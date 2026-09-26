@@ -1,0 +1,67 @@
+/*--------------------------------------------
+
+TEST: a thin prism (base up) combined with a converging thin lens - a small
+demonstration/regression system for the prism element, showing:
+ - the wedge glyph rendered at the prism's position
+ - the prism's constant angular deviation shifting the image sideways
+   without changing where it forms or the system's magnification
+ - correct combination with an ordinary lens elsewhere in the system
+
+----------------------------------------------*/
+
+{
+
+	"viewBox" : [ -0.3, 0.05, 0.6, 0.1 ],
+
+	"general" :  { "cardinalVertHeight" : 0.002 },
+
+	"sources" : [ { "id" 		: 1,
+					"type" 		: "object",
+					"which"		: "object",
+					"infinity"	: false,
+					"beamwidth" : 0.01,
+					"z"			: -0.2,
+					"h"			: 0.01 } ],
+
+	"title": "Test Prism (10 Base-Up Prism + Thin Lens)",
+    "prescription": [{
+		"id": "0001",
+		"type": "index",
+		"description": "air",
+		"args": {
+			"index": 1.000
+		}
+	}, {
+		"id": "0002",
+		"type": "prism",
+		"description": "10 base-up prism",
+		"args": {
+			"power": 10,
+			"base": "up",
+			"height": 0.03
+		}
+	}, {
+		"id": "0003",
+		"type": "index",
+		"description": "air gap",
+		"args": {
+			"index": 1.000,
+			"thickness": 0.05
+		}
+	}, {
+		"id": "0004",
+		"type": "thin",
+		"description": "converging lens",
+		"args": {
+			"power": 20,
+			"height": 0.03
+		}
+	}, {
+		"id": "0005",
+		"type": "index",
+		"description": "air#2",
+		"args": {
+			"index": 1.000
+		}
+	}]
+}
