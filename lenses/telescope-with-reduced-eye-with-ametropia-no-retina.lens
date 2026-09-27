@@ -53,7 +53,8 @@ Telescope with reduced eye and ametropia  (Lab 45
 		"description": "eyepiece lens",
 		"args": {
 			"power":  -50,
-			"height": 0.025
+			"height": 0.025,
+			"aperture": 0.0125
 		}
 	},{
 		"id": "0004",
@@ -69,7 +70,8 @@ Telescope with reduced eye and ametropia  (Lab 45
 		"description": "ametropia lens",
 		"args": {
 			"power":  0,
-			"height": 0.01
+			"height": 0.01,
+			"aperture": 0.005
 		}
 	},{
 		"id": "0006",

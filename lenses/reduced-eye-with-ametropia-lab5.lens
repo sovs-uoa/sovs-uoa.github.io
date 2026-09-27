@@ -35,7 +35,8 @@ Reduced eye with ametropia (Lab 4)
 		"description": "correcting lens",
 		"args": {
 			"power":  0,
-			"height": 0.01
+			"height": 0.01,
+			"aperture": 0.005
 		}
 	},{
 		"id": "0003",
@@ -51,7 +52,8 @@ Reduced eye with ametropia (Lab 4)
 		"description": "ametropia lens",
 		"args": {
 			"power":  0,
-			"height": 0.01
+			"height": 0.01,
+			"aperture": 0.005
 		}
 	},{
 		"id": "0005",
@@ -67,7 +69,8 @@ Reduced eye with ametropia (Lab 4)
 		"description": "accommodating lens",
 		"args": {
 			"power":  0,
-			"height": 0.01
+			"height": 0.01,
+			"aperture": 0.005
 		}
 	}, {
 		"id": "0007",

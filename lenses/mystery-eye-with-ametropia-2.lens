@@ -35,7 +35,8 @@ Mystery reduced eye with accommodation #2 (58D cornea)
 		"description": "correcting lens",
 		"args": {
 			"power":  0,
-			"height": 0.01
+			"height": 0.01,
+			"aperture": 0.005
 		}
 	},{
 		"id": "0003",
@@ -51,7 +52,8 @@ Mystery reduced eye with accommodation #2 (58D cornea)
 		"description": "ametropia lens",
 		"args": {
 			"power":  -2,
-			"height": 0.01
+			"height": 0.01,
+			"aperture": 0.005
 		}
 	},{
 		"id": "0005",
@@ -67,7 +69,8 @@ Mystery reduced eye with accommodation #2 (58D cornea)
 		"description": "accommodating lens",
 		"args": {
 			"power":  0,
-			"height": 0.01
+			"height": 0.01,
+			"aperture": 0.005
 		}
 	}, {
 		"id": "0007",

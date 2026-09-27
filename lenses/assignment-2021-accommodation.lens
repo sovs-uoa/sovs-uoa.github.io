@@ -35,7 +35,8 @@ Assignment : basic eye model
 		"description": "correcting lens",
 		"args": {
 			"power":  0,
-			"height": 0.01
+			"height": 0.01,
+			"aperture": 0.005
 		}
 	},{
 		"id": "0003",
@@ -51,7 +52,8 @@ Assignment : basic eye model
 		"description": "ametropia lens",
 		"args": {
 			"power":  0,
-			"height": 0.01
+			"height": 0.01,
+			"aperture": 0.005
 		}
 	},{
 		"id": "0005",
@@ -67,7 +69,8 @@ Assignment : basic eye model
 		"description": "accommodating lens",
 		"args": {
 			"power":  0,
-			"height": 0.01
+			"height": 0.01,
+			"aperture": 0.005
 		}
 	}, {
 		"id": "0007",

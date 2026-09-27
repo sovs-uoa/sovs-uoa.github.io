@@ -89,7 +89,8 @@ Vertometer standard
 		"description": "eyepiece lens",
 		"args": {
 			"power":  -50,
-			"height": 0.01
+			"height": 0.01,
+			"aperture": 0.005
 		}
 	},{
 		"id": "0011",

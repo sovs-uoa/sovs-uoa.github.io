@@ -35,7 +35,8 @@ Mystery reduced eye with accommodation
 		"description": "Rx",
 		"args": {
 			"power":  0,
-			"height": 0.01
+			"height": 0.01,
+			"aperture": 0.005
 		}
 	},{
 		"id": "0003",
@@ -51,7 +52,8 @@ Mystery reduced eye with accommodation
 		"description": "Ametropic lens",
 		"args": {
 			"power":  0,
-			"height": 0.01
+			"height": 0.01,
+			"aperture": 0.005
 		}
 	},{
 		"id": "0005",
@@ -67,7 +69,8 @@ Mystery reduced eye with accommodation
 		"description": "Accommodating lens",
 		"args": {
 			"power":  0,
-			"height": 0.01
+			"height": 0.01,
+			"aperture": 0.005
 		}
 	}, {
 		"id": "0007",

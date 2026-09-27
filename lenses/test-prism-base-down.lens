@@ -52,7 +52,8 @@ while the image location/magnification (from the lens alone) stay the same.
 		"description": "converging lens",
 		"args": {
 			"power": 20,
-			"height": 0.03
+			"height": 0.03,
+			"aperture": 0.015
 		}
 	}, {
 		"id": "0005",

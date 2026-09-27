@@ -46,7 +46,8 @@
 		"description": "spectacle correction",
 		"args": {
 			"power": 6,
-			"height": 0.01
+			"height": 0.01,
+			"aperture": 0.005
 		}
 	}, {
 		"id": "0003",
@@ -62,7 +63,8 @@
 		"description": "accommodating lens",
 		"args": {
 			"power": -1.93,
-			"height": 0.01
+			"height": 0.01,
+			"aperture": 0.005
 		}
 	}, {
 		"id": "0005",

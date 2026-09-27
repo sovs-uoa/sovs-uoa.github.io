@@ -69,6 +69,7 @@
 		"args": {
 			"power":  20,
 			"height": 0.2,
+			"aperture": 0.1,
 			"stop": false	
 		}
 	}, {

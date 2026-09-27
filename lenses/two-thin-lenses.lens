@@ -28,7 +28,8 @@
 		"description": "thin lens #1",
 		"args": {
 			"power": 20,
-			"height": 12
+			"height": 12,
+			"aperture": 6
 		}
 	}, {
 		"id": "0003",
@@ -44,7 +45,8 @@
 		"description": "thin lens #2",
 		"args": {
 			"power": 10,
-			"height": 12
+			"height": 12,
+			"aperture": 6
 		}
 	}, {
 		"id": "0003",

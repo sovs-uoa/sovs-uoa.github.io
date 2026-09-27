@@ -53,7 +53,8 @@ Assignment: Telescope with reduced eye and ametropia
 		"description": "eyepiece lens",
 		"args": {
 			"power":  -50,
-			"height": 0.025
+			"height": 0.025,
+			"aperture": 0.0125
 		}
 	},{
 		"id": "0004",
@@ -69,7 +70,9 @@ Assignment: Telescope with reduced eye and ametropia
 		"description": "spectacles",
 		"args": {
 			"power": 0.000,
-			"height": 0.025		}
+			"height": 0.025,
+			"aperture": 0.0125
+		}
 	},{
 		"id": "0004",
 		"type": "index",
@@ -84,7 +87,8 @@ Assignment: Telescope with reduced eye and ametropia
 		"description": "ametropia lens",
 		"args": {
 			"power":  0,
-			"height": 0.01
+			"height": 0.01,
+			"aperture": 0.005
 		}
 	},{
 		"id": "0006",
