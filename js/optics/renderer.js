@@ -273,6 +273,13 @@ function ensureGridPattern () {
   // raster-image fill request, not a direct SVG paint-server reference (see
   // shadeFadingBeamRegion's identical note) - set it on the raw node instead.
   gridRect.node.setAttribute("fill", "url(#" + gridPatternId + ")");
+  // A "fill: url(...)" counts as painted for hit-testing purposes across the
+  // WHOLE rect's geometry (SVG's default pointer-events: visiblePainted),
+  // regardless of how transparent the referenced pattern actually renders in
+  // any given spot - without this, this one big (now toFront()'d) rect
+  // silently intercepted every click meant for the pannable background or
+  // the draggable object/image points underneath it.
+  gridRect.node.setAttribute("pointer-events", "none");
 
 }
 
