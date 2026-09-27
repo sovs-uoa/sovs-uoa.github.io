@@ -76,6 +76,18 @@ text {
     position: relative; /* anchors #scale-bar below */
 }
 
+/* While panning or dragging a point (see setGrabbingCursor() in
+   application.js), force the grabbing cursor everywhere. The background
+   <svg> and the draggable points each carry their OWN explicit inline
+   "cursor" style, and an element's own specified value always wins over an
+   inherited one - so merely setting body's cursor (even with !important)
+   is silently ignored the instant the mouse is over any element that
+   already declares its own cursor. A rule that directly targets every
+   element via "*" is what actually overrides that. */
+body.grabbing-cursor, body.grabbing-cursor * {
+    cursor: grabbing !important;
+}
+
 /* Map-style scale bar, bottom-right of the drawing area - see
    updateScaleBar() in application.js. A plain HTML/CSS overlay (not part of
    the zoomed/panned SVG), so it never needs repositioning on pan - only its

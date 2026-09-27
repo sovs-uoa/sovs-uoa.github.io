@@ -275,7 +275,14 @@
   ------------------------------------------------------------------------------- */
 
   function setGrabbingCursor (active) {
-    document.body.style.cursor = active ? "grabbing" : "";
+    // Toggles the "grabbing-cursor" class (see optics.css) - a real CSS rule
+    // targeting every element via "*", which is what's actually needed to
+    // override the background <svg>'s and the draggable points' own
+    // explicit inline "cursor" style for as long as the drag lasts. Setting
+    // body.style.cursor directly doesn't work here: it only affects
+    // elements that DON'T specify their own cursor, and inheritance always
+    // loses to an element's own specified value regardless of !important.
+    document.body.classList.toggle("grabbing-cursor", !!active);
   }
 
 
