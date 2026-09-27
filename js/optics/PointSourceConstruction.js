@@ -453,6 +453,14 @@ class PointSourceConstruction { // create a ray construction using raphael.js
      var V1   = 0;
      var V2   = lens.L;
      var ray  = this.raypath;
+
+     // Beam fade-off distance: 2x the system length (V1 to V2), or the
+     // F-to-F' distance, whichever is larger - a reference that's always
+     // meaningful even for a zero-thickness thin lens/prism, where V1==V2
+     // would otherwise make "2x the system length" collapse to zero.
+     var F1 = lens.cardinal.VF1;
+     var F2 = lens.L + lens.cardinal.VF2;
+     var fadeDistance = Math.max(2*Math.abs(V2 - V1), Math.abs(F2 - F1));
      
 
 
@@ -515,11 +523,9 @@ class PointSourceConstruction { // create a ray construction using raphael.js
 
 
             var u1 = this.inputRays[i].u;
-            // fade the real entry beam out over 1x the distance already
-            // established from the entry surface to the (virtual) object -
-            // "the system length" past that point, mirroring the exit-side
-            // fades below - rather than a fixed, scale-independent sentinel.
-            var entryDx = -Math.abs(X1 - V1);
+            // fade the real entry beam out over fadeDistance (see above),
+            // mirroring the exit-side fades below.
+            var entryDx = -fadeDistance;
             var X3 = X2 + entryDx;
             var Y3 = Y2 + entryDx*u1;
             var p4 = paper.path( ["M", X2, Y2,  "L", X3, Y3 ]);
@@ -693,13 +699,8 @@ class PointSourceConstruction { // create a ray construction using raphael.js
          var virtualImageExitExtension = null; // envelope corners for the post-exit fade (virtual image case), filled in below
          var collimatedExtension = null; // envelope corners for the post-exit fade (collimated/image-at-infinity case), filled in below
 
-         // Fade divergent exit rays out over 1x the distance already
-         // established from the exit surface to the image point - "the
-         // system length" past that point - rather than a fixed,
-         // scale-independent sentinel. A collimated beam has no finite
-         // image distance to reference, so fall back to the object's own
-         // distance from the entry surface instead.
-         var exitRefLength = isFinite(XI) ? Math.abs(XI - V2) : Math.abs(this.data.X1 - V1);
+         // Fade divergent exit rays out over fadeDistance (see above).
+         var exitRefLength = fadeDistance;
          for (var i=0; i <  M ; i++) {
 
             if (i !== 0 && i !== M-1) { continue; } // hide the redundant middle ray - see comment above

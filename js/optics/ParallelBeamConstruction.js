@@ -576,10 +576,11 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
      var Y2 = data.Y2;
 
      // Fade unbounded beam segments (incoming from infinity, and any
-     // divergent exit) out over 1x the distance already established from
-     // the back principal plane to the image point - "the system length"
-     // past that point - rather than a fixed, scale-independent sentinel.
-     var refLength = isFinite(X2) ? Math.abs(X2 - P2) : Math.abs(P2 - P1);
+     // divergent exit) out over 2x the system length (V1 to V2), or the
+     // F-to-F' distance, whichever is larger - always meaningful even for a
+     // zero-thickness thin lens/prism, where "2x the system length" alone
+     // would collapse to zero.
+     var refLength = Math.max(2*Math.abs(lens.L), Math.abs(F2 - F1));
 
 
      // X1_1, Y1_1, X1_2, Y1_2 
