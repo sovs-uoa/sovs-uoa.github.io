@@ -1591,7 +1591,7 @@ getConjuugateTo
 
 
                   // mouse events
-                  paper.canvas.style.cursor = "grab"; // resting cursor for panning the background - see panStart/panEnd for the grabbing state
+                  paper.canvas.style.cursor = "default"; // normal pointer at rest - panStart/panEnd switch to "grabbing" for the duration of a drag
                   $(paper.canvas).mousedown( panStart );
                   $(paper.canvas).mousemove( panMove );
                   $(paper.canvas).mouseup( panEnd );
