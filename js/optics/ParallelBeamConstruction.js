@@ -117,6 +117,20 @@ function onmove (th)  {
       // controls - convert its own (raw) geometric angle back to the ray angle here.
       var T1 = th - 90;
 
+      // This only models a beam a modest angle off the optical axis, so T1
+      // can't meaningfully go beyond +-90 deg - and critically, dragging the
+      // CYAN IMAGE POINT instead (see moveBeamImagePoint below) can only ever
+      // recover a T1 in that same (-90,90) range, since it inverts the image
+      // height via a plain atan() (tan's period means e.g. -205 deg and -25
+      // deg give the same height, and atan() only ever returns the latter).
+      // Without clamping here too, dragging this handle itself past +-90 deg
+      // leaves it at an angle unreachable that way - so the next time the
+      // image point is dragged, even slightly, it snaps to the equivalent
+      // angle atan() CAN represent, which looks like the handle has suddenly
+      // flipped direction.
+      T1 = Math.max(-89.9, Math.min(89.9, T1));
+      this.setAngle(T1 + 90);
+
       // update the graphic + associated table
       myPoint   = { id:this.parent.getId(), type: "beam", which: "object", t: T1 };
       totalLens = renderableLens.total;    
