@@ -16,7 +16,7 @@ while the image location/magnification (from the lens alone) stay the same.
 					"type" 		: "object",
 					"which"		: "object",
 					"infinity"	: false,
-					"beamwidth" : 0.05,
+					"beamwidth" : 0.2,
 					"z"			: -0.2,
 					"h"			: 0.01 } ],
 
