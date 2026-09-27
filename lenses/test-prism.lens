@@ -7,21 +7,26 @@ demonstration/regression system for the prism element, showing:
    without changing where it forms or the system's magnification
  - correct combination with an ordinary lens elsewhere in the system
 
+Dimensions match thin-lens-positive.lens's scale/convention (object at
+z=-0.3, h=0.1, lens height=0.5/aperture=0.25) rather than a physically
+realistic mm scale, for visual consistency with the other thin lens
+examples.
+
 ----------------------------------------------*/
 
 {
 
-	"viewBox" : [ -0.3, 0.05, 0.6, 0.1 ],
+	"viewBox" : [ -1.0, 0.5, 2.5, 1.0 ],
 
-	"general" :  { "cardinalVertHeight" : 0.002 },
+	"general" :  { "cardinalVertHeight" : 0.02 },
 
 	"sources" : [ { "id" 		: 1,
 					"type" 		: "object",
 					"which"		: "object",
 					"infinity"	: false,
-					"beamwidth" : 0.2,
-					"z"			: -0.2,
-					"h"			: 0.01 } ],
+					"beamwidth" : 0.1,
+					"z"			: -0.3,
+					"h"			: 0.1 } ],
 
 	"title": "Test Prism (10 Base-Up Prism + Thin Lens)",
     "prescription": [{
@@ -38,8 +43,8 @@ demonstration/regression system for the prism element, showing:
 		"args": {
 			"power": 10,
 			"base": "up",
-			"height": 0.03,
-			"aperture": 0.01
+			"height": 0.5,
+			"aperture": 0.25
 		}
 	}, {
 		"id": "0003",
@@ -47,16 +52,16 @@ demonstration/regression system for the prism element, showing:
 		"description": "air gap",
 		"args": {
 			"index": 1.000,
-			"thickness": 0.05
+			"thickness": 0.2
 		}
 	}, {
 		"id": "0004",
 		"type": "thin",
 		"description": "converging lens",
 		"args": {
-			"power": 20,
-			"height": 0.03,
-			"aperture": 0.015
+			"power": 5,
+			"height": 0.5,
+			"aperture": 0.25
 		}
 	}, {
 		"id": "0005",
