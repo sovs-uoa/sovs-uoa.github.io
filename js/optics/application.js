@@ -1590,7 +1590,8 @@ getConjuugateTo
                   });
 
 
-                  // mouse events 
+                  // mouse events
+                  paper.canvas.style.cursor = "grab"; // resting cursor for panning the background - see panStart/panEnd for the grabbing state
                   $(paper.canvas).mousedown( panStart );
                   $(paper.canvas).mousemove( panMove );
                   $(paper.canvas).mouseup( panEnd );
@@ -1598,6 +1599,11 @@ getConjuugateTo
                   paper.canvas.addEventListener("touchstart", panStart, false);
                   paper.canvas.addEventListener("touchmove",  panMove, false);
                   paper.canvas.addEventListener("touchend",   panEnd, false);
+
+                  // safety net: panEnd is only bound on the canvas itself, so releasing
+                  // the mouse after dragging it off the canvas would otherwise leave the
+                  // grabbing cursor (and isMouseDown) stuck on indefinitely
+                  $(document).mouseup( function () { if (isMouseDown) { panEnd(); } } );
 
                    
                   // initialize the prescription that will execute on change to table 

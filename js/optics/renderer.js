@@ -2062,6 +2062,7 @@ function drawAxis () {
 
 
         isMouseDown = true;
+        setGrabbingCursor(true);
 
         // console.log(e);
 
@@ -2129,6 +2130,7 @@ function drawAxis () {
         viewBox.X += dX;
         viewBox.Y += dY;
         isMouseDown = false;
+        setGrabbingCursor(false);
 
     };
 
