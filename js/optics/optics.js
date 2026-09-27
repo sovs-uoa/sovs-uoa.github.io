@@ -372,11 +372,7 @@ there is nothing to pin the rays to.
 
 --------------------------------------------------------------------------- */
 
-function findApertureStopRayAngle (elemArr, objectZ, objectH) {
-
-  var h0start    = objectH || 0;
-  var tracedZero = calculateRayTrace([ { u: 0, h: h0start, z: objectZ } ], elemArr);
-  var tracedOne  = calculateRayTrace([ { u: 1, h: h0start, z: objectZ } ], elemArr);
+function limitingApertureFromTraces (elemArr, tracedZero, tracedOne) {
 
   var best = null;
 
@@ -400,6 +396,54 @@ function findApertureStopRayAngle (elemArr, objectZ, objectH) {
   }
 
   return best;
+
+}
+
+function findApertureStopRayAngle (elemArr, objectZ, objectH) {
+
+  var h0start = objectH || 0;
+
+  // calculateRayTrace's per-element S matrices are all relative to the
+  // front vertex (Z=0) - it does NOT itself propagate an incoming ray from
+  // wherever its "z" happens to be, so a ray actually launched from the
+  // object (objectZ, h0start) has to be rebased to the front vertex first
+  // (see translateRays), exactly as the ordinary beam-construction code
+  // already does before its own calculateRayTrace calls.
+  var rayZero = translateRays([ { u: 0, h: h0start, z: objectZ } ], 0);
+  var rayOne  = translateRays([ { u: 1, h: h0start, z: objectZ } ], 0);
+
+  var tracedZero = calculateRayTrace(rayZero, elemArr);
+  var tracedOne  = calculateRayTrace(rayOne, elemArr);
+
+  return limitingApertureFromTraces(elemArr, tracedZero, tracedOne);
+
+}
+
+/* -----------------------------------------------------------------------
+
+FINDAPERTURESTOPFORINFINITEOBJECT  Same idea as findApertureStopRayAngle,
+but for the system-level, object-INDEPENDENT stop (used as the fallback in
+getTotalLensSystemInfo() when nothing is explicitly flagged "stop"). There is
+no real object position to launch a ray from here, so this traces the
+marginal ray of an axial pencil from an object AT INFINITY instead: a ray
+parallel to the axis (u=0) sampled at two heights (0 and 1). Free space
+doesn't change the height of a u=0 ray, so the starting z is arbitrary - this
+also sidesteps the degenerate case where a real object position happens to
+coincide exactly with the very first element (z=0), which would otherwise
+make both sample rays trace identical, zero-height paths and hide any
+element positioned right at the front vertex. As with the finite-object
+version, a prism's constant angular offset makes height an AFFINE function of
+the starting height, not purely proportional - h(h_in) = h0 + slope*h_in -
+so two samples are used the same way.
+
+--------------------------------------------------------------------------- */
+
+function findApertureStopForInfiniteObject (elemArr) {
+
+  var tracedZero = calculateRayTrace([ { u: 0, h: 0, z: 0 } ], elemArr);
+  var tracedOne  = calculateRayTrace([ { u: 0, h: 1, z: 0 } ], elemArr);
+
+  return limitingApertureFromTraces(elemArr, tracedZero, tracedOne);
 
 }
 
@@ -1291,7 +1335,7 @@ function getTotalLensSystemInfo (lensTable) {
 
   if (!totalSystem.total.stop) {
 
-    var autoStop = findApertureStopRayAngle(totalSystem.elem, 0);
+    var autoStop = findApertureStopForInfiniteObject(totalSystem.elem);
 
     if (autoStop) {
 
