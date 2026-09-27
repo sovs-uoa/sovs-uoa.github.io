@@ -1016,12 +1016,21 @@ getConjuugateTo
 
             pairData   = Optics.calculateConjugatePairFrom(aPoint, totalLens);
             elem.setPairData(pairData);       
-            elem.setLens(totalLens); // <--- this should change 
+            elem.setLens(totalLens); // <--- this should change
             elem.refresh();
 
-            // update on POINTS TABLE 
-            console.log (`- CALLED Update on Points Table`);            
+            // update on POINTS TABLE
+            console.log (`- CALLED Update on Points Table`);
             updatePointsTable(aPoint.id, pairData);
+
+            // While pinned to the aperture stop, the "beam width" cell should
+            // reflect the limiting element's own diameter (set by updateRays()
+            // in PointSourceConstruction.js) rather than the stale manually
+            // typed value - see the "beam width" column's editable() in
+            // prescription.js, which locks the cell while pinned.
+            if (elem.PinToApertureStop && isFinite(elem.PinnedApertureDiameter)) {
+              lens.pointsTable.getRow(elem.getId()).update({ beamwidth: elem.PinnedApertureDiameter });
+            }
     });
   }
 

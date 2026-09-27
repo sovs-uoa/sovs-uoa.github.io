@@ -843,10 +843,26 @@ function initializePointsTable(data, updatePointsCallback, success) {
                return (data.type === "object" && !data.infinity);
              },
              cellEdited: function (cell) {
-               var data        = cell.getRow().getData();
-               var construction = lens.raphael.constructions.find(function (c) { return c.getId() == data.id; });
-               if (construction && construction.setPinToApertureStop) {
-                 construction.setPinToApertureStop(cell.getValue());
+               var row           = cell.getRow();
+               var data          = row.getData();
+               var construction  = lens.raphael.constructions.find(function (c) { return c.getId() == data.id; });
+               if (!construction || !construction.setPinToApertureStop) { return; }
+
+               // The "beam width" cell is locked while pinned (see that
+               // column's editable()) and instead mirrors the limiting
+               // element's own aperture diameter - stash the manually typed
+               // value so it can come back when the pin is switched off.
+               if (cell.getValue()) {
+                 row.update({ _manualBeamWidth: data.beamwidth });
+                 construction.setPinToApertureStop(true);
+                 if (isFinite(construction.PinnedApertureDiameter)) {
+                   row.update({ beamwidth: construction.PinnedApertureDiameter });
+                 }
+               } else {
+                 construction.setPinToApertureStop(false);
+                 if (isFinite(data._manualBeamWidth)) {
+                   row.update({ beamwidth: data._manualBeamWidth });
+                 }
                }
              } },
             //{title:"X1",     field:"X1",       width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" } },                  
@@ -864,7 +880,15 @@ function initializePointsTable(data, updatePointsCallback, success) {
             {title:"<i>&theta;</i>",              field:"to", visible:true,  width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 6, emptyVal: "--",  flipVal:false },  cellEdited:  defaultEditFunction, editable:editPointCheck },
             // {title:"<i>&theta;&prime;</i>",       field:"ti", visible:true,  width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--",  flipVal:false },  cellEdited:  defaultEditFunction, editable:editPointCheck },
             {title:"<i>&theta;&prime;</i>",       field:"ti", visible:true,  width:100, headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--",  flipVal:false },  cellEdited:  defaultEditFunction, editable:editPointCheck },
-            {title:"<i>beam width</i>",           field:"beamwidth", visible:true,  width:100, editor: distanceEditor, headerSort:false, mutator:Number, formatter: distanceFormatter, formatterParams:{ precision: 6, emptyVal: "--",  flipVal:false },  cellEdited:  defaultEditFunction, editable:editPointCheck }                              
+            // While pinned, this reflects the limiting aperture's own diameter
+            // (kept in sync by refreshAllConstruction() in application.js) rather
+            // than a manually typed value - not editable in that state.
+            {title:"<i>beam width</i>",           field:"beamwidth", visible:true,  width:100, editor: distanceEditor, headerSort:false, mutator:Number, formatter: distanceFormatter, formatterParams:{ precision: 6, emptyVal: "--",  flipVal:false },  cellEdited:  defaultEditFunction,
+             editable: function (cell) {
+               var data = cell.getRow().getData();
+               if (data.pinToApertureStop) { return false; }
+               return editPointCheck(cell);
+             } }
         ],
       });
 

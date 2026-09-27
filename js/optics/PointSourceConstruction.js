@@ -319,7 +319,13 @@ class PointSourceConstruction { // create a ray construction using raphael.js
               rays.push({ u: +stopRay.angle, z: VO, h: Y1 });
               rays.push({ u: 0,              z: VO, h: Y1 });
               rays.push({ u: -stopRay.angle, z: VO, h: Y1 });
+              // expose what the pin actually landed on - see refreshAllConstruction()
+              // in application.js, which mirrors this into the points table's
+              // (now read-only) "beam width" cell so it doesn't show a stale
+              // manually typed value while pinned.
+              this.PinnedApertureDiameter = renderableLens.elem[stopRay.index].elem.aperture;
             } else {
+              this.PinnedApertureDiameter = null;
               rays.push(getBeam(VE1, VO, Y1, +BW/2));
               rays.push(getBeam(VE1, VO, Y1, 0));
               rays.push(getBeam(VE1, VO, Y1, -BW/2));
