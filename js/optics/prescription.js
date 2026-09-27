@@ -455,14 +455,28 @@ PRESCRIPTION  = OBJECTS + IMAGES TABLE
 function initializePrescriptionTable(data, updatePrescriptionCallback, success) {
 
 
+    // Shows which element is the system's aperture stop. If the user has
+    // explicitly flagged one ("stop":true), that row gets the plain STOP
+    // badge. Otherwise the stop is determined automatically (see the
+    // fallback in getTotalLensSystemInfo()/optics.js, recomputed on every
+    // prescription change) - the row it landed on gets a muted "STOP (auto)"
+    // badge so the user can see, without having to flag anything, which
+    // element the app is currently treating as the limiting aperture.
     function apertureStop (cell) {
 
-        // 
         if (cell.getValue() == true) {
           return "<span class=\"badge badge-info\">STOP</span>";
-        } else {
-          return "";
         }
+
+        if (typeof renderableLens !== "undefined" && renderableLens && renderableLens.total && renderableLens.total.stopAuto) {
+          var stopElem = renderableLens.elem[renderableLens.total.stopIndex];
+          var rowId    = cell.getRow().getData().id;
+          if (stopElem && stopElem.elem && Number(stopElem.elem.tag_id) === Number(rowId)) {
+            return "<span class=\"badge badge-secondary\" title=\"Automatically determined - no stop was explicitly flagged\">STOP (auto)</span>";
+          }
+        }
+
+        return "";
     }
 
 
@@ -511,7 +525,7 @@ function initializePrescriptionTable(data, updatePrescriptionCallback, success) 
           {title:"Base",          field:"base",             width:100, align:"center", headerSort:false, editor:"list", editorParams:{ values: { "up": "Base Up", "down": "Base Down" } }, formatter: function(cell) { var data = cell.getRow().getData(); if (data.type != "prism") { return ""; }; return (cell.getValue() == "down") ? "Base Down" : "Base Up"; }, editable: editCheck},
           {title:"Thickness",     field:"thickness",        width:100, mutator:Number, formatter: distanceFormatter, editor: distanceEditor, formatterParams:{ precision: 3, emptyVal: "" }, align:"center", headerSort:false, editable: editCheck},
           {title:"Ap. Diameter",  field:"aperture",         width:100, mutator:Number, formatter: distanceFormatter, editor: distanceEditor, formatterParams:{ precision: 3, emptyVal: "" }, align:"center", headerSort:false, editable: editCheck},
-          {title:"Stop Flag",     field:"stop",             width:100, align:"center", width:100, headerSort:false, formatter:"tickCross", cellClick:tickToggle, formatterParams:{ allowEmpty:true, allowTruthy:true, tickElement:"<span class=\"badge badge-info\">STOP</span>", crossElement:"" }
+          {title:"Stop Flag",     field:"stop",             width:100, align:"center", width:100, headerSort:false, formatter: apertureStop, editable: editCheck, editor:"tickCross"
            }],
     });
 
@@ -816,6 +830,25 @@ function initializePointsTable(data, updatePointsCallback, success) {
              // not editable afterwards - see toggleObjectInfinityCell()'s comment
              formatter:"tickCross",
              formatterParams:{ allowEmpty:true, allowTruthy:true, tickElement:"<span class=\"badge badge-info\">&infin;</span>", crossElement:"" } },
+            // Pins this object's bounding rays to the system's actual aperture stop
+            // (explicit or auto-computed - see findApertureStopRayAngle in optics.js
+            // and setPinToApertureStop() in PointSourceConstruction.js) instead of the
+            // arbitrary beam width. Only meaningful for a finite object point.
+            {title:"Pin", field:"pinToApertureStop", width:60, align:"center", headerSort:false,
+             formatter:"tickCross",
+             formatterParams:{ allowEmpty:true, allowTruthy:true, tickElement:"<span class=\"badge badge-info\">PIN</span>", crossElement:"" },
+             editor:"tickCross",
+             editable: function (cell) {
+               var data = cell.getRow().getData();
+               return (data.type === "object" && !data.infinity);
+             },
+             cellEdited: function (cell) {
+               var data        = cell.getRow().getData();
+               var construction = lens.raphael.constructions.find(function (c) { return c.getId() == data.id; });
+               if (construction && construction.setPinToApertureStop) {
+                 construction.setPinToApertureStop(cell.getValue());
+               }
+             } },
             //{title:"X1",     field:"X1",       width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" } },                  
             //{title:"Y1",     field:"Y1",       width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" }, accessor: flipVal },
             {title:"X1",                          field:"X1", visible:false, width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 6, emptyVal: "--" },  cellEdited:  defaultEditFunction, editable:editPointCheck },                  

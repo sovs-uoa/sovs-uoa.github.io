@@ -47,6 +47,10 @@ Optics.getPupils = function(rays, systemInfo) {
   return calculateRayTrace (rays, systemInfo)
 }
 
+Optics.findApertureStopRayAngle = function (elemArr, objectZ, objectH) {
+  return findApertureStopRayAngle (elemArr, objectZ, objectH)
+}
+
 Optics.extractGroup = function (lens, group_name) {
 
   // groups dont include the medium in which they are immersed
@@ -336,10 +340,74 @@ function calculateRayTrace(rays, lensTable ) {
 }
 
 
+/* -----------------------------------------------------------------------
+
+FINDAPERTURESTOPRAYANGLE  Find which element in the system actually limits
+the bundle of rays from a given object point ("the aperture stop"), and the
+object-ray angle that just grazes its edge.
+
+Traces TWO rays from the object position (angles 0 and 1, height 0) through
+the system: a prism (or any offset-carrying element) deviates a ray by a
+CONSTANT amount independent of its angle, so a ray's height at a given
+element is an AFFINE function of the object launch angle - h(u) = h0 + slope*u
+- not a purely proportional one through the origin. h0 (the u=0 trace) is
+that constant-offset contribution alone; slope = h(1) - h0 is the ordinary
+(linear/matrix) part. Two sample rays are enough to solve h(u) = +-aperture/2
+for u exactly, for each candidate aperture; whichever element requires the
+SMALLEST |u| to reach either edge is the one that actually limits the bundle
+(a smaller allowed angle = a more restrictive aperture). Works whether or not
+any element is explicitly flagged "stop" - that flag is only a hint for
+other pupil bookkeeping elsewhere; the true stop is whichever real aperture
+is most restrictive, found here directly.
+
+  elemArr  - the enriched per-element array (e.g. renderableLens.elem)
+  objectZ  - the object's axial position (relative to the front vertex, V1=0)
+  objectH  - the object point's height (optional, default 0 = on-axis) - the
+             two sample rays are launched from (objectZ, objectH) rather than
+             the axis, so an off-axis object point still gets a correct
+             marginal-ray angle relative to itself.
+
+Returns null if no element in the system has a finite "aperture" at all -
+there is nothing to pin the rays to.
+
+--------------------------------------------------------------------------- */
+
+function findApertureStopRayAngle (elemArr, objectZ, objectH) {
+
+  var h0start    = objectH || 0;
+  var tracedZero = calculateRayTrace([ { u: 0, h: h0start, z: objectZ } ], elemArr);
+  var tracedOne  = calculateRayTrace([ { u: 1, h: h0start, z: objectZ } ], elemArr);
+
+  var best = null;
+
+  for (var i = 0; i < elemArr.length; i++) {
+
+    var aperture = elemArr[i].elem.aperture;
+    if (!isFinite(aperture) || aperture <= 0) { continue; }
+
+    var h0    = tracedZero[i][0].h;
+    var slope = tracedOne[i][0].h - h0;
+    if (Math.abs(slope) < 1e-12) { continue; } // this element doesn't constrain a ray launched from here
+
+    var uPlus  = ( aperture/2 - h0) / slope;
+    var uMinus = (-aperture/2 - h0) / slope;
+    var candidateAngle = Math.min(Math.abs(uPlus), Math.abs(uMinus));
+
+    if (best === null || candidateAngle < best.angle) {
+      best = { angle: candidateAngle, index: i, id: elemArr[i].elem.tag_id, description: elemArr[i].elem.description };
+    }
+
+  }
+
+  return best;
+
+}
+
+
 
 /* -----------------------------------------------------------------------
 
-CALCULATECONJUGATEPAIRFROM Determine conjugate information for a point 
+CALCULATECONJUGATEPAIRFROM Determine conjugate information for a point
 
   points are specified relative to the vertices of the system 
 
@@ -1207,7 +1275,49 @@ function getTotalLensSystemInfo (lensTable) {
 
   /* ----------------------------------------------
 
-   DISPLAY INFORMATION 
+   AUTOMATIC APERTURE STOP (fallback)
+
+   No element was explicitly flagged "stop" above - determine the aperture
+   stop automatically as whichever aperture-bearing element most restricts a
+   marginal ray traced from the front vertex (see findApertureStopRayAngle).
+   This is the classical definition of "the stop" absent an explicit
+   designation, and keeps entrance/exit pupil bookkeeping meaningful (and the
+   prescription table's STOP badge populated - see apertureStop() in
+   prescription.js) for prescriptions that never set a stop flag. Since this
+   runs from getTotalLensSystemInfo(), it is recomputed on every lens
+   prescription change automatically.
+
+  --------------------------------------------------- */
+
+  if (!totalSystem.total.stop) {
+
+    var autoStop = findApertureStopRayAngle(totalSystem.elem, 0);
+
+    if (autoStop) {
+
+      var stopElementInfo = totalSystem.elem[autoStop.index];
+
+      totalSystem.total.stop          = true;
+      totalSystem.total.stopIndex     = autoStop.index;
+      totalSystem.total.stopAuto      = true; // computed, not explicitly flagged by the user
+      totalSystem.total.stopDiameter  = stopElementInfo.elem.aperture || stopElementInfo.elem.height;
+      totalSystem.total.entrance.L    = stopElementInfo.Z;
+      totalSystem.total.entrance.n1   = totalSystem.total.n1;
+      totalSystem.total.entrance.n2   = stopElementInfo.n1;
+      totalSystem.total.entrance.S    = identitySystem;
+      totalSystem.total.exit.L        = stopElementInfo.Z;
+      totalSystem.total.exit.S        = identitySystem;
+      totalSystem.total.exit.n1       = stopElementInfo.n2;
+      totalSystem.total.exit.n2       = totalSystem.total.n2;
+
+    }
+
+  }
+
+
+  /* ----------------------------------------------
+
+   DISPLAY INFORMATION
 
     sphere : (n1,n2,R,h,dZ)
     index  : (z1,h1,z2,h2)

@@ -128,6 +128,7 @@ class PointSourceConstruction { // create a ray construction using raphael.js
        this.objectPoint;
        this.imagePoint;
        this.BeamWidth    = beamwidth || 0.2;
+       this.PinToApertureStop = false; // see setPinToApertureStop() - pins the bounding rays to the system's true limiting aperture instead of an arbitrary beamwidth
 
 
        this.Aiming       = aiming || ENTRANCE_PUPIL;
@@ -196,6 +197,17 @@ class PointSourceConstruction { // create a ray construction using raphael.js
 
     setBeamWidth(bw) {
       this.BeamWidth = bw;
+      this.refresh ();
+    }
+
+
+    // Pins the bounding rays to the system's actual aperture stop (explicit
+    // or auto-computed - see findApertureStopRayAngle in optics.js) instead
+    // of the arbitrary BeamWidth. Only meaningful for a finite ("object
+    // only" per the request) point in ENTRANCE_PUPIL aiming mode - see
+    // updateRays().
+    setPinToApertureStop(flag) {
+      this.PinToApertureStop = !!flag;
       this.refresh ();
     }
 
@@ -301,10 +313,17 @@ class PointSourceConstruction { // create a ray construction using raphael.js
       var BW = this.BeamWidth;
       switch (this.Aiming) {
           case ENTRANCE_PUPIL:
-            var VE1 = renderableLens.total.pupil.VE1;
-            rays.push(getBeam(VE1, VO, Y1, +BW/2));      
-            rays.push(getBeam(VE1, VO, Y1, 0));      
-            rays.push(getBeam(VE1, VO, Y1, -BW/2));            
+            var VE1     = renderableLens.total.pupil.VE1;
+            var stopRay = this.PinToApertureStop ? Optics.findApertureStopRayAngle(renderableLens.elem, VO, Y1) : null;
+            if (stopRay) {
+              rays.push({ u: +stopRay.angle, z: VO, h: Y1 });
+              rays.push({ u: 0,              z: VO, h: Y1 });
+              rays.push({ u: -stopRay.angle, z: VO, h: Y1 });
+            } else {
+              rays.push(getBeam(VE1, VO, Y1, +BW/2));
+              rays.push(getBeam(VE1, VO, Y1, 0));
+              rays.push(getBeam(VE1, VO, Y1, -BW/2));
+            }
             break;
 
           case FRONT_VERTEX:

@@ -617,7 +617,8 @@ getConjuugateTo
                                           to: pairData.T1, ti: pairData.T2,
                                           zo: pairData.VO, zi: pairData.VI,
                                           ho: pairData.OQ, hi: pairData.IQ,
-                                          beamwidth: aPoint.beamwidth }]);
+                                          beamwidth: aPoint.beamwidth,
+                                          pinToApertureStop: false }]); // finite objects only - see setPinToApertureStop()
 
 
       //console.log( lens.table.getData ());
@@ -758,8 +759,14 @@ getConjuugateTo
     // Update the Optics Object 
 
 
-    lensTable = lens.table.getData();    
+    lensTable = lens.table.getData();
     renderableLens = Optics.analyze(lensTable); // create matrices / we should have group caridnals in here as well
+
+    // The "Stop Flag" column's formatter (apertureStop() in prescription.js)
+    // reads the freshly computed renderableLens.total.stopAuto/stopIndex to
+    // show the auto-determined stop - force it to re-run now that those are
+    // up to date, since Tabulator only calls formatters on (re)render.
+    if (lens.table) { lens.table.redraw(true); }
 
 
     isafocal = (renderableLens.total.F == 0);
