@@ -9,7 +9,7 @@
 		}
 	}, 
 	{  	"id": "0001.1",
-		"type": "group".
+		"type": "group",
 		"data": [ {
 					"id": "0002",
 					"type": "sphere",
