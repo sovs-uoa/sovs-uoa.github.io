@@ -280,8 +280,18 @@ function drawAxis () {
   var border_attributes = { "stroke" : "red", "stroke-width" : "5", 'stroke-opacity': 0.1 };
 
 
-  var dX = 2*width;
-  var dY = 2*height;
+  // The SVG's default preserveAspectRatio ("meet") uniformly scales the
+  // viewBox to fit the container, letterboxing whichever axis has slack -
+  // when the viewBox's own aspect ratio is very different from the
+  // container's (e.g. a wide, short lens system in a roughly square pane),
+  // the actually-visible area can be much larger than the viewBox itself on
+  // the letterboxed axis. A margin sized off the viewBox's own (possibly
+  // tiny) width/height isn't enough to cover that - use kx (== ky, the
+  // uniform model-units-per-pixel scale set by setScaleFactor()) against the
+  // container's actual pixel size instead, which is always >= the viewBox
+  // on both axes by construction.
+  var dX = kx * paperWidth;
+  var dY = kx * paperHeight;
 
 
   axis_set.remove();
