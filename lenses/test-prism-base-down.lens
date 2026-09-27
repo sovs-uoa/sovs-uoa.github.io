@@ -35,7 +35,8 @@ while the image location/magnification (from the lens alone) stay the same.
 		"args": {
 			"power": 10,
 			"base": "down",
-			"height": 0.03
+			"height": 0.03,
+			"aperture": 0.01
 		}
 	}, {
 		"id": "0003",

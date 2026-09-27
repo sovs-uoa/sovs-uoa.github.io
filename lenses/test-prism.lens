@@ -38,7 +38,8 @@ demonstration/regression system for the prism element, showing:
 		"args": {
 			"power": 10,
 			"base": "up",
-			"height": 0.03
+			"height": 0.03,
+			"aperture": 0.01
 		}
 	}, {
 		"id": "0003",
