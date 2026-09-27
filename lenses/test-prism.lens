@@ -19,7 +19,7 @@ demonstration/regression system for the prism element, showing:
 					"type" 		: "object",
 					"which"		: "object",
 					"infinity"	: false,
-					"beamwidth" : 0.01,
+					"beamwidth" : 0.05,
 					"z"			: -0.2,
 					"h"			: 0.01 } ],
 
