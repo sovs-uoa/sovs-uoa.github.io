@@ -153,14 +153,26 @@ function hslToRgb(h, s, l){
 
 
 
-       // objects are stored in sets that are cleared  
+       // objects are stored in sets that are cleared
         ps          = paper.set();
         cd_set      = paper.set();
-        axis_set    = paper.set(); 
+        axis_set    = paper.set();
         cp_set      = paper.set();
         optics_set  = paper.set();
-        index_set   = paper.set();        
+        index_set   = paper.set();
         pup_set     = paper.set();
+
+        // paper.clear() above (when switching models) wipes the whole SVG,
+        // including the grid <pattern>/<rect> drawAxis() creates - drop the
+        // now-dangling references so it rebuilds them, and force a redraw
+        // even if the new model happens to need the exact same divSize/
+        // extent as the last one (otherwise drawAxis() would see "nothing
+        // changed" and skip drawing into what paper.clear() just emptied).
+        gridRect = null;
+        gridPatternEl = null;
+        gridLineEl = null;
+        lastdivSize = 0;
+        lastAxisExtent = "";
 
 
 
@@ -217,6 +229,53 @@ var lastdivSize = 0;
 var divSize     = 0;
 var lastAxisExtent = ""; // "left:top:width:height" the grid was last drawn for - see drawAxis()
 
+var gridPatternId = "world-grid-pattern";
+var gridRect;      // single <rect> (fill="url(#world-grid-pattern)") covering the visible area
+var gridPatternEl; // the <pattern> node itself, so its tile size/origin can be updated in place
+var gridLineEl;    // the pattern's own grid-line <path>, so its stroke can be updated in place
+
+/* ---------------------------------------------------------------------------
+   ENSUREGRIDPATTERN  A grid is an infinitely-repeating texture, so draw it
+   with a native SVG <pattern> tiled across one covering <rect> rather than
+   generating a separate <path> per line - the browser tiles it exactly, so
+   there's no coverage math to get wrong (the previous per-line version had a
+   recurring class of "grid doesn't fully cover the pane" bugs after
+   zooming/panning), and it's one DOM node instead of a hundred-plus.
+--------------------------------------------------------------------------- */
+
+function ensureGridPattern () {
+
+  if (gridRect) { return; }
+
+  var svg = paper.canvas;
+  var defs = svg.querySelector("defs");
+  if (!defs) {
+    defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+    svg.insertBefore(defs, svg.firstChild);
+  }
+
+  gridPatternEl = document.createElementNS("http://www.w3.org/2000/svg", "pattern");
+  gridPatternEl.setAttribute("id", gridPatternId);
+  gridPatternEl.setAttribute("patternUnits", "userSpaceOnUse");
+
+  gridLineEl = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  gridLineEl.setAttribute("fill", "none");
+  gridLineEl.setAttribute("stroke", "gray");
+  gridLineEl.setAttribute("stroke-width", "5");
+  gridLineEl.setAttribute("stroke-opacity", "0.1");
+
+  gridPatternEl.appendChild(gridLineEl);
+  defs.appendChild(gridPatternEl);
+
+  gridRect = paper.rect(0, 0, 0, 0);
+  gridRect.attr({ stroke: "none" });
+  // Raphael's own .attr({fill:"url(...)"}) treats a url(...) string as a
+  // raster-image fill request, not a direct SVG paint-server reference (see
+  // shadeFadingBeamRegion's identical note) - set it on the raw node instead.
+  gridRect.node.setAttribute("fill", "url(#" + gridPatternId + ")");
+
+}
+
 function drawAxis () {
   
   // var g = grid || false;
@@ -224,7 +283,7 @@ function drawAxis () {
   // use divisions of 1, 5, 10, 15, 20  (try to keep as close to x number of divisions)
   // viewBox.X, viewBox.Y, viewBoxWidth, viewBoxHeight
 
-  // Width 
+  // Width
   var left    = viewBox.X;
   var top     = viewBox.Y;
   var width   = viewBoxWidth;
@@ -232,14 +291,14 @@ function drawAxis () {
   var right   = left + width;
   var bottom  = top + height;
 
-  
+
   //console.log("left = " + viewBox.X + " top = " + viewBox.Y + " width = " + viewBoxWidth + " height = " + viewBoxHeight);
 
-  // divSize 
-  
+  // divSize
+
   var divExact     = width / 20;
   var divOrder     = Math.floor ( Math.log10( divExact ) );              // -3 / -2 / -1 / 1
-  var divNumerator = Math.round ( divExact / Math.pow(10, divOrder) );   // 3 x 10^{-3} 
+  var divNumerator = Math.round ( divExact / Math.pow(10, divOrder) );   // 3 x 10^{-3}
 
   divNumerator = Math.max(1, 2.5*Math.floor( divNumerator / 2.5));
   var divSize      = divNumerator * Math.pow(10, divOrder);  // 20 divs on screen
@@ -260,24 +319,7 @@ function drawAxis () {
   lastAxisExtent = thisAxisExtent;
 
 
-  divs        = 2*Math.floor(viewBoxWidth / divSize)
-
-
-  // var divSize = Math.max(0.05, 5*Math.floor(100*divSize/5)/100 );  // approximate div. size 
   console.log("CHANGED DIVSIZE TO = " + divSize +  " (REDRAWING)");
-
-
-  // X 
-  var startX = -divSize * divs;
-  var endX   = +divSize * divs;
-
-  // Y 
-  var startY = -divSize * divs;
-  var endY   = +divSize * divs;
-
-
-  var grid_attributes   = { "stroke" : "gray", "stroke-width" : "5", 'stroke-opacity': 0.1 };
-  var border_attributes = { "stroke" : "red", "stroke-width" : "5", 'stroke-opacity': 0.1 };
 
 
   // The SVG's default preserveAspectRatio ("meet") uniformly scales the
@@ -293,33 +335,19 @@ function drawAxis () {
   var dX = kx * paperWidth;
   var dY = kx * paperHeight;
 
+  ensureGridPattern();
 
-  axis_set.remove();
-  axis_set = paper.set();
-  
+  gridPatternEl.setAttribute("width", divSize);
+  gridPatternEl.setAttribute("height", divSize);
+  // align the tile's origin to a multiple of divSize so lines land on "nice"
+  // world coordinates regardless of where the covering rect itself starts
+  gridPatternEl.setAttribute("x", Math.floor(left / divSize) * divSize);
+  gridPatternEl.setAttribute("y", Math.floor(top  / divSize) * divSize);
+  gridLineEl.setAttribute("d", "M " + divSize + " 0 L 0 0 0 " + divSize);
 
-  // Draws a border 
-  // axis_set.push( r.rect(left, top, width, height).attr(border_attributes) );
+  gridRect.attr({ x: left - dX, y: top - dY, width: width + 2*dX, height: height + 2*dY });
 
-  // grid vertical - walk the ACTUAL (left-dX)..(right+dX) span directly,
-  // starting from the first grid line at or before its left edge. The
-  // previous version walked X out from 0 and mirrored to -X, which silently
-  // assumed the visible span was centred on x=0 - after zooming (which
-  // re-centres the viewBox whichever way the wheel was scrolled, not
-  // necessarily back to x=0) one side could extend further from zero than
-  // the other, leaving that side's lines undrawn.
-  var startX = Math.floor((left - dX) / divSize) * divSize;
-  for (var gx = startX; gx <= right + dX; gx += divSize) {
-    axis_set.push( paper.path("M"+gx+","+(top-dY)+"L"+gx+","+(bottom+dY)).attr(grid_attributes) );
-  }
-
-  // grid horizontal - same fix, walking the actual (top-dY)..(bottom+dY) span
-  var startY = Math.floor((top - dY) / divSize) * divSize;
-  for (var gy = startY; gy <= bottom + dY; gy += divSize) {
-    axis_set.push( paper.path("M"+(left-dX)+","+gy+"L"+(right+dX)+","+gy).attr(grid_attributes) );
-  }
-
-
+  if (axis_set.items.indexOf(gridRect) === -1) { axis_set.push(gridRect); }
 
   axis_set.toFront ();
 
