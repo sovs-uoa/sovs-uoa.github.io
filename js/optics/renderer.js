@@ -106,6 +106,8 @@ function hslToRgb(h, s, l){
     kx = Math.max(rawKx, rawKy);   // the more constraining (larger) of the two
     ky = kx;
 
+    if (typeof updateScaleBar === 'function') { updateScaleBar(); }
+
   }
 
 

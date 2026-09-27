@@ -69,6 +69,7 @@
     if (typeof updateSummaryView === 'function' && renderableLens) { updateSummaryView(); }
 
     refreshModalDistanceUnitLabels();
+    updateScaleBar();
 
   }
 
@@ -84,6 +85,49 @@
     document.querySelectorAll(".modal-distance-unit").forEach(function (el) {
       el.textContent = label;
     });
+
+  }
+
+
+  /* -------------------------------------------------------------------------------
+
+  SCALE BAR
+
+  A map-style scale bar (bottom-right of the drawing area, see #scale-bar in
+  the template/CSS) - a plain HTML overlay rather than something drawn inside
+  the zoomed/panned SVG, so it never needs repositioning on pan: only its bar
+  width and label change, and only when the zoom level (kx) or the selected
+  distance unit changes.
+
+  ------------------------------------------------------------------------------- */
+
+  // Picks a "nice" number (1/2.5/5/7.5 x 10^n) at or under targetMetres - the
+  // same family of round numbers drawAxis() uses for the grid spacing, so the
+  // bar's length tends to land on (or near) an actual grid line.
+  function niceRoundNumberAtMost (targetMetres) {
+
+    var order      = Math.floor(Math.log10(targetMetres));
+    var numerator  = targetMetres / Math.pow(10, order);
+    numerator = numerator >= 7.5 ? 7.5 : numerator >= 5 ? 5 : numerator >= 2.5 ? 2.5 : 1;
+    return numerator * Math.pow(10, order);
+
+  }
+
+  function updateScaleBar () {
+
+    var barEl   = document.getElementById("scale-bar-bar");
+    var labelEl = document.getElementById("scale-bar-label");
+    if (!barEl || !labelEl) { return; }
+
+    if (!kx || !isFinite(kx) || kx <= 0) { barEl.style.width = "0px"; labelEl.textContent = ""; return; }
+
+    var targetPx        = 120; // aim for a bar around this many pixels wide
+    var niceMetres       = niceRoundNumberAtMost(targetPx * kx);
+    var actualPx         = niceMetres / kx;
+    var displayValue     = Math.round(toDisplayDistance(niceMetres) * 1e6) / 1e6; // trim float noise
+
+    barEl.style.width  = actualPx + "px";
+    labelEl.textContent = displayValue + " " + DISTANCE_UNIT_LABEL[currentDistanceUnit];
 
   }
 

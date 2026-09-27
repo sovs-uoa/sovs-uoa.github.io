@@ -73,6 +73,37 @@ text {
     width: 100%;
     height: 60vh;
     min-height: 500px;
+    position: relative; /* anchors #scale-bar below */
+}
+
+/* Map-style scale bar, bottom-right of the drawing area - see
+   updateScaleBar() in application.js. A plain HTML/CSS overlay (not part of
+   the zoomed/panned SVG), so it never needs repositioning on pan - only its
+   bar width and label change, on zoom or a distance-unit change. */
+#scale-bar {
+    position: absolute;
+    right: 16px;
+    bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    pointer-events: none;
+    font-family: sans-serif;
+    color: #444;
+}
+
+#scale-bar-label {
+    font-size: 12px;
+    margin-bottom: 2px;
+    background: rgba(255,255,255,0.7);
+    padding: 0 3px;
+}
+
+#scale-bar-bar {
+    height: 6px;
+    border-left: 2px solid #444;
+    border-right: 2px solid #444;
+    border-bottom: 2px solid #444;
 }
 
 table, th, td, tr {
