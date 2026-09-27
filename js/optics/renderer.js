@@ -301,20 +301,22 @@ function drawAxis () {
   // Draws a border 
   // axis_set.push( r.rect(left, top, width, height).attr(border_attributes) );
 
-  // grid vertical       
-  X = 0; 
-  while (X <= right + dX) {
-    axis_set.push( paper.path("M"+X+","+(top-dY)+"L"+X+","+(bottom+dY)).attr(grid_attributes) );
-    axis_set.push( paper.path("M"+-X+","+(top-dY)+"L"+-X+","+(bottom+dY)).attr(grid_attributes) );        
-    X = X + divSize;
+  // grid vertical - walk the ACTUAL (left-dX)..(right+dX) span directly,
+  // starting from the first grid line at or before its left edge. The
+  // previous version walked X out from 0 and mirrored to -X, which silently
+  // assumed the visible span was centred on x=0 - after zooming (which
+  // re-centres the viewBox whichever way the wheel was scrolled, not
+  // necessarily back to x=0) one side could extend further from zero than
+  // the other, leaving that side's lines undrawn.
+  var startX = Math.floor((left - dX) / divSize) * divSize;
+  for (var gx = startX; gx <= right + dX; gx += divSize) {
+    axis_set.push( paper.path("M"+gx+","+(top-dY)+"L"+gx+","+(bottom+dY)).attr(grid_attributes) );
   }
 
-  // grid horizontal
-  Y = 0;
-  while (Y <= bottom + dY) {
-    axis_set.push( paper.path("M"+(left-dX)+","+-Y+"L"+(right+dX)+","+-Y).attr(grid_attributes) );
-    axis_set.push( paper.path("M"+(left-dX)+","+Y+"L"+(right+dX)+","+Y).attr(grid_attributes) );
-    Y = Y + divSize;
+  // grid horizontal - same fix, walking the actual (top-dY)..(bottom+dY) span
+  var startY = Math.floor((top - dY) / divSize) * divSize;
+  for (var gy = startY; gy <= bottom + dY; gy += divSize) {
+    axis_set.push( paper.path("M"+(left-dX)+","+gy+"L"+(right+dX)+","+gy).attr(grid_attributes) );
   }
 
 
