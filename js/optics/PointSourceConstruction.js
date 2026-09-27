@@ -467,9 +467,8 @@ class PointSourceConstruction { // create a ray construction using raphael.js
      /* inital rays */  
 
 
-     // This should be the source 
+     // This should be the source
 
-     dX = -1;
      var X1 = this.data.X1;
      var Y1 = this.data.Y1;
      var virtualObjectEntryExtension = null; // envelope corners for the pre-entry fade (virtual object case), filled in below
@@ -510,14 +509,19 @@ class PointSourceConstruction { // create a ray construction using raphael.js
         } else if (X1 > V1) {
 
             // var X2 = X1 + dX; var Y2 = Y1 + dX*u1;
-            var p4 = paper.path( ["M", X1, Y1,  "L", X2, Y2 ]); 
+            var p4 = paper.path( ["M", X1, Y1,  "L", X2, Y2 ]);
             p4.attr(virtual);
             this.cd_set.push(p4);
 
 
             var u1 = this.inputRays[i].u;
-            var X3 = X2 + dX;
-            var Y3 = Y2 + dX*u1;
+            // fade the real entry beam out over 1x the distance already
+            // established from the entry surface to the (virtual) object -
+            // "the system length" past that point, mirroring the exit-side
+            // fades below - rather than a fixed, scale-independent sentinel.
+            var entryDx = -Math.abs(X1 - V1);
+            var X3 = X2 + entryDx;
+            var Y3 = Y2 + entryDx*u1;
             var p4 = paper.path( ["M", X2, Y2,  "L", X3, Y3 ]);
             p4.attr(real);
             this.cd_set.push(p4);
@@ -526,13 +530,14 @@ class PointSourceConstruction { // create a ray construction using raphael.js
             // approaching the system, which would have gone on to meet at
             // the virtual object point (drawn dashed above) had it not been
             // intercepted here. Remember the outermost two rays' entry
-            // points and extended endpoints so this region (only) can be
-            // shaded, fading towards infinity - mirroring the virtual-image
-            // exit case further down.
+            // points, extended endpoints and path elements (so their stroke
+            // can fade too) so this region (only) can be shaded, fading
+            // towards infinity - mirroring the virtual-image exit case
+            // further down.
             if (i === 0 || i === M-1) {
               if (!virtualObjectEntryExtension) { virtualObjectEntryExtension = {}; }
-              if (i === 0)   { virtualObjectEntryExtension.entry0 = [X2, Y2]; virtualObjectEntryExtension.end0 = [X3, Y3]; }
-              if (i === M-1) { virtualObjectEntryExtension.entryM = [X2, Y2]; virtualObjectEntryExtension.endM = [X3, Y3]; }
+              if (i === 0)   { virtualObjectEntryExtension.entry0 = [X2, Y2]; virtualObjectEntryExtension.end0 = [X3, Y3]; virtualObjectEntryExtension.el0 = p4; }
+              if (i === M-1) { virtualObjectEntryExtension.entryM = [X2, Y2]; virtualObjectEntryExtension.endM = [X3, Y3]; virtualObjectEntryExtension.elM = p4; }
             }
 
         } else {
@@ -578,6 +583,10 @@ class PointSourceConstruction { // create a ray construction using raphael.js
          objEntryMid,
          objEndMid
        );
+       // the bounding rays themselves should fade out along with the region
+       // they border, rather than staying solid all the way to their endpoint
+       fadeRayStroke(virtualObjectEntryExtension.el0, objEntryMid, objEndMid);
+       fadeRayStroke(virtualObjectEntryExtension.elM, objEntryMid, objEndMid);
      }
 
 
@@ -680,10 +689,17 @@ class PointSourceConstruction { // create a ray construction using raphael.js
 
         var XI = this.data.X2;
         var YI = this.data.Y2;
-         var dX = 1;
          var realImageExtension = null; // envelope corners for the post-crossing fade, filled in below
          var virtualImageExitExtension = null; // envelope corners for the post-exit fade (virtual image case), filled in below
          var collimatedExtension = null; // envelope corners for the post-exit fade (collimated/image-at-infinity case), filled in below
+
+         // Fade divergent exit rays out over 1x the distance already
+         // established from the exit surface to the image point - "the
+         // system length" past that point - rather than a fixed,
+         // scale-independent sentinel. A collimated beam has no finite
+         // image distance to reference, so fall back to the object's own
+         // distance from the entry surface instead.
+         var exitRefLength = isFinite(XI) ? Math.abs(XI - V2) : Math.abs(this.data.X1 - V1);
          for (var i=0; i <  M ; i++) {
 
             if (i !== 0 && i !== M-1) { continue; } // hide the redundant middle ray - see comment above
@@ -710,7 +726,7 @@ class PointSourceConstruction { // create a ray construction using raphael.js
               // converging (parallel, not diverging, but the same "fade
               // towards the far end" treatment applies)
 
-              var dxCol = 10*direction;
+              var dxCol = exitRefLength*direction;
               var X2 = X1 + dxCol;
               var Y2 = Y1 + dxCol*u1;
               var p4 = paper.path( ["M", X1, Y1,  "L", X2, Y2 ]);
@@ -719,25 +735,15 @@ class PointSourceConstruction { // create a ray construction using raphael.js
 
               if (i === 0 || i === M-1) {
                 if (!collimatedExtension) { collimatedExtension = {}; }
-                if (i === 0)   { collimatedExtension.exit0 = [X1, Y1]; collimatedExtension.end0 = [X2, Y2]; }
-                if (i === M-1) { collimatedExtension.exitM = [X1, Y1]; collimatedExtension.endM = [X2, Y2]; }
+                if (i === 0)   { collimatedExtension.exit0 = [X1, Y1]; collimatedExtension.end0 = [X2, Y2]; collimatedExtension.el0 = p4; }
+                if (i === M-1) { collimatedExtension.exitM = [X1, Y1]; collimatedExtension.endM = [X2, Y2]; collimatedExtension.elM = p4; }
               }
 
 
             } else if (XI*direction <= V2*direction) {
 
-              
-              // virtual image  
 
-              if (direction > 0) {  /* keep this for backward compatibility */
-
-                  var X2 = X1 + dX;  
-                  var Y2 = Y1 + dX*u1;            
-                  var p4 = paper.path( ["M", X1, Y1,  "L", X2, Y2 ]);         
-                  p4.attr(real);
-                  this.cd_set.push(p4);
-              }
-
+              // virtual image
 
               // draw from the present to the final
 
@@ -746,7 +752,7 @@ class PointSourceConstruction { // create a ray construction using raphael.js
               this.cd_set.push(p4);
 
               // the extension part
-              var dx  = + 10*direction;
+              var dx  = + exitRefLength*direction;
               var i1  = u1 * dx + Y1; // upper height on N1
               var p5  = paper.path( ["M", X1, Y1,  "L", X1 + dx, i1 ]);    // O  -> H1   (ray through F1)
               this.cd_set.push(p5);
@@ -755,12 +761,13 @@ class PointSourceConstruction { // create a ray construction using raphael.js
               // system here, just diverging rather than converging, which is
               // what makes it *appear* to come from the virtual image point
               // extrapolated behind it. Remember the outermost two rays'
-              // exit points and extended endpoints so that region (only) can
-              // be shaded, fading towards infinity.
+              // exit points, extended endpoints and path elements (so their
+              // stroke can fade too) so that region (only) can be shaded,
+              // fading towards infinity.
               if (i === 0 || i === M-1) {
                 if (!virtualImageExitExtension) { virtualImageExitExtension = {}; }
-                if (i === 0)   { virtualImageExitExtension.exit0 = [X1, Y1]; virtualImageExitExtension.end0 = [X1+dx, i1]; }
-                if (i === M-1) { virtualImageExitExtension.exitM = [X1, Y1]; virtualImageExitExtension.endM = [X1+dx, i1]; }
+                if (i === 0)   { virtualImageExitExtension.exit0 = [X1, Y1]; virtualImageExitExtension.end0 = [X1+dx, i1]; virtualImageExitExtension.el0 = p5; }
+                if (i === M-1) { virtualImageExitExtension.exitM = [X1, Y1]; virtualImageExitExtension.endM = [X1+dx, i1]; virtualImageExitExtension.elM = p5; }
               }
 
 
@@ -776,18 +783,19 @@ class PointSourceConstruction { // create a ray construction using raphael.js
               // these are still real rays - continue them past the crossing point
               // (diverging again beyond focus) rather than stopping exactly at the
               // cyan ball, same convention as the virtual-image extension above
-              var dx  = + 10*direction;
+              var dx  = + exitRefLength*direction;
               var i1  = u1 * dx + YI;
               var p5  = paper.path( ["M", XI, YI,  "L", XI + dx, i1 ]);
               p5.attr(real);
               this.cd_set.push(p5);
 
-              // remember the outermost two rays' extended endpoints (i=0 and
-              // i=M-1), to shade the fan they bound once the loop is done
+              // remember the outermost two rays' extended endpoints and path
+              // elements (i=0 and i=M-1), to shade the fan they bound (and
+              // fade their stroke to match) once the loop is done
               if (i === 0 || i === M-1) {
                 if (!realImageExtension) { realImageExtension = { dx: dx }; }
-                if (i === 0)   { realImageExtension.i0 = [XI+dx, i1]; }
-                if (i === M-1) { realImageExtension.iM = [XI+dx, i1]; }
+                if (i === 0)   { realImageExtension.i0 = [XI+dx, i1]; realImageExtension.el0 = p5; }
+                if (i === M-1) { realImageExtension.iM = [XI+dx, i1]; realImageExtension.elM = p5; }
               }
 
 
@@ -800,12 +808,18 @@ class PointSourceConstruction { // create a ray construction using raphael.js
         // end, starting opaque right at the crossing (same convention as
         // ParallelBeamConstruction's equivalent real-image extension).
         if (realImageExtension && realImageExtension.i0 && realImageExtension.iM) {
+          var realFadeFrom = [XI, YI];
+          var realFadeTo   = [XI + realImageExtension.dx, (realImageExtension.i0[1] + realImageExtension.iM[1]) / 2];
           shadeFadingBeamRegion(
             this.cd_set,
             [[XI,YI], realImageExtension.i0, realImageExtension.iM],
-            [XI, YI],
-            [XI + realImageExtension.dx, (realImageExtension.i0[1] + realImageExtension.iM[1]) / 2]
+            realFadeFrom,
+            realFadeTo
           );
+          // the bounding rays themselves should fade out along with the
+          // region they border, rather than staying solid to their endpoint
+          fadeRayStroke(realImageExtension.el0, realFadeFrom, realFadeTo);
+          fadeRayStroke(realImageExtension.elM, realFadeFrom, realFadeTo);
         }
 
         // EXPERIMENTAL: virtual image - only the diverging exit rays are real
@@ -823,6 +837,8 @@ class PointSourceConstruction { // create a ray construction using raphael.js
             exitMid,
             endMid
           );
+          fadeRayStroke(virtualImageExitExtension.el0, exitMid, endMid);
+          fadeRayStroke(virtualImageExitExtension.elM, exitMid, endMid);
         }
 
         // EXPERIMENTAL: collimated beam (object at the front focal point) -
@@ -839,6 +855,8 @@ class PointSourceConstruction { // create a ray construction using raphael.js
             collExitMid,
             collEndMid
           );
+          fadeRayStroke(collimatedExtension.el0, collExitMid, collEndMid);
+          fadeRayStroke(collimatedExtension.elM, collExitMid, collEndMid);
         }
 
 
