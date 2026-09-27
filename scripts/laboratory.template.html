@@ -657,33 +657,33 @@
 
         <!-- Point Input Form -->
         <div id = "lens-type-point" style="display:none;">
-          Object distance 
+          Object distance <span class="modal-distance-unit">(mm)</span>
           <div class="input-group mb-3">
-              <input id="modal-point-z"  type="text" class="form-control" aria-label="Description" placeholder="Enter the axial distance." value="-0.5">
+              <input id="modal-point-z"  type="text" class="form-control" aria-label="Description" placeholder="Enter the axial distance." value="-500">
           </div>
 
-          Object height
+          Object height <span class="modal-distance-unit">(mm)</span>
           <div class="input-group mb-3">
-              <input id="modal-point-h"  type="text" class="form-control" aria-label="Description" placeholder="Enter the height." value="0.1">
+              <input id="modal-point-h"  type="text" class="form-control" aria-label="Description" placeholder="Enter the height." value="100">
           </div>
         </div>
 
 
         <!-- Source Input Form -->
         <div id = "lens-type-source" style="display:none;">
-          Object distance 
+          Object distance <span class="modal-distance-unit">(mm)</span>
           <div class="input-group mb-3">
-              <input id="modal-source-z"  type="text" class="form-control" aria-label="Description" placeholder="Enter the axial distance." value="-0.5">
+              <input id="modal-source-z"  type="text" class="form-control" aria-label="Description" placeholder="Enter the axial distance." value="-500">
           </div>
 
-          Object height
+          Object height <span class="modal-distance-unit">(mm)</span>
           <div class="input-group mb-3">
-              <input id="modal-source-h"  type="text" class="form-control" aria-label="Description" placeholder="Enter the height." value="0.1">
+              <input id="modal-source-h"  type="text" class="form-control" aria-label="Description" placeholder="Enter the height." value="100">
           </div>
-          
-          Object beam width
+
+          Object beam width <span class="modal-distance-unit">(mm)</span>
           <div class="input-group mb-3">
-              <input id="modal-source-beam-width"  type="text" class="form-control" aria-label="Description" placeholder="Enter the beam width." value="0.01" >
+              <input id="modal-source-beam-width"  type="text" class="form-control" aria-label="Description" placeholder="Enter the beam width." value="10" >
           </div>
 
 
@@ -694,17 +694,17 @@
         <!-- Beam Input Form -->
         <div id = "lens-type-beam" style="display:none;">
 
-          This will add a beam from infinity to the system. The beam will pass through the cardinal points. This type of light source will not work if the system is afocal. 
+          This will add a beam from infinity to the system. The beam will pass through the cardinal points. This type of light source will not work if the system is afocal.
 
 
-          Object beam angle 
+          Object beam angle
           <div class="input-group mb-3">
               <input id="modal-beam-angle"  type="text" class="form-control" aria-label="Description" placeholder="Enter the beam angle." value="30" >
           </div>
 
-          Object beam width
+          Object beam width <span class="modal-distance-unit">(mm)</span>
           <div class="input-group mb-3">
-              <input id="modal-beam-width"  type="text" class="form-control" aria-label="Description" placeholder="Enter the beam width." value="5.0" >
+              <input id="modal-beam-width"  type="text" class="form-control" aria-label="Description" placeholder="Enter the beam width." value="5000" >
           </div>
         </div>
 
@@ -713,18 +713,18 @@
         <!-- Afocal Input Form -->
         <div id = "lens-type-afocal" style="display:none;">
 
-           This will add a beam from infinity to the system. The beam will pass through the system but not through the cardinal points. This type of light source will work if the system is afocal/focal. If the outgoing rays are detected as collimated - the exit angle will be reported. 
+           This will add a beam from infinity to the system. The beam will pass through the system but not through the cardinal points. This type of light source will work if the system is afocal/focal. If the outgoing rays are detected as collimated - the exit angle will be reported.
           <div class="well">
           </div>
 
-          Object beam angle 
+          Object beam angle
           <div class="input-group mb-3">
               <input id="modal-afocal-angle"  type="text" class="form-control" aria-label="Description" placeholder="Enter the beam angle." value="30" >
           </div>
 
-          Object beam width
+          Object beam width <span class="modal-distance-unit">(mm)</span>
           <div class="input-group mb-3">
-              <input id="modal-afocal-width"  type="text" class="form-control" aria-label="Description" placeholder="Enter the beam width." value="5.0" >
+              <input id="modal-afocal-width"  type="text" class="form-control" aria-label="Description" placeholder="Enter the beam width." value="5000" >
           </div>
         </div>
 
@@ -749,33 +749,33 @@
 
           <div id="lens-type-object-finite">
 
-            Object distance 
+            Object distance <span class="modal-distance-unit">(mm)</span>
             <div class="input-group mb-3">
-                <input id="modal-object-z"  type="text" class="form-control" aria-label="Description" placeholder="Enter the axial distance." value="-0.5">
+                <input id="modal-object-z"  type="text" class="form-control" aria-label="Description" placeholder="Enter the axial distance." value="-500">
             </div>
 
-            Object height
+            Object height <span class="modal-distance-unit">(mm)</span>
             <div class="input-group mb-3">
-                <input id="modal-object-h"  type="text" class="form-control" aria-label="Description" placeholder="Enter the height." value="0.1">
+                <input id="modal-object-h"  type="text" class="form-control" aria-label="Description" placeholder="Enter the height." value="100">
             </div>
 
-            Object beam width
+            Object beam width <span class="modal-distance-unit">(mm)</span>
             <div class="input-group mb-3">
-                <input id="modal-object-finite-beam-width"  type="text" class="form-control" aria-label="Description" placeholder="Enter the beam width." value="0.01" >
+                <input id="modal-object-finite-beam-width"  type="text" class="form-control" aria-label="Description" placeholder="Enter the beam width." value="10" >
             </div>
 
           </div>
 
           <div id="lens-type-object-infinite" style="display:none;">
 
-            Object beam angle 
+            Object beam angle
             <div class="input-group mb-3">
                 <input id="modal-object-angle"  type="text" class="form-control" aria-label="Description" placeholder="Enter the beam angle." value="30" >
             </div>
 
-            Object beam width
+            Object beam width <span class="modal-distance-unit">(mm)</span>
             <div class="input-group mb-3">
-                <input id="modal-object-infinite-beam-width"  type="text" class="form-control" aria-label="Description" placeholder="Enter the beam width." value="5.0" >
+                <input id="modal-object-infinite-beam-width"  type="text" class="form-control" aria-label="Description" placeholder="Enter the beam width." value="5000" >
             </div>
 
           </div>

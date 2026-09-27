@@ -123,8 +123,13 @@ function lensObjectSelector(elem) {
     var objectType      = elem.getAttribute("data-short-id");
     var objectTypeLong  = elem.innerText;
 
-    // update this field 
+    // update this field
     $("#point-type-text-readonly").val(objectTypeLong);
+
+    // the distance fields below are entered/converted in whatever unit is
+    // currently selected (see addModalInfoToPointsTable()) - keep their
+    // labels showing that unit rather than leaving it to guesswork
+    refreshModalDistanceUnitLabels();
 
     // hide everything
     $("#lens-type-point").hide();
@@ -579,10 +584,16 @@ POINTS = OBJECTS + IMAGES TABLE
     var chooseSource = $("#lens-type-source").is(":visible");
 
 
+    // z/h/beamwidth below are distances, typed in whatever unit the tab's
+    // selector currently shows (matching the prescription table's own
+    // distanceEditor and the Add Lens Element modal) - convert to metres
+    // here rather than storing the raw typed number. "t" (angle) and the
+    // "infinity" flag are unit-independent and left as-is.
+
     if (choosePoint & !chooseObject) {
 
-        lens.modal.source.z  = Number(document.getElementById("modal-point-z").value);
-        lens.modal.source.h  = Number(document.getElementById("modal-point-h").value);
+        lens.modal.source.z  = fromDisplayDistance(Number(document.getElementById("modal-point-z").value));
+        lens.modal.source.h  = fromDisplayDistance(Number(document.getElementById("modal-point-h").value));
         lens.modal.source.type  = "point";
         lens.modal.source.which = "object";
         lens.modal.source.t     = undefined;
@@ -604,15 +615,15 @@ POINTS = OBJECTS + IMAGES TABLE
         if (atInfinity) {
 
             lens.modal.source.t         = Number(document.getElementById("modal-object-angle").value);
-            lens.modal.source.beamwidth = Number(document.getElementById("modal-object-infinite-beam-width").value);
+            lens.modal.source.beamwidth = fromDisplayDistance(Number(document.getElementById("modal-object-infinite-beam-width").value));
             lens.modal.source.z         = undefined;
             lens.modal.source.h         = undefined;
 
         } else {
 
-            lens.modal.source.z         = Number(document.getElementById("modal-object-z").value);
-            lens.modal.source.h         = Number(document.getElementById("modal-object-h").value);
-            lens.modal.source.beamwidth = Number(document.getElementById("modal-object-finite-beam-width").value);
+            lens.modal.source.z         = fromDisplayDistance(Number(document.getElementById("modal-object-z").value));
+            lens.modal.source.h         = fromDisplayDistance(Number(document.getElementById("modal-object-h").value));
+            lens.modal.source.beamwidth = fromDisplayDistance(Number(document.getElementById("modal-object-finite-beam-width").value));
             lens.modal.source.t         = undefined;
 
         }
@@ -620,7 +631,7 @@ POINTS = OBJECTS + IMAGES TABLE
     } else if (chooseBeam) {
 
         lens.modal.source.t  = Number(document.getElementById("modal-beam-angle").value);
-        lens.modal.source.beamwidth= Number(document.getElementById("modal-beam-width").value);  // beamwidth not shown
+        lens.modal.source.beamwidth= fromDisplayDistance(Number(document.getElementById("modal-beam-width").value));  // beamwidth not shown
         lens.modal.source.type  = "beam";
         lens.modal.source.which = "object";
         lens.modal.source.z     = undefined;
@@ -631,17 +642,17 @@ POINTS = OBJECTS + IMAGES TABLE
         lens.modal.source.type  = "afocal";
         lens.modal.source.which = "object";
         lens.modal.source.t  = Number(document.getElementById("modal-afocal-angle").value);
-        lens.modal.source.beamwidth = Number(document.getElementById("modal-afocal-width").value);  // beamwidth not shown
+        lens.modal.source.beamwidth = fromDisplayDistance(Number(document.getElementById("modal-afocal-width").value));  // beamwidth not shown
         lens.modal.source.z  = undefined;
         lens.modal.source.h  = undefined;
 
     } else if (chooseSource) {
-        lens.modal.source.z  = Number(document.getElementById("modal-source-z").value);
-        lens.modal.source.h  = Number(document.getElementById("modal-source-h").value);  // beamwidth not shown
+        lens.modal.source.z  = fromDisplayDistance(Number(document.getElementById("modal-source-z").value));
+        lens.modal.source.h  = fromDisplayDistance(Number(document.getElementById("modal-source-h").value));  // beamwidth not shown
         lens.modal.source.type  = "source";
         lens.modal.source.which = "object";
         lens.modal.source.t     = undefined;
-        lens.modal.source.beamwidth= Number(document.getElementById("modal-source-beam-width").value);  // beamwidth not shown
+        lens.modal.source.beamwidth= fromDisplayDistance(Number(document.getElementById("modal-source-beam-width").value));  // beamwidth not shown
 
     }
 
