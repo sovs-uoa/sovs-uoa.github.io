@@ -472,6 +472,7 @@ class PointSourceConstruction { // create a ray construction using raphael.js
      dX = -1;
      var X1 = this.data.X1;
      var Y1 = this.data.Y1;
+     var virtualObjectEntryExtension = null; // envelope corners for the pre-entry fade (virtual object case), filled in below
 
      console.warn (`X1 = ${X1}`);
 
@@ -515,11 +516,24 @@ class PointSourceConstruction { // create a ray construction using raphael.js
 
 
             var u1 = this.inputRays[i].u;
-            var X3 = X2 + dX;  
-            var Y3 = Y2 + dX*u1;            
-            var p4 = paper.path( ["M", X2, Y2,  "L", X3, Y3 ]);         
+            var X3 = X2 + dX;
+            var Y3 = Y2 + dX*u1;
+            var p4 = paper.path( ["M", X2, Y2,  "L", X3, Y3 ]);
             p4.attr(real);
             this.cd_set.push(p4);
+
+            // this segment is real light - it's the actual converging beam
+            // approaching the system, which would have gone on to meet at
+            // the virtual object point (drawn dashed above) had it not been
+            // intercepted here. Remember the outermost two rays' entry
+            // points and extended endpoints so this region (only) can be
+            // shaded, fading towards infinity - mirroring the virtual-image
+            // exit case further down.
+            if (i === 0 || i === M-1) {
+              if (!virtualObjectEntryExtension) { virtualObjectEntryExtension = {}; }
+              if (i === 0)   { virtualObjectEntryExtension.entry0 = [X2, Y2]; virtualObjectEntryExtension.end0 = [X3, Y3]; }
+              if (i === M-1) { virtualObjectEntryExtension.entryM = [X2, Y2]; virtualObjectEntryExtension.endM = [X3, Y3]; }
+            }
 
         } else {
 
@@ -548,6 +562,24 @@ class PointSourceConstruction { // create a ray construction using raphael.js
 
      }
 
+     // EXPERIMENTAL: virtual object - only the converging entry rays are
+     // real light; shade that region (entry surface outward, towards the
+     // object side), fading towards infinity - never the forward
+     // extrapolation to the virtual object point itself (drawn dashed
+     // above, no light actually reaches there).
+     if (virtualObjectEntryExtension && virtualObjectEntryExtension.end0 && virtualObjectEntryExtension.endM) {
+       var objEntryMid = [ (virtualObjectEntryExtension.entry0[0] + virtualObjectEntryExtension.entryM[0]) / 2,
+                            (virtualObjectEntryExtension.entry0[1] + virtualObjectEntryExtension.entryM[1]) / 2 ];
+       var objEndMid   = [ (virtualObjectEntryExtension.end0[0]  + virtualObjectEntryExtension.endM[0])  / 2,
+                            (virtualObjectEntryExtension.end0[1]  + virtualObjectEntryExtension.endM[1])  / 2 ];
+       shadeFadingBeamRegion(
+         this.cd_set,
+         [virtualObjectEntryExtension.entry0, virtualObjectEntryExtension.end0, virtualObjectEntryExtension.endM, virtualObjectEntryExtension.entryM],
+         objEntryMid,
+         objEndMid
+       );
+     }
+
 
      /* transmitted rays */
      for (var k=0; k < K-1; k++ ) {
@@ -565,18 +597,24 @@ class PointSourceConstruction { // create a ray construction using raphael.js
      // path; a virtual image is where the diverging exit rays APPEAR to come
      // from when extrapolated backwards (drawn dashed below) - no light
      // travels there, so it must not be shaded. Detect real vs virtual the
-     // same way the final-ray loop further down does.
-     var shadeDirection  = Math.sign(lens.n2);
-     var isRealImagePath = isFinite(this.data.X2) && (this.data.X2*shadeDirection > V2*shadeDirection);
+     // same way the final-ray loop further down does. Symmetrically, a
+     // virtual OBJECT (this.data.X1 past the entry surface, V1) is where the
+     // converging entry rays would have gone on to meet, extrapolated
+     // forwards (also drawn dashed, in the initial-rays loop above) - not
+     // real either, so the envelope must not reach back to it.
+     var shadeDirection   = Math.sign(lens.n2);
+     var isRealImagePath  = isFinite(this.data.X2) && (this.data.X2*shadeDirection > V2*shadeDirection);
+     var isRealObjectPath = isFinite(this.data.X1) && (this.data.X1 <= V1);
 
      // EXPERIMENTAL: shade the whole object->image envelope (bounded at both
      // ends, so a plain solid fill - no fade needed) in one shape, using the
      // outermost ray (i=0) forward and the other outermost ray (i=M-1) back as
      // its two edges, rather than shading each surface-to-surface gap separately.
-     // For a virtual (or non-existent/collimated) image, stop the fill at the
-     // system's exit surface instead - see the comment above.
+     // For a virtual object/image, stop the fill at the system's entry/exit
+     // surface instead - see the comment above.
      if (isFinite(this.data.X1)) {
-        var envelope = [[this.data.X1, this.data.Y1]];
+        var envelope = [];
+        if (isRealObjectPath) { envelope.push([this.data.X1, this.data.Y1]); }
         for (var k=0; k < K; k++) { envelope.push([ray[k][0].z, ray[k][0].h]); }
         if (isRealImagePath) { envelope.push([this.data.X2, this.data.Y2]); }
         for (var k=K-1; k >= 0; k--) { envelope.push([ray[k][M-1].z, ray[k][M-1].h]); }

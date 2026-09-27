@@ -58,8 +58,13 @@ function lensTypeSelector(elem) {
     var lensTypeLong  = elem.innerText;
 
 
-    // update this field 
+    // update this field
     $("#lens-type-text-readonly").val(lensTypeLong);
+
+    // the distance fields below are entered/converted in whatever unit is
+    // currently selected (see addModalInfoToTable()) - keep their labels
+    // showing that unit rather than leaving it to guesswork
+    refreshModalDistanceUnitLabels();
 
     // hide everything
     $("#lens-type-index").hide();
@@ -212,14 +217,19 @@ that - it is not editable/toggleable from the table itself.
     lens.modal.group        = document.getElementById("modal-lens-group-name").value;
     lens.modal.description  = document.getElementById("modal-lens-element-description").value;
     lens.modal.index        = Number(document.getElementById("modal-lens-refractive-index").value);
-    lens.modal.thickness    = Number(document.getElementById("modal-lens-thickness").value); 
-    lens.modal.radius       = Number(document.getElementById("modal-lens-radius-of-curvature").value);
-    lens.modal.aperture     = Number(document.getElementById("modal-lens-aperture-diameter").value);
+
+    // Distances typed into this modal are in whatever unit the tab's selector
+    // currently shows (matching the prescription table's own distanceEditor) -
+    // convert to metres here rather than storing the raw typed number, or a
+    // "10" meant as 10mm silently became 10 METRES (see distanceEditor above).
+    lens.modal.thickness    = fromDisplayDistance(Number(document.getElementById("modal-lens-thickness").value));
+    lens.modal.radius       = fromDisplayDistance(Number(document.getElementById("modal-lens-radius-of-curvature").value));
+    lens.modal.aperture     = fromDisplayDistance(Number(document.getElementById("modal-lens-aperture-diameter").value));
 
     if (lens.modal.type == "prism") {
       lens.modal.power    = Number(document.getElementById("modal-prism-power").value);
       lens.modal.base     = document.getElementById("modal-prism-base").value;
-      lens.modal.aperture = Number(document.getElementById("modal-prism-aperture").value);
+      lens.modal.aperture = fromDisplayDistance(Number(document.getElementById("modal-prism-aperture").value));
     } else {
       lens.modal.power    = Number(document.getElementById("modal-thin-power").value);
     }

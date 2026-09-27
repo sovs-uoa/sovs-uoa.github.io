@@ -68,6 +68,23 @@
     if (lens.pointsTable) { lens.pointsTable.redraw(true); }
     if (typeof updateSummaryView === 'function' && renderableLens) { updateSummaryView(); }
 
+    refreshModalDistanceUnitLabels();
+
+  }
+
+
+  // Keeps the "Add Lens Element" modal's distance-field labels (thickness,
+  // radius, aperture) showing whatever unit setDistanceUnit() last selected -
+  // those fields are entered/converted in that same unit (see
+  // addModalInfoToTable() in prescription.js), so the label should say so
+  // rather than leaving the reader to guess or assume metres.
+  function refreshModalDistanceUnitLabels () {
+
+    var label = "(" + DISTANCE_UNIT_LABEL[currentDistanceUnit] + ")";
+    document.querySelectorAll(".modal-distance-unit").forEach(function (el) {
+      el.textContent = label;
+    });
+
   }
 
 
