@@ -201,11 +201,11 @@ class PointSourceConstruction { // create a ray construction using raphael.js
     }
 
 
-    // Pins the bounding rays to the system's actual aperture stop (explicit
-    // or auto-computed - see findApertureStopRayAngle in optics.js) instead
-    // of the arbitrary BeamWidth. Only meaningful for a finite ("object
-    // only" per the request) point in ENTRANCE_PUPIL aiming mode - see
-    // updateRays().
+    // Pins the bounding rays to the entrance pupil's edge - the paraxial
+    // image of the system's actual aperture stop (explicit or auto-computed -
+    // see findApertureStopForInfiniteObject in optics.js) - instead of the
+    // arbitrary BeamWidth. Only meaningful for a finite ("object only" per
+    // the request) point in ENTRANCE_PUPIL aiming mode - see updateRays().
     setPinToApertureStop(flag) {
       this.PinToApertureStop = !!flag;
       this.refresh ();
@@ -313,17 +313,26 @@ class PointSourceConstruction { // create a ray construction using raphael.js
       var BW = this.BeamWidth;
       switch (this.Aiming) {
           case ENTRANCE_PUPIL:
-            var VE1     = renderableLens.total.pupil.VE1;
-            var stopRay = this.PinToApertureStop ? Optics.findApertureStopRayAngle(renderableLens.elem, VO, Y1) : null;
-            if (stopRay) {
-              rays.push({ u: +stopRay.angle, z: VO, h: Y1 });
-              rays.push({ u: 0,              z: VO, h: Y1 });
-              rays.push({ u: -stopRay.angle, z: VO, h: Y1 });
+            var VE1    = renderableLens.total.pupil.VE1;
+            // The pin aims at the edge of the (fixed, object-independent)
+            // entrance pupil - exactly the existing getBeam() formula below,
+            // just with a computed half-width instead of an arbitrary one.
+            // This is what actually guarantees both rays land exactly on the
+            // pupil edge for ANY object position - aiming a ray directly at
+            // the real stop from each object position separately instead
+            // requires solving a different, sometimes ill-conditioned
+            // equation per object position.
+            var pupilInfo = this.PinToApertureStop ? Optics.findApertureStopForInfiniteObject(renderableLens.elem) : null;
+            var pupilRadius = pupilInfo ? pupilInfo.angle : null;
+            if (pupilRadius != null) {
+              rays.push(getBeam(VE1, VO, Y1, +pupilRadius));
+              rays.push(getBeam(VE1, VO, Y1, 0));
+              rays.push(getBeam(VE1, VO, Y1, -pupilRadius));
               // expose what the pin actually landed on - see refreshAllConstruction()
               // in application.js, which mirrors this into the points table's
               // (now read-only) "beam width" cell so it doesn't show a stale
               // manually typed value while pinned.
-              this.PinnedApertureDiameter = renderableLens.elem[stopRay.index].elem.aperture;
+              this.PinnedApertureDiameter = 2*pupilRadius;
             } else {
               this.PinnedApertureDiameter = null;
               rays.push(getBeam(VE1, VO, Y1, +BW/2));

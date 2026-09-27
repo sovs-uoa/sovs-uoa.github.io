@@ -47,8 +47,8 @@ Optics.getPupils = function(rays, systemInfo) {
   return calculateRayTrace (rays, systemInfo)
 }
 
-Optics.findApertureStopRayAngle = function (elemArr, objectZ, objectH) {
-  return findApertureStopRayAngle (elemArr, objectZ, objectH)
+Optics.findApertureStopForInfiniteObject = function (elemArr) {
+  return findApertureStopForInfiniteObject (elemArr)
 }
 
 Optics.extractGroup = function (lens, group_name) {
@@ -342,30 +342,24 @@ function calculateRayTrace(rays, lensTable ) {
 
 /* -----------------------------------------------------------------------
 
-FINDAPERTURESTOPRAYANGLE  Find which element in the system actually limits
-the bundle of rays from a given object point ("the aperture stop"), and the
-object-ray angle that just grazes its edge.
+LIMITINGAPERTUREFROMTRACES  Given two already-traced sample rays that differ
+by exactly 1 in some free launch parameter (an angle, or a starting height -
+see findApertureStopForInfiniteObject below), find which element in the
+system actually limits the bundle ("the aperture stop") and the value of
+that parameter which just grazes its edge.
 
-Traces TWO rays from the object position (angles 0 and 1, height 0) through
-the system: a prism (or any offset-carrying element) deviates a ray by a
-CONSTANT amount independent of its angle, so a ray's height at a given
-element is an AFFINE function of the object launch angle - h(u) = h0 + slope*u
-- not a purely proportional one through the origin. h0 (the u=0 trace) is
-that constant-offset contribution alone; slope = h(1) - h0 is the ordinary
-(linear/matrix) part. Two sample rays are enough to solve h(u) = +-aperture/2
-for u exactly, for each candidate aperture; whichever element requires the
-SMALLEST |u| to reach either edge is the one that actually limits the bundle
-(a smaller allowed angle = a more restrictive aperture). Works whether or not
-any element is explicitly flagged "stop" - that flag is only a hint for
-other pupil bookkeeping elsewhere; the true stop is whichever real aperture
-is most restrictive, found here directly.
-
-  elemArr  - the enriched per-element array (e.g. renderableLens.elem)
-  objectZ  - the object's axial position (relative to the front vertex, V1=0)
-  objectH  - the object point's height (optional, default 0 = on-axis) - the
-             two sample rays are launched from (objectZ, objectH) rather than
-             the axis, so an off-axis object point still gets a correct
-             marginal-ray angle relative to itself.
+A prism (or any offset-carrying element) deviates a ray by a CONSTANT amount
+independent of the free parameter, so a ray's height at a given element is an
+AFFINE function of it - h(p) = h0 + slope*p - not a purely proportional one
+through the origin. h0 (the p=0 trace) is that constant-offset contribution
+alone; slope = h(1) - h0 is the ordinary (linear/matrix) part. Two sample
+rays are enough to solve h(p) = +-aperture/2 for p exactly, for each
+candidate aperture; whichever element requires the SMALLEST |p| to reach
+either edge is the one that actually limits the bundle (a smaller allowed
+value = a more restrictive aperture). Works whether or not any element is
+explicitly flagged "stop" - that flag is only a hint for other pupil
+bookkeeping elsewhere; the true stop is whichever real aperture is most
+restrictive, found here directly.
 
 Returns null if no element in the system has a finite "aperture" at all -
 there is nothing to pin the rays to.
@@ -399,42 +393,34 @@ function limitingApertureFromTraces (elemArr, tracedZero, tracedOne) {
 
 }
 
-function findApertureStopRayAngle (elemArr, objectZ, objectH) {
-
-  var h0start = objectH || 0;
-
-  // calculateRayTrace's per-element S matrices are all relative to the
-  // front vertex (Z=0) - it does NOT itself propagate an incoming ray from
-  // wherever its "z" happens to be, so a ray actually launched from the
-  // object (objectZ, h0start) has to be rebased to the front vertex first
-  // (see translateRays), exactly as the ordinary beam-construction code
-  // already does before its own calculateRayTrace calls.
-  var rayZero = translateRays([ { u: 0, h: h0start, z: objectZ } ], 0);
-  var rayOne  = translateRays([ { u: 1, h: h0start, z: objectZ } ], 0);
-
-  var tracedZero = calculateRayTrace(rayZero, elemArr);
-  var tracedOne  = calculateRayTrace(rayOne, elemArr);
-
-  return limitingApertureFromTraces(elemArr, tracedZero, tracedOne);
-
-}
-
 /* -----------------------------------------------------------------------
 
-FINDAPERTURESTOPFORINFINITEOBJECT  Same idea as findApertureStopRayAngle,
-but for the system-level, object-INDEPENDENT stop (used as the fallback in
-getTotalLensSystemInfo() when nothing is explicitly flagged "stop"). There is
-no real object position to launch a ray from here, so this traces the
-marginal ray of an axial pencil from an object AT INFINITY instead: a ray
+FINDAPERTURESTOPFORINFINITEOBJECT  Find which element in the system actually
+limits the bundle of rays ("the aperture stop"), and the system's entrance
+pupil radius, WITHOUT reference to any particular object point.
+
+There is no real object position to launch a ray from here, so this traces
+the marginal ray of an axial pencil from an object AT INFINITY instead: a ray
 parallel to the axis (u=0) sampled at two heights (0 and 1). Free space
 doesn't change the height of a u=0 ray, so the starting z is arbitrary - this
 also sidesteps the degenerate case where a real object position happens to
 coincide exactly with the very first element (z=0), which would otherwise
 make both sample rays trace identical, zero-height paths and hide any
-element positioned right at the front vertex. As with the finite-object
-version, a prism's constant angular offset makes height an AFFINE function of
-the starting height, not purely proportional - h(h_in) = h0 + slope*h_in -
-so two samples are used the same way.
+element positioned right at the front vertex. A prism's constant angular
+offset makes height an AFFINE function of the starting height, not purely
+proportional - h(h_in) = h0 + slope*h_in - so two samples are used to solve
+it exactly (see limitingApertureFromTraces).
+
+Because the free parameter here is a STARTING HEIGHT (not an angle), the
+returned .angle field is actually the ENTRANCE PUPIL RADIUS: the height, at
+ANY u=0 reference plane - translateRays leaves a u=0 ray's height unchanged
+wherever you put it, so this is equally valid read at VE1 as at Z=0 - that a
+ray needs in order to just graze the real, physical aperture stop. This is
+what PointSourceConstruction.js's Pin feature uses to build entrance-pupil-
+aimed rays (getBeam(VE1, VO, Y1, ±radius)): object-position-independent and
+always well-behaved, unlike aiming a ray directly at the real stop from each
+object position separately would be (that requires solving a different,
+sometimes ill-conditioned equation per object position).
 
 --------------------------------------------------------------------------- */
 
@@ -1323,7 +1309,7 @@ function getTotalLensSystemInfo (lensTable) {
 
    No element was explicitly flagged "stop" above - determine the aperture
    stop automatically as whichever aperture-bearing element most restricts a
-   marginal ray traced from the front vertex (see findApertureStopRayAngle).
+   marginal ray traced from the front vertex (see findApertureStopForInfiniteObject).
    This is the classical definition of "the stop" absent an explicit
    designation, and keeps entrance/exit pupil bookkeeping meaningful (and the
    prescription table's STOP badge populated - see apertureStop() in

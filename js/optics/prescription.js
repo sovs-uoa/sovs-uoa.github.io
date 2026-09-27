@@ -830,10 +830,11 @@ function initializePointsTable(data, updatePointsCallback, success) {
              // not editable afterwards - see toggleObjectInfinityCell()'s comment
              formatter:"tickCross",
              formatterParams:{ allowEmpty:true, allowTruthy:true, tickElement:"<span class=\"badge badge-info\">&infin;</span>", crossElement:"" } },
-            // Pins this object's bounding rays to the system's actual aperture stop
-            // (explicit or auto-computed - see findApertureStopRayAngle in optics.js
-            // and setPinToApertureStop() in PointSourceConstruction.js) instead of the
-            // arbitrary beam width. Only meaningful for a finite object point.
+            // Pins this object's bounding rays to the entrance pupil's edge - the
+            // paraxial image of the system's actual aperture stop (explicit or
+            // auto-computed - see findApertureStopForInfiniteObject in optics.js
+            // and setPinToApertureStop() in PointSourceConstruction.js) - instead
+            // of an arbitrary beam width. Only meaningful for a finite object point.
             {title:"Pin", field:"pinToApertureStop", width:60, align:"center", headerSort:false,
              formatter:"tickCross",
              formatterParams:{ allowEmpty:true, allowTruthy:true, tickElement:"<span class=\"badge badge-info\">PIN</span>", crossElement:"" },
