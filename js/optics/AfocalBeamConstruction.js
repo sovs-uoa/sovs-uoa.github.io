@@ -335,11 +335,24 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
 
       // console.log(th);
 
-      function getBeam (th, bw) {
+      // pivotZ: the un-pinned beam pivots about the front vertex (z=0) - any
+      // field angle th is drawn as a ray through the AXIS at z=0. A beam
+      // PINNED to the aperture stop instead needs its marginal rays to
+      // straddle the ENTRANCE PUPIL's edges for ANY th, which only holds if
+      // the whole beam pivots about the entrance pupil's own center (VE1)
+      // instead - otherwise the beam stays correctly WIDE (constant
+      // perpendicular separation = pupil diameter, true at any plane along a
+      // parallel ray) but off-CENTER at the pupil plane for any th != 0. u
+      // is the ray's angle here, so h at z=0 needs the same -u*pivotZ
+      // rebasing translateRays() uses elsewhere to shift a ray's reference
+      // point without changing its direction.
+      function getBeam (th, bw, pivotZ) {
+          var u = deg2rad(th);
+          var h0 = -u * pivotZ;
           var r = [];
-          r.push({ u: deg2rad(th), h: -bw/2 / Math.cos (deg2rad(th)),  z: 0});
-          r.push({ u: deg2rad(th), h: 0,      z: 0});
-          r.push({ u: deg2rad(th), h: +bw/2 / Math.cos (deg2rad(th)),  z: 0});
+          r.push({ u: u, h: h0 - bw/2 / Math.cos(u),  z: 0});
+          r.push({ u: u, h: h0,                       z: 0});
+          r.push({ u: u, h: h0 + bw/2 / Math.cos(u),  z: 0});
           return r;
       }
 
@@ -350,8 +363,9 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
       var pupilInfo  = this.PinToApertureStop ? Optics.findApertureStopForInfiniteObject(renderableLens.elem) : null;
       var bw         = pupilInfo ? 2*pupilInfo.angle : this.BeamWidth;
       this.PinnedApertureDiameter = pupilInfo ? 2*pupilInfo.angle : null;
+      var pivotZ     = pupilInfo ? renderableLens.total.pupil.VE1 : 0;
 
-      var rays       = getBeam(th, bw);
+      var rays       = getBeam(th, bw, pivotZ);
       this.inputRays = rays;
       this.raypath   = Optics.calculateRayTrace(rays, renderableLens.elem);
 

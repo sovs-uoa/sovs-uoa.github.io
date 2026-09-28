@@ -635,11 +635,25 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
     var pupilInfo = this.PinToApertureStop ? Optics.findApertureStopForInfiniteObject(renderableLens.elem) : null;
     var bw = pupilInfo ? 2*pupilInfo.angle : this.BeamWidth;
     this.PinnedApertureDiameter = pupilInfo ? 2*pupilInfo.angle : null;
-    var dx = P1 - N1; // position translated to P1
-	  
-    var y1 = Math.tan(deg2rad(T1)) * dx + bw/2 / Math.cos(deg2rad(T1));    // upper height on P1 from N1 
-    var y2 = Math.tan(deg2rad(T1)) * dx - bw/2 / Math.cos(deg2rad(T1));    // lower height on P1 from N1
-    var y3 = Math.tan(deg2rad(T1)) * dx + 0;                               // height on P1 from N1 
+
+    // The un-pinned beam is drawn as a "chief ray through N1" (the classical
+    // nodal-point convention - a ray aimed at the front nodal point exits
+    // parallel to itself from the rear nodal point, which is the usual way
+    // to draw an arbitrary field angle through a diagram). But a beam PINNED
+    // to the aperture stop needs its two marginal rays to straddle the
+    // ENTRANCE PUPIL's edges for ANY field angle T1 - that only holds if the
+    // whole beam pivots about the entrance pupil's own center (VE1), not
+    // N1. N1 and VE1 are generally different axial positions, so reusing N1
+    // here would leave the beam correctly WIDE (constant perpendicular
+    // separation = pupil diameter, true at any plane along a parallel ray)
+    // but off-CENTER at the pupil plane for any T1 != 0, clipping one edge
+    // and overshooting the other as the angle changes.
+    var pivotZ = pupilInfo ? renderableLens.total.pupil.VE1 : N1;
+    var dx = P1 - pivotZ; // position translated to P1
+
+    var y1 = Math.tan(deg2rad(T1)) * dx + bw/2 / Math.cos(deg2rad(T1));    // upper height on P1 from the pivot
+    var y2 = Math.tan(deg2rad(T1)) * dx - bw/2 / Math.cos(deg2rad(T1));    // lower height on P1 from the pivot
+    var y3 = Math.tan(deg2rad(T1)) * dx + 0;                               // height on P1 from the pivot
 
     //var y1 = deg2rad(T1) * dx + bw/2 / Math.sin(deg2rad(90 - T1));    // upper height on P1 from N1 
     //var y2 = deg2rad(T1) * dx - bw/2 / Math.sin(deg2rad(90 - T1));    // lower height on P1 from N1
