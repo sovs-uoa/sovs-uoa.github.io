@@ -835,25 +835,30 @@ function initializePointsTable(data, updatePointsCallback, success) {
             // auto-computed - see findApertureStopForInfiniteObject in optics.js
             // and setPinToApertureStop() in PointSourceConstruction.js) - instead
             // of an arbitrary beam width. Only meaningful for a finite object point.
+            // Not an "editor" column - Tabulator's tickCross editor needs one
+            // click to enter edit mode and a SECOND click on the checkbox it
+            // then reveals to actually change the value, which reads as "the
+            // cell won't let me edit it" if you only click once. A plain
+            // formatter + cellClick toggles it in a single click instead.
             {title:"Pin", field:"pinToApertureStop", width:60, align:"center", headerSort:false,
              formatter:"tickCross",
              formatterParams:{ allowEmpty:true, allowTruthy:true, tickElement:"<span class=\"badge badge-info\">PIN</span>", crossElement:"" },
-             editor:"tickCross",
-             editable: function (cell) {
-               var data = cell.getRow().getData();
-               return (data.type === "object" && !data.infinity);
-             },
-             cellEdited: function (cell) {
-               var row           = cell.getRow();
-               var data          = row.getData();
-               var construction  = lens.raphael.constructions.find(function (c) { return c.getId() == data.id; });
+             cellClick: function (e, cell) {
+               var row  = cell.getRow();
+               var data = row.getData();
+               if (!(data.type === "object" && !data.infinity)) { return; } // finite objects only
+
+               var construction = lens.raphael.constructions.find(function (c) { return c.getId() == data.id; });
                if (!construction || !construction.setPinToApertureStop) { return; }
+
+               var newValue = !cell.getValue();
+               cell.setValue(newValue, true);
 
                // The "beam width" cell is locked while pinned (see that
                // column's editable()) and instead mirrors the limiting
                // element's own aperture diameter - stash the manually typed
                // value so it can come back when the pin is switched off.
-               if (cell.getValue()) {
+               if (newValue) {
                  row.update({ _manualBeamWidth: data.beamwidth });
                  construction.setPinToApertureStop(true);
                  if (isFinite(construction.PinnedApertureDiameter)) {
