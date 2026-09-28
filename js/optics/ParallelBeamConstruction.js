@@ -175,21 +175,28 @@ function onmove (th)  {
       // the handle itself is drawn perpendicular to the ray (see addBeamConstruction/
       // refresh, which set its angle to T1+90) so it doesn't overlap the rays it
       // controls - convert its own (raw) geometric angle back to the ray angle here.
-      var T1 = th - 90;
+      // "th - 90" is the handle's own TRUE geometric angle (AnglePicker.setAngle
+      // is a real polar-to-cartesian rotation) - not the paraxial field angle T1
+      // itself, since the ray is drawn with the linear slope deg2rad(T1), whose
+      // true geometric angle is atan(deg2rad(T1)), not T1 (they coincide only for
+      // a small T1) - see fieldAngleToGeometricAngle/geometricAngleToFieldAngle.
+      var geometricAngle = th - 90;
 
-      // This only models a beam a modest angle off the optical axis, so T1
-      // can't meaningfully go beyond +-90 deg - and critically, dragging the
+      // This only models a beam a modest angle off the optical axis, so the
+      // handle's own geometric angle can't meaningfully go beyond +-90 deg
+      // (tan() of exactly +-90 is infinite) - and critically, dragging the
       // CYAN IMAGE POINT instead (see moveBeamImagePoint below) can only ever
-      // recover a T1 in that same (-90,90) range, since it inverts the image
-      // height via a plain atan() (tan's period means e.g. -205 deg and -25
-      // deg give the same height, and atan() only ever returns the latter).
-      // Without clamping here too, dragging this handle itself past +-90 deg
-      // leaves it at an angle unreachable that way - so the next time the
-      // image point is dragged, even slightly, it snaps to the equivalent
-      // angle atan() CAN represent, which looks like the handle has suddenly
-      // flipped direction.
-      T1 = Math.max(-89.9, Math.min(89.9, T1));
-      this.setAngle(T1 + 90);
+      // recover a geometric angle in that same (-90,90) range, since it
+      // inverts the image height via a plain atan() (tan's period means e.g.
+      // -205 deg and -25 deg give the same height, and atan() only ever
+      // returns the latter). Without clamping here too, dragging this handle
+      // itself past +-90 deg leaves it at an angle unreachable that way - so
+      // the next time the image point is dragged, even slightly, it snaps to
+      // the equivalent angle atan() CAN represent, which looks like the
+      // handle has suddenly flipped direction.
+      geometricAngle = Math.max(-89.9, Math.min(89.9, geometricAngle));
+      var T1 = geometricAngleToFieldAngle(geometricAngle);
+      this.setAngle(geometricAngle + 90);
 
       // update the graphic + associated table
       myPoint   = { id:this.parent.getId(), type: "beam", which: "object", t: T1 };
@@ -246,8 +253,11 @@ function moveBeamImagePoint (dx, dy) {
       var thisPoint = this.data("data-attr");
       totalLens     = renderableLens.total;
 
+      // Inverse of calculateConjugatePairFrom's IQ = zp * deg2rad(t) (paraxial,
+      // linear - not zp * tan(deg2rad(t))), so recovering t from a dragged
+      // image height is now a plain division, no atan() needed.
       var zp = totalLens.n2 / totalLens.F;
-      var th = rad2deg(Math.atan(nowY / zp));
+      var th = rad2deg(nowY / zp);
 
       var myPoint = { id: thisPoint.id, type: "beam", which: "object", t: th };
       pairData    = Optics.calculateConjugatePairFrom(myPoint, totalLens);
@@ -477,7 +487,7 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
         this.anglePicker.setAnchor(pivotZ, 0);  // change the anchor
 
         var T1 = this.data.T1;
-        this.anglePicker.setAngle(T1 + 90);  // perpendicular to the ray, so the handle doesn't overlap it
+        this.anglePicker.setAngle(fieldAngleToGeometricAngle(T1) + 90);  // perpendicular to the ray, so the handle doesn't overlap it
 
         this.remove ();
         this.draw ();
@@ -549,7 +559,7 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
 
         // this will add an anglePicker, drawn perpendicular to the ray (T1+90) so its
         // handle and line don't overlap the ray itself
-        this.anglePicker = new AnglePicker (0, 0, defaultHandleLength, T1 + 90);
+        this.anglePicker = new AnglePicker (0, 0, defaultHandleLength, fieldAngleToGeometricAngle(T1) + 90);
         this.anglePicker.setAnchor(N1, 0); // move to default point is N1
         this.anglePicker.data("data-attr-info", {  "conjugate_id"  : "point-" + this.data.id + "-image",
                                                    "id"            : this.data.id,

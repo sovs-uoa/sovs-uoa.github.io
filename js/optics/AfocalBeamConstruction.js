@@ -22,14 +22,23 @@ These functions are called as the picker is dragged
 
 function onAfocalStart ()   { console.log("onstart picker"); };
 
-function onAfocalMove (th)  { 
+function onAfocalMove (th)  {
 
       // this => AnglePicker
       //console.log("angle picker passed angle = " + th);
 
+      // th is the handle's own TRUE geometric angle (AnglePicker.setAngle is a
+      // real polar-to-cartesian rotation) - not the paraxial field angle T1
+      // itself, since the ray is drawn with the linear slope deg2rad(T1),
+      // whose true geometric angle is atan(deg2rad(T1)), not T1 (they
+      // coincide only for a small T1). Clamp away from +-90 deg first (tan()
+      // of exactly +-90 is infinite), matching ParallelBeamConstruction's
+      // onmove().
+      th = Math.max(-89.9, Math.min(89.9, th));
+      var T1 = geometricAngleToFieldAngle(th);
 
-      // update the graphic + associated table 
-      myPoint   = { id:this.parent.getId(), type: "beam", which: "object", t: th };
+      // update the graphic + associated table
+      myPoint   = { id:this.parent.getId(), type: "beam", which: "object", t: T1 };
       totalLens = renderableLens.total;    
       PairData  = Optics.calculateConjugatePairFrom(myPoint, totalLens); 
       this.parent.setPairData(PairData);
@@ -295,7 +304,7 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
         var V1 = pupilInfo ? renderableLens.total.pupil.VE1 : 0;
         var T1 = this.data.T1;
         this.anglePicker.setAnchor(V1, 0);  // change the anchor
-        this.anglePicker.setAngle (T1);
+        this.anglePicker.setAngle (fieldAngleToGeometricAngle(T1));
         this.anglePicker.setLength (getXProportionFactor(0.1));
 
         this.setInputRays (T1); // this will re-calculate 
@@ -436,7 +445,7 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
         var V2   = 1; //lens.V2;    // secondary nodal point 
 
         // this will add an anglePicker 
-        this.anglePicker = new AnglePicker (0, 0, 10, this.data.T1);
+        this.anglePicker = new AnglePicker (0, 0, 10, fieldAngleToGeometricAngle(this.data.T1));
         this.anglePicker.setAnchor(V1, 0); // move to default point is N1
         this.anglePicker.setLength(getXProportionFactor(0.1));        
         this.anglePicker.data("data-attr-info", {  "conjugate_id"  : "point-" + this.data.id + "-image",

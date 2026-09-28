@@ -104,6 +104,30 @@ function rad2deg (theta) {
         return theta;
 }
 
+/* -----------------------------------------------------------------------
+
+A beam-from-infinity's field angle T1 is used PARAXIALLY everywhere in this
+app (calculateConjugatePairFrom's IQ, calculateRayTrace/translateRays, the
+Pin feature) - its direction is deg2rad(T1) used directly as a linear slope,
+NOT Math.tan(deg2rad(T1)). But the draggable angle-picker HANDLE for a beam
+is a real geometric widget (AnglePicker.setAngle uses actual polar-to-
+cartesian trig), so a ray actually drawn with that linear slope has a TRUE
+geometric angle of atan(deg2rad(T1)) degrees, not T1 itself - the two
+coincide only for a small T1. These convert between the paraxial field angle
+and the handle's own true geometric angle so the two stay exactly
+perpendicular (or aligned, depending on the construction's own offset) at
+any angle, not just a small one.
+
+--------------------------------------------------------------------------- */
+
+function fieldAngleToGeometricAngle (T1) {
+  return rad2deg(Math.atan(deg2rad(T1)));
+}
+
+function geometricAngleToFieldAngle (geometricAngle) {
+  return rad2deg(Math.tan(deg2rad(geometricAngle)));
+}
+
 
 
 //Function to assign the default values for the staircase parameters
