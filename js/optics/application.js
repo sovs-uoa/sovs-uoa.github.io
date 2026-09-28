@@ -217,6 +217,14 @@
       return formatterParams.emptyVal;
     }
 
+    // l/l' (principal-plane-referenced distance) is genuinely undefined for
+    // an afocal system - the principal planes themselves don't exist, for
+    // ANY object - not something the value "Infinity" should assert as a
+    // real result the way it can for e.g. an image genuinely at infinity.
+    if (formatterParams.hideInfinite && !isFinite(val)) {
+      return formatterParams.emptyVal;
+    }
+
     var scaled = toDisplayDistance(val);
     if (formatterParams.flipVal) {
       scaled = -scaled;
@@ -770,6 +778,7 @@ getConjuugateTo
 
 
     isafocal = (renderableLens.total.F == 0);
+    updateNewSourceMenuAvailability(isafocal);
     var vertHeight = 0.3;
     if (response.hasOwnProperty("general")) {
         if(response.general.hasOwnProperty("cardinalVertHeight")) {
@@ -822,6 +831,23 @@ getConjuugateTo
   }
 
 
+  /* ----------------------------------------------------------------------------------------------------------------
+
+      UPDATENEWSOURCEMENUAVAILABILITY  Grey out the "New" dropdown's "point" and "beam" (literal,
+      not the unified "object" entry) options whenever the loaded system is afocal - both draw
+      through the system's cardinal points (see lensObjectSelector()'s own guard in prescription.js
+      for why), which don't exist for a system with zero equivalent power.
+
+  ----------------------------------------------------------------------------------------------------------------   */
+
+  function updateNewSourceMenuAvailability (isafocal) {
+
+    document.querySelectorAll('[data-short-id="point"], [data-short-id="beam"]').forEach(function (link) {
+      link.classList.toggle("disabled", isafocal);
+      link.title = isafocal ? "Not available for an afocal system - it has no finite cardinal points to draw through." : "";
+    });
+
+  }
 
 
   function updateSummaryView () {

@@ -118,10 +118,26 @@ function lensTypeSelector(elem) {
 
 
 function lensObjectSelector(elem) {
-    
+
 
     var objectType      = elem.getAttribute("data-short-id");
     var objectTypeLong  = elem.innerText;
+
+    // "point" (PrincipalRayConstruction) and "beam" (ParallelBeamConstruction)
+    // both draw the classic three-ray construction through the system's
+    // cardinal points (P1/P2/F1/F2/N1/N2 - see drawRayConstruction() and
+    // drawBeamConstruction()), which are only finite for a system with real
+    // power. An afocal system (equivalent power F=0, e.g. a telescope) has
+    // no finite cardinal points at all, so these would draw nothing but
+    // Infinity/NaN geometry - refuse rather than let that happen silently
+    // (updateNewSourceMenuAvailability() also greys these menu items out for
+    // the same reason, but guard here too in case that DOM update is stale).
+    if ((objectType === "point" || objectType === "beam") &&
+        typeof renderableLens !== "undefined" && renderableLens && renderableLens.total &&
+        renderableLens.total.F === 0) {
+      console.log(`"${objectTypeLong}" is not available for an afocal system - it needs finite cardinal points. Use "object" or the afocal beam option instead.`);
+      return;
+    }
 
     // update this field
     $("#point-type-text-readonly").val(objectTypeLong);
@@ -896,8 +912,8 @@ function initializePointsTable(data, updatePointsCallback, success) {
             {title:"Y1",                          field:"Y1", visible:false, width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 6, emptyVal: "--" },  cellEdited:  defaultEditFunction, editable:editPointCheck },                  
             {title:"X2",                          field:"X2", visible:false, width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 6, emptyVal: "--" },  cellEdited:  defaultEditFunction, editable:editPointCheck },                  
             {title:"Y2",                          field:"Y2", visible:false, width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 6, emptyVal: "--" },  cellEdited:  defaultEditFunction, editable:editPointCheck },                  
-            {title:"<i>l</i>",                    field:"l",  visible:true,  width:100, editor: distanceEditor, headerSort:false, mutator:Number, formatter: distanceFormatter, formatterParams:{ precision: 6, emptyVal: "--" },  cellEdited:  defaultEditFunction, editable:editPointCheck },
-            {title:"<i>l&prime;</i>",             field:"ld", visible:true,  width:100, editor: distanceEditor, headerSort:false, mutator:Number, formatter: distanceFormatter, formatterParams:{ precision: 6, emptyVal: "--" },  cellEdited:  defaultEditFunction, editable:editPointCheck },
+            {title:"<i>l</i>",                    field:"l",  visible:true,  width:100, editor: distanceEditor, headerSort:false, mutator:Number, formatter: distanceFormatter, formatterParams:{ precision: 6, emptyVal: "--", hideInfinite: true },  cellEdited:  defaultEditFunction, editable:editPointCheck },
+            {title:"<i>l&prime;</i>",             field:"ld", visible:true,  width:100, editor: distanceEditor, headerSort:false, mutator:Number, formatter: distanceFormatter, formatterParams:{ precision: 6, emptyVal: "--", hideInfinite: true },  cellEdited:  defaultEditFunction, editable:editPointCheck },
             {title:"<i>l<sub>v</sub></i>",        field:"zo", visible:true,  width:100, editor: distanceEditor, headerSort:false, mutator:Number, formatter: distanceFormatter, formatterParams:{ precision: 6, emptyVal: "--" },  cellEdited:  defaultEditFunction, editable:editPointCheck },
             {title:"<i>l<sub>v&prime;</sub></i>", field:"zi", visible:true,  width:100, editor: distanceEditor, headerSort:false, mutator:Number, formatter: distanceFormatter, formatterParams:{ precision: 6, emptyVal: "--" },  cellEdited:  defaultEditFunction, editable:editPointCheck },
             {title:"<i>h</i>",                    field:"ho", visible:true,  width:100, editor: distanceEditor, headerSort:false, mutator:Number, formatter: distanceFormatter, formatterParams:{ precision: 6, emptyVal: "--",  flipVal:false },  cellEdited:  defaultEditFunction, editable:editPointCheck },
