@@ -312,6 +312,12 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
         // visually rotates about a different point than the rays it is
         // meant to be controlling.
         var pupilInfo = this.PinToApertureStop ? Optics.findApertureStopForInfiniteObject(renderableLens.elem) : null;
+        // safePinnedPupilInfo (optics.js) guards against VE1 itself coming
+        // back non-finite (a real, physically-meaningful degeneracy when
+        // the aperture stop sits exactly at an image conjugate - e.g. a
+        // field stop) - no object position to check here, since this is a
+        // beam from infinity.
+        pupilInfo = safePinnedPupilInfo(pupilInfo, renderableLens.total.pupil.VE1, null);
         var V1 = pupilInfo ? renderableLens.total.pupil.VE1 : 0;
         var T1 = this.data.T1;
         this.anglePicker.setAnchor(V1, 0);  // change the anchor
@@ -390,6 +396,12 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
       /* this should determine rays at each surface */
 
       var pupilInfo  = this.PinToApertureStop ? Optics.findApertureStopForInfiniteObject(renderableLens.elem) : null;
+      // safePinnedPupilInfo (optics.js) guards against VE1 itself coming
+      // back non-finite (a real, physically-meaningful degeneracy when the
+      // aperture stop sits exactly at an image conjugate - e.g. a field
+      // stop) - no object position to check here, since this is a beam
+      // from infinity.
+      pupilInfo      = safePinnedPupilInfo(pupilInfo, renderableLens.total.pupil.VE1, null);
       var bw         = pupilInfo ? 2*pupilInfo.angle : this.BeamWidth;
       this.PinnedApertureDiameter = pupilInfo ? 2*pupilInfo.angle : null;
       var pivotZ     = pupilInfo ? renderableLens.total.pupil.VE1 : 0;

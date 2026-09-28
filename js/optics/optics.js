@@ -51,6 +51,10 @@ Optics.findApertureStopForInfiniteObject = function (elemArr) {
   return findApertureStopForInfiniteObject (elemArr)
 }
 
+Optics.findApertureStopForFiniteObject = function (elemArr, objectZ, objectH) {
+  return findApertureStopForFiniteObject (elemArr, objectZ, objectH)
+}
+
 Optics.extractGroup = function (lens, group_name) {
 
   // groups dont include the medium in which they are immersed
@@ -126,6 +130,45 @@ function fieldAngleToGeometricAngle (T1) {
 
 function geometricAngleToFieldAngle (geometricAngle) {
   return rad2deg(Math.tan(deg2rad(geometricAngle)));
+}
+
+/* -----------------------------------------------------------------------
+
+SAFEPINNEDPUPILINFO  The Pin feature (aiming a construction's bounding rays
+at the entrance pupil edge - see findApertureStopForInfiniteObject) has two
+known singularities where it must NOT be trusted, or it silently produces
+Infinity/NaN rays instead of a graceful fallback to the ordinary (unpinned)
+construction:
+
+  1. VE1 (the entrance pupil position) itself can come back non-finite.
+     This is a REAL, physically-meaningful degeneracy, not a bug to work
+     around: the entrance/exit pupil calculation is undefined when the
+     aperture stop sits exactly at an image conjugate of the system (every
+     ray from an axial object converges to the same height there regardless
+     of its starting height, so there is no well-defined "image of the
+     stop" to speak of at that specific plane).
+
+  2. For a FINITE object (pass its axial position as objectZ), the ray-
+     aiming formula itself (getBeam: slope = height/(VE1-objectZ)) divides
+     by zero whenever the object happens to sit exactly at the entrance
+     pupil - a second, independent singularity.
+
+  pupilInfo  - the findApertureStopForInfiniteObject() result (or null)
+  VE1        - renderableLens.total.pupil.VE1
+  objectZ    - the object's own axial position; omit (or pass null) for a
+               beam from infinity, which has no object position and so
+               isn't subject to singularity 2 at all
+
+Returns pupilInfo unchanged if it is safe to use, otherwise null - callers
+should treat a null return exactly like "no aperture stop found anywhere".
+
+--------------------------------------------------------------------------- */
+
+function safePinnedPupilInfo (pupilInfo, VE1, objectZ) {
+  if (!pupilInfo) { return null; }
+  if (!isFinite(VE1)) { return null; }
+  if (objectZ != null && Math.abs(VE1 - objectZ) <= 1e-9) { return null; }
+  return pupilInfo;
 }
 
 
@@ -455,6 +498,56 @@ function findApertureStopForInfiniteObject (elemArr) {
 
   var tracedZero = calculateRayTrace([ { u: 0, h: 0, z: 0 } ], elemArr);
   var tracedOne  = calculateRayTrace([ { u: 0, h: 1, z: 0 } ], elemArr);
+
+  return limitingApertureFromTraces(elemArr, tracedZero, tracedOne);
+
+}
+
+/* -----------------------------------------------------------------------
+
+FINDAPERTURESTOPFORFINITEOBJECT  The per-object counterpart of
+findApertureStopForInfiniteObject, used as a FALLBACK for a finite object
+(PointSourceConstruction) specifically - not for a beam from infinity, which
+has no real object position to trace from and, more importantly, would
+reopen the handle-vs-ray angle correlation problem this whole per-object
+approach was originally dropped for (see the entrance-pupil pivot commits).
+A finite object has no angle-picker handle at all (it is dragged by
+position), so that concern does not apply here.
+
+The entrance pupil itself (findApertureStopForInfiniteObject) is an
+object-INDEPENDENT system property - it is always computed via an axial
+pencil from infinity, varying STARTING HEIGHT at u=0 - so it is exactly as
+degenerate for a finite object as for an infinite one whenever the stop
+sits at an image conjugate of THAT axial-infinity pencil (e.g. a stop at a
+preceding element's own back focal point). But a finite, off-axis-launched
+object's rays reach that same plane by varying ANGLE (not starting height)
+at its own fixed launch height, and - unless the object happens to sit at
+the front focal point of the elements before the stop, making its own
+image fall there too - that is a genuinely different, non-degenerate
+sensitivity. So this can still find a valid pin angle in exactly the cases
+where the object-independent method cannot.
+
+  elemArr  - the enriched per-element array (e.g. renderableLens.elem)
+  objectZ  - the object's axial position (relative to the front vertex, V1=0)
+  objectH  - the object's height (0 for an on-axis point)
+
+--------------------------------------------------------------------------- */
+
+function findApertureStopForFiniteObject (elemArr, objectZ, objectH) {
+
+  var h0start = objectH || 0;
+
+  // calculateRayTrace's per-element S matrices are all relative to the
+  // front vertex (Z=0) - it does not itself propagate an incoming ray from
+  // wherever its own "z" happens to be, so a ray actually launched from the
+  // object (objectZ, h0start) has to be rebased to the front vertex first
+  // (see translateRays), exactly as the ordinary beam-construction code
+  // already does before its own calculateRayTrace calls.
+  var rayZero = translateRays([ { u: 0, h: h0start, z: objectZ } ], 0);
+  var rayOne  = translateRays([ { u: 1, h: h0start, z: objectZ } ], 0);
+
+  var tracedZero = calculateRayTrace(rayZero, elemArr);
+  var tracedOne  = calculateRayTrace(rayOne, elemArr);
 
   return limitingApertureFromTraces(elemArr, tracedZero, tracedOne);
 

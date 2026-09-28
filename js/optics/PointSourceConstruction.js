@@ -299,7 +299,15 @@ class PointSourceConstruction { // create a ray construction using raphael.js
       var rays = [];
 
       function getBeam (X2, X1, Y1, Y2) {
-          var u0 = (Y2 - Y1)/(X2 - X1);
+          // A ray "aimed at (X2,Y2)" from (X1,Y1) has no well-defined
+          // direction when X1 and X2 coincide (the object sitting exactly
+          // at the plane it is being aimed towards - e.g. the entrance
+          // pupil sitting right on top of the object itself). Rather than
+          // let that surface as a literal Infinity/NaN, fall back to a
+          // straight (u=0) ray - a plainly degenerate input like this has
+          // no physically meaningful "aimed" angle to fall back to anyway.
+          var denom = X2 - X1;
+          var u0 = (Math.abs(denom) > 1e-9) ? (Y2 - Y1)/denom : 0;
           return { u: u0, z:X1, h: Y1};
       }
 
@@ -323,7 +331,29 @@ class PointSourceConstruction { // create a ray construction using raphael.js
             // requires solving a different, sometimes ill-conditioned
             // equation per object position.
             var pupilInfo = this.PinToApertureStop ? Optics.findApertureStopForInfiniteObject(renderableLens.elem) : null;
+            // safePinnedPupilInfo (optics.js) guards against two known
+            // singularities - VE1 itself non-finite, or (for a finite
+            // object like this one) the object sitting exactly at the
+            // entrance pupil - either of which would otherwise silently
+            // produce Infinity/NaN rays instead of falling back gracefully.
+            pupilInfo = safePinnedPupilInfo(pupilInfo, VE1, VO);
             var pupilRadius = pupilInfo ? pupilInfo.angle : null;
+
+            // Fallback: the entrance pupil is an object-INDEPENDENT system
+            // property (always computed via an axial pencil from infinity),
+            // so it is exactly as degenerate for THIS object as for any
+            // other whenever the stop sits at an image conjugate of that
+            // pencil (e.g. a stop at a preceding element's own back focal
+            // point). But THIS object's own rays reach the stop by varying
+            // ANGLE (not starting height) from its own fixed position, which
+            // is a genuinely different sensitivity - findApertureStopFor
+            // FiniteObject can still find a valid pin angle here. Only
+            // meaningful for a finite object (no angle-picker handle to
+            // conflict with) - see its own docs in optics.js.
+            var stopRay = (this.PinToApertureStop && pupilRadius == null)
+              ? Optics.findApertureStopForFiniteObject(renderableLens.elem, VO, Y1)
+              : null;
+
             if (pupilRadius != null) {
               rays.push(getBeam(VE1, VO, Y1, +pupilRadius));
               rays.push(getBeam(VE1, VO, Y1, 0));
@@ -333,6 +363,15 @@ class PointSourceConstruction { // create a ray construction using raphael.js
               // (now read-only) "beam width" cell so it doesn't show a stale
               // manually typed value while pinned.
               this.PinnedApertureDiameter = 2*pupilRadius;
+            } else if (stopRay) {
+              rays.push({ u: +stopRay.angle, z: VO, h: Y1 });
+              rays.push({ u: 0,              z: VO, h: Y1 });
+              rays.push({ u: -stopRay.angle, z: VO, h: Y1 });
+              // There is no "at VE1" reference to report a width against
+              // here (that is exactly what is undefined in this fallback
+              // case) - report the limiting element's own raw aperture
+              // instead, the most honest available quantity.
+              this.PinnedApertureDiameter = renderableLens.elem[stopRay.index].elem.aperture;
             } else {
               this.PinnedApertureDiameter = null;
               rays.push(getBeam(VE1, VO, Y1, +BW/2));
