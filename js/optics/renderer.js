@@ -1064,12 +1064,15 @@ function drawAxis () {
       stop.push(c5, c6);
 
       // inward-pointing arrowheads at the gap edges - same h/30 scale and
-      // inward convention as drawThinLens's converging (positive) lens case,
-      // marking the aperture itself rather than the element's outer extent
-      var c7 = paper.path( ["M", x, halfAperture,  "L", x+height/30, halfAperture-height/30  ] );
-      var c8 = paper.path( ["M", x, halfAperture,  "L", x-height/30, halfAperture-height/30  ] );
-      var c9  = paper.path( ["M", x, -halfAperture, "L", x-height/30, -halfAperture+height/30 ] );
-      var c10 = paper.path( ["M", x, -halfAperture, "L", x+height/30, -halfAperture+height/30 ] );
+      // inward convention as drawThinLens's diverging (negative) lens case:
+      // the vertex sits at the aperture edge itself, with its two wings
+      // splayed further OUT (towards the opaque bar), so the arrowhead as a
+      // whole reads as pointing IN towards the opening, marking the
+      // aperture itself rather than the element's outer extent
+      var c7 = paper.path( ["M", x, halfAperture,  "L", x+height/30, halfAperture+height/30  ] );
+      var c8 = paper.path( ["M", x, halfAperture,  "L", x-height/30, halfAperture+height/30  ] );
+      var c9  = paper.path( ["M", x, -halfAperture, "L", x-height/30, -halfAperture-height/30 ] );
+      var c10 = paper.path( ["M", x, -halfAperture, "L", x+height/30, -halfAperture-height/30 ] );
       stop.push(c7, c8, c9, c10);
 
       return stop;
