@@ -1025,6 +1025,20 @@ function drawAxis () {
   }
 
 
+  // An explicit aperture stop, drawn at its own physical position (as
+  // opposed to the entrance/exit pupil markers in drawPupils(), which are
+  // drawn at the imaged E/E' positions) - the same inward-pointing
+  // arrowhead-tick pair used there, embedded directly on a "thin" element so
+  // a neutral (zero-power) placeholder lens can double as a visible stop
+  // symbol without needing a dedicated element type.
+  function drawApertureStopMarks (x, halfAperture) {
+      var marks = paper.set();
+      marks.push(drawVertArrow(x, +halfAperture, true));
+      marks.push(drawVertArrow(x, -halfAperture, false));
+      return marks;
+  }
+
+
 
   /* DRAW LENS TYPES   */
 
@@ -1872,7 +1886,30 @@ function drawAxis () {
 
           l = drawThinLens(axialPosition, 0, equivalentPower, height, displayOptions);
           optics_set.push(l);
+
+          if (curr.stop) {
+            var halfAperture = (isFinite(curr.aperture) && curr.aperture > 0) ? curr.aperture/2 : height/2;
+            optics_set.push(drawApertureStopMarks(axialPosition, halfAperture));
+          }
+
           console.log (`- ${curr.type} Z = ${axialPosition}, F = ${equivalentPower}, h = ${height}`);
+          break;
+
+
+        case "stop":
+
+          // A standalone aperture-stop marker - no lens/window glyph of its
+          // own (see getLensElementInfo's "stop" case: optically identical
+          // to a zero-power "thin" element), just the arrowhead-tick pair -
+          // always drawn, since type "stop" IS the stop by definition (see
+          // convertToLensTable).
+          axialPosition = data.elem[i].Z;
+          height        = curr.height;
+
+          var halfApertureStop = (isFinite(curr.aperture) && curr.aperture > 0) ? curr.aperture/2 : height/2;
+          optics_set.push(drawApertureStopMarks(axialPosition, halfApertureStop));
+
+          console.log (`- ${curr.type} Z = ${axialPosition}, h = ${height}`);
           break;
 
 

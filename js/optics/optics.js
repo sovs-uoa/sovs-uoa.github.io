@@ -161,7 +161,10 @@ function convertToLensTable (response) {
                              height:      assignParameterValue(response[i].args.height, NaN),
                              index:       assignParameterValue(response[i].args.index, NaN),
                              thickness:   assignParameterValue(response[i].args.thickness, NaN),
-                             stop:        assignParameterValue(response[i].args.stop, false),
+                             // a dedicated "stop" element IS the stop by definition - no need
+                             // to also set args.stop in the .lens file, though an explicit
+                             // value (if ever given) still takes precedence
+                             stop:        assignParameterValue(response[i].args.stop, response[i].type === "stop"),
                              aperture:    assignParameterValue(response[i].args.aperture, NaN),
                              base:        assignParameterValue(response[i].args.base, "up") };
 
@@ -1165,10 +1168,24 @@ function getLensElementInfo(elem, index) {
 
       case "thin" :
         F   = input_elem.power;
-        S   = refractionMatrix (n1, n2, F);   
+        S   = refractionMatrix (n1, n2, F);
         elemCardinalPoints = getCardinalPoints(S);
-        elemPowers = getPowers (elemCardinalPoints, n1, n2);        
-        return { S: S, invS: inverseMatrix2x2(S), cardinal: elemCardinalPoints, powers: elemPowers,  n1: n1, n2: n2, F: F, L : 0, elem: input_elem }; 
+        elemPowers = getPowers (elemCardinalPoints, n1, n2);
+        return { S: S, invS: inverseMatrix2x2(S), cardinal: elemCardinalPoints, powers: elemPowers,  n1: n1, n2: n2, F: F, L : 0, elem: input_elem };
+
+      case "stop" :
+        // A dedicated, standalone aperture-stop marker - optically a plain
+        // zero-power window (same identity-ish system as a "thin" element
+        // with power 0), but drawn with its own distinct symbol (see
+        // drawApertureStopMarks in renderer.js) instead of a lens/window
+        // glyph, and always treated as the stop regardless of any explicit
+        // "stop" flag - see convertToLensTable, where type "stop" implies
+        // stop:true by default.
+        F   = 0;
+        S   = refractionMatrix (n1, n2, F);
+        elemCardinalPoints = getCardinalPoints(S);
+        elemPowers = getPowers (elemCardinalPoints, n1, n2);
+        return { S: S, invS: inverseMatrix2x2(S), cardinal: elemCardinalPoints, powers: elemPowers,  n1: n1, n2: n2, F: F, L : 0, elem: input_elem };
 
       case "prism" :
 
