@@ -350,9 +350,16 @@ class PointSourceConstruction { // create a ray construction using raphael.js
             // FiniteObject can still find a valid pin angle here. Only
             // meaningful for a finite object (no angle-picker handle to
             // conflict with) - see its own docs in optics.js.
+            // An off-axis object can be vignetted asymmetrically - the +u and
+            // -u marginal rays can be limited by different elements, at
+            // different angles (see limitingApertureForSignedDirection in
+            // optics.js), so this comes back as {plus, minus} rather than one
+            // shared magnitude. Both sides have to resolve to use this path -
+            // a one-sided result would silently understate the other side.
             var stopRay = (this.PinToApertureStop && pupilRadius == null)
               ? Optics.findApertureStopForFiniteObject(renderableLens.elem, VO, Y1)
               : null;
+            var stopRayUsable = stopRay && stopRay.plus && stopRay.minus;
 
             if (pupilRadius != null) {
               rays.push(getBeam(VE1, VO, Y1, +pupilRadius));
@@ -363,15 +370,19 @@ class PointSourceConstruction { // create a ray construction using raphael.js
               // (now read-only) "beam width" cell so it doesn't show a stale
               // manually typed value while pinned.
               this.PinnedApertureDiameter = 2*pupilRadius;
-            } else if (stopRay) {
-              rays.push({ u: +stopRay.angle, z: VO, h: Y1 });
-              rays.push({ u: 0,              z: VO, h: Y1 });
-              rays.push({ u: -stopRay.angle, z: VO, h: Y1 });
+            } else if (stopRayUsable) {
+              rays.push({ u: +stopRay.plus.angle,  z: VO, h: Y1 });
+              rays.push({ u: 0,                    z: VO, h: Y1 });
+              rays.push({ u: -stopRay.minus.angle, z: VO, h: Y1 });
               // There is no "at VE1" reference to report a width against
               // here (that is exactly what is undefined in this fallback
-              // case) - report the limiting element's own raw aperture
-              // instead, the most honest available quantity.
-              this.PinnedApertureDiameter = renderableLens.elem[stopRay.index].elem.aperture;
+              // case) - report the limiting element's own raw aperture when
+              // both sides agree on which element that is; when vignetting
+              // is asymmetric (different limiting elements each side) there
+              // is no single honest "diameter" to show, so leave it be.
+              this.PinnedApertureDiameter = (stopRay.plus.index === stopRay.minus.index)
+                ? renderableLens.elem[stopRay.plus.index].elem.aperture
+                : null;
             } else {
               this.PinnedApertureDiameter = null;
               rays.push(getBeam(VE1, VO, Y1, +BW/2));

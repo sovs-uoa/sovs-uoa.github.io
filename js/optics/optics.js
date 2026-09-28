@@ -465,6 +465,56 @@ function limitingApertureFromTraces (elemArr, tracedZero, tracedOne) {
 
 /* -----------------------------------------------------------------------
 
+LIMITINGAPERTUREFORSIGNEDDIRECTION  The per-direction counterpart of
+limitingApertureFromTraces, needed for an OFF-AXIS finite object. That
+function's uPlus/uMinus are the u values where ONE ray family (parametrised
+by u alone) reaches the +aperture/2 and -aperture/2 edges of a given
+element; taking whichever needs less |u| and applying that SAME magnitude
+symmetrically in both +u and -u directions is only valid when the object is
+on-axis (h0=0), where uPlus and -uMinus are mirror images anyway. Off-axis,
+the two edges are generally reached at different |u| - the edge with the
+SMALLER |u| in each direction is the one actually constraining a ray
+sweeping that way (the other is never reached first), and different
+elements can be the limiting one on each side (asymmetric vignetting). This
+finds the limiting element independently for ONE signed sweep direction, so
+the caller can do it twice (once for sign=+1, once for sign=-1) and get two
+genuinely different marginal rays instead of one mirrored pair.
+
+--------------------------------------------------------------------------- */
+
+function limitingApertureForSignedDirection (elemArr, tracedZero, tracedOne, sign) {
+
+  var best = null;
+
+  for (var i = 0; i < elemArr.length; i++) {
+
+    var aperture = elemArr[i].elem.aperture;
+    if (!isFinite(aperture) || aperture <= 0) { continue; }
+
+    var h0    = tracedZero[i][0].h;
+    var slope = tracedOne[i][0].h - h0;
+    if (Math.abs(slope) < 1e-12) { continue; } // this element doesn't constrain a ray launched from here
+
+    // Walking u away from 0 in direction `sign`, height moves as sign*slope
+    // per unit |u| - whichever edge lies in that direction of travel is the
+    // one this element can actually constrain on this side.
+    var edgeHeight = (sign * slope > 0) ? (aperture / 2) : (-aperture / 2);
+    var u = (edgeHeight - h0) / slope;
+    if (sign * u <= 1e-12) { continue; } // edge is behind this direction (or already at/past it at u=0)
+
+    var candidateAngle = Math.abs(u); // magnitude only - caller already knows the sign from `sign`
+    if (best === null || candidateAngle < best.angle) {
+      best = { angle: candidateAngle, index: i, id: elemArr[i].elem.tag_id, description: elemArr[i].elem.description };
+    }
+
+  }
+
+  return best;
+
+}
+
+/* -----------------------------------------------------------------------
+
 FINDAPERTURESTOPFORINFINITEOBJECT  Find which element in the system actually
 limits the bundle of rays ("the aperture stop"), and the system's entrance
 pupil radius, WITHOUT reference to any particular object point.
@@ -549,7 +599,14 @@ function findApertureStopForFiniteObject (elemArr, objectZ, objectH) {
   var tracedZero = calculateRayTrace(rayZero, elemArr);
   var tracedOne  = calculateRayTrace(rayOne, elemArr);
 
-  return limitingApertureFromTraces(elemArr, tracedZero, tracedOne);
+  // An off-axis object (h0start != 0) can be vignetted asymmetrically - the
+  // element (and angle) limiting the +u marginal ray need not be the same
+  // as the one limiting -u (see limitingApertureForSignedDirection). Find
+  // each side independently rather than mirroring one shared magnitude.
+  return {
+    plus:  limitingApertureForSignedDirection(elemArr, tracedZero, tracedOne, +1),
+    minus: limitingApertureForSignedDirection(elemArr, tracedZero, tracedOne, -1)
+  };
 
 }
 
