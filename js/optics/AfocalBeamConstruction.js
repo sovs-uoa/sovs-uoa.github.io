@@ -284,9 +284,15 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
   refresh() {
 
 
-        // refresh the angle picker 
+        // refresh the angle picker
         console.log ("refreshing afocalbeamconstruction");
-        var V1 = 0;
+        // Anchor the handle at whichever point the rays themselves actually
+        // pivot about - the front vertex (V1=0) normally, but the entrance
+        // pupil (VE1) when pinned (see setInputRays) - otherwise the handle
+        // visually rotates about a different point than the rays it is
+        // meant to be controlling.
+        var pupilInfo = this.PinToApertureStop ? Optics.findApertureStopForInfiniteObject(renderableLens.elem) : null;
+        var V1 = pupilInfo ? renderableLens.total.pupil.VE1 : 0;
         var T1 = this.data.T1;
         this.anglePicker.setAnchor(V1, 0);  // change the anchor
         this.anglePicker.setAngle (T1);

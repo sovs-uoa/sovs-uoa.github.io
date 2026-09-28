@@ -465,14 +465,22 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
 
         console.log ('called REFRESH ParallelBeamCOnsturction');
 
-        var N1 = this.lens.cardinal.VN1; 
-        this.anglePicker.setAnchor(N1, 0);  // change the anchor
+        // Anchor the handle at whichever point the rays themselves actually
+        // pivot about - N1 normally, but the entrance pupil (VE1) when
+        // pinned (see drawBeamConstruction) - otherwise the handle visually
+        // rotates about a different point than the rays it is meant to be
+        // controlling, so its angle stops looking like it corresponds to
+        // the beam it is driving.
+        var pupilInfo = this.PinToApertureStop ? Optics.findApertureStopForInfiniteObject(renderableLens.elem) : null;
+        var N1 = this.lens.cardinal.VN1;
+        var pivotZ = pupilInfo ? renderableLens.total.pupil.VE1 : N1;
+        this.anglePicker.setAnchor(pivotZ, 0);  // change the anchor
 
         var T1 = this.data.T1;
         this.anglePicker.setAngle(T1 + 90);  // perpendicular to the ray, so the handle doesn't overlap it
 
-        this.remove ();            
-        this.draw ();    
+        this.remove ();
+        this.draw ();
 
     }
 
