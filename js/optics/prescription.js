@@ -837,6 +837,55 @@ function initializePointsTable(data, updatePointsCallback, success) {
 
 
 
+      // Pin and Vig (see their column definitions below) are two separate,
+      // mutually exclusive toggles - see setPinToApertureStop() on each
+      // construction class:
+      //   neither - an arbitrary manually-typed beam width (the default)
+      //   Pin - pinned to the system's single DESIGNATED aperture stop only
+      //         (explicit "stop":true, or auto-detected - see
+      //         findApertureStopForInfiniteObject in optics.js) - ignores
+      //         whether some other element would be tighter for this ray
+      //   Vig - the user's own typed beam width, shown clipped by whichever
+      //         element(s) actually vignette THIS ray as it propagates -
+      //         real vignetting, which can differ from the designated stop
+      //         for an off-axis or otherwise non-design object/beam (see
+      //         computeVignettedEnvelope)
+      function applyPinVigMode (row, data, nextField) {
+
+         var construction = lens.raphael.constructions.find(function (c) { return c.getId() == data.id; });
+         if (!construction || !construction.setPinToApertureStop) { return; }
+
+         var wasOff  = !data.pin && !data.vig;
+         var turnOn  = !data[nextField]; // toggling the clicked field on, or off if it was already on
+         var pinOn   = turnOn && nextField === "pin";
+         var vigOn   = turnOn && nextField === "vig";
+
+         row.update({ pin: pinOn, vig: vigOn });
+
+         // The "beam width" cell is locked while PIN'd (see that column's
+         // editable()) and instead mirrors the limiting element's own
+         // aperture diameter - stash the manually typed value (only on the
+         // way OUT of "neither") so it can come back when toggled back off
+         // again. Vig does not lock it - the typed width IS its input.
+         if (wasOff) {
+           row.update({ _manualBeamWidth: data.beamwidth });
+         }
+
+         if (!pinOn && !vigOn) {
+           construction.setPinToApertureStop(false, false);
+           if (isFinite(data._manualBeamWidth)) {
+             row.update({ beamwidth: data._manualBeamWidth });
+           }
+         } else {
+           construction.setPinToApertureStop(true, vigOn);
+           if (pinOn && isFinite(construction.PinnedApertureDiameter)) {
+             row.update({ beamwidth: construction.PinnedApertureDiameter });
+           }
+         }
+
+      }
+
+
       //Build Tabulator
       lens.pointsTable = new Tabulator("#lens-points", {
         data:data,
@@ -855,56 +904,40 @@ function initializePointsTable(data, updatePointsCallback, success) {
              // not editable afterwards - see toggleObjectInfinityCell()'s comment
              formatter:"tickCross",
              formatterParams:{ allowEmpty:true, allowTruthy:true, tickElement:"<span class=\"badge badge-info\">&infin;</span>", crossElement:"" } },
-            // Pins this object's bounding rays to the entrance pupil's edge - the
-            // paraxial image of the system's actual aperture stop (explicit or
-            // auto-computed - see findApertureStopForInfiniteObject in optics.js
-            // and setPinToApertureStop() on each construction class). Works for
-            // both a finite object (PointSourceConstruction) and a beam from
-            // infinity (ParallelBeamConstruction/AfocalBeamConstruction) - none
-            // of them need a real object position for this, since the entrance
-            // pupil is a fixed system quantity. Not meaningful for a "point"
-            // row (PrincipalRayConstruction has no beam width concept at all).
-            // Not an "editor" column - Tabulator's tickCross editor needs one
-            // click to enter edit mode and a SECOND click on the checkbox it
-            // then reveals to actually change the value, which reads as "the
-            // cell won't let me edit it" if you only click once. A plain
-            // formatter + cellClick toggles it in a single click instead.
-            {title:"Pin", field:"pinToApertureStop", width:60, align:"center", headerSort:false,
+            // Pin and Vig - mutually exclusive toggles, see applyPinVigMode() above.
+            // Works for both a finite object (PointSourceConstruction) and a
+            // beam from infinity (ParallelBeamConstruction/AfocalBeamConstruction).
+            // Not meaningful for a "point" row (PrincipalRayConstruction has
+            // no beam width concept at all).
+            {title:"Pin", field:"pin", width:50, align:"center", headerSort:false,
              formatter: function (cell) {
                var data = cell.getRow().getData();
                if (isAfocalObjectRow(data)) {
                  return "<span style=\"opacity:0.35\" title=\"Pin is not available for an afocal object - there is no finite entrance pupil conjugate to pin against\">&mdash;</span>";
                }
-               return cell.getValue() ? "<span class=\"badge badge-info\">PIN</span>" : "";
+               return cell.getValue() ? "<span class=\"badge badge-info\" title=\"Pinned to the system's designated aperture stop only\">PIN</span>" : "";
              },
              cellClick: function (e, cell) {
                var row  = cell.getRow();
                var data = row.getData();
                if (data.type !== "object") { return; }
                if (isAfocalObjectRow(data)) { return; }
-
-               var construction = lens.raphael.constructions.find(function (c) { return c.getId() == data.id; });
-               if (!construction || !construction.setPinToApertureStop) { return; }
-
-               var newValue = !cell.getValue();
-               cell.setValue(newValue, true);
-
-               // The "beam width" cell is locked while pinned (see that
-               // column's editable()) and instead mirrors the limiting
-               // element's own aperture diameter - stash the manually typed
-               // value so it can come back when the pin is switched off.
-               if (newValue) {
-                 row.update({ _manualBeamWidth: data.beamwidth });
-                 construction.setPinToApertureStop(true);
-                 if (isFinite(construction.PinnedApertureDiameter)) {
-                   row.update({ beamwidth: construction.PinnedApertureDiameter });
-                 }
-               } else {
-                 construction.setPinToApertureStop(false);
-                 if (isFinite(data._manualBeamWidth)) {
-                   row.update({ beamwidth: data._manualBeamWidth });
-                 }
+               applyPinVigMode(row, data, "pin");
+             } },
+            {title:"Vig", field:"vig", width:50, align:"center", headerSort:false,
+             formatter: function (cell) {
+               var data = cell.getRow().getData();
+               if (isAfocalObjectRow(data)) {
+                 return "<span style=\"opacity:0.35\" title=\"Vig is not available for an afocal object - there is no finite entrance pupil conjugate to pin against\">&mdash;</span>";
                }
+               return cell.getValue() ? "<span class=\"badge badge-warning\" title=\"Your own typed beam width, shown clipped by whichever element(s) actually vignette this ray\">VIG</span>" : "";
+             },
+             cellClick: function (e, cell) {
+               var row  = cell.getRow();
+               var data = row.getData();
+               if (data.type !== "object") { return; }
+               if (isAfocalObjectRow(data)) { return; }
+               applyPinVigMode(row, data, "vig");
              } },
             //{title:"X1",     field:"X1",       width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" } },                  
             //{title:"Y1",     field:"Y1",       width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" }, accessor: flipVal },
@@ -921,13 +954,15 @@ function initializePointsTable(data, updatePointsCallback, success) {
             {title:"<i>&theta;</i>",              field:"to", visible:true,  width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 6, emptyVal: "--",  flipVal:false },  cellEdited:  defaultEditFunction, editable:editPointCheck },
             // {title:"<i>&theta;&prime;</i>",       field:"ti", visible:true,  width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--",  flipVal:false },  cellEdited:  defaultEditFunction, editable:editPointCheck },
             {title:"<i>&theta;&prime;</i>",       field:"ti", visible:true,  width:100, headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--",  flipVal:false },  cellEdited:  defaultEditFunction, editable:editPointCheck },
-            // While pinned, this reflects the limiting aperture's own diameter
-            // (kept in sync by refreshAllConstruction() in application.js) rather
-            // than a manually typed value - not editable in that state.
+            // While PINNED (not VIG), this reflects the limiting aperture's own
+            // diameter (kept in sync by refreshAllConstruction() in application.js)
+            // rather than a manually typed value - not editable in that state.
+            // VIG is different: the beam width IS the input (the fixed beam VIG
+            // shows getting clipped), so it stays editable there.
             {title:"<i>beam width</i>",           field:"beamwidth", visible:true,  width:100, editor: distanceEditor, headerSort:false, mutator:Number, formatter: distanceFormatter, formatterParams:{ precision: 6, emptyVal: "--",  flipVal:false },  cellEdited:  defaultEditFunction,
              editable: function (cell) {
                var data = cell.getRow().getData();
-               if (data.pinToApertureStop) { return false; }
+               if (data.pin) { return false; }
                return editPointCheck(cell);
              } }
         ],

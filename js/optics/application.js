@@ -626,7 +626,7 @@ getConjuugateTo
                                           zo: pairData.VO, zi: pairData.VI,
                                           ho: pairData.OQ, hi: pairData.IQ,
                                           beamwidth: aPoint.beamwidth,
-                                          pinToApertureStop: false }]); // finite objects only - see setPinToApertureStop()
+                                          pin: false, vig: false }]); // mutually exclusive - see setPinToApertureStop() and the Pin/Vig columns in prescription.js
 
 
       //console.log( lens.table.getData ());

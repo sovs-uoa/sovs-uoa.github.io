@@ -213,6 +213,7 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
        this.anglePicker;
        this.BeamWidth    = beamwidth || 5.0;
        this.PinToApertureStop = false; // see setPinToApertureStop()
+       this.VignetteAware     = false; // PIN (false): only the system's designated stop element. VIG (true): whichever element is genuinely tightest for this ray, anywhere in the system.
 
 
        this.afocalmode = false;
@@ -270,8 +271,9 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
     // of the arbitrary BeamWidth - the object-at-infinity equivalent of
     // PointSourceConstruction's Pin feature. No object position is involved
     // here, so it applies equally well to a beam from infinity.
-    setPinToApertureStop(flag) {
+    setPinToApertureStop(flag, vignetteAware) {
       this.PinToApertureStop = !!flag;
+      this.VignetteAware     = !!vignetteAware;
       this.refresh ();
     }
 
@@ -311,7 +313,8 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
         // pupil (VE1) when pinned (see setInputRays) - otherwise the handle
         // visually rotates about a different point than the rays it is
         // meant to be controlling.
-        var pupilInfo = this.PinToApertureStop ? Optics.findApertureStopForInfiniteObject(renderableLens.elem) : null;
+        var stopIndex = this.VignetteAware ? undefined : renderableLens.total.stopIndex;
+        var pupilInfo = this.PinToApertureStop ? Optics.findApertureStopForInfiniteObject(renderableLens.elem, stopIndex) : null;
         // safePinnedPupilInfo (optics.js) guards against VE1 itself coming
         // back non-finite (a real, physically-meaningful degeneracy when
         // the aperture stop sits exactly at an image conjugate - e.g. a
@@ -395,7 +398,8 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
 
       /* this should determine rays at each surface */
 
-      var pupilInfo  = this.PinToApertureStop ? Optics.findApertureStopForInfiniteObject(renderableLens.elem) : null;
+      var stopIndex  = this.VignetteAware ? undefined : renderableLens.total.stopIndex;
+      var pupilInfo  = this.PinToApertureStop ? Optics.findApertureStopForInfiniteObject(renderableLens.elem, stopIndex) : null;
       // safePinnedPupilInfo (optics.js) guards against VE1 itself coming
       // back non-finite (a real, physically-meaningful degeneracy when the
       // aperture stop sits exactly at an image conjugate - e.g. a field

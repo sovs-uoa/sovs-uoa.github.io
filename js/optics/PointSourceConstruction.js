@@ -129,6 +129,7 @@ class PointSourceConstruction { // create a ray construction using raphael.js
        this.imagePoint;
        this.BeamWidth    = beamwidth || 0.2;
        this.PinToApertureStop = false; // see setPinToApertureStop() - pins the bounding rays to the system's true limiting aperture instead of an arbitrary beamwidth
+       this.VignetteAware     = false; // PIN (false): only the system's designated stop element. VIG (true): whichever element is genuinely tightest for this ray, anywhere in the system.
 
 
        this.Aiming       = aiming || ENTRANCE_PUPIL;
@@ -206,8 +207,9 @@ class PointSourceConstruction { // create a ray construction using raphael.js
     // see findApertureStopForInfiniteObject in optics.js) - instead of the
     // arbitrary BeamWidth. Only meaningful for a finite ("object only" per
     // the request) point in ENTRANCE_PUPIL aiming mode - see updateRays().
-    setPinToApertureStop(flag) {
+    setPinToApertureStop(flag, vignetteAware) {
       this.PinToApertureStop = !!flag;
+      this.VignetteAware     = !!vignetteAware;
       this.refresh ();
     }
 
@@ -267,8 +269,11 @@ class PointSourceConstruction { // create a ray construction using raphael.js
       //this.imagePoint.attr({ cx: this.data.X2, cy: this.data.Y2 }); // move the image point here
       //var N1 = this.lens.cardinal.VN1; 
 
-      // defend against nonfocal rays 
-      if (isFinite(this.data.X2)) {
+      // defend against nonfocal rays - also hide it when VIG has determined
+      // the beam is fully vignetted before reaching any image at all (see
+      // updateRays()) - there is no real image to mark in that case, since
+      // no light actually gets through.
+      if (isFinite(this.data.X2) && !this.FullyVignetted) {
           this.imagePoint.show();
           this.imagePoint.attr({ cx: this.data.X2, cy: this.data.Y2 }); // move the image point here
       } else {
@@ -322,6 +327,25 @@ class PointSourceConstruction { // create a ray construction using raphael.js
       switch (this.Aiming) {
           case ENTRANCE_PUPIL:
             var VE1    = renderableLens.total.pupil.VE1;
+
+            // VIG is a DIFFERENT kind of indicator from PIN, not just a
+            // looser search - PIN computes an angle FOR you (aimed at
+            // whichever aperture is binding); VIG instead takes the user's
+            // own chosen beam width as a fixed input and shows where (if
+            // anywhere) THAT beam gets clipped, walking element by element -
+            // see computeVignettedEnvelope below. So it never touches the
+            // pupil/stop-search machinery below at all; it always starts
+            // from the same plain +-BW/2 rays PIN's own "nothing pinned"
+            // fallback would use.
+            if (this.PinToApertureStop && this.VignetteAware) {
+              this.PinnedApertureDiameter = null; // no single number - see the column's title tooltip
+              var vigAimZ = isFinite(VE1) ? VE1 : 0;
+              rays.push(getBeam(vigAimZ, VO, Y1, +BW/2));
+              rays.push(getBeam(vigAimZ, VO, Y1, 0));
+              rays.push(getBeam(vigAimZ, VO, Y1, -BW/2));
+              break;
+            }
+
             // The pin aims at the edge of the (fixed, object-independent)
             // entrance pupil - exactly the existing getBeam() formula below,
             // just with a computed half-width instead of an arbitrary one.
@@ -330,7 +354,8 @@ class PointSourceConstruction { // create a ray construction using raphael.js
             // the real stop from each object position separately instead
             // requires solving a different, sometimes ill-conditioned
             // equation per object position.
-            var pupilInfo = this.PinToApertureStop ? Optics.findApertureStopForInfiniteObject(renderableLens.elem) : null;
+            var stopIndex = renderableLens.total.stopIndex;
+            var pupilInfo = this.PinToApertureStop ? Optics.findApertureStopForInfiniteObject(renderableLens.elem, stopIndex) : null;
             // safePinnedPupilInfo (optics.js) guards against two known
             // singularities - VE1 itself non-finite, or (for a finite
             // object like this one) the object sitting exactly at the
@@ -357,7 +382,7 @@ class PointSourceConstruction { // create a ray construction using raphael.js
             // shared magnitude. Both sides have to resolve to use this path -
             // a one-sided result would silently understate the other side.
             var stopRay = (this.PinToApertureStop && pupilRadius == null)
-              ? Optics.findApertureStopForFiniteObject(renderableLens.elem, VO, Y1)
+              ? Optics.findApertureStopForFiniteObject(renderableLens.elem, VO, Y1, stopIndex)
               : null;
             var stopRayUsable = stopRay && stopRay.plus && stopRay.minus;
 
@@ -385,9 +410,21 @@ class PointSourceConstruction { // create a ray construction using raphael.js
                 : null;
             } else {
               this.PinnedApertureDiameter = null;
-              rays.push(getBeam(VE1, VO, Y1, +BW/2));
-              rays.push(getBeam(VE1, VO, Y1, 0));
-              rays.push(getBeam(VE1, VO, Y1, -BW/2));
+              // VE1 itself can be non-finite (e.g. the stop sits at an image
+              // conjugate of the axial-infinity pencil - see the comments
+              // above and safePinnedPupilInfo) even when nothing is pinned.
+              // getBeam's own guard only prevents that from crashing into
+              // Infinity/NaN - dividing by a non-finite denom still fails
+              // its ">1e-9" check, so it silently returns u=0 for all three
+              // rays, collapsing the whole beam into one flat line instead
+              // of the requested +-BW/2 spread. Aim at the front vertex
+              // instead in that case - always finite, same as FRONT_VERTEX
+              // mode below - rather than a fixed reference that happens not
+              // to exist for this system.
+              var aimZ = isFinite(VE1) ? VE1 : 0;
+              rays.push(getBeam(aimZ, VO, Y1, +BW/2));
+              rays.push(getBeam(aimZ, VO, Y1, 0));
+              rays.push(getBeam(aimZ, VO, Y1, -BW/2));
             }
             break;
 
@@ -424,6 +461,41 @@ class PointSourceConstruction { // create a ray construction using raphael.js
 
       // trace them through (Fwd)
       this.raypath = Optics.calculateRayTrace(rays, renderableLens.elem);
+
+      // VIG mode: replace the plain top/bottom marginal rays (traced against
+      // a single shared angle) with the TRUE running-envelope heights - a
+      // real beam can be clipped by one element and then clipped FURTHER by
+      // a later, tighter one; it never reopens past a point where it was
+      // already cut down. The centre ray (index 1) is left untouched -
+      // everything downstream of this (shading, fades, extension lines)
+      // just reads this.raypath, so it draws the resulting irregular
+      // envelope with no further changes needed.
+      this.FullyVignetted = false;
+      if (this.PinToApertureStop && this.VignetteAware) {
+        // rays[0]/rays[2] are the user's own +-BW/2 requested rays pushed
+        // above - the envelope's baseline "unclipped" candidate, present
+        // from the very first boundary, that individual aperture-grazing
+        // candidates then clip further wherever they turn out to be tighter.
+        var envelope = Optics.computeVignettedEnvelope(renderableLens.elem, VO, Y1, rays[0].u, rays[2].u);
+        if (envelope) {
+          for (var vk = 0; vk < this.raypath.length; vk++) {
+            if (envelope.plus[vk])  { this.raypath[vk][0] = envelope.plus[vk]; }
+            if (envelope.minus[vk]) { this.raypath[vk][2] = envelope.minus[vk]; }
+          }
+          // envelope.blockedAtIndex is set only when the top/bottom edges
+          // cross AT AN APERTURE ELEMENT itself - i.e. that element's
+          // opening does not overlap this beam at all, so nothing gets past
+          // it. A plain crossing further on (top/bottom swapping sides at a
+          // real image point, with no aperture there) is normal, healthy
+          // optics, NOT vignetting - checking every boundary generically
+          // (as this used to) misfired on exactly that case and hid real,
+          // unvignetted images. Cut the trace off only at the genuine block.
+          if (envelope.blockedAtIndex != null) {
+            this.raypath = this.raypath.slice(0, envelope.blockedAtIndex + 1);
+            this.FullyVignetted = true;
+          }
+        }
+      }
 
       //console.log("Output rays");
       //console.log (this.raypath);
@@ -541,10 +613,16 @@ class PointSourceConstruction { // create a ray construction using raphael.js
      // Beam fade-off distance: 2x the system length (V1 to V2), or the
      // F-to-F' distance, whichever is larger - a reference that's always
      // meaningful even for a zero-thickness thin lens/prism, where V1==V2
-     // would otherwise make "2x the system length" collapse to zero.
+     // would otherwise make "2x the system length" collapse to zero. An
+     // afocal system (e.g. a telescope) has no finite focal points at all -
+     // this construction otherwise never touches cardinal points (its ray
+     // path above is traced surface-by-surface), so fall back to just the
+     // system-length term rather than letting a non-finite F1/F2 poison
+     // fadeDistance into NaN/Infinity and break every fade gradient.
      var F1 = lens.cardinal.VF1;
      var F2 = lens.L + lens.cardinal.VF2;
-     var fadeDistance = Math.max(2*Math.abs(V2 - V1), Math.abs(F2 - F1));
+     var focalSpan = (isFinite(F1) && isFinite(F2)) ? Math.abs(F2 - F1) : 0;
+     var fadeDistance = Math.max(2*Math.abs(V2 - V1), focalSpan);
      
 
 
@@ -775,7 +853,17 @@ class PointSourceConstruction { // create a ray construction using raphael.js
 
 */
         
-        /* Final rays */ 
+        /* Final rays */
+
+        // This whole section connects the last TRACED point (ray[K-1]) to
+        // this.data.X2/Y2, the overall system image position - computed
+        // independently of vignetting (via calculateConjugatePairFrom), so
+        // it does not know K was cut short. When the beam is fully
+        // vignetted, ray[K-1] IS the blocking aperture, not the system's
+        // last surface - connecting it on to the (unreachable) image would
+        // draw exactly the phantom "continuing ray" past the block that
+        // updateRays() already decided not to have here. Skip all of it.
+        if (this.FullyVignetted) { this.cd_set.toBack(); return; }
 
         var XI = this.data.X2;
         var YI = this.data.Y2;

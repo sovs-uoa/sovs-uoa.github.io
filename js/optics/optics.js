@@ -47,12 +47,16 @@ Optics.getPupils = function(rays, systemInfo) {
   return calculateRayTrace (rays, systemInfo)
 }
 
-Optics.findApertureStopForInfiniteObject = function (elemArr) {
-  return findApertureStopForInfiniteObject (elemArr)
+Optics.findApertureStopForInfiniteObject = function (elemArr, stopIndex) {
+  return findApertureStopForInfiniteObject (elemArr, stopIndex)
 }
 
-Optics.findApertureStopForFiniteObject = function (elemArr, objectZ, objectH) {
-  return findApertureStopForFiniteObject (elemArr, objectZ, objectH)
+Optics.findApertureStopForFiniteObject = function (elemArr, objectZ, objectH, stopIndex) {
+  return findApertureStopForFiniteObject (elemArr, objectZ, objectH, stopIndex)
+}
+
+Optics.computeVignettedEnvelope = function (elemArr, objectZ, objectH, requestedPlusAngle, requestedMinusAngle) {
+  return computeVignettedEnvelope (elemArr, objectZ, objectH, requestedPlusAngle, requestedMinusAngle)
 }
 
 Optics.extractGroup = function (lens, group_name) {
@@ -434,14 +438,25 @@ restrictive, found here directly.
 Returns null if no element in the system has a finite "aperture" at all -
 there is nothing to pin the rays to.
 
+An optional trailing onlyIndex restricts the search to that one element -
+used by the Pin feature to pin against the system's single DESIGNATED
+aperture stop (renderableLens.total.stopIndex) only, deliberately ignoring
+whether some other element would be more restrictive for a given ray (real
+vignetting by a non-stop element - a separate, not-yet-built feature).
+Omit it to search every element and find whichever is truly tightest - used
+at lens-load time to auto-determine the stop when none is explicitly
+flagged (see the "AUTOMATIC APERTURE STOP" block in getTotalLensSystemInfo).
+
 --------------------------------------------------------------------------- */
 
-function limitingApertureFromTraces (elemArr, tracedZero, tracedOne) {
+function limitingApertureFromTraces (elemArr, tracedZero, tracedOne, onlyIndex) {
 
   var best = null;
+  var indices = (onlyIndex != null) ? [onlyIndex] : elemArr.map(function (_, i) { return i; });
 
-  for (var i = 0; i < elemArr.length; i++) {
+  for (var k = 0; k < indices.length; k++) {
 
+    var i = indices[k];
     var aperture = elemArr[i].elem.aperture;
     if (!isFinite(aperture) || aperture <= 0) { continue; }
 
@@ -480,25 +495,44 @@ finds the limiting element independently for ONE signed sweep direction, so
 the caller can do it twice (once for sign=+1, once for sign=-1) and get two
 genuinely different marginal rays instead of one mirrored pair.
 
+An optional trailing onlyIndex restricts the search to that one element
+instead of scanning the whole system - see limitingApertureFromTraces.
+
 --------------------------------------------------------------------------- */
 
-function limitingApertureForSignedDirection (elemArr, tracedZero, tracedOne, sign) {
+function limitingApertureForSignedDirection (elemArr, tracedZero, tracedOne, sign, onlyIndex) {
 
   var best = null;
+  var indices = (onlyIndex != null) ? [onlyIndex] : elemArr.map(function (_, i) { return i; });
 
-  for (var i = 0; i < elemArr.length; i++) {
+  for (var k = 0; k < indices.length; k++) {
 
+    var i = indices[k];
     var aperture = elemArr[i].elem.aperture;
     if (!isFinite(aperture) || aperture <= 0) { continue; }
 
+    var half  = aperture / 2;
     var h0    = tracedZero[i][0].h;
     var slope = tracedOne[i][0].h - h0;
+
+    // The object's own baseline ray (u=0, the chief ray in this family)
+    // already misses this element's clear aperture outright - no additional
+    // angle in EITHER direction helps (that only ever makes it more
+    // vignetted, or - past some larger |u| - re-enters on the far side,
+    // which is not a meaningful "marginal ray" for this object). This
+    // element already blocks the object regardless of angle, so it is the
+    // tightest possible constraint (0) on both directions; nothing else can
+    // beat it, so it is safe to stop looking.
+    if (Math.abs(h0) > half) {
+      return { angle: 0, index: i, id: elemArr[i].elem.tag_id, description: elemArr[i].elem.description };
+    }
+
     if (Math.abs(slope) < 1e-12) { continue; } // this element doesn't constrain a ray launched from here
 
     // Walking u away from 0 in direction `sign`, height moves as sign*slope
     // per unit |u| - whichever edge lies in that direction of travel is the
     // one this element can actually constrain on this side.
-    var edgeHeight = (sign * slope > 0) ? (aperture / 2) : (-aperture / 2);
+    var edgeHeight = (sign * slope > 0) ? half : -half;
     var u = (edgeHeight - h0) / slope;
     if (sign * u <= 1e-12) { continue; } // edge is behind this direction (or already at/past it at u=0)
 
@@ -544,12 +578,12 @@ sometimes ill-conditioned equation per object position).
 
 --------------------------------------------------------------------------- */
 
-function findApertureStopForInfiniteObject (elemArr) {
+function findApertureStopForInfiniteObject (elemArr, stopIndex) {
 
   var tracedZero = calculateRayTrace([ { u: 0, h: 0, z: 0 } ], elemArr);
   var tracedOne  = calculateRayTrace([ { u: 0, h: 1, z: 0 } ], elemArr);
 
-  return limitingApertureFromTraces(elemArr, tracedZero, tracedOne);
+  return limitingApertureFromTraces(elemArr, tracedZero, tracedOne, stopIndex);
 
 }
 
@@ -583,7 +617,7 @@ where the object-independent method cannot.
 
 --------------------------------------------------------------------------- */
 
-function findApertureStopForFiniteObject (elemArr, objectZ, objectH) {
+function findApertureStopForFiniteObject (elemArr, objectZ, objectH, stopIndex) {
 
   var h0start = objectH || 0;
 
@@ -604,9 +638,128 @@ function findApertureStopForFiniteObject (elemArr, objectZ, objectH) {
   // as the one limiting -u (see limitingApertureForSignedDirection). Find
   // each side independently rather than mirroring one shared magnitude.
   return {
-    plus:  limitingApertureForSignedDirection(elemArr, tracedZero, tracedOne, +1),
-    minus: limitingApertureForSignedDirection(elemArr, tracedZero, tracedOne, -1)
+    plus:  limitingApertureForSignedDirection(elemArr, tracedZero, tracedOne, +1, stopIndex),
+    minus: limitingApertureForSignedDirection(elemArr, tracedZero, tracedOne, -1, stopIndex)
   };
+
+}
+
+/* -----------------------------------------------------------------------
+
+COMPUTEVIGNETTEDENVELOPE  The true, physical shape of a finite object's
+transmitted beam through every aperture in the system - not just whichever
+one is tightest overall (that is what findApertureStopForFiniteObject
+already gives, as a single shared angle). A real beam can be clipped by one
+element, travel on clipped, and then be clipped FURTHER by a later, tighter
+element - it never "reopens" past a point where it was already cut down, so
+vignetting can only ever make the beam THINNER along its length, never
+wider again.
+
+requestedPlusAngle/requestedMinusAngle are the USER'S OWN chosen beam
+width, expressed as the +u/-u angles it corresponds to (see getBeam in
+PointSourceConstruction.js) - VIG is a fixed INPUT beam that then shows
+where it gets clipped, not an automatically-computed "just touches
+something" angle the way PIN is.
+
+This walks the element list SEQUENTIALLY, tracking one "active" ray per
+side (starting as the user's own requested ray). At each aperture-bearing
+element, it checks whether the CURRENT active ray already clears that
+element; if it does not, the active ray SWITCHES to a freshly computed ray
+(from the same fixed object launch point) that just grazes that element's
+edge - the same per-element marginal ray limitingApertureForSignedDirection
+computes for a single element - and stays switched from then on, unless an
+even tighter element is hit later. Deliberately sequential rather than
+"take the tightest of every candidate's independent trajectory at every
+point" - that batch approach could spuriously let an earlier, already-
+superseded candidate win again later purely because its own unrelated
+trajectory happened to cross back under a currently-active tighter one,
+which would incorrectly show the beam widening back out.
+
+This is an approximation where the active ray's height crosses an
+aperture's edge WITHIN a segment (not exactly at an element boundary) - the
+true envelope would kink exactly at that crossing, but this only checks at
+each element boundary. Close enough for a teaching diagram; exact would
+need solving the crossing point within the segment.
+
+Returns null if there is nothing to build an envelope from at all (no
+requested angle given for either side).
+
+--------------------------------------------------------------------------- */
+
+function computeVignettedEnvelope (elemArr, objectZ, objectH, requestedPlusAngle, requestedMinusAngle) {
+
+  var h0start = objectH || 0;
+
+  if (!isFinite(requestedPlusAngle) && !isFinite(requestedMinusAngle)) { return null; }
+
+  var rayZero    = translateRays([ { u: 0, h: h0start, z: objectZ } ], 0);
+  var rayOne     = translateRays([ { u: 1, h: h0start, z: objectZ } ], 0);
+  var tracedZero = calculateRayTrace(rayZero, elemArr);
+  var tracedOne  = calculateRayTrace(rayOne, elemArr);
+
+  function traceFrom (angle) {
+    return calculateRayTrace(translateRays([ { u: angle, h: h0start, z: objectZ } ], 0), elemArr).map(function (p) { return p[0]; });
+  }
+
+  // Both sides are walked TOGETHER, element by element, rather than as two
+  // independent passes - detecting "this aperture blocks the beam outright"
+  // needs to know, at the SAME element, whether a clip was actually forced
+  // there. A crossed envelope (plus <= minus) is not by itself a sign of
+  // blockage - a real image forms exactly where the two marginal rays
+  // legitimately cross and swap sides, which is normal, healthy optics, and
+  // can coincidentally land at or near any element's position, aperture or
+  // not. It only means "this aperture's opening does not overlap the beam
+  // at all" when the crossing happens BECAUSE clipping was just forced on
+  // one or both sides AT that same aperture-bearing element.
+  var plusActive  = isFinite(requestedPlusAngle)  ? traceFrom(requestedPlusAngle)  : null;
+  var minusActive = isFinite(requestedMinusAngle) ? traceFrom(requestedMinusAngle) : null;
+
+  var plusEnvelope   = plusActive  ? [] : null;
+  var minusEnvelope  = minusActive ? [] : null;
+  var blockedAtIndex = null;
+
+  for (var k = 0; k < elemArr.length; k++) {
+
+    var aperture = elemArr[k].elem.aperture;
+
+    if (isFinite(aperture) && aperture > 0) {
+
+      var half     = aperture / 2;
+      var h0       = tracedZero[k][0].h;
+      var slope    = tracedOne[k][0].h - h0;
+      var clippedHere = false;
+
+      // Checking each side only against its OWN nominal edge is not enough
+      // - a system that inverts the image (this telescope does) can legally
+      // carry a ray to the opposite-sign height partway through, so it can
+      // violate the OTHER edge without ever exceeding its own. Check the
+      // actual magnitude, and re-solve directly for whichever edge (by the
+      // ray's CURRENT sign, not its family's original sign) it needs.
+      if (plusActive && Math.abs(plusActive[k].h) > half && Math.abs(slope) > 1e-12) {
+        var targetEdgeP = (plusActive[k].h >= 0) ? half : -half;
+        plusActive = traceFrom((targetEdgeP - h0) / slope);
+        clippedHere = true;
+      }
+
+      if (minusActive && Math.abs(minusActive[k].h) > half && Math.abs(slope) > 1e-12) {
+        var targetEdgeM = (minusActive[k].h >= 0) ? half : -half;
+        minusActive = traceFrom((targetEdgeM - h0) / slope);
+        clippedHere = true;
+      }
+
+      if (clippedHere && plusActive && minusActive && blockedAtIndex === null &&
+          plusActive[k].h <= minusActive[k].h + 1e-9) {
+        blockedAtIndex = k;
+      }
+
+    }
+
+    if (plusEnvelope)  { plusEnvelope.push(plusActive[k]); }
+    if (minusEnvelope) { minusEnvelope.push(minusActive[k]); }
+
+  }
+
+  return { plus: plusEnvelope, minus: minusEnvelope, blockedAtIndex: blockedAtIndex };
 
 }
 

@@ -28,6 +28,14 @@
                     "beamwidth" : 0.15,
                     "z"    		: NaN,
                     "h"    		: NaN,
+                    "t"    		: 5 }, {
+                    "id"   		: 2,
+                    "type" 		: "object",
+                    "which"		: "object",
+                    "infinity"	: false,
+                    "beamwidth" : 0.05,
+                    "z"    		: -0.06,
+                    "h"    		: -0.04,
                     "t"    		: 5 }],
 
 	"title": "Keplerian Telescope with Manual Stop at Intermediate Image",
