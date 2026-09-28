@@ -37,6 +37,17 @@ function onAfocalMove (th)  {
       th = Math.max(-89.9, Math.min(89.9, th));
       var T1 = geometricAngleToFieldAngle(th);
 
+      // T1 = tan(th), so T1 itself blows up (thousands of degrees) as th
+      // merely APPROACHES 90 deg, long before reaching the clamp above -
+      // paraxial theory only ever describes a small angle in the first
+      // place, so there is no sense in which a huge T1 is "more correct".
+      // Clamp T1 itself too, and re-set the handle's own geometric angle
+      // from that clamped T1 (movePicker's own drag handling already moved
+      // it to the raw th before calling us) so the two stay consistent -
+      // the handle visually "sticks" once T1 saturates.
+      T1 = Math.max(-89.9, Math.min(89.9, T1));
+      this.setAngle(fieldAngleToGeometricAngle(T1));
+
       // update the graphic + associated table
       myPoint   = { id:this.parent.getId(), type: "beam", which: "object", t: T1 };
       totalLens = renderableLens.total;    

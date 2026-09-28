@@ -182,21 +182,27 @@ function onmove (th)  {
       // a small T1) - see fieldAngleToGeometricAngle/geometricAngleToFieldAngle.
       var geometricAngle = th - 90;
 
-      // This only models a beam a modest angle off the optical axis, so the
-      // handle's own geometric angle can't meaningfully go beyond +-90 deg
-      // (tan() of exactly +-90 is infinite) - and critically, dragging the
-      // CYAN IMAGE POINT instead (see moveBeamImagePoint below) can only ever
-      // recover a geometric angle in that same (-90,90) range, since it
-      // inverts the image height via a plain atan() (tan's period means e.g.
-      // -205 deg and -25 deg give the same height, and atan() only ever
-      // returns the latter). Without clamping here too, dragging this handle
-      // itself past +-90 deg leaves it at an angle unreachable that way - so
-      // the next time the image point is dragged, even slightly, it snaps to
-      // the equivalent angle atan() CAN represent, which looks like the
-      // handle has suddenly flipped direction.
+      // Clamp the GEOMETRIC angle away from +-90 deg first (tan() of exactly
+      // +-90 is infinite) - and critically, dragging the CYAN IMAGE POINT
+      // instead (see moveBeamImagePoint below) can only ever recover a
+      // geometric angle in that same (-90,90) range, since it inverts the
+      // image height via a plain division (linear in the field angle) that
+      // is only ever single-valued there.
       geometricAngle = Math.max(-89.9, Math.min(89.9, geometricAngle));
       var T1 = geometricAngleToFieldAngle(geometricAngle);
-      this.setAngle(geometricAngle + 90);
+
+      // That alone is NOT enough, though: T1 = tan(geometricAngle), so T1
+      // itself blows up (thousands of degrees) as geometricAngle merely
+      // APPROACHES 90 deg, long before reaching the clamp above - paraxial
+      // theory only ever describes a small angle in the first place, so
+      // there is no sense in which a huge T1 is "more correct", just
+      // increasingly meaningless. Clamp T1 itself too, and re-derive the
+      // handle's own geometric angle from that clamped T1 (rather than
+      // leaving the handle at the raw dragged geometricAngle) so the two
+      // stay consistent - the handle visually "sticks" once T1 saturates,
+      // rather than continuing to rotate past where T1 can still follow it.
+      T1 = Math.max(-89.9, Math.min(89.9, T1));
+      this.setAngle(fieldAngleToGeometricAngle(T1) + 90);
 
       // update the graphic + associated table
       myPoint   = { id:this.parent.getId(), type: "beam", which: "object", t: T1 };
