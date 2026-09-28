@@ -350,9 +350,12 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
           var u = deg2rad(th);
           var h0 = -u * pivotZ;
           var r = [];
-          r.push({ u: u, h: h0 - bw/2 / Math.cos(u),  z: 0});
-          r.push({ u: u, h: h0,                       z: 0});
-          r.push({ u: u, h: h0 + bw/2 / Math.cos(u),  z: 0});
+          // paraxial (u,h) throughout - no cos() obliquity correction, since
+          // h here is already the direct paraxial height, not a perpendicular
+          // distance (see the note in ParallelBeamConstruction.js)
+          r.push({ u: u, h: h0 - bw/2,  z: 0});
+          r.push({ u: u, h: h0,         z: 0});
+          r.push({ u: u, h: h0 + bw/2,  z: 0});
           return r;
       }
 
@@ -501,10 +504,13 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
      var dX = -1000;
      for (var i=0; i <  M ; i++) {
 
-        var u1 = this.inputRays[i].u;         
-        var X1 = this.inputRays[i].z; 
+        var u1 = this.inputRays[i].u;
+        var X1 = this.inputRays[i].z;
         var Y1 = this.inputRays[i].h;
-        var X2 = X1 + dX; var Y2 = Y1 + dX*Math.tan(u1);
+        // u1 is already a paraxial (u,h) slope from calculateRayTrace - not
+        // a real angle needing tan(), matching the rest of this file's
+        // convention (see getBeam above)
+        var X2 = X1 + dX; var Y2 = Y1 + dX*u1;
         var p4 = paper.path( ["M", X1, Y1,  "L", X2, Y2 ]); 
         p4.attr(real);
         this.cd_set.push(p4);

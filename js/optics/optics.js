@@ -655,8 +655,13 @@ function calculatePairFromObject (object, systemInfo) {
                        OQ  : undefined,
                        VI  : curr.cardinal.VF2,
                        PI  : curr.cardinal.PF2,
-                       // IQ  : n1 * deg2rad(t)/ curr.F, // n2 * Math.tan (deg2rad(t))/ curr.F,
-                       IQ  : zp * Math.tan(deg2rad(t)) + prismShiftIQInf, // n2 * Math.tan (deg2rad(t))/ curr.F,
+                       // Paraxial: the image height off an object at infinity is
+                       // f * angle, with angle taken directly in radians (matching
+                       // the (u,h) convention calculateRayTrace/translateRays use
+                       // everywhere else) - NOT f * tan(angle), which is the exact
+                       // (non-paraxial) relationship and diverges from this one
+                       // increasingly as the field angle grows.
+                       IQ  : zp * deg2rad(t) + prismShiftIQInf,
                        M   : undefined,
                        T1  : t,
                        T2  : undefined }; //
