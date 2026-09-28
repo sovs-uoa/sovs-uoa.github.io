@@ -192,6 +192,7 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
        this.objectPoint;
        this.anglePicker;
        this.BeamWidth    = beamwidth || 5.0;
+       this.PinToApertureStop = false; // see setPinToApertureStop()
 
 
        this.afocalmode = false;
@@ -241,6 +242,16 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
 
     setBeamWidth(bw) {
       this.BeamWidth = bw;
+      this.refresh ();
+    }
+
+    // Pins this incoming parallel beam's width to the entrance pupil's own
+    // diameter (see findApertureStopForInfiniteObject in optics.js) instead
+    // of the arbitrary BeamWidth - the object-at-infinity equivalent of
+    // PointSourceConstruction's Pin feature. No object position is involved
+    // here, so it applies equally well to a beam from infinity.
+    setPinToApertureStop(flag) {
+      this.PinToApertureStop = !!flag;
       this.refresh ();
     }
 
@@ -336,8 +347,12 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
 
       /* this should determine rays at each surface */
 
-      var rays       = getBeam(th, this.BeamWidth);      
-      this.inputRays = rays; 
+      var pupilInfo  = this.PinToApertureStop ? Optics.findApertureStopForInfiniteObject(renderableLens.elem) : null;
+      var bw         = pupilInfo ? 2*pupilInfo.angle : this.BeamWidth;
+      this.PinnedApertureDiameter = pupilInfo ? 2*pupilInfo.angle : null;
+
+      var rays       = getBeam(th, bw);
+      this.inputRays = rays;
       this.raypath   = Optics.calculateRayTrace(rays, renderableLens.elem);
 
    }

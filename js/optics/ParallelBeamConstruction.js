@@ -385,6 +385,7 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
        this.objectPoint;
        this.anglePicker;
        this.BeamWidth    = BeamWidth || 1.0;
+       this.PinToApertureStop = false; // see setPinToApertureStop()
 
        this.addBeamConstruction ();
     }
@@ -422,6 +423,16 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
 
     setBeamWidth(bw) {
       this.BeamWidth = bw;
+      this.refresh ();
+    }
+
+    // Pins this incoming parallel beam's width to the entrance pupil's own
+    // diameter (see findApertureStopForInfiniteObject in optics.js) instead
+    // of the arbitrary BeamWidth - the object-at-infinity equivalent of
+    // PointSourceConstruction's Pin feature. No object position is involved
+    // here, so it applies equally well to a beam from infinity.
+    setPinToApertureStop(flag) {
+      this.PinToApertureStop = !!flag;
       this.refresh ();
     }
 
@@ -603,9 +614,11 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
        OBJECT SPACE RAYS 
       --------------------------------------------- */
 
-    // ... ray points on P1 from infinity aimed at front nodal plane   
-    var bw = this.BeamWidth;
-    var dx = P1 - N1; // position translated to P1 
+    // ... ray points on P1 from infinity aimed at front nodal plane
+    var pupilInfo = this.PinToApertureStop ? Optics.findApertureStopForInfiniteObject(renderableLens.elem) : null;
+    var bw = pupilInfo ? 2*pupilInfo.angle : this.BeamWidth;
+    this.PinnedApertureDiameter = pupilInfo ? 2*pupilInfo.angle : null;
+    var dx = P1 - N1; // position translated to P1
 	  
     var y1 = Math.tan(deg2rad(T1)) * dx + bw/2 / Math.cos(deg2rad(T1));    // upper height on P1 from N1 
     var y2 = Math.tan(deg2rad(T1)) * dx - bw/2 / Math.cos(deg2rad(T1));    // lower height on P1 from N1

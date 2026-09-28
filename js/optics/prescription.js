@@ -833,8 +833,12 @@ function initializePointsTable(data, updatePointsCallback, success) {
             // Pins this object's bounding rays to the entrance pupil's edge - the
             // paraxial image of the system's actual aperture stop (explicit or
             // auto-computed - see findApertureStopForInfiniteObject in optics.js
-            // and setPinToApertureStop() in PointSourceConstruction.js) - instead
-            // of an arbitrary beam width. Only meaningful for a finite object point.
+            // and setPinToApertureStop() on each construction class). Works for
+            // both a finite object (PointSourceConstruction) and a beam from
+            // infinity (ParallelBeamConstruction/AfocalBeamConstruction) - none
+            // of them need a real object position for this, since the entrance
+            // pupil is a fixed system quantity. Not meaningful for a "point"
+            // row (PrincipalRayConstruction has no beam width concept at all).
             // Not an "editor" column - Tabulator's tickCross editor needs one
             // click to enter edit mode and a SECOND click on the checkbox it
             // then reveals to actually change the value, which reads as "the
@@ -846,7 +850,7 @@ function initializePointsTable(data, updatePointsCallback, success) {
              cellClick: function (e, cell) {
                var row  = cell.getRow();
                var data = row.getData();
-               if (!(data.type === "object" && !data.infinity)) { return; } // finite objects only
+               if (data.type !== "object") { return; }
 
                var construction = lens.raphael.constructions.find(function (c) { return c.getId() == data.id; });
                if (!construction || !construction.setPinToApertureStop) { return; }
