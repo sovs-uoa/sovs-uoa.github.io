@@ -651,24 +651,52 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
     var pivotZ = pupilInfo ? renderableLens.total.pupil.VE1 : N1;
     var dx = P1 - pivotZ; // position translated to P1
 
-    var y1 = Math.tan(deg2rad(T1)) * dx + bw/2 / Math.cos(deg2rad(T1));    // upper height on P1 from the pivot
-    var y2 = Math.tan(deg2rad(T1)) * dx - bw/2 / Math.cos(deg2rad(T1));    // lower height on P1 from the pivot
-    var y3 = Math.tan(deg2rad(T1)) * dx + 0;                               // height on P1 from the pivot
+    // findApertureStopForInfiniteObject (and the whole paraxial system matrix
+    // it's built from) works in the LINEAR (u,h) approximation - u in
+    // radians standing in directly for tan(angle), no obliquity/cos
+    // correction - and bw was calibrated against that exact linear
+    // relationship (see limitingApertureFromTraces). The real tan()/cos()
+    // formula below is only a small-angle-accurate approximation to that
+    // same relationship: it reproduces it correctly for a small T1, but
+    // diverges from the actual paraxial system - and so from where the
+    // marginal rays really do graze the aperture stop - as T1 grows, which
+    // is exactly what "beams exceed the aperture limits as it's rotated"
+    // looks like. So when pinned, use the same LINEAR relationship the pin
+    // itself is defined by, not the exact trig one.
+    var y1, y2, y3;
+    if (pupilInfo) {
+      var u = deg2rad(T1);
+      y1 = u * dx + bw/2;    // upper height on P1 from the pivot
+      y2 = u * dx - bw/2;    // lower height on P1 from the pivot
+      y3 = u * dx;           // height on P1 from the pivot
+    } else {
+      y1 = Math.tan(deg2rad(T1)) * dx + bw/2 / Math.cos(deg2rad(T1));    // upper height on P1 from the pivot
+      y2 = Math.tan(deg2rad(T1)) * dx - bw/2 / Math.cos(deg2rad(T1));    // lower height on P1 from the pivot
+      y3 = Math.tan(deg2rad(T1)) * dx + 0;                               // height on P1 from the pivot
+    }
 
     //var y1 = deg2rad(T1) * dx + bw/2 / Math.sin(deg2rad(90 - T1));    // upper height on P1 from N1 
     //var y2 = deg2rad(T1) * dx - bw/2 / Math.sin(deg2rad(90 - T1));    // lower height on P1 from N1
     //var y3 = deg2rad(T1) * dx + 0;                                    // height on P1 from N1 
 
 
-    // .... rays traced back towards infinity, out to 1x refLength before P1
+    // .... rays traced back towards infinity, out to 1x refLength before P1 -
+    // just a further extension of the SAME p1/p2 ray computed above, so it
+    // needs the same slope convention that ray was built with (linear when
+    // pinned) or the two segments would visibly kink at P1.
     var X   = P1 - refLength;
     var dx  = X - P1;
-    var i1  = Math.tan(deg2rad(T1)) * dx + y1; // upper height @ infinity from N1
-    var i2  = Math.tan(deg2rad(T1)) * dx + y2; // lower height @ infinity from N1
-    var i3  = Math.tan(deg2rad(T1)) * dx + y3; // height @ infiinity from N1
-    //var i1  = deg2rad(T1) * dx + y1; // upper height @ infinity from N1
-    //var i2  = deg2rad(T1) * dx - y2; // lower height @ infinity from N1
-    //var i3  = deg2rad(T1) * dx + y3; // height @ infiinity from N1
+    var i1, i2, i3;
+    if (pupilInfo) {
+      var u = deg2rad(T1);
+      i1 = u * dx + y1;
+      i2 = u * dx + y2;
+      i3 = u * dx + y3;
+    } else {
+      i1 = Math.tan(deg2rad(T1)) * dx + y1; // upper height @ infinity from N1
+      i2 = Math.tan(deg2rad(T1)) * dx + y2; // lower height @ infinity from N1
+      i3 = Math.tan(deg2rad(T1)) * dx + y3; // height @ infiinity from N1
+    }
 
 
     // ... show incoming rays (upper/lower only - the central/nodal ray is
