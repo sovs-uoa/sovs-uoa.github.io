@@ -59,7 +59,7 @@
 		"type": "stop",
 		"description": "field stop at intermediate image",
 		"args": {
-			"height": 0.03,
+			"height": 0.2,
 			"aperture": 0.02
 		}
 	}, {

@@ -1039,6 +1039,43 @@ function drawAxis () {
   }
 
 
+  // A standalone "stop" element's own symbol: a neutral (zero-power) lens -
+  // same flat end-cap style and h/30 arrow scale as drawThinLens's afocal
+  // case, drawn at the SAME height as a real lens would be - but with a hole
+  // cut out in the middle (a gap the width of the aperture, rather than a
+  // continuous bar) instead of an unbroken vertical line, since no light
+  // passes through the opaque material a real stop is made of.
+  function drawApertureStopSymbol (x, height, aperture) {
+
+      var stop  = paper.set();
+      var y1    = height/2, y2 = -height/2;
+      var halfAperture = isFinite(aperture) ? aperture/2 : 0;
+
+      // outer end caps - same as drawThinLens's F===0 (afocal/neutral) case
+      var c1 = paper.path( ["M", x, y1, "L", x+height/30, y1  ] );
+      var c2 = paper.path( ["M", x, y1, "L", x-height/30, y1  ] );
+      var c3 = paper.path( ["M", x, y2, "L", x-height/30, y2  ] );
+      var c4 = paper.path( ["M", x, y2, "L", x+height/30, y2  ] );
+      stop.push(c1, c2, c3, c4);
+
+      // the two opaque bars, leaving the aperture itself as a gap
+      var c5 = paper.path( ["M", x, y1, "L", x, halfAperture  ] );
+      var c6 = paper.path( ["M", x, y2, "L", x, -halfAperture ] );
+      stop.push(c5, c6);
+
+      // inward-pointing arrowheads at the gap edges - same h/30 scale and
+      // inward convention as drawThinLens's converging (positive) lens case,
+      // marking the aperture itself rather than the element's outer extent
+      var c7 = paper.path( ["M", x, halfAperture,  "L", x+height/30, halfAperture-height/30  ] );
+      var c8 = paper.path( ["M", x, halfAperture,  "L", x-height/30, halfAperture-height/30  ] );
+      var c9  = paper.path( ["M", x, -halfAperture, "L", x-height/30, -halfAperture+height/30 ] );
+      var c10 = paper.path( ["M", x, -halfAperture, "L", x+height/30, -halfAperture+height/30 ] );
+      stop.push(c7, c8, c9, c10);
+
+      return stop;
+  }
+
+
 
   /* DRAW LENS TYPES   */
 
@@ -1898,16 +1935,16 @@ function drawAxis () {
 
         case "stop":
 
-          // A standalone aperture-stop marker - no lens/window glyph of its
-          // own (see getLensElementInfo's "stop" case: optically identical
-          // to a zero-power "thin" element), just the arrowhead-tick pair -
-          // always drawn, since type "stop" IS the stop by definition (see
-          // convertToLensTable).
+          // A standalone aperture-stop marker - drawn as a neutral lens with
+          // a hole in it (drawApertureStopSymbol), at the SAME height a real
+          // lens element would use, rather than the lighter-weight tick-mark
+          // pair used when a real lens/window happens to be flagged as the
+          // stop (see the "thin" case above). Always drawn, since type
+          // "stop" IS the stop by definition (see convertToLensTable).
           axialPosition = data.elem[i].Z;
           height        = curr.height;
 
-          var halfApertureStop = (isFinite(curr.aperture) && curr.aperture > 0) ? curr.aperture/2 : height/2;
-          optics_set.push(drawApertureStopMarks(axialPosition, halfApertureStop));
+          optics_set.push(drawApertureStopSymbol(axialPosition, height, curr.aperture));
 
           console.log (`- ${curr.type} Z = ${axialPosition}, h = ${height}`);
           break;

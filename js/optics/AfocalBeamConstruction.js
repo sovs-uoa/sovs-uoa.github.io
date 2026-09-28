@@ -508,9 +508,20 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
      var ray = this.raypath;
      
      this.cd_set.remove ();
+     clearBeamFadeGradients ();
      var dimensions = [ ray.length, ray[0].length ];
      var K = dimensions[0]; // number of surfaces 
      var M = dimensions[1]; // number of rays 
+
+     // Fade unbounded segments (incoming from infinity, and an afocal
+     // output's own outgoing ray, which is likewise unbounded) out over 2x
+     // the system length - the same idea as ParallelBeamConstruction/
+     // PointSourceConstruction, except this class is only ever used for a
+     // genuinely afocal SYSTEM (see resolveObjectConstructionType), so
+     // there is no F-to-F' distance to compare against (cardinal points are
+     // undefined for an afocal system) - system length (lens.L) alone is
+     // the only meaningful reference here.
+     var refLength = 2*Math.abs(lens.L);
 
 
      console.log("Input rays");
@@ -525,10 +536,16 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
 
      console.log ('INPUT');
 
-     /* input rays */
+     /* input rays - only the outermost two (the middle/chief ray is
+        redundant once the region between them is shaded) - faded out
+        towards "infinity" since this end never really terminates. */
 
-     var dX = -1000;
+     var dX = -refLength;
+     var inY1 = [], inY2 = [];
+     var inX1_0, inX2_0, inP_0, inX1_M, inX2_M, inP_M;
      for (var i=0; i <  M ; i++) {
+
+        if (i !== 0 && i !== M-1) { continue; }
 
         var u1 = this.inputRays[i].u;
         var X1 = this.inputRays[i].z;
@@ -540,26 +557,46 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
         var p4 = paper.path( ["M", X1, Y1,  "L", X2, Y2 ]); 
         p4.attr(real);
         this.cd_set.push(p4);
+
+        inY1[i] = Y1; inY2[i] = Y2;
+
+        if (i === 0)   { inX1_0 = X1; inX2_0 = X2; inP_0 = p4; }
+        if (i === M-1) { inX1_M = X1; inX2_M = X2; inP_M = p4; }
      }
 
+     var inFadeFrom = [inX1_0, (inY1[0]+inY1[M-1])/2], inFadeTo = [inX2_0, (inY2[0]+inY2[M-1])/2];
+     shadeFadingBeamRegion(this.cd_set, [[inX1_0,inY1[0]],[inX2_0,inY2[0]],[inX2_M,inY2[M-1]],[inX1_M,inY1[M-1]]], inFadeFrom, inFadeTo);
+     fadeRayStroke(inP_0, inFadeFrom, inFadeTo);
+     fadeRayStroke(inP_M, inFadeFrom, inFadeTo);
 
 
     console.log ('ALONG');
 
 
-     /* rays along path */
+     /* rays along path - again, outermost two only, with the region between
+        them shaded solid (both ends are real, finite points). */
 
 
      for (var k=0; k < K-1; k++ ) {     // elements 
+
+         var alongY1 = [], alongY2 = [];
+         var alongX1_0, alongX2_0, alongX1_M, alongX2_M;
          for (var i=0; i <  M ; i++) {  // rays 
+
+            if (i !== 0 && i !== M-1) { continue; }
 
             var X1 = ray[k][i].z;   var Y1 = ray[k][i].h;
             var X2 = ray[k+1][i].z; var Y2 = ray[k+1][i].h;
             var p4 = paper.path( ["M", X1, Y1,  "L", X2, Y2 ]); 
             p4.attr(real);
             this.cd_set.push(p4);
-         
+
+            alongY1[i] = Y1; alongY2[i] = Y2;
+            if (i === 0)   { alongX1_0 = X1; alongX2_0 = X2; }
+            if (i === M-1) { alongX1_M = X1; alongX2_M = X2; }
          }
+
+         shadeBoundedBeamRegion(this.cd_set, [[alongX1_0,alongY1[0]],[alongX2_0,alongY2[0]],[alongX2_M,alongY2[M-1]],[alongX1_M,alongY1[M-1]]]);
      }
 
 
@@ -571,9 +608,12 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
 
      if (Math.abs(lens.F) > 0.0001) {   // focal system 
 
+        var finalY1 = [];
+        var finalX1_0, finalP_0, finalX1_M, finalP_M;
+        var extX2_0, extY_0, extP_0, extX2_M, extY_M, extP_M;
+        for (var i=0; i <  M ; i++) {   // rays 
 
-         for (var i=0; i <  M ; i++) {   // rays 
-
+            if (i !== 0 && i !== M-1) { continue; }
 
             var u1 = ray[K-1][i].u;       
             var X1 = ray[K-1][i].z; 
@@ -586,6 +626,10 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
             var Y2 = this.data.Y2;            
             var p4 = paper.path( ["M", X1, Y1,  "L", X2, Y2 ]); 
             p4.attr ("stroke", "#FF0000");
+
+            finalY1[i] = Y1;
+            if (i === 0)   { finalX1_0 = X1; finalP_0 = p4; }
+            if (i === M-1) { finalX1_M = X1; finalP_M = p4; }
 
 
             console.log ('DISPLAY!!');
@@ -605,12 +649,17 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
                 p4.attr(virtual);
                 this.cd_set.push(p4);
 
-                // extend the rays 
+                // extend the rays - real light continuing on past this
+                // (virtual) construction line, out towards "infinity"
 
-                var dx  = + 1000;
+                var dx  = + refLength;
                 var i1  = u1 * dx + Y1; // upper height on N1 
                 var p5  = paper.path( ["M", X1, Y1,  "L", X1 + dx, i1 ]);    // O  -> H1   (ray through F1)
+                p5.attr(real);
                 this.cd_set.push(p5);
+
+                if (i === 0)   { extX2_0 = X1+dx; extY_0 = i1; extP_0 = p5; }
+                if (i === M-1) { extX2_M = X1+dx; extY_M = i1; extP_M = p5; }
 
 
             } else {
@@ -630,16 +679,34 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
 
           }
 
+          if (lens.VI < -etol) {
+            // real light continuing past the virtual construction lines,
+            // fading out towards infinity - mirrors the incoming-ray fade
+            var extFadeFrom = [finalX1_0, (finalY1[0]+finalY1[M-1])/2], extFadeTo = [extX2_0, (extY_0+extY_M)/2];
+            shadeFadingBeamRegion(this.cd_set, [[finalX1_0,finalY1[0]],[extX2_0,extY_0],[extX2_M,extY_M],[finalX1_M,finalY1[M-1]]], extFadeFrom, extFadeTo);
+            fadeRayStroke(extP_0, extFadeFrom, extFadeTo);
+            fadeRayStroke(extP_M, extFadeFrom, extFadeTo);
+          } else {
+            // both ends real and finite (the actual focal point) - solid fill
+            shadeBoundedBeamRegion(this.cd_set, [[finalX1_0,finalY1[0]],[this.data.X2,this.data.Y2],[finalX1_M,finalY1[M-1]]]);
+          }
+
 
      } else { 
 
 
-        // afocal system 
+        // afocal system - the output ray never converges to a point at
+        // all, so BOTH the forward (real) and backward (virtual
+        // construction) directions are unbounded and get faded.
 
          console.log ('AFOCAL SYSTEM / OUTPUT IS AFOCAL');
 
-         var dX = 10;
+         var dX = refLength;
+         var outY1 = [], outY2 = [];
+         var outX1_0, outX2_0, outP_0, outX1_M, outX2_M, outP_M;
          for (var i=0; i <  M ; i++) {
+
+            if (i !== 0 && i !== M-1) { continue; }
 
             // INPUT POINT 
 
@@ -656,20 +723,29 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
             p4.attr(real);
             this.cd_set.push(p4);
           
-            // ADD EXTENSION RAYS 
+            // ADD EXTENSION RAYS (back-projection construction line)
 
             var i1  = u1 * -dX + Y1; // upper height on N1 
             var p5  = paper.path( ["M", X1, Y1,  "L", X1 -dX, i1 ]);    // O  -> H1   (ray through F1)
             p5.attr(virtual);
             this.cd_set.push(p5);
 
+            outY1[i] = Y1; outY2[i] = Y2;
+            if (i === 0)   { outX1_0 = X1; outX2_0 = X2; outP_0 = p4; }
+            if (i === M-1) { outX1_M = X1; outX2_M = X2; outP_M = p4; }
+
           }
+
+          var outFadeFrom = [outX1_0, (outY1[0]+outY1[M-1])/2], outFadeTo = [outX2_0, (outY2[0]+outY2[M-1])/2];
+          shadeFadingBeamRegion(this.cd_set, [[outX1_0,outY1[0]],[outX2_0,outY2[0]],[outX2_M,outY2[M-1]],[outX1_M,outY1[M-1]]], outFadeFrom, outFadeTo);
+          fadeRayStroke(outP_0, outFadeFrom, outFadeTo);
+          fadeRayStroke(outP_M, outFadeFrom, outFadeTo);
 
      }
 
  
 
-
+ 
     this.cd_set.toFront();
   }
 
