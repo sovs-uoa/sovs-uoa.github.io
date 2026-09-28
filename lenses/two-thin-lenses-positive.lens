@@ -68,6 +68,7 @@
 		"type": "thin",
 		"description": "thin lens #2",
 		"args": {
+			"stop": true,
 			"power":  3,
 			"height": 0.5,
 			"aperture": 0.25

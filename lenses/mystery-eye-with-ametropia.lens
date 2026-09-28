@@ -34,6 +34,7 @@ Mystery reduced eye with accommodation
 		"type": "thin",
 		"description": "Rx",
 		"args": {
+			"stop": true,
 			"power":  0,
 			"height": 0.01,
 			"aperture": 0.005
@@ -86,7 +87,8 @@ Mystery reduced eye with accommodation
 		"description": "anterior cornea",
 		"args": {
 			"radius": 0.0055,
-			"height": 0.01
+			"height": 0.01,
+			"aperture": 0.01
 		}
 	}, {
 		"id": "0009",

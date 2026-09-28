@@ -47,7 +47,8 @@
 		"description": "anterior cornea",
 		"args": {
 			"radius": 0.0077,
-			"height": 0.012
+			"height": 0.012,
+			"aperture": 0.012
 		}
 	}, {
 		"id": "0003",
@@ -65,7 +66,8 @@
 		"description": "posterior cornea",
 		"args": {
 			"radius": 0.0068,
-			"height": 0.012
+			"height": 0.012,
+			"aperture": 0.012
 		}
 	}, {
 		"id": "0005",
@@ -102,7 +104,8 @@
 		"description": "anterior core",
 		"args": {
 			"radius": 0.007911,
-			"height": 0.00762138561
+			"height": 0.00762138561,
+			"aperture": 0.00762138561
 		}
 	}, {
 		"id": "0009",
@@ -120,7 +123,8 @@
 		"description": "posterior core",
 		"args": {
 			"radius": -0.00576,
-			"height": 0.00762138561
+			"height": 0.00762138561,
+			"aperture": 0.00762138561
 		}
 	}, {
 		"id": "0011",
@@ -138,7 +142,8 @@
 		"description": "posterior cortex",
 		"args": {
 			"radius": -0.006,
-			"height": 0.00957084543
+			"height": 0.00957084543,
+			"aperture": 0.00957084543
 		}
 	}, {
 		"id": "0013",

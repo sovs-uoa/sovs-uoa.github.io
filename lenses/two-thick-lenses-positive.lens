@@ -42,8 +42,10 @@
 		"type": "sphere",
 		"description": "lens#1:front",
 		"args": {
+			"stop": true,
 			"radius": 0.10,
-			"height": 0.05
+			"height": 0.05,
+			"aperture": 0.05
 		}
 	}, {
 		"id": "0003",
@@ -59,7 +61,8 @@
 		"description": "lens#1:back",
 		"args": {
 			"radius": -0.10,
-			"height": 0.05
+			"height": 0.05,
+			"aperture": 0.05
 		}
 	}, {
 		"id": "0005",
@@ -75,7 +78,8 @@
 		"description": "lens#2:front",
 		"args": {
 			"radius": 0.10,
-			"height": 0.05
+			"height": 0.05,
+			"aperture": 0.05
 		}
 	}, {
 		"id": "0007",
@@ -91,7 +95,8 @@
 		"description": "lens#2:back",
 		"args": {
 			"radius": -0.10,
-			"height": 0.05
+			"height": 0.05,
+			"aperture": 0.05
 		}
 	}, {
 		"id": "0009",

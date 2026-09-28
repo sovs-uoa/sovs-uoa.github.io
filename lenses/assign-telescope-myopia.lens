@@ -104,7 +104,8 @@ Assignment: Telescope with reduced eye and ametropia
 		"description": "anterior cornea",
 		"args": {
 			"radius": 0.0055,
-			"height": 0.01
+			"height": 0.01,
+			"aperture": 0.01
 		}
 	},{
 		"id": "0008",

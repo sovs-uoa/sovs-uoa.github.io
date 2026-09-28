@@ -34,8 +34,10 @@ Assignment : mirror
 		"type": "sphere",
 		"description": "mirror",
 		"args": {
+			"stop": true,
 			"radius": 0.0079,
-			"height": 0.008
+			"height": 0.008,
+			"aperture": 0.008
 		}
 	}, {
 		"id": "0003",

@@ -34,6 +34,7 @@ Mystery reduced eye with accommodation (axial Rx 3.25D length 0.021027667984190)
 		"type": "thin",
 		"description": "correcting lens",
 		"args": {
+			"stop": true,
 			"power":  0,
 			"height": 0.01,
 			"aperture": 0.005
@@ -86,7 +87,8 @@ Mystery reduced eye with accommodation (axial Rx 3.25D length 0.021027667984190)
 		"description": "anterior cornea",
 		"args": {
 			"radius": 0.005217391304347827,
-			"height": 0.01
+			"height": 0.01,
+			"aperture": 0.01
 		}
 	}, {
 		"id": "0009",

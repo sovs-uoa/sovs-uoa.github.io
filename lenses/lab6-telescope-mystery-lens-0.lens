@@ -34,8 +34,8 @@ Vertometer standard
 		"type": "sphere",
 		"description": "test front surface",
 		"args": {
+			"stop": true,
 			"radius": 0.237222478154364,
-			"stop": false,
 			"aperture" : 0.025,
 			"height": 0.025			
 		}
@@ -106,7 +106,8 @@ Vertometer standard
 		"description": "anterior cornea",
 		"args": {
 			"radius": 0.0055,
-			"height": 0.01
+			"height": 0.01,
+			"aperture": 0.01
 		}
 	},{
 		"id": "0017",

@@ -51,8 +51,10 @@
 		"type": "sphere",
 		"description": "anterior lens",
 		"args": {
+			"stop": true,
 			"radius": 0.010000,
-			"height": 0.0076
+			"height": 0.0076,
+			"aperture": 0.0076
 		}
 	}, {
 		"id": "0003",
@@ -70,7 +72,8 @@
 		"description": "anterior core",
 		"args": {
 			"radius": 0.007911,
-			"height": 0.0076
+			"height": 0.0076,
+			"aperture": 0.0076
 		}
 	}, {
 		"id": "0005",
@@ -88,7 +91,8 @@
 		"description": "posterior core",
 		"args": {
 			"radius": -0.005760,
-			"height": 0.0076
+			"height": 0.0076,
+			"aperture": 0.0076
 		}
 	}, {
 		"id": "0007",
@@ -106,7 +110,8 @@
 		"description": "posterior lens",
 		"args": {
 			"radius": -0.006000,
-			"height": 0.0076
+			"height": 0.0076,
+			"aperture": 0.0076
 		}
 	}, {
 		"id": "0009",

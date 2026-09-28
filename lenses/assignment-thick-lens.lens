@@ -36,8 +36,10 @@
 		"type": "sphere",
 		"description": "front surface",
 		"args": {
+			"stop": true,
 			"radius": 0.0261,
-			"height": 0.005
+			"height": 0.005,
+			"aperture": 0.005
 		}
 	}, {
 		"id": "0003",
@@ -53,7 +55,8 @@
 		"description": "back surface",
 		"args": {
 			"radius": -0.0261,
-			"height": 0.005
+			"height": 0.005,
+			"aperture": 0.005
 		}
 	}, {
 		"id": "0003",

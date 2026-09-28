@@ -35,7 +35,8 @@ Assignment : Keratometer
 		"description": "mirror",
 		"args": {
 			"radius": 0.0078,
-			"height": 0.005
+			"height": 0.005,
+			"aperture": 0.005
 		}
 	}, {
 		"id": "0003",
@@ -67,6 +68,7 @@ Assignment : Keratometer
 		"type": "thin",
 		"description": "thin lens",
 		"args": {
+			"stop": true,
 			"power": 40,
 			"height": 0.05,
 			"aperture": 0.025

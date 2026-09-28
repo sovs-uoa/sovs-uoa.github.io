@@ -81,7 +81,8 @@
 		"description": "anterior cornea",
 		"args": {
 			"radius": 0.007800,
-			"height": 0.01
+			"height": 0.01,
+			"aperture": 0.01
 		}
 	}, {
 		"id": "0007",
@@ -99,7 +100,8 @@
 		"description": "posterior cornea",
 		"args": {
 			"radius": 0.006500,
-			"height": 0.01
+			"height": 0.01,
+			"aperture": 0.01
 		}
 	}, {
 		"id": "0009",
@@ -136,7 +138,8 @@
 		"description": "posterior lens",
 		"args": {
 			"radius": -0.006000,
-			"height": 0.01
+			"height": 0.01,
+			"aperture": 0.01
 		}
 	}, {
 		"id": "0013",

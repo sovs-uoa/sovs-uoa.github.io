@@ -123,6 +123,7 @@ Vertometer standard
 		"type": "thin",
 		"description": "ametropia lens",
 		"args": {
+			"stop": true,
 			"power":  0.0,
 			"height": 0.01,
 			"aperture": 0.005
@@ -141,7 +142,8 @@ Vertometer standard
 		"description": "anterior cornea",
 		"args": {
 			"radius": 0.0055,
-			"height": 0.01
+			"height": 0.01,
+			"aperture": 0.01
 		}
 	},{
 		"id": "0015",

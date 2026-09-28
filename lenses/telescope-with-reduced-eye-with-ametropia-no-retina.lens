@@ -87,7 +87,8 @@ Telescope with reduced eye and ametropia  (Lab 45
 		"description": "anterior cornea",
 		"args": {
 			"radius": 0.0055,
-			"height": 0.01
+			"height": 0.01,
+			"aperture": 0.01
 		}
 	},{
 		"id": "0008",

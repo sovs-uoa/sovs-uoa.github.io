@@ -34,6 +34,7 @@ Emmetropic eye with presbyopia (FA=0) and spectacles (Lab 3)
 		"type": "thin",
 		"description": "correcting lens",
 		"args": {
+			"stop": true,
 			"power":  11.627906976744187,
 			"height": 0.01,
 			"aperture": 0.005
@@ -86,7 +87,8 @@ Emmetropic eye with presbyopia (FA=0) and spectacles (Lab 3)
 		"description": "anterior cornea",
 		"args": {
 			"radius": 0.0055,
-			"height": 0.01
+			"height": 0.01,
+			"aperture": 0.01
 		}
 	}, {
 		"id": "0009",
