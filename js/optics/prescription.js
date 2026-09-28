@@ -769,8 +769,17 @@ function initializePointsTable(data, updatePointsCallback, success) {
 
       function defaultEditFunction(cell) {
           console.log("point edited - update the points information");
-          cell.getRow().deselect();    
+          cell.getRow().deselect();
           updatePointsCallback (cell);
+      }
+
+
+      // An afocal object (infinity:true, system F==0 - see resolveObjectConstructionType
+      // in application.js) has no finite entrance-pupil conjugate to pin the bounding rays
+      // against, so Pin is not offered for it at all rather than silently falling back.
+      function isAfocalObjectRow (data) {
+          return !!data.infinity && typeof renderableLens !== "undefined" && renderableLens
+                 && renderableLens.total && renderableLens.total.F === 0;
       }
 
 
@@ -845,12 +854,18 @@ function initializePointsTable(data, updatePointsCallback, success) {
             // cell won't let me edit it" if you only click once. A plain
             // formatter + cellClick toggles it in a single click instead.
             {title:"Pin", field:"pinToApertureStop", width:60, align:"center", headerSort:false,
-             formatter:"tickCross",
-             formatterParams:{ allowEmpty:true, allowTruthy:true, tickElement:"<span class=\"badge badge-info\">PIN</span>", crossElement:"" },
+             formatter: function (cell) {
+               var data = cell.getRow().getData();
+               if (isAfocalObjectRow(data)) {
+                 return "<span style=\"opacity:0.35\" title=\"Pin is not available for an afocal object - there is no finite entrance pupil conjugate to pin against\">&mdash;</span>";
+               }
+               return cell.getValue() ? "<span class=\"badge badge-info\">PIN</span>" : "";
+             },
              cellClick: function (e, cell) {
                var row  = cell.getRow();
                var data = row.getData();
                if (data.type !== "object") { return; }
+               if (isAfocalObjectRow(data)) { return; }
 
                var construction = lens.raphael.constructions.find(function (c) { return c.getId() == data.id; });
                if (!construction || !construction.setPinToApertureStop) { return; }

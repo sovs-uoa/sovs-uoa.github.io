@@ -38,6 +38,7 @@ function shadeBoundedBeamRegion (cd_set, pts) {
     var poly = paper.path(path);
     poly.attr({ fill: "#ffee00", "fill-opacity": 0.25, stroke: "none" });
     poly.toBack();
+    poly.node.setAttribute("pointer-events", "none"); // purely decorative - never intercept clicks meant for the handle
     cd_set.push(poly);
     return poly;
 }
@@ -82,6 +83,7 @@ function shadeFadingBeamRegion (cd_set, pts, fadeFromXY, fadeToXY) {
     poly.node.setAttribute("fill", "url(#" + gradId + ")");
     poly.toBack();
     poly.node.setAttribute("data-beam-fade-gradient", gradId); // see clearBeamFadeGradients()
+    poly.node.setAttribute("pointer-events", "none"); // purely decorative - never intercept clicks meant for the handle
     cd_set.push(poly);
 
     return poly;

@@ -473,13 +473,27 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
 
         /* finite X2 and Y2 */
 
-        var ImageStyles = getImageStyle(myData);  
-        p1 = paper.path( ["M", P2, Y1,  "L", X2, Y2 ]);  // Y1 -> I
-        p2 = paper.path( ["M", P2, Y2,  "L", X2, Y2 ]);  // Y2 -> I  
-        p3 = paper.path( ["M", N2, 0,  "L", X2, Y2 ]);   // Y2 -> I  
+        var ImageStyles = getImageStyle(myData);
+
+        // A virtual-image construction line only APPEARS to converge at (X2,Y2) -
+        // no light actually reaches it - so, unlike a real image point, overshooting
+        // a bit past it (in the same direction) reads better as "these rays meet
+        // here" than stopping dead exactly on the point.
+        var isVirtualImageLine = (ImageStyles.Y1I === virtual);
+        var overshoot = 0.25;
+        function extendPastImage (sx, sy) {
+          return isVirtualImageLine ? [ X2 + (X2-sx)*overshoot, Y2 + (Y2-sy)*overshoot ] : [ X2, Y2 ];
+        }
+        var E1 = extendPastImage(P2, Y1);
+        var E2 = extendPastImage(P2, Y2);
+        var E3 = extendPastImage(N2, 0);
+
+        p1 = paper.path( ["M", P2, Y1,  "L", E1[0], E1[1] ]);  // Y1 -> I
+        p2 = paper.path( ["M", P2, Y2,  "L", E2[0], E2[1] ]);  // Y2 -> I
+        p3 = paper.path( ["M", N2, 0,  "L", E3[0], E3[1] ]);   // Y2 -> I
         p1.attr(ImageStyles.Y1I);
-        p2.attr(ImageStyles.Y2I); 
-        p3.attr(ImageStyles.N2I); 
+        p2.attr(ImageStyles.Y2I);
+        p3.attr(ImageStyles.N2I);
         this.cd_set.push(p1,p2,p3);
 
 
