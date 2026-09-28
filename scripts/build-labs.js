@@ -39,6 +39,7 @@ const PAGES = [
   { output: 'Laboratory4.html', lensesMenu: 'lab-4', reportVersion: 'v2.1' },
   { output: 'Laboratory6.html', lensesMenu: 'lab-6', reportVersion: 'v2.1' },
   { output: 'eye.html',         lensesMenu: 'eye',   reportVersion: 'v2.1' },
+  { output: 'Test.html',        lensesMenu: 'test',  reportVersion: 'v2.1' },
 ];
 
 function build () {
