@@ -398,21 +398,62 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
 
       /* this should determine rays at each surface */
 
-      var stopIndex  = this.VignetteAware ? undefined : renderableLens.total.stopIndex;
-      var pupilInfo  = this.PinToApertureStop ? Optics.findApertureStopForInfiniteObject(renderableLens.elem, stopIndex) : null;
-      // safePinnedPupilInfo (optics.js) guards against VE1 itself coming
-      // back non-finite (a real, physically-meaningful degeneracy when the
-      // aperture stop sits exactly at an image conjugate - e.g. a field
-      // stop) - no object position to check here, since this is a beam
-      // from infinity.
-      pupilInfo      = safePinnedPupilInfo(pupilInfo, renderableLens.total.pupil.VE1, null);
-      var bw         = pupilInfo ? 2*pupilInfo.angle : this.BeamWidth;
-      this.PinnedApertureDiameter = pupilInfo ? 2*pupilInfo.angle : null;
-      var pivotZ     = pupilInfo ? renderableLens.total.pupil.VE1 : 0;
+      var bw, pivotZ;
+
+      // Vig is a different kind of indicator from Pin (see PointSourceConstruction.js) -
+      // it takes the user's own typed beam width as a fixed input and shows where
+      // that beam actually gets clipped as it propagates, rather than an
+      // automatically-computed "just touches the designated stop" angle. So it
+      // never touches the pupil/stop-search machinery below at all - it always
+      // starts from the same plain BeamWidth pivoting about the front vertex
+      // "off" mode would use.
+      if (this.PinToApertureStop && this.VignetteAware) {
+        bw = this.BeamWidth;
+        pivotZ = 0;
+        this.PinnedApertureDiameter = null; // no single number - see the column's title tooltip
+      } else {
+        var stopIndex  = renderableLens.total.stopIndex;
+        var pupilInfo  = this.PinToApertureStop ? Optics.findApertureStopForInfiniteObject(renderableLens.elem, stopIndex) : null;
+        // safePinnedPupilInfo (optics.js) guards against VE1 itself coming
+        // back non-finite (a real, physically-meaningful degeneracy when the
+        // aperture stop sits exactly at an image conjugate - e.g. a field
+        // stop) - no object position to check here, since this is a beam
+        // from infinity.
+        pupilInfo = safePinnedPupilInfo(pupilInfo, renderableLens.total.pupil.VE1, null);
+        bw = pupilInfo ? 2*pupilInfo.angle : this.BeamWidth;
+        this.PinnedApertureDiameter = pupilInfo ? 2*pupilInfo.angle : null;
+        pivotZ = pupilInfo ? renderableLens.total.pupil.VE1 : 0;
+      }
 
       var rays       = getBeam(th, bw, pivotZ);
       this.inputRays = rays;
       this.raypath   = Optics.calculateRayTrace(rays, renderableLens.elem);
+
+      // VIG mode: replace the plain top/bottom rays with the TRUE
+      // running-envelope heights - see computeVignettedEnvelopeForBeam and
+      // its PointSourceConstruction.js counterpart for the full rationale.
+      // rays[2]/rays[0] are the user's own top/bottom requested heights at
+      // z=0 pushed above.
+      this.FullyVignetted = false;
+      if (this.PinToApertureStop && this.VignetteAware) {
+        var envelope = Optics.computeVignettedEnvelopeForBeam(renderableLens.elem, deg2rad(th), rays[2].h, rays[0].h);
+        if (envelope) {
+          for (var vk = 0; vk < this.raypath.length; vk++) {
+            if (envelope.plus[vk])  { this.raypath[vk][2] = envelope.plus[vk]; }
+            if (envelope.minus[vk]) { this.raypath[vk][0] = envelope.minus[vk]; }
+          }
+          // envelope.blockedAtIndex is only set when the crossing happens
+          // BECAUSE a clip was forced at that aperture element - not a
+          // coincidental crossing from normal image formation elsewhere
+          // (there usually isn't a real image at all for an afocal system,
+          // but the same principle applies to any internal image an
+          // intermediate focal group forms).
+          if (envelope.blockedAtIndex != null) {
+            this.raypath = this.raypath.slice(0, envelope.blockedAtIndex + 1);
+            this.FullyVignetted = true;
+          }
+        }
+      }
 
    }
 
@@ -617,6 +658,15 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
 
 
      /* final rays */
+
+     // This whole section either connects the last TRACED point to
+     // this.data.X2/Y2 (an overall image position computed independently of
+     // vignetting) or extends it onward using its own trailing angle -
+     // neither of which is meaningful when nothing actually gets past
+     // ray[K-1] at all. Skip it entirely rather than draw a phantom
+     // continuing ray/image past a point nothing reaches (see the matching
+     // guard and its rationale in PointSourceConstruction.js).
+     if (this.FullyVignetted) { this.cd_set.toFront(); return; }
 
      console.log ('LENS');
      console.log (lens);

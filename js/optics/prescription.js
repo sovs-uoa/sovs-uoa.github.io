@@ -924,19 +924,20 @@ function initializePointsTable(data, updatePointsCallback, success) {
                if (isAfocalObjectRow(data)) { return; }
                applyPinVigMode(row, data, "pin");
              } },
+            // Unlike Pin, Vig never touches VE1/the entrance pupil at all - it
+            // always pivots the requested beam about the front vertex and
+            // clips it element-by-element (see computeVignettedEnvelope/
+            // computeVignettedEnvelopeForBeam) - so it is NOT gated by
+            // isAfocalObjectRow the way Pin is; it works the same regardless
+            // of whether this particular afocal system's VE1 is degenerate.
             {title:"Vig", field:"vig", width:50, align:"center", headerSort:false,
              formatter: function (cell) {
-               var data = cell.getRow().getData();
-               if (isAfocalObjectRow(data)) {
-                 return "<span style=\"opacity:0.35\" title=\"Vig is not available for an afocal object - there is no finite entrance pupil conjugate to pin against\">&mdash;</span>";
-               }
                return cell.getValue() ? "<span class=\"badge badge-warning\" title=\"Your own typed beam width, shown clipped by whichever element(s) actually vignette this ray\">VIG</span>" : "";
              },
              cellClick: function (e, cell) {
                var row  = cell.getRow();
                var data = row.getData();
                if (data.type !== "object") { return; }
-               if (isAfocalObjectRow(data)) { return; }
                applyPinVigMode(row, data, "vig");
              } },
             //{title:"X1",     field:"X1",       width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" } },                  

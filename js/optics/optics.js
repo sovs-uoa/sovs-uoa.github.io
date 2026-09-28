@@ -59,6 +59,10 @@ Optics.computeVignettedEnvelope = function (elemArr, objectZ, objectH, requested
   return computeVignettedEnvelope (elemArr, objectZ, objectH, requestedPlusAngle, requestedMinusAngle)
 }
 
+Optics.computeVignettedEnvelopeForBeam = function (elemArr, fieldAngleRad, requestedPlusHeight, requestedMinusHeight) {
+  return computeVignettedEnvelopeForBeam (elemArr, fieldAngleRad, requestedPlusHeight, requestedMinusHeight)
+}
+
 Optics.extractGroup = function (lens, group_name) {
 
   // groups dont include the medium in which they are immersed
@@ -727,7 +731,25 @@ function computeVignettedEnvelope (elemArr, objectZ, objectH, requestedPlusAngle
       var half     = aperture / 2;
       var h0       = tracedZero[k][0].h;
       var slope    = tracedOne[k][0].h - h0;
-      var clippedHere = false;
+
+      // Genuine non-overlap: BOTH sides' CURRENT (pre-clip) heights sit on
+      // the same side of this aperture's opening, entirely past +half or
+      // entirely past -half - no ray in between could pass either,
+      // regardless of how each side got here (independent clips at earlier
+      // elements, or just natural propagation). Checking this from the
+      // pre-clip values, rather than comparing plus<=minus AFTER
+      // independently re-solving each side, avoids a false positive: each
+      // side clipping to ITS OWN needed edge can leave "plus" numerically
+      // below "minus" while a real, non-zero transmitted width still
+      // exists between them (the labels just end up swapped, not the
+      // beam being gone) - that is not blockage, and must not be reported
+      // as such.
+      if (plusActive && minusActive && blockedAtIndex === null) {
+        var pPre = plusActive[k].h, mPre = minusActive[k].h;
+        if ((pPre > half && mPre > half) || (pPre < -half && mPre < -half)) {
+          blockedAtIndex = k;
+        }
+      }
 
       // Checking each side only against its OWN nominal edge is not enough
       // - a system that inverts the image (this telescope does) can legally
@@ -738,18 +760,93 @@ function computeVignettedEnvelope (elemArr, objectZ, objectH, requestedPlusAngle
       if (plusActive && Math.abs(plusActive[k].h) > half && Math.abs(slope) > 1e-12) {
         var targetEdgeP = (plusActive[k].h >= 0) ? half : -half;
         plusActive = traceFrom((targetEdgeP - h0) / slope);
-        clippedHere = true;
       }
 
       if (minusActive && Math.abs(minusActive[k].h) > half && Math.abs(slope) > 1e-12) {
         var targetEdgeM = (minusActive[k].h >= 0) ? half : -half;
         minusActive = traceFrom((targetEdgeM - h0) / slope);
-        clippedHere = true;
       }
 
-      if (clippedHere && plusActive && minusActive && blockedAtIndex === null &&
-          plusActive[k].h <= minusActive[k].h + 1e-9) {
-        blockedAtIndex = k;
+    }
+
+    if (plusEnvelope)  { plusEnvelope.push(plusActive[k]); }
+    if (minusEnvelope) { minusEnvelope.push(minusActive[k]); }
+
+  }
+
+  return { plus: plusEnvelope, minus: minusEnvelope, blockedAtIndex: blockedAtIndex };
+
+}
+
+/* -----------------------------------------------------------------------
+
+COMPUTEVIGNETTEDENVELOPEFORBEAM  The beam-from-infinity counterpart of
+computeVignettedEnvelope, for AfocalBeamConstruction's VIG mode. A finite
+object's rays share a fixed LAUNCH POINT and vary by ANGLE; a beam from
+infinity has no launch point at all - its rays are already parallel (a
+fixed angle, the field angle), and vary instead by STARTING HEIGHT at the
+front vertex (z=0). Same sequential, never-reopens clipping logic and the
+same "only genuinely blocked when a clip was actually forced at that
+element" check, just re-solving for a height (holding the field angle
+fixed) at each aperture instead of an angle (holding the launch height
+fixed).
+
+fieldAngleRad is the beam's fixed paraxial slope (radians - see setInputRays
+in AfocalBeamConstruction.js). requestedPlusHeight/requestedMinusHeight are
+the user's own top/bottom ray heights AT z=0 (not a half-width - already
+resolved around whatever pivot the caller drew the un-vignetted beam
+through).
+
+--------------------------------------------------------------------------- */
+
+function computeVignettedEnvelopeForBeam (elemArr, fieldAngleRad, requestedPlusHeight, requestedMinusHeight) {
+
+  if (!isFinite(requestedPlusHeight) && !isFinite(requestedMinusHeight)) { return null; }
+
+  var tracedZero = calculateRayTrace([ { u: fieldAngleRad, h: 0, z: 0 } ], elemArr);
+  var tracedOne  = calculateRayTrace([ { u: fieldAngleRad, h: 1, z: 0 } ], elemArr);
+
+  function traceFrom (height) {
+    return calculateRayTrace([ { u: fieldAngleRad, h: height, z: 0 } ], elemArr).map(function (p) { return p[0]; });
+  }
+
+  var plusActive  = isFinite(requestedPlusHeight)  ? traceFrom(requestedPlusHeight)  : null;
+  var minusActive = isFinite(requestedMinusHeight) ? traceFrom(requestedMinusHeight) : null;
+
+  var plusEnvelope   = plusActive  ? [] : null;
+  var minusEnvelope  = minusActive ? [] : null;
+  var blockedAtIndex = null;
+
+  for (var k = 0; k < elemArr.length; k++) {
+
+    var aperture = elemArr[k].elem.aperture;
+
+    if (isFinite(aperture) && aperture > 0) {
+
+      var half        = aperture / 2;
+      var h0           = tracedZero[k][0].h;
+      var slope        = tracedOne[k][0].h - h0;
+
+      // Genuine non-overlap only - see the matching comment in
+      // computeVignettedEnvelope. Checked from the PRE-clip values so an
+      // independent clip on each side (which can leave "plus" numerically
+      // below "minus" while a real, non-zero width still exists between
+      // them) is never mistaken for the beam having no room left at all.
+      if (plusActive && minusActive && blockedAtIndex === null) {
+        var pPre = plusActive[k].h, mPre = minusActive[k].h;
+        if ((pPre > half && mPre > half) || (pPre < -half && mPre < -half)) {
+          blockedAtIndex = k;
+        }
+      }
+
+      if (plusActive && Math.abs(plusActive[k].h) > half && Math.abs(slope) > 1e-12) {
+        var targetEdgeP = (plusActive[k].h >= 0) ? half : -half;
+        plusActive = traceFrom((targetEdgeP - h0) / slope);
+      }
+
+      if (minusActive && Math.abs(minusActive[k].h) > half && Math.abs(slope) > 1e-12) {
+        var targetEdgeM = (minusActive[k].h >= 0) ? half : -half;
+        minusActive = traceFrom((targetEdgeM - h0) / slope);
       }
 
     }
