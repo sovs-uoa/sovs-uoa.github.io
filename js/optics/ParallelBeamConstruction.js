@@ -132,12 +132,29 @@ function fadeRayStroke (pathEl, fadeFromXY, fadeToXY) {
 
 // the <defs><linearGradient> nodes shadeFadingBeamRegion() creates aren't part of
 // the Raphael set, so cd_set.remove() on the next redraw won't clean them up -
-// drawBeamConstruction() calls this first each time to avoid piling them up
+// every construction's own refresh() calls this first each time to avoid
+// piling them up.
+//
+// This must only remove gradients that are truly orphaned (belonged to
+// elements THIS construction just removed via cd_set.remove()) - not every
+// "beam-fade-" gradient in the document. Dragging one beam's handle only
+// refreshes that ONE construction; if this swept every gradient regardless
+// of owner, it would break every OTHER beam still on screen (their paths
+// would be left pointing at a url(#...) that no longer exists, so their
+// fade-shaded fill/stroke - e.g. an incoming collimated beam - silently
+// disappears until that other beam happens to get redrawn too). Elements
+// that reference a gradient are tagged with data-beam-fade-gradient (see
+// shadeFadingBeamRegion/fadeRayStroke) - a gradient is only removed once
+// nothing in the document still carries that tag.
 function clearBeamFadeGradients () {
     var defs = paper.canvas.querySelector("defs");
     if (!defs) { return; }
+    var stillReferenced = {};
+    Array.from(paper.canvas.querySelectorAll("[data-beam-fade-gradient]")).forEach(function (el) {
+      stillReferenced[el.getAttribute("data-beam-fade-gradient")] = true;
+    });
     Array.from(defs.querySelectorAll("linearGradient[id^='beam-fade-']")).forEach(function (g) {
-      defs.removeChild(g);
+      if (!stillReferenced[g.id]) { defs.removeChild(g); }
     });
 }
 
