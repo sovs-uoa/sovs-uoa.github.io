@@ -850,6 +850,24 @@ getConjuugateTo
   }
 
 
+  /* ----------------------------------------------------------------------------------------------------------------
+
+      TOGGLELABELSVISIBILITY  Called from the "Labels" checkbox in the toolbar (see the laboratory
+      template). labelsVisible itself lives in renderer.js, next to drawText() which reads it -
+      re-running the whole prescription view is the simplest way to get every already-drawn label
+      (cardinal points, pupils, vertices) to pick up the new state, short of hunting down and
+      show()/hide()-ing each one individually.
+
+  ----------------------------------------------------------------------------------------------------------------   */
+
+  function toggleLabelsVisibility (checked) {
+
+    labelsVisible = !!checked;
+    if (lens.table) { updatePrescriptionView(); }
+
+  }
+
+
   function updateSummaryView () {
 
     console.log ("Updating the SUMMARY VIEW.");

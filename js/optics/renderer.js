@@ -1,5 +1,12 @@
   var lens_edge        = { "stroke": "black", "stroke-width": "2", "stroke": "black", "stroke-dasharray":"none"  };
   var pupil_attr       = { "stroke-width": "2", "stroke": "gray", "stroke-dasharray":"none"  };
+
+  // Cardinal/pupil/vertex point labels (E, F, N, P, V...) all sit on the
+  // optical axis (y=0) and can visually overlap when several points land
+  // close together along z - toggled from a checkbox in the toolbar (see
+  // toggleLabelsVisibility() in application.js) rather than trying to
+  // auto-layout them apart.
+  var labelsVisible    = true;
   
 
   /* render options */
@@ -1229,10 +1236,11 @@ function drawAxis () {
 
     //.attr({"fill": color, "stroke": "#000000", "stroke-width": 1, "font-size": 1});
 
-    // \c.drag(dragPointMove, dragPointStart, dragPointUp);    
+    // \c.drag(dragPointMove, dragPointStart, dragPointUp);
     // c.drag(dragPointMove, dragPointStart, dragPointUp);
+    if (!labelsVisible) { c.hide(); }
     return c;
-  } 
+  }
 
 
 /* ---------------------------------------------------------------------------------------------------------------

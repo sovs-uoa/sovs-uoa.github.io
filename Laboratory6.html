@@ -195,6 +195,14 @@
        <i class="fas fa-download"></i>Report
     </button>
 
+    <!-- Point labels (E, F, N, P, V...) can overlap when several land close
+         together along the axis - this just turns them all off rather than
+         trying to auto-layout them apart. -->
+    <div class="form-check form-check-inline float-right" style="margin-right: 12px; margin-top: 6px;">
+      <input class="form-check-input" type="checkbox" id="toggle-labels" checked onclick="toggleLabelsVisibility(this.checked);">
+      <label class="form-check-label" for="toggle-labels">Labels</label>
+    </div>
+
 
     <!-- Modal -->
     <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
