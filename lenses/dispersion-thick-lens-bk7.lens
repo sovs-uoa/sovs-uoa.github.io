@@ -1,0 +1,70 @@
+/*--------------------------------------------
+
+ Thick Lens in Air - BK7 (advanced materials demo)
+
+ Turn on "Advanced materials" in Settings (the gear button), then change the wavelength
+ beside the units: BK7 bends blue light (F, 486 nm) more than red (C, 656 nm), so the
+ focus moves along the axis. The glass is named, not given an index - the plain index
+ (n_d = 1.5168) is filled in from the material when the file is loaded.
+
+----------------------------------------------*/
+
+{
+
+	"viewBox" : [ -0.25, 0.125, 0.5, 0.25 ],
+
+	"general" :  { "cardinalVertHeight" : 0.15 },
+
+	"sources" : [ { "id" 		: 1,
+					"type" 		: "object",
+					"which"		: "object",
+					"infinity"	: true,
+					"beamwidth" : 0.04,
+					"z"			: NaN,
+					"h"			: NaN,
+					"t"			: 0 } ],
+
+	"title": "Thick Lens - BK7",
+    "prescription": [{
+		"id": "0001",
+		"type": "index",
+		"description": "air",
+		"args": {
+			"index": 1.000
+		}
+	}, {
+		"id": "0002",
+		"type": "sphere",
+		"description": "front surface",
+		"args": {
+			"stop": true,
+			"radius": 0.10104517785130898,
+			"height": 0.06,
+			"aperture": 0.06
+		}
+	}, {
+		"id": "0003",
+		"type": "index",
+		"description": "glass",
+		"args": {
+			"material": "BK7",
+			"thickness": 0.02
+		}
+	}, {
+		"id": "0004",
+		"type": "sphere",
+		"description": "back surface",
+		"args": {
+			"radius": -0.10104517785130898,
+			"height": 0.06,
+			"aperture": 0.06
+		}
+	}, {
+		"id": "0005",
+		"type": "index",
+		"description": "air",
+		"args": {
+			"index": 1.0
+		}
+	} ]
+}

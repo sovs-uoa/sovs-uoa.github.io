@@ -211,6 +211,9 @@ function convertToLensTable (response) {
                              power:       assignParameterValue(response[i].args.power, NaN),                             
                              height:      assignParameterValue(response[i].args.height, NaN),
                              index:       assignParameterValue(response[i].args.index, NaN),
+                             // optional (advanced materials mode - see materials.js): a medium or thin lens
+                             // can name a material instead of relying on its fixed index
+                             material:    assignParameterValue(response[i].args.material, ""),
                              thickness:   assignParameterValue(response[i].args.thickness, NaN),
                              // a dedicated "stop" element IS the stop by definition - no need
                              // to also set args.stop in the .lens file, though an explicit
@@ -218,6 +221,12 @@ function convertToLensTable (response) {
                              stop:        assignParameterValue(response[i].args.stop, response[i].type === "stop"),
                              aperture:    assignParameterValue(response[i].args.aperture, NaN),
                              base:        assignParameterValue(response[i].args.base, "up") };
+
+        // a named material supplies the design (d line) index when the file did not give one
+        if (each_element.type === "index" && each_element.material !== "" && isNaN(each_element.index) && typeof Materials !== "undefined") {
+            var named = Materials.find(each_element.material);
+            if (named) { each_element.index = named.nd; each_element.material = named.name; }
+        }
 
         lens_table.push(each_element);        
     }

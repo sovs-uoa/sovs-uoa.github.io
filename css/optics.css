@@ -137,3 +137,80 @@ table, th, td, tr {
 }
 
 /* End important CSS stuff */
+
+
+/* advanced materials mode: the little colour chip beside a wavelength (selector menu, Wavelengths dialog) */
+.wavelength-swatch {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  margin-right: 8px;
+  vertical-align: middle;
+  border: 1px solid rgba(0, 0, 0, 0.35);
+}
+
+
+/* the colour palette that pops up when a wavelength cell in the Objects table is clicked */
+.wavelength-palette {
+  position: fixed;
+  z-index: 2000;
+  min-width: 260px;
+  padding: 4px;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.3);
+  border-radius: 6px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+}
+.wavelength-palette table { border-collapse: collapse; font-size: 13px; }
+.wavelength-palette th { padding: 2px 10px; font-weight: 600; color: #6c757d; border-bottom: 1px solid #dee2e6; }
+.wavelength-palette td { padding: 5px 10px; border-bottom: 1px solid #eee; }
+.wavelength-palette td.nm { text-align: right; }
+.wavelength-palette td.swatch { min-width: 44px; border-left: 1px solid #fff; }
+.wavelength-palette tbody tr { cursor: pointer; }
+.wavelength-palette tbody tr:hover td:not(.swatch) { background: #e9ecef; }
+.wavelength-palette tr.selected td:not(.swatch) { font-weight: bold; background: #f1f3f5; }
+
+
+/* additive beams: a dark diagram whose beams add like light (settings.js: applyAdditiveBeams) */
+#lens-container.additive-beams { background: #0b0b0f; }
+#lens-container.additive-beams .beam-shade { mix-blend-mode: screen; }
+#lens-container.additive-beams path.beam-shade[fill-opacity] { fill-opacity: 0.5; }
+#lens-container.additive-beams .beam-fade-start { stop-opacity: 0.6; }
+#lens-container.additive-beams [stroke="#000000"] { stroke: #e6e6e6; }
+#lens-container.additive-beams [fill="#000000"] { fill: #e6e6e6; }
+#lens-container.additive-beams text { fill: #e6e6e6; }
+
+
+/* the + in the top-left corner of a table, and the pop-up list it opens */
+.table-add-icon {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  line-height: 18px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 16px;
+  color: #fff;
+  background: #28a745;
+  border-radius: 50%;
+  cursor: pointer;
+}
+.table-add-icon:hover { background: #218838; }
+.group-lock { color: #fff; font-size: 12px; cursor: pointer; }
+
+/* the material picker shares the wavelength palette's look; it is taller, so it scrolls */
+.material-palette { max-height: 70vh; overflow-y: auto; }
+.material-palette td.nm { text-align: right; }
+.material-palette-foot { padding: 6px 10px 4px; border-top: 1px solid #dee2e6; font-size: 13px; }
+
+
+/* use the width of the screen: the diagram and both tables have room to show every column without scrolling */
+.container.app-wide { max-width: 98vw; }
+#myTabContent .container { max-width: 100%; }
+
+/* no row highlighting: the tick boxes are the selection (zebra stripes stay as they are) */
+.tabulator .tabulator-row.tabulator-selected.tabulator-row-odd,
+.tabulator .tabulator-row.tabulator-selected.tabulator-row-odd:hover { background-color: #fff !important; }
+.tabulator .tabulator-row.tabulator-selected.tabulator-row-even,
+.tabulator .tabulator-row.tabulator-selected.tabulator-row-even:hover { background-color: #f2f2f2 !important; }

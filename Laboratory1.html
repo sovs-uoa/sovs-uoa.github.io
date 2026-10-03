@@ -65,6 +65,8 @@
   <!-- Other -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/json5/0.5.1/json5.js"></script>
   <script src="js/optics/optics.js"></script>
+  <script src="js/optics/materials.js"></script>
+  <script src="js/optics/settings.js"></script>
   <script src="js/optics/renderer.js"></script>  
   <script src="js/optics/RayConstruction.js"></script>    
   <script src="js/optics/prescription.js"></script>
@@ -129,7 +131,7 @@
 
 <!-- Control the column width, and how they should appear on different devices -->
 
-<div class="container">
+<div class="container app-wide">
 
 <div class="row">
   <div class="col">
@@ -195,6 +197,11 @@
        <i class="fas fa-download"></i>Report
     </button>
 
+    <!-- Settings (advanced materials mode, wavelengths) -->
+    <button type="button" class="btn btn-outline-secondary float-right" style="margin-right: 8px;" data-toggle="modal" data-target="#settingsModal" title="Settings" aria-label="Settings">
+       <i class="fas fa-cog"></i>
+    </button>
+
     <!-- Point labels (E, F, N, P, V...) can overlap when several land close
          together along the axis - this just turns them all off rather than
          trying to auto-layout them apart. -->
@@ -203,6 +210,82 @@
       <label class="form-check-label" for="toggle-labels">Labels</label>
     </div>
 
+
+    <!-- Settings dialog -->
+    <div class="modal fade" id="settingsModal" tabindex="-1" role="dialog" aria-labelledby="settingsModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="settingsModalLabel">Settings</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          </div>
+          <div class="modal-body">
+
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="setting-advanced-materials" onchange="setAdvancedMaterials(this.checked);">
+              <label class="form-check-label" for="setting-advanced-materials"><strong>Advanced materials</strong></label>
+              <small class="form-text text-muted">
+                Name a material for each medium (and thin lens) instead of typing a refractive index. The prescription
+                keeps showing each material's usual (white light, d line) index; it is the light that has a colour &mdash;
+                each object, and the Summary, picks a wavelength, and is traced with the index the material has there.
+                <em>Custom</em> keeps whatever fixed index you type, as in the textbook examples, at every wavelength.
+                Radii and powers you enter are for the d line (587.6 nm).
+              </small>
+            </div>
+
+            <hr>
+
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="setting-additive-beams" onchange="setAdditiveBeams(this.checked);">
+              <label class="form-check-label" for="setting-additive-beams"><strong>Additive beams</strong></label>
+              <small class="form-text text-muted">
+                Dark diagram where overlapping beams add like light &mdash; red, green and blue together come out white.
+              </small>
+            </div>
+
+            <hr>
+
+            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="openWavelengthsDialog();">Wavelengths&hellip;</button>
+            <small class="form-text text-muted">Choose which wavelengths appear in the selector.</small>
+
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-dismiss="modal">Done</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Wavelengths dialog (opened from Settings) -->
+    <div class="modal fade" id="wavelengthsModal" tabindex="-1" role="dialog" aria-labelledby="wavelengthsModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="wavelengthsModalLabel">Wavelengths</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          </div>
+          <div class="modal-body">
+            <table class="table table-sm mb-2">
+              <thead><tr><th>Colour</th><th>Line</th><th>Wavelength (nm)</th><th title="Part of the white-light group">Group</th><th style="width:36px;"></th><th style="width:40px;"></th></tr></thead>
+              <tbody id="wavelength-rows"></tbody>
+            </table>
+            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="addWavelengthRow();">Add wavelength</button>
+            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="resetWavelengthRows();">Reset to defaults</button>
+            <small class="form-text text-muted">
+              F (486.1), d (587.6) and C (656.3) are the lines the Abbe number is defined from. The colour is worked out from the wavelength. Ticked wavelengths make up the white-light group (by default red, green and blue).
+            </small>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-primary" onclick="saveWavelengths();">Done</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Suggestions for the Material cell editor and the Add Lens Element dialog -->
+    <datalist id="material-options"></datalist>
+    <datalist id="material-options-modal"></datalist>
 
     <!-- Modal -->
     <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -355,12 +438,17 @@
       </ul>
 
       <!-- Distance units - affects the distances shown in the tabs below only; powers always stay in dioptres -->
+<div class="d-flex align-items-center">
+      <!-- Wavelength of the prescription's Ref. Index column (advanced materials mode, Lens Prescription tab) -->
+      <button id="prescription-wavelength-btn" type="button" class="btn btn-sm mr-2" style="display:none;" title="Show the Ref. Index column at this wavelength"></button>
+
       <select id="distance-unit-selector" class="form-control form-control-sm" style="max-width:80px;width:auto;" aria-label="Distance units" onchange="setDistanceUnit(this.value);" title="Distance units (powers always stay in dioptres)">
         <option value="um">&micro;m</option>
         <option value="mm" selected>mm</option>
         <option value="cm">cm</option>
         <option value="m">m</option>
       </select>
+      </div>
 
       </div>
 
@@ -444,6 +532,7 @@
                         <div class="dropdown-menu">
                           <a class="dropdown-item" href="#" data-short-id="point"  onclick="lensObjectSelector(this); return false;">point (focal systems only)</a>
                           <a class="dropdown-item" href="#" data-short-id="object" onclick="lensObjectSelector(this); return false;">object (finite, or from infinity)</a>
+                          <a class="dropdown-item advanced-only" href="#" data-short-id="group" style="display:none;" onclick="lensObjectSelector(this); return false;">white-light group (linked R, G, B objects)</a>
                           <div class="dropdown-divider"></div>
                           <a class="dropdown-item" href="#" data-short-id="source" onclick="lensObjectSelector(this); return false;">source (rays)</a>
                           <a class="dropdown-item" href="#" data-short-id="beam"   onclick="lensObjectSelector(this); return false;">beam (from infinity, focal systems only)</a>
@@ -451,7 +540,7 @@
                         </div>            
                       </div>
 
-                      <button id="lens-points-del-row" class="btn btn-secondary" >Delete Selected</button>
+                      <button id="lens-points-del-row" class="btn btn-secondary" disabled onclick="deleteSelectedObjects();" title="Delete the ticked objects">&#128465; Delete Selected</button>
                       <button id="lens-points-clear" class="btn btn-secondary">Clear</button>                    
                       <button id="lens-points-reset" class="btn btn-secondary" disabled>Reset</button>
                </div>
@@ -529,7 +618,7 @@
         <!-- Index -->
         <div id = "lens-type-index"  style="display:none;">
 
-          Value
+          <span id="modal-index-label">Value</span>
           <div class="input-group mb-3">
               <input id="modal-lens-refractive-index"  type="text" class="form-control" aria-label="Description"  value="1.0" >
           </div>
@@ -760,6 +849,15 @@
               <input type="text" class="form-control" disabled value="At infinity (parallel beam)">
           </div>
 
+          <div class="input-group mb-3" id="modal-object-group-row" style="display:none;">
+              <div class="input-group-prepend">
+                <div class="input-group-text">
+                  <input id="modal-object-group" type="checkbox" aria-label="White-light group">
+                </div>
+              </div>
+              <input type="text" class="form-control" disabled value="White-light group (linked R, G, B objects)">
+          </div>
+
           <div id="lens-type-object-finite">
 
             Object distance <span class="modal-distance-unit">(mm)</span>
@@ -873,6 +971,7 @@
 
 
   <!-- main application -->
+  <script>installLensWavelengthWrappers();</script>
   <script src="js/optics/application.js"></script>  
 
 

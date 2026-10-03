@@ -32,11 +32,20 @@ off the edge of the diagram.
 
 var beamShadeGradientCounter = 0;
 
+// The usual pale yellow - except in advanced materials mode, where each object's beam takes the colour of the
+// wavelength it is being traced at (see settings.js), so the diagram says which wavelength it is showing.
+function beamShadeColor () {
+    var coloured = (typeof SovsSettings !== "undefined") && SovsSettings.advancedMaterials &&
+                   (typeof currentLensWavelength !== "undefined") && isFinite(currentLensWavelength);
+    return coloured ? SovsSettings.entryFor(currentLensWavelength).color : "#ffee00";
+}
+
 function shadeBoundedBeamRegion (cd_set, pts) {
 
     var path = ["M"].concat(pts[0], pts.slice(1).reduce(function (acc, p) { return acc.concat(["L"], p); }, []), ["Z"]);
     var poly = paper.path(path);
-    poly.attr({ fill: "#ffee00", "fill-opacity": 0.25, stroke: "none" });
+    poly.attr({ fill: beamShadeColor(), "fill-opacity": 0.25, stroke: "none" });
+    poly.node.setAttribute("class", "beam-shade");   // lets the additive-beams view blend it (see optics.css)
     poly.toBack();
     poly.node.setAttribute("pointer-events", "none"); // purely decorative - never intercept clicks meant for the handle
     cd_set.push(poly);
@@ -62,12 +71,13 @@ function shadeFadingBeamRegion (cd_set, pts, fadeFromXY, fadeToXY) {
 
     var stop1 = document.createElementNS("http://www.w3.org/2000/svg", "stop");
     stop1.setAttribute("offset", "0");
-    stop1.setAttribute("stop-color", "#ffee00");
+    stop1.setAttribute("stop-color", beamShadeColor());
     stop1.setAttribute("stop-opacity", "0.35");
+    stop1.setAttribute("class", "beam-fade-start");
 
     var stop2 = document.createElementNS("http://www.w3.org/2000/svg", "stop");
     stop2.setAttribute("offset", "1");
-    stop2.setAttribute("stop-color", "#ffee00");
+    stop2.setAttribute("stop-color", beamShadeColor());
     stop2.setAttribute("stop-opacity", "0");
 
     grad.appendChild(stop1);
@@ -82,6 +92,7 @@ function shadeFadingBeamRegion (cd_set, pts, fadeFromXY, fadeToXY) {
     // reference - set it on the raw node instead to actually get the gradient.
     poly.node.setAttribute("fill", "url(#" + gradId + ")");
     poly.toBack();
+    poly.node.setAttribute("class", "beam-shade");
     poly.node.setAttribute("data-beam-fade-gradient", gradId); // see clearBeamFadeGradients()
     poly.node.setAttribute("pointer-events", "none"); // purely decorative - never intercept clicks meant for the handle
     cd_set.push(poly);

@@ -28,6 +28,7 @@ lens     = {  prescription : null,
                         power:       "",
                         height:      "",
                         index:       "",
+                        material:    "",
                         thickness:   "",
                         stop:        "",
                         aperture:    "",
@@ -139,6 +140,10 @@ function lensObjectSelector(elem) {
       return;
     }
 
+    // "group" is the object dialog with the white-light group box ticked (advanced materials mode)
+    var asGroup = (objectType === "group");
+    if (asGroup) { objectType = "object"; objectTypeLong = "object (white-light group)"; }
+
     // update this field
     $("#point-type-text-readonly").val(objectTypeLong);
 
@@ -189,6 +194,12 @@ function lensObjectSelector(elem) {
     }
 
 
+  var groupBox = document.getElementById("modal-object-group");
+  if (groupBox) {
+    groupBox.checked = asGroup;
+    document.getElementById("modal-object-group-row").style.display = (objectType === "object" && SovsSettings.advancedMaterials) ? "" : "none";
+  }
+
   $("#pointAddForm").modal("show");
  }
 
@@ -237,7 +248,19 @@ that - it is not editable/toggleable from the table itself.
     lens.modal.tag_id       = "NA";
     lens.modal.group        = document.getElementById("modal-lens-group-name").value;
     lens.modal.description  = document.getElementById("modal-lens-element-description").value;
-    lens.modal.index        = Number(document.getElementById("modal-lens-refractive-index").value);
+    // The "Value" box takes a plain refractive index, or - in advanced materials mode - a material
+    // name; a name also fills in the design (d line) index so the plain Ref. Index column stays meaningful.
+    var typedIndex          = document.getElementById("modal-lens-refractive-index").value;
+    var parsedIndex         = (typeof Materials !== "undefined") ? Materials.parse(typedIndex) : null;
+    if (parsedIndex && parsedIndex.custom) { parsedIndex = null; }   // "Custom" needs a number here; fall through to Number()
+    lens.modal.material     = "";
+    lens.modal.index        = Number(typedIndex);
+    if (parsedIndex && parsedIndex.material) {
+      lens.modal.material   = parsedIndex.material.name;
+      lens.modal.index      = parsedIndex.material.nd;
+    } else if (parsedIndex && parsedIndex.index) {
+      lens.modal.index      = parsedIndex.index;
+    }
 
     // Distances typed into this modal are in whatever unit the tab's selector
     // currently shows (matching the prescription table's own distanceEditor) -
@@ -257,7 +280,7 @@ that - it is not editable/toggleable from the table itself.
 
     // add a row to the table 
     // console.log(lens.modal);
-    lens.table.addData(lens.modal);
+    lens.table.addData(Object.assign({}, lens.modal));   // a copy - the table keeps hold of what it is given, and the next Add reuses lens.modal
 
     // clear the data in the modal information screen
 
@@ -297,9 +320,133 @@ var tickToggle = function(e, cell){
       }
     });
 
-    // dont highlight this line!
-    cell.getRow().toggleSelect();    
   }
+}
+
+
+
+/* ------------------------------------------------------------------------------------------------------
+
+ADVANCED MATERIALS - the Material column (see materials.js)
+
+In advanced mode the "Ref. Index" column is swapped for a "Material" column. A medium (an "index" row) or a
+thin lens can name a material; the index it is traced with then depends on the wavelength chosen next to
+the units selector. The row still keeps a plain design index (at the d line), so switching advanced mode off
+again leaves an ordinary, consistent prescription behind.
+
+----------------------------------------------------------------------------------------------------------- */
+
+// a tick box for a table cell; disabled ones show a state that is not changed by clicking
+function checkBoxHTML (checked, disabled, tip) {
+  return "<input type=\"checkbox\" " + (checked ? "checked " : "") + (disabled ? "disabled " : "") +
+         "style=\"cursor:" + (disabled ? "default" : "pointer") + ";\" title=\"" + tip + "\">";
+}
+
+function advancedMaterialsOn () {
+  return (typeof SovsSettings !== "undefined") && SovsSettings.advancedMaterials;
+}
+
+function materialFormatter (cell) {
+
+  var data = cell.getRow().getData();
+  if (data.type !== "index" && data.type !== "thin") { return ""; }
+
+  var material = data.material ? Materials.find(data.material) : null;
+
+  // a medium with no material and an index of exactly 1 is just air
+  if (!material && data.type === "index" && Number(data.index) === 1) { material = Materials.find("Air"); }
+
+  // "Custom": the fixed, textbook-style index a prescription is typed with. The default for anything that has
+  // not been given a material, and it does not vary with wavelength.
+  if (!material) {
+    if (data.type === "thin") { return "Custom <small class=\"text-muted\" title=\"Ideal thin lens - power as typed, no dispersion\">fixed</small>"; }
+    return "<span title=\"Fixed index as typed - the same at every wavelength\">Custom</span>";
+  }
+
+  // the index itself lives in its own Ref. Index column (the nominal, d line, value)
+  return material.name;
+}
+
+// The six-digit glass code used on every glass datasheet: the three decimals of (n_d - 1) then V_d x 10, so
+// BK7 (1.5168, 64.2) is 517642.
+function glassCode (m) {
+  if (!m.Vd) { return "\u2014"; }
+  var pad = function (n) { return ("000" + n).slice(-3); };
+  return pad(Math.round((m.nd - 1) * 1000)) + pad(Math.round(m.Vd * 10));
+}
+
+// Clicking a Material cell pops up a table of the available materials (like the wavelength palette): name,
+// n_d, V_d and glass code, with Custom - the fixed textbook index, typed in the Ref. Index column - first.
+function materialEditor (cell, onRendered, success, cancel, editorParams) {
+
+  var row  = cell.getRow();
+  var data = row.getData();
+
+  var holder = document.createElement("div");
+  holder.tabIndex = 0;
+  holder.style.outline = "none";
+  holder.textContent = data.material ? data.material : "Custom";
+
+  var palette = document.createElement("div");
+  palette.className = "wavelength-palette material-palette";
+
+  var table = document.createElement("table");
+  table.innerHTML = "<thead><tr><th>Material</th><th>n<sub>d</sub></th><th>V<sub>d</sub></th><th>Code</th></tr></thead>";
+  var tbody = document.createElement("tbody");
+  table.appendChild(tbody);
+  palette.appendChild(table);
+
+  var done = false;
+  function finish (action) {
+    if (done) { return; }
+    done = true;
+    document.removeEventListener("mousedown", outside, true);
+    if (palette.parentNode) { palette.parentNode.removeChild(palette); }
+    if (action) { action(); } else { cancel(); }
+  }
+  function outside (e) { if (!palette.contains(e.target)) { finish(); } }
+
+  function addRow (label, nd, Vd, code, selected, tip, action) {
+    var tr = document.createElement("tr");
+    tr.className = selected ? "selected" : "";
+    if (tip) { tr.title = tip; }
+    tr.innerHTML = "<td>" + escapeHTML(label) + "</td><td class=\"nm\">" + nd + "</td><td class=\"nm\">" + Vd + "</td><td class=\"nm\">" + code + "</td>";
+    tr.addEventListener("mousedown", function (e) { e.preventDefault(); e.stopPropagation(); finish(action); });
+    tbody.appendChild(tr);
+  }
+
+  // Custom: no material, the fixed index the row already has
+  addRow("Custom", data.type === "index" && isFinite(data.index) ? Number(data.index).toFixed(3) : "", "\u2014", "\u2014", !data.material,
+         "A fixed index as typed (the textbook value) - the same at every wavelength",
+         function () { success(""); });
+
+  Materials.list.forEach(function (m) {
+    if (data.type === "thin" && m.nd === 1) { return; }   // a thin lens of air is no lens
+    addRow(m.name, m.nd.toFixed(4), m.Vd ? m.Vd.toFixed(1) : "\u2014", glassCode(m), data.material === m.name,
+           m.Vd ? "" : "No dispersion",
+           function () {
+             if (data.type === "index") { row.update({ index: m.nd }); }
+             success(m.name);
+           });
+  });
+
+  holder.addEventListener("keydown", function (e) { if (e.key === "Escape") { finish(); } });
+
+  onRendered(function () {
+
+    document.body.appendChild(palette);
+
+    var r = cell.getElement().getBoundingClientRect();
+    var h = palette.offsetHeight;
+    var top = (r.bottom + h > window.innerHeight) ? Math.max(0, window.innerHeight - h - 8) : r.bottom;
+    palette.style.left = Math.max(0, Math.min(r.left, window.innerWidth - palette.offsetWidth)) + "px";
+    palette.style.top  = top + "px";
+
+    holder.focus();
+    document.addEventListener("mousedown", outside, true);
+  });
+
+  return holder;
 }
 
 
@@ -310,7 +457,6 @@ function editCheck (cell) {
     var data = row.getData();
     var columnName = cell.getColumn().getField();
     // row.deselect();    
-    row.toggleSelect();
 
     console.log("edit check column = " + columnName);
     console.log(data);
@@ -327,6 +473,7 @@ function editCheck (cell) {
 
       case "thin":
       if (columnName == "power") { return true; };
+      if (columnName == "material") { return true; };
       if (columnName == "aperture") { return true; };
       if (columnName == "stop")     { return true; };
       break;
@@ -341,6 +488,7 @@ function editCheck (cell) {
 
       case "index":
       if (columnName == "index")     { return true; }; 
+      if (columnName == "material")  { return true; };
       if (columnName == "thickness") { return true; };      
       break;
 
@@ -520,28 +668,34 @@ function initializePrescriptionTable(data, updatePrescriptionCallback, success) 
         console.log("lens edited - update the prescription");
         // console.log(cell);
         // cell.getRow().deselect();    
+        if (cell.getColumn().getField() === "material") { setTimeout(function () { lens.table.redraw(true); }, 50); }   // Ref. Index shows the new material at the column's wavelength
         updatedFieldCheck (cell);         // check if a dependent cell was changed / updated   
         updatePrescriptionCallback(cell); // other updates 
       },
       data:lensTable,
-      height:"300px",
-      addRowPos:"bottom",
+      rowAdded:function(row){ updatePrescriptionColumns(); },     // Surf. R. / Base appear and go with the rows that use them
+      rowDeleted:function(row){ updatePrescriptionColumns(); },
+            addRowPos:"bottom",
       layout:"fitColumns",
-      selectable:true, 
+      selectable:false, 
       movableRows:true,
       columns:[
-          {rowHandle:true, formatter:"handle", headerSort:false, frozen:true, width:30, minWidth:30},
+          Object.assign({rowHandle:true, formatter:"handle", headerSort:false, frozen:true, width:30, minWidth:30},
+                        addIconHeader("#lens-table-add-row + .dropdown-menu", "Add a lens element")),
           //{title:"Group",         field:"group",            width:100, headerSort:false},                  
-          {title:"Id",            field:"id",               width:100, headerSort:false, width:50},                            
-          {title:"Type",          field:"type",             width:100, headerSort:false},                  
-          {title:"Description",   field:"description",      width:100, editor:"input", headerSort:false, width:200},
-          {title:"Ref. Index",    field:"index",            width:100, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "" }, align:"center", editor:"input", headerSort:false, editable: editCheck, validator:["min:1.0", "max:5.0"]},
-          {title:"Surf. R.",      field:"radius",           width:100, mutator:Number, formatter: distanceFormatter, editor: distanceEditor, formatterParams:{ precision: 3, emptyVal: "" }, align:"center", headerSort:false, editable: editCheck},
-          {title:"Power",         field:"power",            width:100, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "" }, align:"center", editor:"input", headerSort:false, editable: editCheck},
-          {title:"Base",          field:"base",             width:100, align:"center", headerSort:false, editor:"list", editorParams:{ values: { "up": "Base Up", "down": "Base Down" } }, formatter: function(cell) { var data = cell.getRow().getData(); if (data.type != "prism") { return ""; }; return (cell.getValue() == "down") ? "Base Down" : "Base Up"; }, editable: editCheck},
-          {title:"Thickness",     field:"thickness",        width:100, mutator:Number, formatter: distanceFormatter, editor: distanceEditor, formatterParams:{ precision: 3, emptyVal: "" }, align:"center", headerSort:false, editable: editCheck},
-          {title:"Ap. Diameter",  field:"aperture",         width:100, mutator:Number, formatter: distanceFormatter, editor: distanceEditor, formatterParams:{ precision: 3, emptyVal: "" }, align:"center", headerSort:false, editable: editCheck},
-          {title:"Stop Flag",     field:"stop",             width:100, align:"center", width:100, headerSort:false, formatter: apertureStop, editable: editCheck, editor:"tickCross"
+          {title:"Id",            field:"id",               width:50, align:"center", headerSort:false},                            
+          {title:"Type",          field:"type",             minWidth:72, align:"center", headerSort:false},                  
+          {title:"Description",   field:"description",      minWidth:105, widthGrow:2, editor:"input", headerSort:false},
+          {title:"Material",      field:"material",         minWidth:110, visible: advancedMaterialsOn(), formatter: materialFormatter, align:"center", editor: materialEditor, headerSort:false, editable: editCheck},
+          {title:"Ref. Index",    field:"index",            minWidth:80, mutator:Number, formatter: indexFormatter, formatterParams:{ precision: 3, emptyVal: "" }, align:"center", editor:"input", headerSort:false, validator:["min:1.0", "max:5.0"],
+           // with a material named, the index is that material's n_d - change the material (or pick Custom) to change it
+           editable: function (cell) { return editCheck(cell) && !(advancedMaterialsOn() && cell.getRow().getData().material); }},
+          {title:"Surf. R.",      field:"radius",           minWidth:75, mutator:Number, formatter: distanceFormatter, editor: distanceEditor, formatterParams:{ precision: 3, emptyVal: "" }, align:"center", headerSort:false, editable: editCheck},
+          {title:"Power",         field:"power",            minWidth:75, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "" }, align:"center", editor:"input", headerSort:false, editable: editCheck},
+          {title:"Base",          field:"base",             minWidth:75, align:"center", headerSort:false, editor:"list", editorParams:{ values: { "up": "Base Up", "down": "Base Down" } }, formatter: function(cell) { var data = cell.getRow().getData(); if (data.type != "prism") { return ""; }; return (cell.getValue() == "down") ? "Base Down" : "Base Up"; }, editable: editCheck},
+          {title:"Thickness",     field:"thickness",        minWidth:75, mutator:Number, formatter: distanceFormatter, editor: distanceEditor, formatterParams:{ precision: 3, emptyVal: "" }, align:"center", headerSort:false, editable: editCheck},
+          {title:"Ap. Diameter",  field:"aperture",         minWidth:75, mutator:Number, formatter: distanceFormatter, editor: distanceEditor, formatterParams:{ precision: 3, emptyVal: "" }, align:"center", headerSort:false, editable: editCheck},
+          {title:"Stop Flag",     field:"stop",             minWidth:75, align:"center", headerSort:false, formatter: apertureStop, editable: editCheck, editor:"tickCross"
            }],
     });
 
@@ -597,6 +751,8 @@ POINTS = OBJECTS + IMAGES TABLE
     //var rowCount                  = lens.pointsTable.getDataCount();
     //console.log (`Adding NEW ROW =  ${rowCount}`);
 
+    // never reuse the id of an object that is already there (the lens file's own sources count too)
+    lens.pointsTable.getData().forEach(function (d) { if (Number(d.id) > globalIndexCounter) { globalIndexCounter = Number(d.id); } });
     globalIndexCounter += 1;
     lens.modal.source.id          = globalIndexCounter;
 
@@ -688,7 +844,12 @@ POINTS = OBJECTS + IMAGES TABLE
 
 
     // add construction  + update table
-    addConstruction (lens.modal.source);
+    var groupBox = document.getElementById("modal-object-group");
+    if (chooseObject && !choosePoint && groupBox && groupBox.checked && SovsSettings.advancedMaterials) {
+      addWhiteLightGroup (lens.modal.source);   // one object per wavelength of the group, linked together
+    } else {
+      addConstruction (lens.modal.source);
+    }
     $("#pointAddForm").modal("hide");
  }
 
@@ -850,6 +1011,7 @@ function initializePointsTable(data, updatePointsCallback, success) {
       //         real vignetting, which can differ from the designated stop
       //         for an off-axis or otherwise non-design object/beam (see
       //         computeVignettedEnvelope)
+      var pinVigSyncing = false;
       function applyPinVigMode (row, data, nextField) {
 
          var construction = lens.raphael.constructions.find(function (c) { return c.getId() == data.id; });
@@ -883,39 +1045,59 @@ function initializePointsTable(data, updatePointsCallback, success) {
            }
          }
 
+         // objects linked in a group switch together
+         if (!pinVigSyncing) {
+           pinVigSyncing = true;
+           try {
+             groupMates(row).forEach(function (m) {
+               var md = m.getData();
+               if (!!md[nextField] !== turnOn) { applyPinVigMode(m, md, nextField); }
+             });
+           } finally { pinVigSyncing = false; }
+         }
+
       }
 
 
       //Build Tabulator
       lens.pointsTable = new Tabulator("#lens-points", {
         data:data,
-        height:"200px",
         addRowPos:"bottom",
-        selectable:true, 
+        selectable:"highlight",   // rows are selected only through their tick box, never by clicking the row
         movableRows:false,
         layout:"fitColumns",
-        cellEditCancelled:function(cell){ cell.getRow().select(); },
+        rowUpdated:function(row){ syncGroupFrom(row); },                // objects in a group move as one
+        rowSelectionChanged:function(){ refreshSelectBoxes(); },        // the tick boxes follow the selection
         columns:[
-            {rowHandle:true, formatter:"handle", headerSort:false, frozen:true, width:30, minWidth:30},
-            {title:"id",     field:"id",       width:50, headerSort:false},
-            {title:"type",   field:"type",     width:100, headerSort:false},
-            {title:"&infin;", field:"infinity", width:50, align:"center", headerSort:false,
+            Object.assign({rowHandle:true, formatter:"handle", headerSort:false, frozen:true, width:30, minWidth:30},
+                          addIconHeader("#lens-points-add-row + .dropdown-menu", "Add an object")),
+            // tick boxes = the selection (the highlight follows them); the bin in the corner deletes the ticked rows
+            {field:"_selected", formatter: selectBoxFormatter, titleFormatter: selectAllTitle, headerClick: selectAllClick, cellClick: selectBoxClick,
+             align:"center", headerSort:false, width:40, minWidth:40},
+            // advanced materials mode only: tick two objects to link them. A linked
+            // object shows its group's link badge instead (click it to unlink) - see "White-light groups" in settings.js
+            {title:"&#128279;", field:"group", width:60, align:"center", headerSort:false, visible: advancedMaterialsOn(),
+             formatter: groupCellFormatter, cellClick: groupCellClick },
+            {title:"&infin;", field:"infinity", width:42, align:"center", headerSort:false,
              // read-only status: fixed by the "At infinity" checkbox at Add time,
              // not editable afterwards - see toggleObjectInfinityCell()'s comment
-             formatter:"tickCross",
-             formatterParams:{ allowEmpty:true, allowTruthy:true, tickElement:"<span class=\"badge badge-info\">&infin;</span>", crossElement:"" } },
+             formatter: function (cell) {
+               if (cell.getRow().getData().type !== "object") { return ""; }
+               return checkBoxHTML(cell.getValue(), true, "At infinity (a beam) - fixed when the object is added");
+             } },
             // Pin and Vig - mutually exclusive toggles, see applyPinVigMode() above.
             // Works for both a finite object (PointSourceConstruction) and a
             // beam from infinity (ParallelBeamConstruction/AfocalBeamConstruction).
             // Not meaningful for a "point" row (PrincipalRayConstruction has
             // no beam width concept at all).
-            {title:"Pin", field:"pin", width:50, align:"center", headerSort:false,
+            {title:"Pin", field:"pin", width:54, align:"center", headerSort:false,
              formatter: function (cell) {
                var data = cell.getRow().getData();
+               if (data.type !== "object") { return ""; }
                if (isAfocalObjectRow(data)) {
-                 return "<span style=\"opacity:0.35\" title=\"Pin is not available for an afocal object - there is no finite entrance pupil conjugate to pin against\">&mdash;</span>";
+                 return checkBoxHTML(false, true, "Pin is not available for an afocal object - there is no finite entrance pupil conjugate to pin against");
                }
-               return cell.getValue() ? "<span class=\"badge badge-info\" title=\"Pinned to the system's designated aperture stop only\">PIN</span>" : "";
+               return checkBoxHTML(cell.getValue(), false, "Pinned to the system's designated aperture stop only");
              },
              cellClick: function (e, cell) {
                var row  = cell.getRow();
@@ -930,9 +1112,10 @@ function initializePointsTable(data, updatePointsCallback, success) {
             // computeVignettedEnvelopeForBeam) - so it is NOT gated by
             // isAfocalObjectRow the way Pin is; it works the same regardless
             // of whether this particular afocal system's VE1 is degenerate.
-            {title:"Vig", field:"vig", width:50, align:"center", headerSort:false,
+            {title:"Vig", field:"vig", width:54, align:"center", headerSort:false,
              formatter: function (cell) {
-               return cell.getValue() ? "<span class=\"badge badge-warning\" title=\"Your own typed beam width, shown clipped by whichever element(s) actually vignette this ray\">VIG</span>" : "";
+               if (cell.getRow().getData().type !== "object") { return ""; }
+               return checkBoxHTML(cell.getValue(), false, "Your own typed beam width, shown clipped by whichever element(s) actually vignette this ray");
              },
              cellClick: function (e, cell) {
                var row  = cell.getRow();
@@ -940,27 +1123,33 @@ function initializePointsTable(data, updatePointsCallback, success) {
                if (data.type !== "object") { return; }
                applyPinVigMode(row, data, "vig");
              } },
+            {title:"id",     field:"id",       width:50, align:"center", headerSort:false, visible:false},   // the key tying a row to its beam - kept in the data, not shown
+            // advanced materials mode only: the wavelength this object is traced at (see settings.js)
+            {title:"&lambda; (nm)", field:"wavelength", minWidth:92, align:"center", headerSort:false, visible: advancedMaterialsOn(),
+             formatter: wavelengthCellFormatter, editor: wavelengthCellEditor, cellEdited: defaultEditFunction,
+             editable: function (cell) { return cell.getRow().getData().type === "object"; } },
+            {title:"type",   field:"type",     width:72, align:"center", headerSort:false},
             //{title:"X1",     field:"X1",       width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" } },                  
             //{title:"Y1",     field:"Y1",       width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" }, accessor: flipVal },
             {title:"X1",                          field:"X1", visible:false, width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 6, emptyVal: "--" },  cellEdited:  defaultEditFunction, editable:editPointCheck },                  
             {title:"Y1",                          field:"Y1", visible:false, width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 6, emptyVal: "--" },  cellEdited:  defaultEditFunction, editable:editPointCheck },                  
             {title:"X2",                          field:"X2", visible:false, width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 6, emptyVal: "--" },  cellEdited:  defaultEditFunction, editable:editPointCheck },                  
             {title:"Y2",                          field:"Y2", visible:false, width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 6, emptyVal: "--" },  cellEdited:  defaultEditFunction, editable:editPointCheck },                  
-            {title:"<i>l</i>",                    field:"l",  visible:true,  width:100, editor: distanceEditor, headerSort:false, mutator:Number, formatter: distanceFormatter, formatterParams:{ precision: 6, emptyVal: "--", hideInfinite: true },  cellEdited:  defaultEditFunction, editable:editPointCheck },
-            {title:"<i>l&prime;</i>",             field:"ld", visible:true,  width:100, editor: distanceEditor, headerSort:false, mutator:Number, formatter: distanceFormatter, formatterParams:{ precision: 6, emptyVal: "--", hideInfinite: true },  cellEdited:  defaultEditFunction, editable:editPointCheck },
-            {title:"<i>l<sub>v</sub></i>",        field:"zo", visible:true,  width:100, editor: distanceEditor, headerSort:false, mutator:Number, formatter: distanceFormatter, formatterParams:{ precision: 6, emptyVal: "--" },  cellEdited:  defaultEditFunction, editable:editPointCheck },
-            {title:"<i>l<sub>v&prime;</sub></i>", field:"zi", visible:true,  width:100, editor: distanceEditor, headerSort:false, mutator:Number, formatter: distanceFormatter, formatterParams:{ precision: 6, emptyVal: "--" },  cellEdited:  defaultEditFunction, editable:editPointCheck },
-            {title:"<i>h</i>",                    field:"ho", visible:true,  width:100, editor: distanceEditor, headerSort:false, mutator:Number, formatter: distanceFormatter, formatterParams:{ precision: 6, emptyVal: "--",  flipVal:false },  cellEdited:  defaultEditFunction, editable:editPointCheck },
-            {title:"<i>h&prime;</i>",             field:"hi", visible:true,  width:100, editor: distanceEditor, headerSort:false, mutator:Number, formatter: distanceFormatter, formatterParams:{ precision: 6, emptyVal: "--",  flipVal:false },  cellEdited:  defaultEditFunction, editable:editPointCheck },
-            {title:"<i>&theta;</i>",              field:"to", visible:true,  width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 6, emptyVal: "--",  flipVal:false },  cellEdited:  defaultEditFunction, editable:editPointCheck },
-            // {title:"<i>&theta;&prime;</i>",       field:"ti", visible:true,  width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--",  flipVal:false },  cellEdited:  defaultEditFunction, editable:editPointCheck },
-            {title:"<i>&theta;&prime;</i>",       field:"ti", visible:true,  width:100, headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--",  flipVal:false },  cellEdited:  defaultEditFunction, editable:editPointCheck },
+            {title:"<i>l</i>",                    field:"l",  visible:true,  minWidth:72, editor: distanceEditor, headerSort:false, mutator:Number, formatter: distanceFormatter, formatterParams:{ precision: 3, emptyVal: "--", hideInfinite: true },  cellEdited:  defaultEditFunction, editable:editPointCheck },
+            {title:"<i>l&prime;</i>",             field:"ld", visible:true,  minWidth:72, editor: distanceEditor, headerSort:false, mutator:Number, formatter: distanceFormatter, formatterParams:{ precision: 3, emptyVal: "--", hideInfinite: true },  cellEdited:  defaultEditFunction, editable:editPointCheck },
+            {title:"<i>l<sub>v</sub></i>",        field:"zo", visible:true,  minWidth:72, editor: distanceEditor, headerSort:false, mutator:Number, formatter: distanceFormatter, formatterParams:{ precision: 3, emptyVal: "--" },  cellEdited:  defaultEditFunction, editable:editPointCheck },
+            {title:"<i>l<sub>v&prime;</sub></i>", field:"zi", visible:true,  minWidth:72, editor: distanceEditor, headerSort:false, mutator:Number, formatter: distanceFormatter, formatterParams:{ precision: 3, emptyVal: "--" },  cellEdited:  defaultEditFunction, editable:editPointCheck },
+            {title:"<i>h</i>",                    field:"ho", visible:true,  minWidth:72, editor: distanceEditor, headerSort:false, mutator:Number, formatter: distanceFormatter, formatterParams:{ precision: 3, emptyVal: "--",  flipVal:false },  cellEdited:  defaultEditFunction, editable:editPointCheck },
+            {title:"<i>h&prime;</i>",             field:"hi", visible:true,  minWidth:72, editor: distanceEditor, headerSort:false, mutator:Number, formatter: distanceFormatter, formatterParams:{ precision: 3, emptyVal: "--",  flipVal:false },  cellEdited:  defaultEditFunction, editable:editPointCheck },
+            {title:"<i>&theta;</i>",              field:"to", visible:true,  minWidth:72, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--",  flipVal:false },  cellEdited:  defaultEditFunction, editable:editPointCheck },
+            // {title:"<i>&theta;&prime;</i>",       field:"ti", visible:true,  minWidth:72, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--",  flipVal:false },  cellEdited:  defaultEditFunction, editable:editPointCheck },
+            {title:"<i>&theta;&prime;</i>",       field:"ti", visible:true,  minWidth:72, headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--",  flipVal:false },  cellEdited:  defaultEditFunction, editable:editPointCheck },
             // While PINNED (not VIG), this reflects the limiting aperture's own
             // diameter (kept in sync by refreshAllConstruction() in application.js)
             // rather than a manually typed value - not editable in that state.
             // VIG is different: the beam width IS the input (the fixed beam VIG
             // shows getting clipped), so it stays editable there.
-            {title:"<i>beam width</i>",           field:"beamwidth", visible:true,  width:100, editor: distanceEditor, headerSort:false, mutator:Number, formatter: distanceFormatter, formatterParams:{ precision: 6, emptyVal: "--",  flipVal:false },  cellEdited:  defaultEditFunction,
+            {title:"<i>beam width</i>",           field:"beamwidth", visible:true,  minWidth:72, editor: distanceEditor, headerSort:false, mutator:Number, formatter: distanceFormatter, formatterParams:{ precision: 3, emptyVal: "--",  flipVal:false },  cellEdited:  defaultEditFunction,
              editable: function (cell) {
                var data = cell.getRow().getData();
                if (data.pin) { return false; }

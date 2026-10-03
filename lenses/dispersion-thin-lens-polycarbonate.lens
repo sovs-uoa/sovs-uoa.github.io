@@ -1,0 +1,53 @@
+/*--------------------------------------------
+
+ Thin Lens - Polycarbonate (advanced materials demo)
+
+ A thin lens has no radii or media to name, so it takes a material directly: the power typed
+ is for the d line (587.6 nm) and scales with (n - 1) at other wavelengths. Polycarbonate
+ (Abbe number about 30) is a deliberately dispersive spectacle material - switch the
+ wavelength between F and C and watch the focus move. Set the material to "Fused silica"
+ or to nothing at all and the shift shrinks or disappears.
+
+----------------------------------------------*/
+
+{
+
+	"viewBox" : [ -0.25, 0.125, 0.5, 0.25 ],
+
+	"sources" : [ { "id" 		: 1,
+					"type" 		: "object",
+					"which"		: "object",
+					"infinity"	: true,
+					"beamwidth" : 0.04,
+					"z"			: NaN,
+					"h"			: NaN,
+					"t"			: 0 } ],
+
+	"title": "Thin Lens - Polycarbonate",
+    "prescription": [{
+		"id": "0001",
+		"type": "index",
+		"description": "air",
+		"args": {
+			"index": 1.000
+		}
+	}, {
+		"id": "0002",
+		"type": "thin",
+		"description": "thin lens",
+		"args": {
+			"stop": true,
+			"power": 10,
+			"material": "Polycarbonate",
+			"height": 0.1,
+			"aperture": 0.08
+		}
+	}, {
+		"id": "0003",
+		"type": "index",
+		"description": "air",
+		"args": {
+			"index": 1.0
+		}
+	}]
+}

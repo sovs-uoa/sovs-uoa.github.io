@@ -66,12 +66,14 @@
                       { "id": "65", "filename": "./lenses/gullstrand-1-eye-relaxed-grouped.lens", "title": "Gullstrand Schematic Eye (Relaxed, grouped)" },
                       { "id": "62", "filename": "./lenses/test-prism.lens", "title": "TEST Prism (10 Base-Up Prism + Thin Lens)" },
                       { "id": "63", "filename": "./lenses/test-prism-base-down.lens", "title": "TEST Prism (10 Base-Down Prism + Thin Lens)" },
-                      { "id": "66", "filename": "./lenses/keplerian-telescope-with-stop.lens", "title": "Keplerian Telescope with Manual Stop at Intermediate Image" }
+                      { "id": "66", "filename": "./lenses/keplerian-telescope-with-stop.lens", "title": "Keplerian Telescope with Manual Stop at Intermediate Image" },
+                      { "id": "67", "filename": "./lenses/dispersion-thick-lens-bk7.lens", "title": "Dispersion: Thick BK7 Lens (advanced materials)" },
+                      { "id": "68", "filename": "./lenses/dispersion-thin-lens-polycarbonate.lens", "title": "Dispersion: Thin Polycarbonate Lens (advanced materials)" }
 
                   ],
 
     "profiles" : [ { "name" : "lab-1",  "main" : "2", "list" : [ "2", "3", "62", "63" ], "assignment" : false, "uploads": [ "Q1","Q4","Q5", "Q8", "Q9" ] },
-                   { "name" : "test",   "main" : "66", "list" : [ "66", "6", "7", "62", "63" ], "assignment" : false },
+                   { "name" : "test",   "main" : "66", "list" : [ "66", "67", "68", "6", "7", "62", "63" ], "assignment" : false },
                    { "name" : "lab-2",  "main" : "0", "list" : [ "0", "1" ], "assignment" : false, "uploads": [ "BiConvex","BiConcave", "PlanoConvex", "PlanoConcave", "PlusMeniscus", "MinusMeniscus" ] },
                    { "name" : "lab-3",  "main" : "55", "list" : [ "55", "53", "54" ], "assignment" : false, "uploads": [ "Q4","Q8", "Q9" ]  },
                    { "name" : "lab-4",  "main" : "58", "list" : [ "58", "56", "57" ], "assignment" : false, "uploads": [ "Q3","Q4", "Q6", "Q7", "Q10", "Q12", "Q14" ] },        

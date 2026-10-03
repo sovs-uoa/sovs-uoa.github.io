@@ -626,6 +626,8 @@ getConjuugateTo
                                           zo: pairData.VO, zi: pairData.VI,
                                           ho: pairData.OQ, hi: pairData.IQ,
                                           beamwidth: aPoint.beamwidth,
+                                          group: aPoint.group,   // objects sharing a number are linked together (see settings.js)
+                                          wavelength: aPoint.wavelength || (typeof SovsSettings !== "undefined" ? SovsSettings.NOMINAL_NM : 587.6),   // advanced materials mode
                                           pin: false, vig: false }]); // mutually exclusive - see setPinToApertureStop() and the Pin/Vig columns in prescription.js
 
 
@@ -767,14 +769,17 @@ getConjuugateTo
     // Update the Optics Object 
 
 
+    // This is always the NOMINAL (white light, d line) analysis - exactly the table as typed. In advanced materials
+    // mode an object at another wavelength is traced through its own analysis instead (see withLensAt in settings.js).
     lensTable = lens.table.getData();
     renderableLens = Optics.analyze(lensTable); // create matrices / we should have group caridnals in here as well
+    if (typeof noteNominalLens === "function") { noteNominalLens(renderableLens); }   // objects at other wavelengths are analysed from this
 
     // The "Stop Flag" column's formatter (apertureStop() in prescription.js)
     // reads the freshly computed renderableLens.total.stopAuto/stopIndex to
     // show the auto-determined stop - force it to re-run now that those are
     // up to date, since Tabulator only calls formatters on (re)render.
-    if (lens.table) { lens.table.redraw(true); }
+    if (lens.table) { updatePrescriptionColumns(); lens.table.redraw(true); }
 
 
     isafocal = (renderableLens.total.F == 0);
@@ -882,9 +887,14 @@ getConjuugateTo
     //console.log ('TEMPLATE TEXT');
     //console.log (summaryTemplate);
 
-    var summaryContext = Object.assign({}, renderableLens.total, { distUnitLabel: DISTANCE_UNIT_LABEL[currentDistanceUnit] });
+    // the Summary reports the lens at its OWN wavelength (advanced materials mode - see settings.js)
+    var summaryNm      = (typeof SovsSettings !== "undefined") ? SovsSettings.summaryNm : undefined;
+    var summaryContext = inLensWavelength(summaryNm, function () {
+      return Object.assign({}, renderableLens.total, { distUnitLabel: DISTANCE_UNIT_LABEL[currentDistanceUnit] });
+    });
 
     summary.innerHTML = Mustache.render(summaryTemplate, summaryContext);
+    if (typeof attachSummaryWavelengthBar === "function") { attachSummaryWavelengthBar(summary); }
 
     // renderableLens 
     // Total Summary 
@@ -1003,7 +1013,7 @@ getConjuugateTo
     /* field information */
     
     switch (fieldname) {
-      case "zo": case "ho": case "to":
+      case "zo": case "ho": case "to": case "wavelength":
         return { id: aPoint.id, which: "object", z: Number(aPoint.zo), h: Number(aPoint.ho), t: Number(aPoint.to), infinity: aPoint.infinity, type: aPoint.type };
 
       case "zi": case "hi": case "ti":
@@ -1038,6 +1048,13 @@ getConjuugateTo
   ----------------------------------------------------------------------------------------------------------------   */
 
   // This should re-build all the constructions in the list 
+  // Run fn with the lens analysed at wavelength nm (advanced materials mode - see settings.js), or just run it
+  // when that feature is not loaded / not on.
+  function inLensWavelength (nm, fn) {
+    return (typeof withLensAt === "function") ? withLensAt(nm, fn, null, []) : fn();
+  }
+
+
   function refreshAllConstruction () {
 
 
@@ -1053,15 +1070,18 @@ getConjuugateTo
 
             console.log (`- REFRESH construction ID = ${elem.getId()}`);
             aRow       = lens.pointsTable.getRow(elem.getId()).getData();
-            aPoint     = { id: aRow.id, which: "object", z:aRow.zo, h:-aRow.ho, t:aRow.to };
+            aPoint     = { id: aRow.id, which: "object", z:aRow.zo, h:-aRow.ho, t:-aRow.to };   // the table shows h and the angle the other way up (see flipVal)
+            elem.WavelengthNm = aRow.wavelength;     // advanced materials mode: the light this object is made of
 
 
             /* question is whether this needs to reversed in height */
 
-            pairData   = Optics.calculateConjugatePairFrom(aPoint, totalLens);
-            elem.setPairData(pairData);       
-            elem.setLens(totalLens); // <--- this should change
-            elem.refresh();
+            inLensWavelength(elem.WavelengthNm, function () {
+              pairData   = Optics.calculateConjugatePairFrom(aPoint, renderableLens.total);
+              elem.setPairData(pairData);       
+              elem.setLens(renderableLens.total); // <--- this should change
+              elem.refresh();
+            });
 
             // update on POINTS TABLE
             console.log (`- CALLED Update on Points Table`);
@@ -1139,16 +1159,22 @@ getConjuugateTo
 
     /* update the points table */
 
-     totalLens  = renderableLens.total;
-     pairData   = Optics.calculateConjugatePairFrom(aPoint, totalLens);
-     addPointsTableRow(aPoint, pairData);
+     // the new object is traced through the lens at its own wavelength (advanced materials mode)
+     var construction = inLensWavelength(aPoint.wavelength, function () {
 
-     // update the points table with these data
+       totalLens  = renderableLens.total;
+       pairData   = Optics.calculateConjugatePairFrom(aPoint, totalLens);
+       addPointsTableRow(aPoint, pairData);
 
-     console.log (` - adding ${aPoint.type}`);
+       // update the points table with these data
 
-     var constructionType = (aPoint.type === "object") ? resolveObjectConstructionType(aPoint) : aPoint.type;
-     var construction     = instantiateConstruction (aPoint, pairData, constructionType);
+       console.log (` - adding ${aPoint.type}`);
+
+       var constructionType = (aPoint.type === "object") ? resolveObjectConstructionType(aPoint) : aPoint.type;
+       var made             = instantiateConstruction (aPoint, pairData, constructionType);
+       if (made) { made.WavelengthNm = aPoint.wavelength; }
+       return made;
+     });
 
      if (construction) { lens.raphael.constructions.push(construction); }
 
@@ -1205,6 +1231,7 @@ getConjuugateTo
             // beamwidth was changed 
             elem.setBeamWidth (aPoint.beamwidth);
             elem.refresh ();
+            if (typeof syncGroupFrom === "function") { syncGroupFrom (cell.getRow()); }   // the rest of its group follows
             return;
 
         } else {
@@ -1219,11 +1246,16 @@ getConjuugateTo
             console.log (aPoint);
 
 
-            totalLens  = renderableLens.total;
-            pairData   = Optics.calculateConjugatePairFrom(aPoint, totalLens);
-            updatePointsTable(aPoint.id, pairData);
-            elem.setPairData (pairData);                  // update the positions  
-            elem.refresh ();
+            elem.WavelengthNm = cell.getRow().getData().wavelength;   // may be the very thing that was edited
+
+            inLensWavelength(elem.WavelengthNm, function () {
+              totalLens  = renderableLens.total;
+              pairData   = Optics.calculateConjugatePairFrom(aPoint, totalLens);
+              updatePointsTable(aPoint.id, pairData);
+              elem.setPairData (pairData);                  // update the positions  
+              elem.refresh ();
+            });
+            if (typeof syncGroupFrom === "function") { syncGroupFrom (cell.getRow()); }
             return;
 
         }
@@ -1790,17 +1822,7 @@ getConjuugateTo
                                     console.log (' - intializing point table (sources).');
                                     initializePointsTable ([], updateConstruction, function () {
                                           
-                                          // delete lenses  
-
-                                          $("#lens-points-del-row").click(function(){
-
-                                              console.log(" - deleting all sources...");
-                                              selectedData = lens.pointsTable.getSelectedData(); 
-                                              selectedData.forEach(elem => {
-                                                  lens.pointsTable.deleteRow(elem.id);
-                                                  deleteConstruction (elem.id);                                                  
-                                              });
-                                          });
+                                          // (deleting objects: the Delete Selected button under the table calls deleteSelectedObjects() in settings.js)
 
 
                                           // add rows 
