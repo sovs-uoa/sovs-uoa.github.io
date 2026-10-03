@@ -290,12 +290,11 @@ function indexFormatter (cell) {
   return formatIndex(v);
 }
 
-// 3 decimals (1.500, 1.333), and a 4th only when it says something (1.5168) - the same for every row
+// four decimals everywhere in the prescription (1.0000, 1.5168)
 function formatIndex (v) {
 
   if (v == null || isNaN(v)) { return ""; }
-  var text = Number(v).toFixed(4);
-  return text.charAt(text.length - 1) === "0" ? text.slice(0, -1) : text;
+  return Number(v).toFixed(4);
 }
 
 
@@ -469,7 +468,95 @@ function setFocusedObject (id) {
   if (focusedObjectId === id) { return; }
   focusedObjectId = id;
   if (typeof lens !== "undefined" && lens.pointsTable) { lens.pointsTable.getRows().forEach(applyFocusClass); }
+  syncPrescriptionToFocus();
 }
+
+// The wavelength of the beam in focus (undefined: none / not in advanced mode)
+function focusedWavelength () {
+
+  if (!SovsSettings.advancedMaterials || focusedObjectId == null) { return undefined; }
+  if (typeof lens === "undefined" || !lens.pointsTable) { return undefined; }
+
+  var row = lens.pointsTable.getData().filter(function (d) { return d.id == focusedObjectId; })[0];
+  if (!row || row.type !== "object") { return undefined; }
+  return Number(row.wavelength) || SovsSettings.NOMINAL_NM;
+}
+
+// Everything that describes the lens follows the beam in focus: the prescription's Ref. Index column, the
+// Summary, and the pupils / cardinal points drawn on the diagram - the lens as THIS beam sees it. (The
+// wavelength buttons can still be used to look at any other wavelength - until another object is clicked or
+// dragged. Rows with the Custom material keep their fixed index whatever the wavelength.)
+function syncPrescriptionToFocus () {
+
+  var nm = focusedWavelength();
+  if (nm === undefined || typeof lens === "undefined" || !lens.table) { return; }
+
+  var changed = false;
+
+  if (Math.abs(nm - SovsSettings.prescriptionNm) > 0.05) {
+    SovsSettings.prescriptionNm = nm;
+    refreshIndexChip();
+    lens.table.redraw(true);
+    changed = true;
+  }
+  if (Math.abs(nm - SovsSettings.summaryNm) > 0.05) {
+    SovsSettings.summaryNm = nm;
+    if (typeof updateSummaryView === "function" && typeof summaryTemplate !== "undefined" && summaryTemplate !== undefined) { updateSummaryView(); }
+    changed = true;
+  }
+  if (changed && typeof drawFocusLensGraphics === "function" && typeof renderableLens !== "undefined" && renderableLens) {
+    drawFocusLensGraphics();
+  }
+}
+
+/* --- sources defined in a .lens file ----------------------------------------------------------------------------- */
+
+/*
+  A source may carry "wavelength" (nm) and "group" (a number; sources sharing it are linked and move as one).
+  The shorthand   "white": true   stands for a linked group with one copy of the source per wavelength of the
+  white-light group (red, green and blue unless the Wavelengths dialog says otherwise).
+
+  A .lens file may also ask for settings it needs to make its point, e.g. a dispersion demo:
+      "settings" : { "advancedMaterials": true, "darkCanvas": true, "additiveBeams": true }
+*/
+
+function expandSources (points) {
+
+  var all = points.slice();
+  var maxId = all.reduce(function (m, p) { return Math.max(m, Number(p.id) || 0); }, 0);
+  all.forEach(function (p) { if (Number(p.group) >= nextGroupId) { nextGroupId = Number(p.group) + 1; } });
+
+  var out = [];
+  all.forEach(function (p) {
+
+    if (!p.white) { out.push(p); return; }
+
+    var gid = nextGroupId++;
+    SovsSettings.groupWavelengths.forEach(function (nm, i) {
+      var copy = Object.assign({}, p, { wavelength: nm, group: gid });
+      delete copy.white;
+      if (i > 0) { copy.id = ++maxId; }
+      out.push(copy);
+    });
+  });
+  return out;
+}
+
+function applyLensFileSettings (settings) {
+
+  if (!settings) { return; }
+
+  if (settings.darkCanvas !== undefined)    { SovsSettings.darkCanvas    = !!settings.darkCanvas; }
+  if (settings.additiveBeams !== undefined) { SovsSettings.additiveBeams = !!settings.additiveBeams; }
+  if (settings.advancedMaterials !== undefined && !!settings.advancedMaterials !== SovsSettings.advancedMaterials) {
+    setAdvancedMaterials(!!settings.advancedMaterials);
+  }
+  applyCanvasTheme();
+  syncAppearanceControls();
+  var box = document.getElementById("setting-advanced-materials");
+  if (box) { box.checked = SovsSettings.advancedMaterials; }
+}
+
 
 /* --- white-light groups: objects linked together ---------------------------------------------------------------- */
 

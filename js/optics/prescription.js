@@ -349,7 +349,7 @@ function advancedMaterialsOn () {
 function materialFormatter (cell) {
 
   var data = cell.getRow().getData();
-  if (data.type !== "index" && data.type !== "thin") { return ""; }
+  if (data.type !== "index" && data.type !== "thin" && data.type !== "prism") { return ""; }
 
   var material = data.material ? Materials.find(data.material) : null;
 
@@ -359,7 +359,7 @@ function materialFormatter (cell) {
   // "Custom": the fixed, textbook-style index a prescription is typed with. The default for anything that has
   // not been given a material, and it does not vary with wavelength.
   if (!material) {
-    if (data.type === "thin") { return "Custom <small class=\"text-muted\" title=\"Ideal thin lens - power as typed, no dispersion\">fixed</small>"; }
+    if (data.type === "thin" || data.type === "prism") { return "Custom <small class=\"text-muted\" title=\"Ideal element - power as typed, no dispersion\">fixed</small>"; }
     return "<span title=\"Fixed index as typed - the same at every wavelength\">Custom</span>";
   }
 
@@ -421,7 +421,7 @@ function materialEditor (cell, onRendered, success, cancel, editorParams) {
          function () { success(""); });
 
   Materials.list.forEach(function (m) {
-    if (data.type === "thin" && m.nd === 1) { return; }   // a thin lens of air is no lens
+    if (data.type !== "index" && m.nd === 1) { return; }   // a thin lens of air is no lens
     addRow(m.name, m.nd.toFixed(4), m.Vd ? m.Vd.toFixed(1) : "\u2014", glassCode(m), data.material === m.name,
            m.Vd ? "" : "No dispersion",
            function () {
@@ -480,6 +480,7 @@ function editCheck (cell) {
 
       case "prism":
       if (columnName == "power") { return true; };
+      if (columnName == "material") { return true; };
       if (columnName == "base")    { return true; };
       if (columnName == "aperture") { return true; };
       if (columnName == "stop")     { return true; };
@@ -687,14 +688,14 @@ function initializePrescriptionTable(data, updatePrescriptionCallback, success) 
           {title:"Type",          field:"type",             minWidth:72, align:"center", headerSort:false},                  
           {title:"Description",   field:"description",      minWidth:105, widthGrow:2, editor:"input", headerSort:false},
           {title:"Material",      field:"material",         minWidth:110, visible: advancedMaterialsOn(), formatter: materialFormatter, align:"center", editor: materialEditor, headerSort:false, editable: editCheck},
-          {title:"Ref. Index",    field:"index",            minWidth:80, mutator:Number, formatter: indexFormatter, formatterParams:{ precision: 3, emptyVal: "" }, align:"center", editor:"input", headerSort:false, validator:["min:1.0", "max:5.0"],
+          {title:"Ref. Index",    field:"index",            minWidth:80, mutator:Number, formatter: indexFormatter, formatterParams:{ precision: 4, emptyVal: "" }, align:"center", editor:"input", headerSort:false, validator:["min:1.0", "max:5.0"],
            // with a material named, the index is that material's n_d - change the material (or pick Custom) to change it
            editable: function (cell) { return editCheck(cell) && !(advancedMaterialsOn() && cell.getRow().getData().material); }},
-          {title:"Surf. R.",      field:"radius",           minWidth:75, mutator:Number, formatter: distanceFormatter, editor: distanceEditor, formatterParams:{ precision: 3, emptyVal: "" }, align:"center", headerSort:false, editable: editCheck},
-          {title:"Power",         field:"power",            minWidth:75, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "" }, align:"center", editor:"input", headerSort:false, editable: editCheck},
+          {title:"Surf. R.",      field:"radius",           minWidth:75, mutator:Number, formatter: distanceFormatter, editor: distanceEditor, formatterParams:{ precision: 4, emptyVal: "" }, align:"center", headerSort:false, editable: editCheck},
+          {title:"Power",         field:"power",            minWidth:75, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 4, emptyVal: "" }, align:"center", editor:"input", headerSort:false, editable: editCheck},
           {title:"Base",          field:"base",             minWidth:75, align:"center", headerSort:false, editor:"list", editorParams:{ values: { "up": "Base Up", "down": "Base Down" } }, formatter: function(cell) { var data = cell.getRow().getData(); if (data.type != "prism") { return ""; }; return (cell.getValue() == "down") ? "Base Down" : "Base Up"; }, editable: editCheck},
-          {title:"Thickness",     field:"thickness",        minWidth:75, mutator:Number, formatter: distanceFormatter, editor: distanceEditor, formatterParams:{ precision: 3, emptyVal: "" }, align:"center", headerSort:false, editable: editCheck},
-          {title:"Ap. Diameter",  field:"aperture",         minWidth:75, mutator:Number, formatter: distanceFormatter, editor: distanceEditor, formatterParams:{ precision: 3, emptyVal: "" }, align:"center", headerSort:false, editable: editCheck},
+          {title:"Thickness",     field:"thickness",        minWidth:75, mutator:Number, formatter: distanceFormatter, editor: distanceEditor, formatterParams:{ precision: 4, emptyVal: "" }, align:"center", headerSort:false, editable: editCheck},
+          {title:"Ap. Diameter",  field:"aperture",         minWidth:75, mutator:Number, formatter: distanceFormatter, editor: distanceEditor, formatterParams:{ precision: 4, emptyVal: "" }, align:"center", headerSort:false, editable: editCheck},
           {title:"Stop Flag",     field:"stop",             minWidth:75, align:"center", headerSort:false, formatter: apertureStop, editable: editCheck, editor:"tickCross"
            }],
     });

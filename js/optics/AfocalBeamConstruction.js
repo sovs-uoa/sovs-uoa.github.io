@@ -578,7 +578,9 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
      // there is no F-to-F' distance to compare against (cardinal points are
      // undefined for an afocal system) - system length (lens.L) alone is
      // the only meaningful reference here.
-     var refLength = 2*Math.abs(lens.L);
+     // how far the beam is drawn out either side of the system. A system with no length at all (a lone prism, say)
+     // would otherwise draw nothing: use the width of the view instead.
+     var refLength = (Math.abs(lens.L) > 1e-9) ? 2*Math.abs(lens.L) : viewBoxWidth;
 
 
      console.log("Input rays");

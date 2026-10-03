@@ -1,0 +1,67 @@
+/*--------------------------------------------
+
+TEST: dispersion through a base-down prism, lit by white light.
+
+The source is a beam from infinity written with the new  "white": true  shorthand - it stands for
+a LINKED group of beams, one per wavelength of the white-light group (red, green and blue unless the
+Wavelengths dialog says otherwise), which move as one. Written out in full the same thing is three
+sources sharing a "group" number, each with its own "wavelength" (nm).
+
+The prism is a thin 45 prism dioptre prism of dense flint (SF11, Abbe number about 26). A thin prism
+deviates light by (n - 1) times its angle, so each colour leaves at a slightly different angle: the
+beams overlap (and add up to white, with Additive beams on) until they have separated.
+
+"settings" lists what this file needs switched on to make its point: advanced materials (so the index
+depends on wavelength), the dark diagram and additive beams (so red + green + blue shows as white).
+Change the material of the prism to "Custom" (no material) and the colours stay together.
+
+Click a beam (or drag it) and the Ref. Index column, the Summary and the pupils follow that colour.
+
+----------------------------------------------*/
+
+{
+
+	"viewBox" : [ -0.1, 0.35, 0.9, 0.45 ],
+
+	"settings" : { "advancedMaterials": true, "darkCanvas": true, "additiveBeams": true },
+
+	"sources" : [ { "id" 		: 1,
+					"type" 		: "object",
+					"which"		: "object",
+					"infinity"	: true,
+					"white"		: true,
+					"beamwidth" : 0.008,
+					"z"			: NaN,
+					"h"			: NaN,
+					"t"			: 0 } ],
+
+	"title": "TEST Dispersion: 45 Base-Down Prism (SF11), white light",
+	"prescription": [{
+		"id": "0001",
+		"type": "index",
+		"description": "air",
+		"args": {
+			"index": 1.000
+		}
+	}, {
+		"id": "0002",
+		"type": "prism",
+		"description": "45 base-down prism",
+		"args": {
+			"stop": true,
+			"power": 45,
+			"base": "down",
+			"material": "SF11 dense flint",
+			"height": 0.1,
+			"aperture": 0.08
+		}
+	}, {
+		"id": "0003",
+		"type": "index",
+		"description": "air",
+		"args": {
+			"index": 1.000,
+			"thickness": 0.7
+		}
+	}]
+}

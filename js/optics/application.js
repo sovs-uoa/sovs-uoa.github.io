@@ -760,6 +760,20 @@ getConjuugateTo
   }
 */
 
+  // The pupils and cardinal points of the lens as the beam in focus sees it (advanced materials mode: the
+  // wavelength of the object being worked on; otherwise simply the lens as typed).
+  function drawFocusLensGraphics () {
+
+    if (typeof displayOptions === "undefined" || !displayOptions) { return; }   // nothing drawn yet (a lens is still loading)
+
+    var nm = (typeof focusedWavelength === "function") ? focusedWavelength() : undefined;
+    inLensWavelength(nm, function () {
+      drawPupils(renderableLens.total, displayOptions);
+      drawCardinalPoints(0, 0, renderableLens.total, displayOptions); // (0,0)
+    });
+  }
+
+
   function updatePrescriptionView() {
 
     // read the lens table 
@@ -806,8 +820,7 @@ getConjuugateTo
     //console.log("cardinal = " + response.general.cardinalVertHeight + " OR " + displayOptions.cardinalVertHeight );
 
     drawOptics(renderableLens);
-    drawPupils(renderableLens.total, displayOptions);
-    drawCardinalPoints(0, 0, renderableLens.total, displayOptions); // (0,0) 
+    drawFocusLensGraphics();     // pupils and cardinal points - for the wavelength of the beam in focus
 
     //console.log ('RESPONSE');
     //console.log (response);
@@ -1247,6 +1260,10 @@ getConjuugateTo
 
 
             elem.WavelengthNm = cell.getRow().getData().wavelength;   // may be the very thing that was edited
+            if (fieldname === "wavelength" && typeof setFocusedObject === "function") {
+              setFocusedObject(aPoint.id);          // the object being edited is the one in focus ...
+              syncPrescriptionToFocus();            // ... so the prescription's indices follow its new wavelength
+            }
 
             inLensWavelength(elem.WavelengthNm, function () {
               totalLens  = renderableLens.total;
@@ -1834,6 +1851,8 @@ getConjuugateTo
 
 
                                           console.log ('Adding points to paper.');
+                                          applyLensFileSettings(response.settings);     // e.g. a dispersion demo switches advanced materials on
+                                          points = expandSources(points);               // "white": true -> a linked red, green, blue group
                                           points.forEach( eachPoint => {
 
                                               /* klugdy fix for each point to account for raphael co-ordinate system */

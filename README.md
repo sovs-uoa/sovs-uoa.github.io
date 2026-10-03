@@ -17,6 +17,13 @@ The application is written in Javascript/HTML5 but has only be tested using Chro
 The program takes as input a .lens prescription file (some of which are "canned") already and displays the lens prescription and details of the system.  Rays can be traced through the system as well.
 
 
+## Advanced materials, wavelengths and white light
+
+An optional mode (Settings > Advanced materials) gives each medium a named material, each object its own colour
+(wavelength) and lets objects be linked. See [docs/ADVANCED-MATERIALS.md](docs/ADVANCED-MATERIALS.md), which also lists
+the extra keys a .lens file may use (`material`, `wavelength`, `group`, `white`, `settings`).
+
+
 ## To do: 
 
 One of the hopes for this web-site is that will allow for demonstrations that would be able to be incorporated in any web-page as required, or be included as part of a course. 

@@ -65,16 +65,16 @@
   <!-- Other -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/json5/0.5.1/json5.js"></script>
   <script src="js/optics/optics.js?v=1791007209"></script>
-  <script src="js/optics/materials.js?v=1791015137"></script>
-  <script src="js/optics/settings.js?v=1791015596"></script>
+  <script src="js/optics/materials.js?v=1791016264"></script>
+  <script src="js/optics/settings.js?v=1791016264"></script>
   <script src="js/optics/renderer.js?v=1791014467"></script>  
   <script src="js/optics/RayConstruction.js?v=1773822656"></script>    
-  <script src="js/optics/prescription.js?v=1791014933"></script>
+  <script src="js/optics/prescription.js?v=1791016264"></script>
   <script src="js/optics/raphael.export.js?v=1773822656"></script>
   <script src="js/optics/AnglePicker.js?v=1790230677"></script>  
   <script src="js/optics/PrincipalRayConstruction.js?v=1790576039"></script>  
   <script src="js/optics/ParallelBeamConstruction.js?v=1791014976"></script>  
-  <script src="js/optics/AfocalBeamConstruction.js?v=1790634021"></script>    
+  <script src="js/optics/AfocalBeamConstruction.js?v=1791016340"></script>    
   <script src="js/optics/PointSourceConstruction.js?v=1790629835"></script>    
   <script src="js/optics/DataTableHandler.js?v=1773822656"></script>      
   <script src="js/utils.js?v=1773822656"></script>  
@@ -460,7 +460,7 @@
       <!-- Distance units - affects the distances shown in the tabs below only; powers always stay in dioptres -->
 <div class="d-flex align-items-center">
       <!-- Wavelength of the prescription's Ref. Index column (advanced materials mode, Lens Prescription tab) -->
-      <button id="prescription-wavelength-btn" type="button" class="btn btn-sm mr-2" style="display:none;" title="Show the Ref. Index column at this wavelength"></button>
+      <button id="prescription-wavelength-btn" type="button" class="btn btn-sm mr-2" style="display:none;" title="Ref. Index column shown at this wavelength: it follows the object in focus (click or drag an object), or pick another"></button>
 
       <select id="distance-unit-selector" class="form-control form-control-sm" style="max-width:80px;width:auto;" aria-label="Distance units" onchange="setDistanceUnit(this.value);" title="Distance units (powers always stay in dioptres)">
         <option value="um">&micro;m</option>
@@ -992,7 +992,7 @@
 
   <!-- main application -->
   <script>installLensWavelengthWrappers();</script>
-  <script src="js/optics/application.js?v=1791014349"></script>  
+  <script src="js/optics/application.js?v=1791016264"></script>  
 
 
 </html>

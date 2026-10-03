@@ -319,6 +319,12 @@ function effectiveLensTable (rows, nm) {
       return Object.assign({}, row, { power: row.power * scale });
     }
 
+    if (row.type === "prism" && material.nd !== 1) {
+      // a thin prism deviates light by (n - 1) x its angle: the typed power is for the d line
+      var prismScale = (Materials.indexAt(material, nm) - 1) / (material.nd - 1);
+      return Object.assign({}, row, { power: row.power * prismScale });
+    }
+
     return row;
   });
 }
