@@ -7,7 +7,7 @@ a LINKED group of beams, one per wavelength of the white-light group (red, green
 Wavelengths dialog says otherwise), which move as one. Written out in full the same thing is three
 sources sharing a "group" number, each with its own "wavelength" (nm).
 
-The prism is a thin 45 prism dioptre prism of dense flint (SF11, Abbe number about 26). A thin prism
+The prism is a thin 100 prism dioptre prism of dense flint (SF11, Abbe number about 26). A thin prism
 deviates light by (n - 1) times its angle, so each colour leaves at a slightly different angle: the
 beams overlap (and add up to white, with Additive beams on) until they have separated.
 
@@ -21,7 +21,7 @@ Click a beam (or drag it) and the Ref. Index column, the Summary and the pupils 
 
 {
 
-	"viewBox" : [ -0.1, 0.35, 0.9, 0.45 ],
+	"viewBox" : [ -0.2, 0.15, 1.3, 0.75 ],
 
 	"settings" : { "advancedMaterials": true, "darkCanvas": true, "additiveBeams": true },
 
@@ -35,7 +35,7 @@ Click a beam (or drag it) and the Ref. Index column, the Summary and the pupils 
 					"h"			: NaN,
 					"t"			: 0 } ],
 
-	"title": "TEST Dispersion: 45 Base-Down Prism (SF11), white light",
+	"title": "TEST Dispersion: 100 Base-Down Prism (SF11), white light",
 	"prescription": [{
 		"id": "0001",
 		"type": "index",
@@ -46,10 +46,10 @@ Click a beam (or drag it) and the Ref. Index column, the Summary and the pupils 
 	}, {
 		"id": "0002",
 		"type": "prism",
-		"description": "45 base-down prism",
+		"description": "100 base-down prism",
 		"args": {
 			"stop": true,
-			"power": 45,
+			"power": 100,
 			"base": "down",
 			"material": "SF11 dense flint",
 			"height": 0.1,

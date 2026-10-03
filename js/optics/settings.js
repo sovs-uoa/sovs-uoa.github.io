@@ -413,6 +413,7 @@ function refreshModalIndexInput () {
 
 // something that every wavelength-dependent view shows has changed: re-trace and redraw them all
 function applyMaterialsChange () {
+  if (typeof scheduleBeamEdgeTagging === "function") { scheduleBeamEdgeTagging(); }
 
   if (typeof lens !== "undefined" && lens.table && typeof updatePrescriptionView === "function") {
     updatePrescriptionView();     // re-analyses, refreshes every object at its own wavelength, redraws the Summary
@@ -626,6 +627,7 @@ function groupCellClick (e, cell) {
     if (rest.length === 1) { rest[0].update({ group: undefined }); }   // a group of one is just an object
   } finally { syncingGroup = false; }
   row.getTable().redraw(true);
+  scheduleBeamEdgeTagging();     // the handles: one per group
 }
 
 // Called whenever a row of the Objects table changes: bring the rest of its group into line.
@@ -725,6 +727,7 @@ function linkTickedObjects () {
 
   syncGroupFrom(rows[0]);   // the others join the first one
   lens.pointsTable.redraw(true);
+  scheduleBeamEdgeTagging();     // the handles: one per group
 }
 
 // The tick-box column: a box per row that mirrors (and sets) the row's selection, so highlight and tick never disagree.
@@ -872,10 +875,55 @@ function tagBeamEdges () {
       var node = item.node;
       if (!node || node.tagName !== "path" || node.classList.contains("beam-shade")) { return; }
       var dashed = node.getAttribute("stroke-dasharray");
-      if (dashed && dashed !== "none") { return; }
+      if (dashed && dashed !== "none") {
+        // a virtual (construction) line: in advanced materials mode it takes the colour of its own beam
+        var stroke = node.getAttribute("stroke") || "";
+        if (stroke.indexOf("url") === 0 || stroke === "none") { return; }
+        var nm = Number(c.WavelengthNm);
+        node.style.stroke = (SovsSettings.advancedMaterials && isFinite(nm)) ? SovsSettings.entryFor(nm).color : "";
+        return;
+      }
       if (node.getAttribute("stroke") === "none") { return; }
       node.classList.add("beam-edge");
     });
+  });
+
+  applyGroupHandleVisibility();
+}
+
+// Linked objects move as one, so only one handle per group is shown - the first of the group in the table.
+// The others are hidden (dragging that handle moves them all).
+// the construction a handle (a Raphael element) belongs to: an AnglePicker has .parent, a dragged point carries it in its data
+function handleOwner (thing) {
+  if (!thing) { return null; }
+  if (thing.parent && typeof thing.parent.getId === "function") { return thing.parent; }
+  if (typeof thing.data === "function") {
+    var info = thing.data("data-attr") || thing.data("data-attr-info");
+    if (info && info.parent && typeof info.parent.getId === "function") { return info.parent; }
+  }
+  return null;
+}
+
+function applyGroupHandleVisibility () {
+
+  if (typeof lens === "undefined" || !lens.pointsTable || typeof paper === "undefined" || !paper) { return; }
+
+  var groupOf = {}, leadOf = {};
+  lens.pointsTable.getData().forEach(function (d) {
+    if (!d.group || !SovsSettings.advancedMaterials) { return; }
+    groupOf[d.id] = d.group;
+    if (leadOf[d.group] === undefined) { leadOf[d.group] = d.id; }
+  });
+
+  Array.prototype.forEach.call(document.querySelectorAll("#lens-container circle"), function (node) {
+
+    var el    = paper.getById(node.raphaelid);
+    var owner = el ? handleOwner(el) : null;
+    if (!owner || typeof owner.getId !== "function") { return; }
+
+    var id   = owner.getId();
+    var hide = groupOf[id] !== undefined && leadOf[groupOf[id]] != id;
+    node.style.display = hide ? "none" : "";
   });
 }
 
@@ -883,7 +931,7 @@ var beamEdgeTagging = false;
 function scheduleBeamEdgeTagging () {
   if (beamEdgeTagging) { return; }
   beamEdgeTagging = true;
-  window.requestAnimationFrame(function () { beamEdgeTagging = false; tagBeamEdges(); });
+  window.setTimeout(function () { beamEdgeTagging = false; tagBeamEdges(); }, 30);   // (not requestAnimationFrame: that stops while the page is hidden)
 }
 
 // Appearance: a dark canvas, and on it (only) beams that add like light

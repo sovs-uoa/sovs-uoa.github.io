@@ -1611,10 +1611,13 @@ function getLensElementInfo(elem, index) {
         // "power" is a magnitude in prism dioptres (the clinical convention:
         // always positive, with the base direction stated separately) -
         // unlike a thin lens, a prism's sign isn't carried in "power" itself.
-        // "base" ("up"/"down") gives the direction the image shifts towards:
-        // tan(deviation) = power/100, signed positive for base up.
+        // "base" ("up"/"down") is the side the base is on, and light is deviated TOWARDS THE BASE:
+        // tan(deviation) = power/100. The system's heights and slopes are in the drawing's frame (positive is
+        // DOWN the screen - sources are negated on the way in, see the "klugdy fix" in application.js), so a base-up
+        // prism needs a negative slope and a base-down prism a positive one. (The signs used to be the other way
+        // round, which sent rays away from the base.)
         var prismPower = Math.abs(input_elem.power);
-        var deviation  = (input_elem.base === "down" ? -1 : 1) * prismPower / 100;
+        var deviation  = (input_elem.base === "down" ? 1 : -1) * prismPower / 100;
 
         return { S: identitySystem, invS: identitySystem, X: identitySystem, offset: { u: deviation, h: 0 }, n1: n1, n2: n2, F: 0, L: 0, elem: input_elem };
 

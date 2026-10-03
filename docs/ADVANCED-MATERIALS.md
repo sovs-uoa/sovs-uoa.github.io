@@ -71,8 +71,3 @@ Examples: `lenses/dispersion-thick-lens-bk7.lens`, `lenses/dispersion-thin-lens-
 Laboratory1-4, 6, eye and Test are generated from `scripts/laboratory.template.html`: edit the template and run
 `node scripts/build-labs.js`. The build also tags each local script and stylesheet with its modified time so
 browsers pick up new files.
-
-## Known quirks
-
-* The prism convention comes from the engine: `"base"` is documented there as the direction the image shifts
-  towards, which on screen makes a "base down" prism send rays *up*. It is the same for every prism lens.
