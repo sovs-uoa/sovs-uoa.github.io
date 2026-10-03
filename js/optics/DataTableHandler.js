@@ -30,33 +30,27 @@ class DataTableHandler { // create a ray construction using raphael.js
 
 
   
+   // Returns converted COPIES. (It used to convert the objects it was given in place - and a table row's own data
+   // is handed out by reference - so merely reading a row's values here flipped the sign of its h / angle columns
+   // in the table itself, which later showed up as a beam suddenly pointing the wrong way.)
    convertRowData(data) {
 
-      //console.log("Input data");
-      //console.log(data);
-
-      var keys = data.keys ();     
+      var converted = [];
       for (var j = 0 ;  j < data.length ; j++ ) {
 
-
-          var curr = data[j];
+          var curr = Object.assign({}, data[j]);
           for (var i=0; i < this.filter.length ; i++) {
             var eachFilter = this.filter[i];
             if (curr.hasOwnProperty(eachFilter.column)) {
-              curr[eachFilter.column] = eachFilter.filter(curr[eachFilter.column]);              
+              curr[eachFilter.column] = eachFilter.filter(curr[eachFilter.column]);
             };
           };
-          data[j] = curr;
-
-
+          converted.push(curr);
       }
 
-      //console.log("Output data");
-      //console.log(data);
-
-      return data;
-
+      return converted;
    }
+
 
 
    addRow(data) {

@@ -71,3 +71,9 @@ Examples: `lenses/dispersion-thick-lens-bk7.lens`, `lenses/dispersion-thin-lens-
 Laboratory1-4, 6, eye and Test are generated from `scripts/laboratory.template.html`: edit the template and run
 `node scripts/build-labs.js`. The build also tags each local script and stylesheet with its modified time so
 browsers pick up new files.
+
+## Hiding prescription columns from a .lens file
+
+`"visible" : { "stop": false, "aperture": false }` hides the Stop Flag and Ap. Diameter columns (the keys are
+`power`, `thickness`, `aperture` and `stop`). Only the column is hidden - the data stay, so a prism's aperture still
+shapes its drawing. Radius and Base already appear and disappear with the rows that use them.

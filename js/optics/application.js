@@ -385,7 +385,7 @@
 
     try {
 
-      const response = await fetch(config_file);
+      const response = await fetch(config_file, { cache: "no-cache" });   // revalidate: a changed lens list shows at once
       const txt = await response.json();
       return txt;
 
@@ -1607,6 +1607,7 @@ getConjuugateTo
 
       $.ajax({
             url : found.filename,
+            cache: false,           // always the lens file as it is now, not a copy the browser kept
             dataType: "text",
             success : function (data) {
 
@@ -1729,6 +1730,7 @@ getConjuugateTo
 
       $.ajax({
             url : found.filename,
+            cache: false,           // always the lens file as it is now, not a copy the browser kept
             dataType: "text",
             success : function (data) {
 
@@ -1851,6 +1853,7 @@ getConjuugateTo
 
 
                                           console.log ('Adding points to paper.');
+                                          applyLensFileColumns(response.visible);       // a lens may hide columns it has no use for
                                           applyLensFileSettings(response.settings);     // e.g. a dispersion demo switches advanced materials on
                                           points = expandSources(points);               // "white": true -> a linked red, green, blue group
                                           points.forEach( eachPoint => {

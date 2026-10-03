@@ -543,6 +543,30 @@ function expandSources (points) {
   return out;
 }
 
+// A .lens file may hide prescription columns it has no use for:   "visible" : { "stop": false, "aperture": false }
+// (the keys are the column names: power, thickness, aperture, stop). The data stay - only the column is hidden - so
+// the aperture still shapes the drawing. Radius and Base already come and go with the rows that use them.
+var COLUMNS_A_LENS_CAN_HIDE = { power: "power", thickness: "thickness", aperture: "aperture", stop: "stop" };
+var lensFileHiddenColumns = [];
+
+function applyLensFileColumns (visible) {
+
+  if (typeof lens === "undefined" || !lens.table) { return; }
+
+  // put back whatever the previous lens hid
+  lensFileHiddenColumns.forEach(function (field) { lens.table.showColumn(field); });
+  lensFileHiddenColumns = [];
+
+  if (!visible) { return; }
+
+  Object.keys(COLUMNS_A_LENS_CAN_HIDE).forEach(function (key) {
+    if (visible[key] === false) {
+      lens.table.hideColumn(COLUMNS_A_LENS_CAN_HIDE[key]);
+      lensFileHiddenColumns.push(COLUMNS_A_LENS_CAN_HIDE[key]);
+    }
+  });
+}
+
 function applyLensFileSettings (settings) {
 
   if (!settings) { return; }
@@ -925,13 +949,22 @@ function applyGroupHandleVisibility () {
     var hide = groupOf[id] !== undefined && leadOf[groupOf[id]] != id;
     node.style.display = hide ? "none" : "";
   });
+
+  // ... and the dashed stick that joins an angle handle to its anchor goes with its handle - left behind, the
+  // hidden ones' sticks (always a fixed length) poke out past the shown handle as it is dragged
+  lens.raphael.constructions.forEach(function (c) {
+    if (!c.anglePicker || !c.anglePicker.extender || !c.anglePicker.extender.node) { return; }
+    var id = c.getId();
+    var hide = groupOf[id] !== undefined && leadOf[groupOf[id]] != id;
+    c.anglePicker.extender.node.style.display = hide ? "none" : "";
+  });
 }
 
 var beamEdgeTagging = false;
 function scheduleBeamEdgeTagging () {
   if (beamEdgeTagging) { return; }
   beamEdgeTagging = true;
-  window.setTimeout(function () { beamEdgeTagging = false; tagBeamEdges(); }, 30);   // (not requestAnimationFrame: that stops while the page is hidden)
+  window.setTimeout(function () { beamEdgeTagging = false; tagBeamEdges(); }, 0);   // (not requestAnimationFrame: that stops while the page is hidden)
 }
 
 // Appearance: a dark canvas, and on it (only) beams that add like light
@@ -945,7 +978,9 @@ function applyCanvasTheme () {
 
     // beams are redrawn all the time: tag the new edge lines as they appear
     if (!el.__edgeObserver && window.MutationObserver) {
-      el.__edgeObserver = new MutationObserver(scheduleBeamEdgeTagging);
+      // Run as a microtask - straight after the code that redrew the beams and before the browser paints - so a
+      // freshly drawn edge line is never seen in its untagged state (white on the dark canvas) for even one frame.
+      el.__edgeObserver = new MutationObserver(function () { tagBeamEdges(); });
       el.__edgeObserver.observe(el, { childList: true, subtree: true });
     }
   });

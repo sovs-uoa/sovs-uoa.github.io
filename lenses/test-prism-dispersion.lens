@@ -21,7 +21,9 @@ Click a beam (or drag it) and the Ref. Index column, the Summary and the pupils 
 
 {
 
-	"viewBox" : [ -0.2, 0.15, 1.3, 0.75 ],
+	"viewBox" : [ -0.3275, 0.1655, 0.655, 0.331 ],
+
+	"visible" : { "stop": false },
 
 	"settings" : { "advancedMaterials": true, "darkCanvas": true, "additiveBeams": true },
 
@@ -30,10 +32,10 @@ Click a beam (or drag it) and the Ref. Index column, the Summary and the pupils 
 					"which"		: "object",
 					"infinity"	: true,
 					"white"		: true,
-					"beamwidth" : 0.008,
+					"beamwidth" : 0.005,
 					"z"			: NaN,
 					"h"			: NaN,
-					"t"			: 0 } ],
+					"t"			: -25 } ],
 
 	"title": "TEST Dispersion: 100 Base-Down Prism (SF11), white light",
 	"prescription": [{
@@ -48,12 +50,10 @@ Click a beam (or drag it) and the Ref. Index column, the Summary and the pupils 
 		"type": "prism",
 		"description": "100 base-down prism",
 		"args": {
-			"stop": true,
 			"power": 100,
 			"base": "down",
 			"material": "SF11 dense flint",
-			"height": 0.1,
-			"aperture": 0.08
+			"height": 0.1
 		}
 	}, {
 		"id": "0003",
