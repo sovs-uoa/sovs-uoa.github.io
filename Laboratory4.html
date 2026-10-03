@@ -51,7 +51,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/3.0.1/mustache.min.js"></script>
 
   <!-- Mustache Extension -->
-  <script src="js/mustache-wax.js"></script>
+  <script src="js/mustache-wax.js?v=1773822656"></script>
 
 
   <!-- Required to convert named colors to RGB -->
@@ -64,24 +64,24 @@
 
   <!-- Other -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/json5/0.5.1/json5.js"></script>
-  <script src="js/optics/optics.js"></script>
-  <script src="js/optics/materials.js"></script>
-  <script src="js/optics/settings.js"></script>
-  <script src="js/optics/renderer.js"></script>  
-  <script src="js/optics/RayConstruction.js"></script>    
-  <script src="js/optics/prescription.js"></script>
-  <script src="js/optics/raphael.export.js"></script>
-  <script src="js/optics/AnglePicker.js"></script>  
-  <script src="js/optics/PrincipalRayConstruction.js"></script>  
-  <script src="js/optics/ParallelBeamConstruction.js"></script>  
-  <script src="js/optics/AfocalBeamConstruction.js"></script>    
-  <script src="js/optics/PointSourceConstruction.js"></script>    
-  <script src="js/optics/DataTableHandler.js"></script>      
-  <script src="js/utils.js"></script>  
-  <script src="js/main.js"></script>  
+  <script src="js/optics/optics.js?v=1791007209"></script>
+  <script src="js/optics/materials.js?v=1791015137"></script>
+  <script src="js/optics/settings.js?v=1791015596"></script>
+  <script src="js/optics/renderer.js?v=1791014467"></script>  
+  <script src="js/optics/RayConstruction.js?v=1773822656"></script>    
+  <script src="js/optics/prescription.js?v=1791014933"></script>
+  <script src="js/optics/raphael.export.js?v=1773822656"></script>
+  <script src="js/optics/AnglePicker.js?v=1790230677"></script>  
+  <script src="js/optics/PrincipalRayConstruction.js?v=1790576039"></script>  
+  <script src="js/optics/ParallelBeamConstruction.js?v=1791014976"></script>  
+  <script src="js/optics/AfocalBeamConstruction.js?v=1790634021"></script>    
+  <script src="js/optics/PointSourceConstruction.js?v=1790629835"></script>    
+  <script src="js/optics/DataTableHandler.js?v=1773822656"></script>      
+  <script src="js/utils.js?v=1773822656"></script>  
+  <script src="js/main.js?v=1773822656"></script>  
   
 
-  <link rel="stylesheet" type="text/css" href="css/optics.css">
+  <link rel="stylesheet" type="text/css" href="css/optics.css?v=1791015596">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
 
 
@@ -205,6 +205,7 @@
     <!-- Point labels (E, F, N, P, V...) can overlap when several land close
          together along the axis - this just turns them all off rather than
          trying to auto-layout them apart. -->
+    <button type="button" class="btn btn-sm btn-outline-secondary float-right" style="margin-top: 4px;" onclick="resetView();" title="Bring the diagram back to where it started (or double-click an empty part of it)">Reset view</button>
     <div class="form-check form-check-inline float-right" style="margin-right: 12px; margin-top: 6px;">
       <input class="form-check-input" type="checkbox" id="toggle-labels" checked onclick="toggleLabelsVisibility(this.checked);">
       <label class="form-check-label" for="toggle-labels">Labels</label>
@@ -235,11 +236,30 @@
 
             <hr>
 
-            <div class="form-check">
+            <div><strong>Appearance</strong></div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="setting-canvas" id="setting-canvas-light" onchange="setDarkCanvas(false);">
+              <label class="form-check-label" for="setting-canvas-light">Light diagram</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="setting-canvas" id="setting-canvas-dark" onchange="setDarkCanvas(true);">
+              <label class="form-check-label" for="setting-canvas-dark">Dark diagram</label>
+            </div>
+
+            <div class="form-check" style="margin-top: 8px;">
               <input class="form-check-input" type="checkbox" id="setting-additive-beams" onchange="setAdditiveBeams(this.checked);">
               <label class="form-check-label" for="setting-additive-beams"><strong>Additive beams</strong></label>
               <small class="form-text text-muted">
-                Dark diagram where overlapping beams add like light &mdash; red, green and blue together come out white.
+                Overlapping beams add like light &mdash; red, green and blue together come out white. Needs the dark diagram.
+              </small>
+            </div>
+
+            <div class="form-check" style="margin-top: 8px; margin-left: 20px;">
+              <input class="form-check-input" type="checkbox" id="setting-beam-edges" onchange="setBeamEdges(this.checked);">
+              <label class="form-check-label" for="setting-beam-edges">Beam edge lines</label>
+              <small class="form-text text-muted">
+                A line along the edge of every beam &mdash; incoming, between the elements and outgoing alike. Off by default
+                (affects the Additive beams view).
               </small>
             </div>
 
@@ -540,7 +560,7 @@
                         </div>            
                       </div>
 
-                      <button id="lens-points-del-row" class="btn btn-secondary" disabled onclick="deleteSelectedObjects();" title="Delete the ticked objects">&#128465; Delete Selected</button>
+                      <button id="lens-points-del-row" class="btn btn-secondary" disabled onclick="deleteSelectedObjects();" title="Delete the ticked objects">Delete Selected</button>
                       <button id="lens-points-clear" class="btn btn-secondary">Clear</button>                    
                       <button id="lens-points-reset" class="btn btn-secondary" disabled>Reset</button>
                </div>
@@ -972,7 +992,7 @@
 
   <!-- main application -->
   <script>installLensWavelengthWrappers();</script>
-  <script src="js/optics/application.js"></script>  
+  <script src="js/optics/application.js?v=1791014349"></script>  
 
 
 </html>

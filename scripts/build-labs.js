@@ -42,6 +42,17 @@ const PAGES = [
   { output: 'Test.html',        lensesMenu: 'test',  reportVersion: 'v2.1' },
 ];
 
+// Browsers keep serving an old copy of a script or stylesheet for a while after it has changed (so an edited
+// file can look "unfixed"). Tag each local js/ and css/ file with its own last-modified time: the address
+// changes exactly when the file does, so a rebuilt page always picks up the new file.
+function withCacheBusters (html) {
+  return html.replace(/(src|href)="((?:js|css)\/[^"?]+)"/g, (match, attr, file) => {
+    const full = path.join(ROOT, file);
+    if (!fs.existsSync(full)) return match;
+    return `${attr}="${file}?v=${Math.round(fs.statSync(full).mtimeMs / 1000)}"`;
+  });
+}
+
 function build () {
 
   const template = fs.readFileSync(TEMPLATE, 'utf8');
@@ -55,9 +66,9 @@ function build () {
       throw new Error(`Template is missing expected token(s): ${missingTokens.join(', ')}`);
     }
 
-    const out = template
+    const out = withCacheBusters(template
       .split('__LENSES_MENU__').join(page.lensesMenu)
-      .split('__REPORT_VERSION__').join(page.reportVersion);
+      .split('__REPORT_VERSION__').join(page.reportVersion));
 
     fs.writeFileSync(path.join(ROOT, page.output), out);
     console.log(`wrote ${page.output}  (lenses_menu: ${page.lensesMenu}, report: ${page.reportVersion})`);

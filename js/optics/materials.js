@@ -196,7 +196,7 @@ var SovsSettings = (function () {
 
   var NOMINAL_NM = 587.6;       // the d line - what a new object, and the Summary, start on
 
-  var state = { advancedMaterials: false, wavelengths: defaultWavelengths(), summaryNm: NOMINAL_NM, additiveBeams: false };
+  var state = { advancedMaterials: false, wavelengths: defaultWavelengths(), summaryNm: NOMINAL_NM, additiveBeams: false, beamEdges: false, darkCanvas: false };
 
   function load () {
 
@@ -215,6 +215,8 @@ var SovsSettings = (function () {
           if (kept.length > 0) { state.wavelengths = kept; }
         }
         state.additiveBeams = !!saved.additiveBeams;
+        state.darkCanvas    = (saved.darkCanvas === undefined) ? !!saved.additiveBeams : !!saved.darkCanvas;   // additive used to imply dark
+        state.beamEdges     = !!saved.beamEdges;
         if (isFinite(saved.prescriptionNm) && saved.prescriptionNm > 0) { state.prescriptionNm = Number(saved.prescriptionNm); }
         if (isFinite(saved.summaryNm) && saved.summaryNm > 0) { state.summaryNm = Number(saved.summaryNm); }
       }
@@ -245,6 +247,14 @@ var SovsSettings = (function () {
     // the wavelength the prescription's Ref. Index column is shown at (display only - see indexFormatter)
     get prescriptionNm ()   { return state.prescriptionNm || NOMINAL_NM; },
     set prescriptionNm (nm) { state.prescriptionNm = Number(nm); save(); },
+
+    // draw a line along the edge of every beam (on the additive canvas; off by default)
+    get beamEdges ()   { return state.beamEdges; },
+    set beamEdges (v)  { state.beamEdges = !!v; save(); },
+
+    // the diagram on a dark background (light lines and labels)
+    get darkCanvas ()   { return state.darkCanvas; },
+    set darkCanvas (v)  { state.darkCanvas = !!v; save(); },
 
     get additiveBeams ()  { return state.additiveBeams; },
     set additiveBeams (v) { state.additiveBeams = !!v; save(); },

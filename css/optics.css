@@ -172,32 +172,16 @@ table, th, td, tr {
 .wavelength-palette tr.selected td:not(.swatch) { font-weight: bold; background: #f1f3f5; }
 
 
-/* additive beams: a dark diagram whose beams add like light (settings.js: applyAdditiveBeams) */
-#lens-container.additive-beams { background: #0b0b0f; }
+/* dark canvas (the Appearance setting) and, on it, additive beams that add like light (settings.js: applyCanvasTheme) */
+#lens-container.dark-canvas { background: #0b0b0f; }
 #lens-container.additive-beams .beam-shade { mix-blend-mode: screen; }
-#lens-container.additive-beams path.beam-shade[fill-opacity] { fill-opacity: 0.5; }
-#lens-container.additive-beams .beam-fade-start { stop-opacity: 0.6; }
-#lens-container.additive-beams [stroke="#000000"] { stroke: #e6e6e6; }
-#lens-container.additive-beams [fill="#000000"] { fill: #e6e6e6; }
-#lens-container.additive-beams text { fill: #e6e6e6; }
+#lens-container.additive-beams path.beam-shade[fill-opacity] { fill-opacity: 0.5 !important; }
+#lens-container.additive-beams .beam-fade-start { stop-opacity: 0.5 !important; }
+#lens-container.dark-canvas [stroke="#000000"] { stroke: #e6e6e6; }
+#lens-container.dark-canvas [fill="#000000"] { fill: #e6e6e6; }
+#lens-container.dark-canvas text { fill: #e6e6e6; }
 
 
-/* the + in the top-left corner of a table, and the pop-up list it opens */
-.table-add-icon {
-  display: inline-block;
-  width: 20px;
-  height: 20px;
-  line-height: 18px;
-  text-align: center;
-  font-weight: bold;
-  font-size: 16px;
-  color: #fff;
-  background: #28a745;
-  border-radius: 50%;
-  cursor: pointer;
-}
-.table-add-icon:hover { background: #218838; }
-.group-lock { color: #fff; font-size: 12px; cursor: pointer; }
 
 /* the material picker shares the wavelength palette's look; it is taller, so it scrolls */
 .material-palette { max-height: 70vh; overflow-y: auto; }
@@ -214,3 +198,36 @@ table, th, td, tr {
 .tabulator .tabulator-row.tabulator-selected.tabulator-row-odd:hover { background-color: #fff !important; }
 .tabulator .tabulator-row.tabulator-selected.tabulator-row-even,
 .tabulator .tabulator-row.tabulator-selected.tabulator-row-even:hover { background-color: #f2f2f2 !important; }
+
+
+/* header icons in a table: plain line icons in the header text colour; the + goes green on hover,
+   the bin red once something is ticked */
+.table-icon { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; color: #6c757d; vertical-align: middle; }
+.table-icon-add { cursor: pointer; }
+.table-icon-add:hover { color: #28a745; }
+.table-icon-delete { color: #000; opacity: 0.35; cursor: default; }          /* black outline; faint while nothing is ticked */
+.table-icon-delete.active { opacity: 1; cursor: pointer; }                 /* something is ticked */
+.table-icon-delete.active:hover { color: #dc3545; }
+.group-lock { color: #fff; font-size: 12px; cursor: pointer; }
+
+/* header text and header icons share one line height, so they sit on the same centre line */
+#lens-points .tabulator-col-title, #lens-table .tabulator-col-title { line-height: 24px; }
+#lens-points .tabulator-header .tabulator-col .tabulator-col-content,
+#lens-table .tabulator-header .tabulator-col .tabulator-col-content { display: flex; align-items: center; justify-content: center; height: 100%; box-sizing: border-box; }
+#lens-points .tabulator-header .tabulator-col .tabulator-col-title,
+#lens-table .tabulator-header .tabulator-col .tabulator-col-title { position: static; width: auto; }
+#lens-points .tabulator-header .tabulator-col .tabulator-col-title,
+#lens-table .tabulator-header .tabulator-col .tabulator-col-title { display: flex; align-items: center; justify-content: center; height: 24px; overflow: visible; white-space: nowrap; }
+
+/* the object being worked on (dragged in the diagram, or clicked in the table) */
+.tabulator .tabulator-row.row-focus,
+.tabulator .tabulator-row.row-focus:hover { background-color: #dbeafe !important; box-shadow: inset 4px 0 0 #2563eb; }
+
+/* additive view: the fading (incoming / outgoing) edge lines take the same light colour as the other rays,
+   and the edge lines can be switched off together */
+#lens-container.dark-canvas .beam-edge-stop { stop-color: #e6e6e6; }
+#lens-container.additive-beams.beam-edges-off .beam-edge { stroke: none !important; }
+
+.wavelength-palette tr.divider td { padding: 0; border-bottom: 2px solid #adb5bd; height: 0; }
+.wavelength-palette tr.custom td { font-style: italic; }
+.wavelength-palette tr.custom input { width: 56px; text-align: right; font-style: normal; }

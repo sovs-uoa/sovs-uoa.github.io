@@ -72,7 +72,7 @@ function shadeFadingBeamRegion (cd_set, pts, fadeFromXY, fadeToXY) {
     var stop1 = document.createElementNS("http://www.w3.org/2000/svg", "stop");
     stop1.setAttribute("offset", "0");
     stop1.setAttribute("stop-color", beamShadeColor());
-    stop1.setAttribute("stop-opacity", "0.35");
+    stop1.setAttribute("stop-opacity", "0.25");   // the same as the bounded regions (fill-opacity above), so a beam is one even tint
     stop1.setAttribute("class", "beam-fade-start");
 
     var stop2 = document.createElementNS("http://www.w3.org/2000/svg", "stop");
@@ -127,11 +127,13 @@ function fadeRayStroke (pathEl, fadeFromXY, fadeToXY) {
     stop1.setAttribute("offset", "0");
     stop1.setAttribute("stop-color", "black");
     stop1.setAttribute("stop-opacity", "1");
+    stop1.setAttribute("class", "beam-edge-stop");   // light on the dark (additive) canvas, like the other rays
 
     var stop2 = document.createElementNS("http://www.w3.org/2000/svg", "stop");
     stop2.setAttribute("offset", "1");
     stop2.setAttribute("stop-color", "black");
     stop2.setAttribute("stop-opacity", "0");
+    stop2.setAttribute("class", "beam-edge-stop");
 
     grad.appendChild(stop1);
     grad.appendChild(stop2);

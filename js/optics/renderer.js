@@ -122,6 +122,17 @@ function hslToRgb(h, s, l){
     return num*viewBoxWidth;
   }
 
+  // the view the lens file opened with - "Reset view" (and a double-click on the empty canvas) comes back to it,
+  // so dragging or zooming the diagram away can always be undone
+  var initialView = null;
+
+  function resetView () {
+    if (!initialView) { return; }
+    setViewBox(initialView[0], initialView[1], initialView[2], initialView[3]);
+    drawAxis();
+    if (typeof updateScaleBar === "function") { updateScaleBar(); }
+  }
+
   function setViewBox (x, y, width, height) {
 
       var oX = -viewBoxWidth/2, oY = -viewBoxHeight/2, oWidth = viewBoxWidth, oHeight = viewBoxHeight;        
@@ -193,6 +204,7 @@ function hslToRgb(h, s, l){
           Top           = config.viewBox[1];          
 
           setViewBox (Left, Top, viewBoxWidth, viewBoxHeight);
+          initialView = [Left, Top, viewBoxWidth, viewBoxHeight];
 
         } else {
 
@@ -200,6 +212,7 @@ function hslToRgb(h, s, l){
           /* DEFAULT */
           var oX = -viewBoxWidth/2, oY = -viewBoxHeight/2, oWidth = viewBoxWidth, oHeight = viewBoxHeight;        
           setViewBox (oX, oY, oWidth, oHeight);
+          initialView = [oX, oY, oWidth, oHeight];
         }
 
 
@@ -292,7 +305,8 @@ function ensureGridPattern () {
 
 }
 
-function drawAxis () {
+// panX / panY: how far the view has been dragged since the drag began (viewBox.X/Y only catch up when it ends)
+function drawAxis (panX, panY) {
   
   // var g = grid || false;
   // var o = offset || 0.1;
@@ -300,8 +314,8 @@ function drawAxis () {
   // viewBox.X, viewBox.Y, viewBoxWidth, viewBoxHeight
 
   // Width
-  var left    = viewBox.X;
-  var top     = viewBox.Y;
+  var left    = viewBox.X + (panX || 0);
+  var top     = viewBox.Y + (panY || 0);
   var width   = viewBoxWidth;
   var height  = viewBoxHeight;
   var right   = left + width;
@@ -2211,6 +2225,7 @@ function drawAxis () {
 
         //alert(viewBoxWidth +" "+ paper.width );
         paper.setViewBox(viewBox.X + dX, viewBox.Y + dY, viewBoxWidth, viewBoxHeight);
+        drawAxis(dX, dY);    // keep the grid under the view however far it is dragged
         // bgRect.translate(dX, dY);
 
     };
@@ -2304,6 +2319,14 @@ function drawAxis () {
      */
     function handle(delta) {
         
+        // keep the zoom within a sensible range of the opening view: a trackpad swipe sends dozens of wheel
+        // events at once and used to zoom clean past the optics (and the grid) into empty space
+        if (initialView) {
+            var factor = (delta < 0) ? 0.95 : 1.05;
+            var next   = viewBoxWidth * factor;
+            if (next < initialView[2] / 20 || next > initialView[2] * 20) { return; }
+        }
+
         vBHo = viewBoxHeight;
         vBWo = viewBoxWidth;
         if (delta < 0) {

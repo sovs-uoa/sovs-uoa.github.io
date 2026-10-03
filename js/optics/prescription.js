@@ -1017,7 +1017,8 @@ function initializePointsTable(data, updatePointsCallback, success) {
          var construction = lens.raphael.constructions.find(function (c) { return c.getId() == data.id; });
          if (!construction || !construction.setPinToApertureStop) { return; }
 
-         var wasOff  = !data.pin && !data.vig;
+         var wasOff    = !data.pin && !data.vig;
+         var wasPinned = !!data.pin;   // read before row.update() below, which changes this very object
          var turnOn  = !data[nextField]; // toggling the clicked field on, or off if it was already on
          var pinOn   = turnOn && nextField === "pin";
          var vigOn   = turnOn && nextField === "vig";
@@ -1037,8 +1038,15 @@ function initializePointsTable(data, updatePointsCallback, success) {
            construction.setPinToApertureStop(false, false);
            if (isFinite(data._manualBeamWidth)) {
              row.update({ beamwidth: data._manualBeamWidth });
+             if (typeof construction.setBeamWidth === "function") { construction.setBeamWidth(data._manualBeamWidth); }   // and the beam follows
            }
          } else {
+           // Pin -> Vig: the beam on screen is the one the stop allows, so that width becomes the typed one -
+           // otherwise Vig would fall back to the older width the construction still holds and the beam would jump
+           if (vigOn && wasPinned && isFinite(construction.PinnedApertureDiameter) && typeof construction.setBeamWidth === "function") {
+             construction.setBeamWidth(construction.PinnedApertureDiameter);
+             row.update({ beamwidth: construction.PinnedApertureDiameter });
+           }
            construction.setPinToApertureStop(true, vigOn);
            if (pinOn && isFinite(construction.PinnedApertureDiameter)) {
              row.update({ beamwidth: construction.PinnedApertureDiameter });
@@ -1066,17 +1074,19 @@ function initializePointsTable(data, updatePointsCallback, success) {
         selectable:"highlight",   // rows are selected only through their tick box, never by clicking the row
         movableRows:false,
         layout:"fitColumns",
+        rowFormatter:function(row){ applyFocusClass(row); },             // re-lit whenever the table redraws
+        rowClick:function(e, row){ setFocusedObject(row.getData().id); },
         rowUpdated:function(row){ syncGroupFrom(row); },                // objects in a group move as one
         rowSelectionChanged:function(){ refreshSelectBoxes(); },        // the tick boxes follow the selection
         columns:[
             Object.assign({rowHandle:true, formatter:"handle", headerSort:false, frozen:true, width:30, minWidth:30},
                           addIconHeader("#lens-points-add-row + .dropdown-menu", "Add an object")),
             // tick boxes = the selection (the highlight follows them); the bin in the corner deletes the ticked rows
-            {field:"_selected", formatter: selectBoxFormatter, titleFormatter: selectAllTitle, headerClick: selectAllClick, cellClick: selectBoxClick,
+            {field:"_selected", formatter: selectBoxFormatter, title: selectAllTitle(), headerClick: selectAllClick, cellClick: selectBoxClick,
              align:"center", headerSort:false, width:40, minWidth:40},
             // advanced materials mode only: tick two objects to link them. A linked
             // object shows its group's link badge instead (click it to unlink) - see "White-light groups" in settings.js
-            {title:"&#128279;", field:"group", width:60, align:"center", headerSort:false, visible: advancedMaterialsOn(),
+            {title: linkColumnTitle(), field:"group", width:60, align:"center", headerSort:false, visible: advancedMaterialsOn(),
              formatter: groupCellFormatter, cellClick: groupCellClick },
             {title:"&infin;", field:"infinity", width:42, align:"center", headerSort:false,
              // read-only status: fixed by the "At infinity" checkbox at Add time,
@@ -1090,7 +1100,7 @@ function initializePointsTable(data, updatePointsCallback, success) {
             // beam from infinity (ParallelBeamConstruction/AfocalBeamConstruction).
             // Not meaningful for a "point" row (PrincipalRayConstruction has
             // no beam width concept at all).
-            {title:"Pin", field:"pin", width:54, align:"center", headerSort:false,
+            {title: pinColumnTitle(), field:"pin", width:54, align:"center", headerSort:false,
              formatter: function (cell) {
                var data = cell.getRow().getData();
                if (data.type !== "object") { return ""; }
@@ -1112,7 +1122,7 @@ function initializePointsTable(data, updatePointsCallback, success) {
             // computeVignettedEnvelopeForBeam) - so it is NOT gated by
             // isAfocalObjectRow the way Pin is; it works the same regardless
             // of whether this particular afocal system's VE1 is degenerate.
-            {title:"Vig", field:"vig", width:54, align:"center", headerSort:false,
+            {title: vigColumnTitle(), field:"vig", width:54, align:"center", headerSort:false,
              formatter: function (cell) {
                if (cell.getRow().getData().type !== "object") { return ""; }
                return checkBoxHTML(cell.getValue(), false, "Your own typed beam width, shown clipped by whichever element(s) actually vignette this ray");

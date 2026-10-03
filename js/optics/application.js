@@ -1738,6 +1738,7 @@ getConjuugateTo
                   $(paper.canvas).mousedown( panStart );
                   $(paper.canvas).mousemove( panMove );
                   $(paper.canvas).mouseup( panEnd );
+                  $(paper.canvas).dblclick( function (e) { if (e.target.tagName === "svg") { resetView(); } } );   // back to the opening view
 
                   paper.canvas.addEventListener("touchstart", panStart, false);
                   paper.canvas.addEventListener("touchmove",  panMove, false);

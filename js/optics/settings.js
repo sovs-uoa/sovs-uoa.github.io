@@ -127,6 +127,7 @@ function installLensWavelengthWrappers () {
 
     var wrapped = function () {
       var owner = constructionOf(this);
+      if (owner && typeof owner.getId === "function") { setFocusedObject(owner.getId()); }   // the row of what is being dragged
       return withLensAt(owner ? owner.WavelengthNm : undefined, original, this, arguments);
     };
     wrapped.__lensWrapped = true;
@@ -159,8 +160,25 @@ function wavelengthCellFormatter (cell, formatterParams, onRendered) {
 // under anchorEl. Calls onPick(nm) for a choice, onClose() if dismissed (click elsewhere, Esc).
 function openWavelengthPalette (anchorEl, current, onPick, onClose) {
 
-  var list = SovsSettings.wavelengths.slice();
-  if (!list.some(function (w) { return Math.abs(w.nm - current) < 0.05; })) { list.push({ name: "", nm: current }); } // one removed from the list stays selectable
+  // Order: the wavelengths the objects are using, in the order of the Objects and Images table; a divider; then
+  // Custom (any wavelength you type) and the rest of the list in numerical order.
+  var listed = SovsSettings.wavelengths.slice().sort(function (a, b) { return a.nm - b.nm; });
+  function entryOf (nm) {
+    var hit = listed.filter(function (w) { return Math.abs(w.nm - nm) < 0.05; })[0];
+    return hit || { name: "", nm: nm };     // one removed from the list (or typed in) is still selectable
+  }
+
+  var used = [];
+  if (typeof lens !== "undefined" && lens.pointsTable) {
+    lens.pointsTable.getData().forEach(function (d) {
+      if (d.type !== "object") { return; }
+      var nm = Number(d.wavelength) || SovsSettings.NOMINAL_NM;
+      if (!used.some(function (u) { return Math.abs(u - nm) < 0.05; })) { used.push(nm); }
+    });
+  }
+  var usedEntries = used.map(entryOf);
+  var rest = listed.filter(function (w) { return !used.some(function (u) { return Math.abs(u - w.nm) < 0.05; }); });
+  if (!used.length && !listed.some(function (w) { return Math.abs(w.nm - current) < 0.05; })) { usedEntries.push(entryOf(current)); }
 
   var palette = document.createElement("div");
   palette.className = "wavelength-palette";
@@ -183,7 +201,7 @@ function openWavelengthPalette (anchorEl, current, onPick, onClose) {
   function outside (e) { if (!palette.contains(e.target)) { finish(); } }
   function escape (e) { if (e.key === "Escape") { finish(); } }
 
-  list.forEach(function (w) {
+  function addEntry (w) {
     var color  = wavelengthToColor(w.nm);
     var common = w.common || commonColorName(w.nm);
     var tr = document.createElement("tr");
@@ -192,7 +210,38 @@ function openWavelengthPalette (anchorEl, current, onPick, onClose) {
                    "</td><td class=\"swatch\" style=\"background:" + color + ";\"></td>";
     tr.addEventListener("mousedown", function (e) { e.preventDefault(); e.stopPropagation(); finish(w.nm); });
     tbody.appendChild(tr);
+  }
+
+  function addDivider () {
+    var tr = document.createElement("tr");
+    tr.className = "divider";
+    tr.innerHTML = "<td colspan=\"4\"></td>";
+    tbody.appendChild(tr);
+  }
+
+  usedEntries.forEach(addEntry);
+  if (usedEntries.length) { addDivider(); }
+
+  // Custom: type any wavelength; the swatch previews its colour
+  var custom = document.createElement("tr");
+  custom.className = "custom";
+  custom.innerHTML = "<td colspan=\"2\">Custom</td><td class=\"nm\"><input type=\"text\" size=\"5\" placeholder=\"nm\"></td><td class=\"swatch\"></td>";
+  var box = custom.querySelector("input"), chip = custom.querySelector(".swatch");
+  box.addEventListener("input", function () {
+    var nm = parseFloat(box.value);
+    chip.style.background = (isFinite(nm) && nm >= 200 && nm <= 3000) ? wavelengthToColor(nm) : "";
   });
+  box.addEventListener("keydown", function (e) {
+    e.stopPropagation();
+    if (e.key === "Enter") {
+      var nm = parseFloat(box.value);
+      if (isFinite(nm) && nm >= 200 && nm <= 3000) { finish(Math.round(nm * 10) / 10); }
+    }
+    if (e.key === "Escape") { finish(); }
+  });
+  tbody.appendChild(custom);
+
+  rest.forEach(addEntry);
 
   document.body.appendChild(palette);
 
@@ -394,6 +443,34 @@ function setAdvancedMaterials (on) {
 }
 
 
+/* --- the object in focus --------------------------------------------------------------------------------------------- */
+
+// The row of whatever is being worked on - dragged in the diagram, or clicked / edited in the table - is lit up in
+// the Objects table, with the rest of its group (they move as one). It is separate from the tick boxes, which
+// are the selection for deleting.
+
+var focusedObjectId = null;
+
+function applyFocusClass (row) {
+
+  var el = row.getElement();
+  if (!el) { return; }
+
+  var data  = row.getData();
+  var focus = focusedObjectId != null && lens.pointsTable &&
+              lens.pointsTable.getData().some(function (d) {
+                return d.id == focusedObjectId && (d.id == data.id || (d.group && d.group === data.group));
+              });
+  el.classList.toggle("row-focus", !!focus);
+}
+
+function setFocusedObject (id) {
+
+  if (focusedObjectId === id) { return; }
+  focusedObjectId = id;
+  if (typeof lens !== "undefined" && lens.pointsTable) { lens.pointsTable.getRows().forEach(applyFocusClass); }
+}
+
 /* --- white-light groups: objects linked together ---------------------------------------------------------------- */
 
 /*
@@ -441,7 +518,7 @@ function groupCellFormatter (cell) {
 
   var color = GROUP_COLORS[(gid - 1) % GROUP_COLORS.length];
   return "<span class=\"badge group-lock\" style=\"background:" + color + ";\" title=\"Linked with the other objects in group " + gid +
-         " - they move as one. Click to unlink this one.\">&#128279; " + gid + "</span>";
+         " - they move as one. Click to unlink this one.\">" + iconSVG("link", 12) + " " + gid + "</span>";
 }
 
 function groupCellClick (e, cell) {
@@ -573,14 +650,13 @@ function selectBoxClick (e, cell) {
   cell.getRow().toggleSelect();
 }
 
-function selectAllTitle () { return "<input type=\"checkbox\" title=\"Select all\" style=\"cursor:pointer;\">"; }
+// The header of the tick-box column is the delete icon: grey and inactive until something is ticked.
+function selectAllTitle () {
+  return "<span class=\"table-icon table-icon-delete delete-icon\" title=\"Delete the ticked objects (tick some first)\">" + iconSVG("trash", 18) + "</span>";
+}
 
 function selectAllClick (e) {
-
-  if (e.target.tagName !== "INPUT") { return; }
-
-  if (lens.pointsTable.getSelectedRows().length === lens.pointsTable.getRows().length) { lens.pointsTable.deselectRow(); }
-  else { lens.pointsTable.selectRow(); }
+  if (e.target.closest(".delete-icon") && lens.pointsTable.getSelectedRows().length > 0) { deleteSelectedObjects(); }
 }
 
 function refreshSelectBoxes () {
@@ -593,17 +669,20 @@ function refreshSelectBoxes () {
     if (box) { box.checked = r.isSelected(); }
   });
 
-  // the Delete button is inactive until something is ticked
+  // the delete icon is inactive until something is ticked
+  var any = lens.pointsTable.getSelectedRows().length > 0;
+  Array.prototype.forEach.call(document.querySelectorAll("#lens-points .delete-icon"), function (el) {
+    el.classList.toggle("active", any);
+  });
+
+  // ... and so is the Delete Selected button under the table
   var del = document.getElementById("lens-points-del-row");
   if (del) {
-    var any = lens.pointsTable.getSelectedRows().length > 0;
     del.disabled = !any;
     del.classList.toggle("btn-danger", any);
     del.classList.toggle("btn-secondary", !any);
   }
 
-  var all = document.querySelector("#lens-points .tabulator-col[tabulator-field=\"_selected\"] input");
-  if (all) { all.checked = rows.length > 0 && lens.pointsTable.getSelectedRows().length === rows.length; }
 }
 
 // Delete the ticked objects. A linked group goes as one, so say so if that takes in objects that were not ticked.
@@ -622,6 +701,21 @@ function deleteSelectedObjects () {
   });
 
   refreshSelectBoxes();   // nothing is ticked any more: the Delete button goes inactive
+}
+
+/* --- line icons: one set, one size, one stroke -------------------------------------------------------------------- */
+
+var ICON_PATHS = {
+  plus:  "M12 5v14M5 12h14",
+  trash: "M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6",
+  funnel: "M22 3H2l8 9.46V19l4 2v-8.54z",
+  pin:   "M12 17v5M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z",
+  link:  "M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"
+};
+
+function iconSVG (name, size) {
+  return "<svg width=\"" + size + "\" height=\"" + size + "\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" " +
+         "stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"vertical-align:middle;\"><path d=\"" + ICON_PATHS[name] + "\"/></svg>";
 }
 
 /* --- the + icon in a table's top left corner ---------------------------------------------------------------------- */
@@ -669,7 +763,7 @@ function showTableAddMenu (event, menuSelector) {
 
 function addIconHeader (menuSelector, tip) {
   return {
-    titleFormatter: function () { return "<span class=\"table-add-icon\" title=\"" + tip + "\">+</span>"; },
+    title: "<span class=\"table-icon table-icon-add\" title=\"" + tip + "\">" + iconSVG("plus", 18) + "</span>",
     headerClick: function (e) { showTableAddMenu(e, menuSelector); }
   };
 }
@@ -679,16 +773,79 @@ function addIconHeader (menuSelector, tip) {
 
 // Dark diagram with beams that add like light: overlapping red, green and blue come out white. Pure CSS (see
 // .additive-beams in optics.css), so it applies to whatever is already drawn.
-function applyAdditiveBeams () {
-  var on = SovsSettings.additiveBeams;
+// Tag the edge lines of every beam, whichever part of the beam they belong to (incoming, between the elements,
+// outgoing), so one rule can show or hide them all alike. Dashed construction lines are left alone.
+function tagBeamEdges () {
+
+  if (typeof lens === "undefined" || !lens.raphael) { return; }
+
+  lens.raphael.constructions.forEach(function (c) {
+    if (!c.cd_set || !c.cd_set.items) { return; }
+    c.cd_set.items.forEach(function (item) {
+      var node = item.node;
+      if (!node || node.tagName !== "path" || node.classList.contains("beam-shade")) { return; }
+      var dashed = node.getAttribute("stroke-dasharray");
+      if (dashed && dashed !== "none") { return; }
+      if (node.getAttribute("stroke") === "none") { return; }
+      node.classList.add("beam-edge");
+    });
+  });
+}
+
+var beamEdgeTagging = false;
+function scheduleBeamEdgeTagging () {
+  if (beamEdgeTagging) { return; }
+  beamEdgeTagging = true;
+  window.requestAnimationFrame(function () { beamEdgeTagging = false; tagBeamEdges(); });
+}
+
+// Appearance: a dark canvas, and on it (only) beams that add like light
+function applyCanvasTheme () {
+  var dark = SovsSettings.darkCanvas;
+  var on   = SovsSettings.additiveBeams && dark;
   Array.prototype.forEach.call(document.querySelectorAll("#lens-container"), function (el) {
+    el.classList.toggle("dark-canvas", dark);
     el.classList.toggle("additive-beams", on);
+    el.classList.toggle("beam-edges-off", !SovsSettings.beamEdges);
+
+    // beams are redrawn all the time: tag the new edge lines as they appear
+    if (!el.__edgeObserver && window.MutationObserver) {
+      el.__edgeObserver = new MutationObserver(scheduleBeamEdgeTagging);
+      el.__edgeObserver.observe(el, { childList: true, subtree: true });
+    }
+  });
+  scheduleBeamEdgeTagging();
+}
+
+function applyAdditiveBeams () { applyCanvasTheme(); }
+
+function setBeamEdges (on) {
+  SovsSettings.beamEdges = on;
+  applyCanvasTheme();
+}
+
+function setDarkCanvas (dark) {
+  SovsSettings.darkCanvas = dark;
+  syncAppearanceControls();
+  applyCanvasTheme();
+}
+
+// additive beams need the dark canvas: the tick boxes under Appearance follow that
+function syncAppearanceControls () {
+  var dark = SovsSettings.darkCanvas;
+  var radioDark  = document.getElementById("setting-canvas-dark");
+  var radioLight = document.getElementById("setting-canvas-light");
+  if (radioDark)  { radioDark.checked  = dark; }
+  if (radioLight) { radioLight.checked = !dark; }
+  ["setting-additive-beams", "setting-beam-edges"].forEach(function (id) {
+    var box = document.getElementById(id);
+    if (box) { box.disabled = !dark; }
   });
 }
 
 function setAdditiveBeams (on) {
   SovsSettings.additiveBeams = on;
-  applyAdditiveBeams();
+  applyCanvasTheme();
 }
 
 
@@ -784,11 +941,20 @@ $(function () {
   $("#settingsModal").on("show.bs.modal", function () {
     document.getElementById("setting-advanced-materials").checked = SovsSettings.advancedMaterials;
     document.getElementById("setting-additive-beams").checked     = SovsSettings.additiveBeams;
+    document.getElementById("setting-beam-edges").checked         = SovsSettings.beamEdges;
+    syncAppearanceControls();
   });
 
-  applyAdditiveBeams();
+  applyCanvasTheme();
+  syncAppearanceControls();
   refreshAdvancedOnlyMenuItems();
   initIndexWavelengthButton();
 
   refreshModalIndexInput();
 });
+
+function linkColumnTitle () { return "<span class=\"table-icon\" title=\"Linked objects move as one - tick two to link them\">" + iconSVG("link", 18) + "</span>"; }
+
+function pinColumnTitle () { return "<span class=\"table-icon\" title=\"Pin: fill the designated aperture stop\">" + iconSVG("pin", 18) + "</span>"; }
+
+function vigColumnTitle () { return "<span class=\"table-icon\" title=\"Vig: your beam width, clipped by whichever elements vignette it\">" + iconSVG("funnel", 18) + "</span>"; }
