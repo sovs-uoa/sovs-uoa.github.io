@@ -454,6 +454,17 @@ function drawAxis (panX, panY) {
    ------------------------------------------------ */
 
 
+  // is a hatched (flat) screen at this axial position? Its hatching sits on the right, so the labels of a point
+  // that lands on it (V', F') are moved off to the left rather than written across the hatching.
+  function flatScreenAt(z) {
+
+    if (typeof renderableLens === "undefined" || !renderableLens || !renderableLens.elem) { return false; }
+    return renderableLens.elem.some(function (e) {
+      return e && e.elem && e.elem.type === "img" && !isFinite(e.elem.radius) && Math.abs(e.Z - z) < 0.002;
+    });
+  }
+
+
   function drawCardinalPoints(x, y, systemPoints, displayOptions) {
 
     console.log("- cardinal points");
@@ -501,6 +512,7 @@ function drawAxis (panX, panY) {
           //cp1.transform("...t-100,0");
           cp2 = drawText(x2, y , "V'"); // - 4*cp2.attr("r")
           cp2.attr({ "text-anchor" : "middle"});
+          if (flatScreenAt(x2)) { cp2.attr({ "text-anchor" : "end" }); cp2.data("data-shift-X", -1.15); }   // V' F' read left to right, ending at the screen
           //cp1.transform("...t100,0");
 
           cp_set.push(cp1, cp2);
@@ -550,6 +562,7 @@ function drawAxis (panX, panY) {
           cp1F.attr({ "text-anchor" : "end"});
           let cp2F = drawText(x2, y, "F'");
           cp2F.attr({ "text-anchor" : "start"});
+          if (flatScreenAt(x2)) { cp2F.attr({ "text-anchor" : "end" }); cp2F.data("data-shift-X", -0.4); }   
           cp_set.push(cp1F, cp2F);
 
 
@@ -633,15 +646,17 @@ function drawAxis (panX, panY) {
             cp_set.push(cp1);
             RegisterWheelCallback ({ type: "point", handle: cp1 });
           
+            // the planes coincide (a thin lens, say): P/N sits above the axis, left of the line, and P'/N' below
+            // it, right of the line - so neither is written across the element's own line
             cp1 = drawText(x1, 0, "P/N");
-            cp1.attr({ "text-anchor" : "middle"});
-            cp1.data({ "data-shift-Y" : 1.0 });
+            cp1.attr({ "text-anchor" : "end"});
+            cp1.data({ "data-shift-Y" : -1.0 });
             cp_set.push(cp1);
             RegisterWheelCallback ({ type: "text", handle: cp1 });
 
             cp2 = drawText(x1, 0, "P'/N'");
-            cp2.attr({ "text-anchor" : "middle"});            
-            cp2.data({ "data-shift-Y" : -1.0 });
+            cp2.attr({ "text-anchor" : "start"});
+            cp2.data({ "data-shift-Y" : 1.0 });
             cp_set.push(cp2);
             RegisterWheelCallback ({ type: "text", handle: cp2 });
 
@@ -1158,6 +1173,24 @@ function drawAxis (panX, panY) {
     //lens.toFront ();
 
     return lens;
+  }
+
+
+  // The hatching behind a flat screen: short diagonal strokes (NW to SE) hanging off its far (right-hand) side.
+  function drawScreenHatching(x, y, h) {
+
+    var hatch = paper.set();
+    var n     = 28;                 // strokes
+    var d     = h / 40;             // how far each reaches (across and down)
+    var step  = h / n;
+
+    for (var k = 0; k <= n; k++) {
+      var yi = y - h/2 + k*step;
+      var c  = paper.path( ["M", x, yi, "L", x + d, yi + d] );
+      c.attr({ "stroke": "black", "stroke-width": "0.5" });
+      hatch.push(c);
+    }
+    return hatch;
   }
 
 
@@ -2032,7 +2065,11 @@ function drawAxis (panX, panY) {
 
           }
 
-          optics_set.push(l);        
+          optics_set.push(l);
+
+          // a flat screen (infinite radius): hatched on its far side, diagonal NW to SE
+          if (!isFinite(R) && isFinite(h)) { optics_set.push(drawScreenHatching(axialPosition, 0, h)); }
+
           console.log (`- ${curr.type} Z = ${axialPosition}, R = ${R}, h = ${h}`);          
           break;
 
@@ -2273,11 +2310,11 @@ function drawAxis (panX, panY) {
                     switch (anchorDirection) {
 
                       case "start":
-                        curr.handle.transform([ "t", x, y, "s", kx*scaleFactor, ky*scaleFactor, "0","0", "t", 0.5, 0 ]);
+                        curr.handle.transform([ "t", x, y, "s", kx*scaleFactor, ky*scaleFactor, "0","0", "t", 0.5 + (curr.handle.data("data-shift-X") || 0), curr.handle.data("data-shift-Y") || 0 ]);
                         break;
 
                       case "end":
-                        curr.handle.transform([ "t", x, y, "s", kx*scaleFactor, ky*scaleFactor, "0","0", "t", -0.5, 0 ]);
+                        curr.handle.transform([ "t", x, y, "s", kx*scaleFactor, ky*scaleFactor, "0","0", "t", -0.5 + (curr.handle.data("data-shift-X") || 0), curr.handle.data("data-shift-Y") || 0 ]);
                         break;
 
                       case "middle":

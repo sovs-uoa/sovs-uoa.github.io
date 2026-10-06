@@ -1,6 +1,6 @@
 /*--------------------------------------------
 
-TEST: dispersion through a base-down prism, lit by white light.
+TEST: dispersion through a base-down prism, lit by white light, focused onto a screen.
 
 The source is a beam from infinity written with the new  "white": true  shorthand - it stands for
 a LINKED group of beams, one per wavelength of the white-light group (red, green and blue unless the
@@ -13,6 +13,9 @@ beams overlap (and add up to white, with Additive beams on) until they have sepa
 
 "settings" lists what this file needs switched on to make its point: advanced materials (so the index
 depends on wavelength), the dark diagram and additive beams (so red + green + blue shows as white).
+A thin lens a little way on (f = 170 mm) brings each colour to a focus, and the screen sits at its focal plane,
+where the three colours land at slightly different heights - a spectrum.
+
 Change the material of the prism to "Custom" (no material) and the colours stay together.
 
 Click a beam (or drag it) and the Ref. Index column, the Summary and the pupils follow that colour.
@@ -21,7 +24,7 @@ Click a beam (or drag it) and the Ref. Index column, the Summary and the pupils 
 
 {
 
-	"viewBox" : [ -0.3275, 0.1655, 0.655, 0.331 ],
+	"viewBox" : [ -0.3, 0.17, 0.7, 0.34 ],
 
 	"visible" : { "stop": false },
 
@@ -31,13 +34,14 @@ Click a beam (or drag it) and the Ref. Index column, the Summary and the pupils 
 					"type" 		: "object",
 					"which"		: "object",
 					"infinity"	: true,
+					"draw"		: "rays",
 					"white"		: true,
-					"beamwidth" : 0.005,
+					"beamwidth" : 0.01,
 					"z"			: NaN,
 					"h"			: NaN,
 					"t"			: -25 } ],
 
-	"title": "TEST Dispersion: 100 Base-Down Prism (SF11), white light",
+	"title": "TEST Dispersion: 100 Base-Down Prism (SF11) + lens, white light",
 	"prescription": [{
 		"id": "0001",
 		"type": "index",
@@ -53,7 +57,7 @@ Click a beam (or drag it) and the Ref. Index column, the Summary and the pupils 
 			"power": 100,
 			"base": "down",
 			"material": "SF11 dense flint",
-			"height": 0.1
+			"height": 0.16
 		}
 	}, {
 		"id": "0003",
@@ -61,7 +65,31 @@ Click a beam (or drag it) and the Ref. Index column, the Summary and the pupils 
 		"description": "air",
 		"args": {
 			"index": 1.000,
-			"thickness": 0.7
+			"thickness": 0.1
+		}
+	}, {
+		"id": "0004",
+		"type": "thin",
+		"description": "focusing lens (f = 170 mm)",
+		"args": {
+			"power": 5.8824,
+			"height": 0.2
+		}
+	}, {
+		"id": "0005",
+		"type": "index",
+		"description": "air",
+		"args": {
+			"index": 1.000,
+			"thickness": 0.17
+		}
+	}, {
+		"id": "0006",
+		"type": "img",
+		"description": "screen (at the focal plane)",
+		"args": {
+			"radius": Infinity,
+			"height": 0.22
 		}
 	}]
 }

@@ -69,7 +69,7 @@
                       { "id": "66", "filename": "./lenses/keplerian-telescope-with-stop.lens", "title": "Keplerian Telescope with Manual Stop at Intermediate Image" },
                       { "id": "67", "filename": "./lenses/dispersion-thick-lens-bk7.lens", "title": "Dispersion: Thick BK7 Lens (advanced materials)" },
                       { "id": "68", "filename": "./lenses/dispersion-thin-lens-polycarbonate.lens", "title": "Dispersion: Thin Polycarbonate Lens (advanced materials)" },
-                      { "id": "69", "filename": "./lenses/test-prism-dispersion.lens", "title": "TEST Dispersion: 100 Base-Down Prism (SF11), white light" }
+                      { "id": "69", "filename": "./lenses/test-prism-dispersion.lens", "title": "TEST Dispersion: 100 Base-Down Prism (SF11) + lens, white light" }
 
                   ],
 

@@ -762,14 +762,18 @@ getConjuugateTo
 
   // The pupils and cardinal points of the lens as the beam in focus sees it (advanced materials mode: the
   // wavelength of the object being worked on; otherwise simply the lens as typed).
+  // (a copy of the options of the last full update: `displayOptions` itself is a loose global that the
+  // constructions and drawOptics() reassign, so it cannot be relied on here)
+  var lensGraphicsOptions = null;
+
   function drawFocusLensGraphics () {
 
-    if (typeof displayOptions === "undefined" || !displayOptions) { return; }   // nothing drawn yet (a lens is still loading)
+    if (!lensGraphicsOptions) { return; }   // nothing drawn yet (a lens is still loading)
 
     var nm = (typeof focusedWavelength === "function") ? focusedWavelength() : undefined;
     inLensWavelength(nm, function () {
-      drawPupils(renderableLens.total, displayOptions);
-      drawCardinalPoints(0, 0, renderableLens.total, displayOptions); // (0,0)
+      drawPupils(renderableLens.total, lensGraphicsOptions);
+      drawCardinalPoints(0, 0, renderableLens.total, lensGraphicsOptions); // (0,0)
     });
   }
 
@@ -815,6 +819,13 @@ getConjuugateTo
                        showVertices             : true,
                        showPupils               : true,
                        showSchematic            : false };
+
+    // a .lens file may leave the cardinal points off the diagram:  "visible" : { "cardinalPoints": false }
+    if (response.visible && response.visible.cardinalPoints === false) {
+      displayOptions.showCardinalPoints = displayOptions.showFocalPoints = displayOptions.showNodalPoints =
+      displayOptions.showPrincipalPoints = displayOptions.showVertices = false;
+    }
+    lensGraphicsOptions = Object.assign({}, displayOptions);
 
 
     //console.log("cardinal = " + response.general.cardinalVertHeight + " OR " + displayOptions.cardinalVertHeight );
@@ -1123,6 +1134,10 @@ getConjuugateTo
   function resolveObjectConstructionType (aPoint) {
 
     if (!aPoint.infinity) { return "source"; }
+
+    // a .lens source may ask for its rays to be drawn element by element ("draw": "rays") instead of through the
+    // system's cardinal points - the only way a prism's bend shows up in a system that also has a lens
+    if (aPoint.draw === "rays") { return "afocal"; }
 
     var isafocal = (renderableLens.total.F == 0);
     return isafocal ? "afocal" : "beam";
