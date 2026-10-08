@@ -466,12 +466,19 @@ function drawAxis (panX, panY) {
 
   // is a hatched (flat) screen at this axial position? Its hatching sits on the right, so the labels of a point
   // that lands on it (V', F') are moved off to the left rather than written across the hatching.
+  // Returns 0 if there is none, else the side the hatching is on: +1 on the right (light travelling rightwards, as
+  // usual) or -1 on the left (light that has been reflected: the medium before the screen has a negative index).
   function flatScreenAt(z) {
 
-    if (typeof renderableLens === "undefined" || !renderableLens || !renderableLens.elem) { return false; }
-    return renderableLens.elem.some(function (e) {
-      return e && e.elem && e.elem.type === "img" && !isFinite(e.elem.radius) && Math.abs(e.Z - z) < 0.002;
+    if (typeof renderableLens === "undefined" || !renderableLens || !renderableLens.elem) { return 0; }
+    var side = 0;
+    renderableLens.elem.forEach(function (e, i) {
+      if (e && e.elem && e.elem.type === "img" && !isFinite(e.elem.radius) && Math.abs(e.Z - z) < 0.002) {
+        var before = (i > 0 && renderableLens.elem[i - 1] && renderableLens.elem[i - 1].elem) ? renderableLens.elem[i - 1].elem.index : 1;
+        side = (before < 0) ? -1 : 1;
+      }
     });
+    return side;
   }
 
 
@@ -548,7 +555,8 @@ function drawAxis (panX, panY) {
           if (mergeVF) {
             cp2.hide();                                          // drawn as part of the F' label below ("V'F'")
           } else if (flatScreenAt(x2)) {
-            cp2.attr({ "text-anchor" : "end" }); cp2.data("data-shift-X", -1.15);   // V' F' on one line, left of the screen
+            var screenSide = flatScreenAt(x2);                                     // V' F' on one line, off the hatched side of the screen
+            cp2.attr({ "text-anchor" : screenSide > 0 ? "end" : "start" }); cp2.data("data-shift-X", -1.15 * screenSide);
           } else {
             placeLabel(cp2, x2, "XR");
           }   // V' F' read left to right, ending at the screen
@@ -601,7 +609,7 @@ function drawAxis (panX, panY) {
           cp1F.attr({ "text-anchor" : "end"});
           let cp2F = drawText(x2, y, mergeVF ? "V'F'" : "F'");
           cp2F.attr({ "text-anchor" : "start"});
-          if (flatScreenAt(x2)) { cp2F.attr({ "text-anchor" : "end" }); cp2F.data("data-shift-X", -0.4); }   
+          if (flatScreenAt(x2)) { var fSide = flatScreenAt(x2); cp2F.attr({ "text-anchor" : fSide > 0 ? "end" : "start" }); cp2F.data("data-shift-X", -0.4 * fSide); }   
           cp_set.push(cp1F, cp2F);
 
 
@@ -1171,8 +1179,11 @@ function drawAxis (panX, panY) {
   }
 
 
-  // The hatching behind a flat screen: short diagonal strokes (NW to SE) hanging off its far (right-hand) side.
-  function drawScreenHatching(x, y, h) {
+  // The hatching behind a flat screen: short diagonal strokes hanging off its far side - to the right, NW to SE, when
+  // the light travels rightwards; mirrored (to the left, NE to SW) when it has been reflected and travels leftwards.
+  function drawScreenHatching(x, y, h, side) {
+
+    side = (side < 0) ? -1 : 1;
 
     var hatch = paper.set();
     var n     = 28;                 // strokes
@@ -1181,7 +1192,7 @@ function drawAxis (panX, panY) {
 
     for (var k = 0; k <= n; k++) {
       var yi = y - h/2 + k*step;
-      var c  = paper.path( ["M", x, yi, "L", x + d, yi + d] );
+      var c  = paper.path( ["M", x, yi, "L", x + side * d, yi + d] );
       c.attr({ "stroke": "black", "stroke-width": "0.5" });
       hatch.push(c);
     }
@@ -1288,6 +1299,49 @@ function drawAxis (panX, panY) {
     handle.attr({ "text-anchor" : spec.anchor });
     handle.data("data-shift-Y", spec.side * (spec.side === 0 ? 0 : 1 + 1.1 * n));
     return handle;
+  }
+
+
+  /* After the labels are drawn (and again after each zoom, when the gaps between them change) any that still sit on
+     top of one another are moved apart: each is pushed away from the axis, a line at a time, until it is clear of
+     the ones before it (V, V', then the cardinal points, then the pupils). This is what keeps a mirror's labels -
+     where V, P, F and N crowd together - readable, as well as a thin lens's. */
+  function separateLabels () {
+
+    var labels = [];
+    [cp_set, pup_set].forEach(function (set) {
+      if (!set || !set.items) { return; }
+      set.items.forEach(function (h) {
+        if (h.type !== "text" || !h.node || !h.node.parentNode) { return; }
+        if (h.node.style.display === "none" || h.node.getAttribute("display") === "none" || !h.node.textContent.trim()) { return; }
+        labels.push(h);
+      });
+    });
+
+    var STEP = 1.1;                                   // one line of text, in the labels' own units
+    function put (h, shift) { h.data("data-shift-Y", shift); transformScalableObject({ type: "text", handle: h }); }
+    function box (h) {                                // (the text box has air above and below the letters: trim it)
+      var r = h.node.getBoundingClientRect();
+      return { l: r.left - 1, r: r.right + 1, t: r.top + 4, b: r.bottom - 4 };
+    }
+    function hits (a, list) { return list.some(function (o) { return a.l < o.r && o.l < a.r && a.t < o.b && o.t < a.b; }); }
+
+    labels.forEach(function (h) {                     // start every label from where it was first put
+      if (h.data("base-shift-Y") === undefined) { h.data("base-shift-Y", h.data("data-shift-Y") || 0); }
+      put(h, h.data("base-shift-Y"));
+    });
+
+    var placed = [];
+    labels.forEach(function (h) {
+      var base = h.data("base-shift-Y"), dir = base < 0 ? -1 : (base > 0 ? 1 : 0), r = box(h);
+      for (var k = 1; hits(r, placed) && k <= 10; k++) {
+        // a label on the axis itself may go either way; the others keep to their own side of it
+        var shift = dir !== 0 ? base + dir * STEP * k : base + ((k % 2) ? 1 : -1) * STEP * Math.ceil(k / 2);
+        put(h, shift);
+        r = box(h);
+      }
+      placed.push(r);
+    });
   }
 
 
@@ -2089,7 +2143,10 @@ function drawAxis (panX, panY) {
           optics_set.push(l);
 
           // a flat screen (infinite radius): hatched on its far side, diagonal NW to SE
-          if (!isFinite(R) && isFinite(h)) { optics_set.push(drawScreenHatching(axialPosition, 0, h)); }
+          if (!isFinite(R) && isFinite(h)) {
+            var before = (i > 0 && data.elem[i-1] && data.elem[i-1].elem) ? data.elem[i-1].elem.index : 1;
+            optics_set.push(drawScreenHatching(axialPosition, 0, h, before < 0 ? -1 : 1));      // (hatched on the side the light does not reach)
+          }
 
           console.log (`- ${curr.type} Z = ${axialPosition}, R = ${R}, h = ${h}`);          
           break;
@@ -2412,6 +2469,10 @@ function drawAxis (panX, panY) {
         for (var i = 0; i < callbackList.length ; i++) {
           // curr = callbackList[i];
           transformScalableObject(callbackList[i]);
+        }
+        separateLabels();                                                // (the gaps between labels change with the zoom)
+        if (typeof lens !== "undefined" && lens.raphael && lens.raphael.constructions) {        // (and so does how much of a beam edge is clear of its points)
+          lens.raphael.constructions.forEach(function (c) { if (c.widthGrip && c.widthGrip.pairs && !c.widthGrip.dragging) { placeWidthGrip(c, c.widthGrip.pairs); } });
         }
         if (typeof rescaleRulers === "function") { rescaleRulers(); }     // (the rulers keep their handles the same size)
 

@@ -670,5 +670,18 @@
   ],
   "shortName": "White light through a 100Δ SF11 prism and lens",
   "about": "White light (red, green and blue beams) through a 100 prism-dioptre base-down SF11 prism, focused by a lens onto a screen: the colours separate. Uses Advanced materials."
+ },
+ "70": {
+  "category": "Components",
+  "subcategory": "Mirror",
+  "keywords": [
+   "mirror",
+   "catadioptric",
+   "convex mirror",
+   "lens",
+   "screen"
+  ],
+  "shortName": "Convex mirror, lens and screen",
+  "about": "A convex mirror sends the light back diverging; a plus lens in the reflected beam focuses it onto a screen."
  }
 }

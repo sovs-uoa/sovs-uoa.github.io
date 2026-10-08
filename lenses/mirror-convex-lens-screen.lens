@@ -1,0 +1,86 @@
+/*--------------------------------------------
+A convex mirror with a focusing lens and a screen (a small catadioptric system).
+
+Light from a point source meets a convex mirror (R = 200 mm, so f = -100 mm). The mirror sends it back,
+diverging, as if from a small virtual image behind the mirror. A plus lens (f = 150 mm) in the reflected
+beam then brings it to a real image, and the screen sits there.
+
+After the mirror the light travels the other way, so the medium is written with a NEGATIVE index (-1, the
+usual reflection convention) and the distances that follow are NEGATIVE: the lens is 250 mm to the
+left of the mirror, the screen 275 mm further left.
+----------------------------------------------*/
+{
+	"category"    : "Components",
+	"subcategory" : "Mirror",
+	"keywords"    : [ "mirror", "catadioptric", "convex mirror", "lens", "screen" ],
+	"shortName"   : "Convex mirror, lens and screen",
+	"about"       : "A convex mirror sends the light back diverging; a plus lens in the reflected beam focuses it onto a screen.",
+
+	"title": "Convex Mirror with a Focusing Lens and Screen",
+	"visible": { 	"radius": true,
+				 	"power":true,
+				 	"curvature":true,
+				 	"aperture":true },
+
+	"viewBox" : [ -0.7, 0.2, 0.82, 0.4 ],
+
+	"sources" : [ { "id" 		: 1,
+					"type" 		: "source",
+					"which"		: "object",
+					"beamwidth" : 0.01,
+					"z"			: -0.4,
+					"h"			: 0.1,
+					"t"			: NaN } ],
+
+	"prescription": [{
+		"id": "0001",
+		"type": "index",
+		"description": "air (incoming)",
+		"args": {
+			"index": 1.000
+		}
+	}, {
+		"id": "0002",
+		"type": "sphere",
+		"description": "convex mirror (R = 200 mm)",
+		"args": {
+			"intermediate": true,
+			"stop": true,
+			"radius": 0.2,
+			"height": 0.08,
+			"aperture": 0.08
+		}
+	}, {
+		"id": "0003",
+		"type": "index",
+		"description": "air (reflected: negative index, distances run leftwards)",
+		"args": {
+			"index": -1,
+			"thickness": -0.25
+		}
+	}, {
+		"id": "0004",
+		"type": "thin",
+		"description": "focusing lens (f = 150 mm)",
+		"args": {
+			"power": 6.6667,
+			"height": 0.16
+		}
+	}, {
+		"id": "0005",
+		"type": "index",
+		"description": "air (reflected)",
+		"args": {
+			"index": -1,
+			"thickness": -0.275
+		}
+	}, {
+		"id": "0006",
+		"type": "img",
+		"description": "screen",
+		"args": {
+			"radius": Infinity,
+			"height": 0.14
+		}
+	}]
+}

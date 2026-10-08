@@ -778,6 +778,7 @@ getConjuugateTo
       // cardinal points first: the labels that share a spot stack V (nearest the axis), then P/N, then E
       drawCardinalPoints(0, 0, renderableLens.total, lensGraphicsOptions); // (0,0)
       drawPupils(renderableLens.total, lensGraphicsOptions);
+      separateLabels();
     });
   }
 
@@ -1156,9 +1157,19 @@ getConjuugateTo
 
   ----------------------------------------------------------------------------------------------------------------   */
 
+  function systemReflects () {
+    return !!(renderableLens && renderableLens.elem && renderableLens.elem.some(function (e) {
+      return e && e.elem && e.elem.type === "index" && e.elem.index < 0;
+    }));
+  }
+
   function resolveObjectConstructionType (aPoint) {
 
     if (!aPoint.infinity) { return "source"; }
+
+    // a system with a mirror in it (the medium after it has a negative index) turns the light round, which the
+    // cardinal-point (principal plane) drawing cannot follow: such a beam is always traced surface by surface
+    if (systemReflects()) { return "afocal"; }
 
     // a .lens source may ask for its rays to be drawn element by element ("draw": "rays") instead of through the
     // system's cardinal points - the only way a prism's bend shows up in a system that also has a lens
@@ -1250,6 +1261,8 @@ getConjuugateTo
 
   ----------------------------------------------------------------------------------------------------------------   */
 
+  var lastFiniteObject = {};      // id -> where a row's object last was, as a finite point (for flicking back from infinity)
+
   function setObjectInfinity (id, makeInfinite) {
 
     var row = lens.pointsTable.getRow(id);
@@ -1262,11 +1275,19 @@ getConjuugateTo
     var aPoint = { id: d.id, type: "object", which: "object", infinity: makeInfinite, wavelength: d.wavelength,
                    group: d.group, beamwidth: d.beamwidth, hidden: d.hidden, draw: d.draw };
 
+    // Flicking between a finite object and a beam from infinity keeps the picture: the beam comes in at the angle the
+    // finite object's chief ray (object to front vertex) made, and flicking back puts the object where it last was
+    // (or, if it has only ever been a beam, a little way out along the line that angle makes).
+    var finite = isFinite(current.zo) && isFinite(current.ho);
     if (makeInfinite) {
-      aPoint.t = isFinite(current.to) ? Number(current.to) : 0;
+      if (finite) { lastFiniteObject[id] = { z: Number(current.zo), h: Number(current.ho) }; }
+      aPoint.t = isFinite(current.to) ? Number(current.to)
+               : (finite && current.zo !== 0 ? rad2deg(current.ho / current.zo) : 0);
     } else {
-      aPoint.z = isFinite(current.zo) ? Number(current.zo) : -4 * size;
-      aPoint.h = isFinite(current.ho) ? Number(current.ho) : -0.25 * size;
+      var before = lastFiniteObject[id];
+      aPoint.z = isFinite(current.zo) ? Number(current.zo) : (before ? before.z : -4 * size);
+      aPoint.h = isFinite(current.ho) ? Number(current.ho) : (before ? before.h
+               : (isFinite(current.to) ? deg2rad(Number(current.to)) * aPoint.z : -0.25 * size));
     }
 
     deleteConstruction(id);

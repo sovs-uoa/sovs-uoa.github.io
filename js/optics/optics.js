@@ -220,6 +220,8 @@ function convertToLensTable (response) {
                              // value (if ever given) still takes precedence
                              stop:        assignParameterValue(response[i].args.stop, response[i].type === "stop"),
                              aperture:    assignParameterValue(response[i].args.aperture, NaN),
+                             // "intermediate": true marks the image the system makes UP TO this element, on the diagram
+                             intermediate: assignParameterValue(response[i].args.intermediate, false),
                              base:        assignParameterValue(response[i].args.base, "up") };
 
         // a named material supplies the design (d line) index when the file did not give one
@@ -1077,7 +1079,9 @@ function calculatePairFromObject (object, systemInfo) {
 
            //console.log (` - Object at Infinity (Angle = ${t})`);
 
-           zp  = +n2/curr.F;  // PF
+           // (after a mirror the medium has a negative index; the height of the image does not depend on the
+           // direction the light then travels, so its magnitude is what counts)
+           zp  = +Math.abs(n2)/curr.F;  // PF
 
            // same prism correction as the finite-object branch above, using
            // VF2 (the image plane here) in place of zd

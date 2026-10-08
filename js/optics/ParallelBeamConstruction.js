@@ -98,9 +98,14 @@ function placeWidthGrip (c, pairs) {
     if (!grip.nodes[k]) { grip.nodes[k] = makeNode(); }
     var n = grip.nodes[k], pr = pairs[k >> 1], l = (k % 2) ? pr.b : pr.a;
     n.pairIdx = k >> 1;
-    n.attr({ path: ["M", l[0], l[1], "L", l[2], l[3]] });
+    // the band stops short of both ends of the stretch: that is where the points sit (the focus, the principal planes,
+    // the lens), and they must be easy to grab - a band 14 pixels wide laid over one would take the click
+    var len = Math.hypot(l[2] - l[0], l[3] - l[1]), cut = 18 * kx;
+    var usable = len > 2 * cut + 8 * kx;
+    var t0 = usable ? cut / len : 0, t1 = usable ? 1 - cut / len : 1;
+    n.attr({ path: ["M", l[0] + (l[2] - l[0]) * t0, l[1] + (l[3] - l[1]) * t0, "L", l[0] + (l[2] - l[0]) * t1, l[1] + (l[3] - l[1]) * t1] });
     n.toFront();
-    fixed ? n.hide() : n.show();
+    (fixed || !usable) ? n.hide() : n.show();
   }
   for (var j = 2 * pairs.length; j < grip.nodes.length; j++) { grip.nodes[j].hide(); }
 }
@@ -354,7 +359,7 @@ function moveBeamImagePoint (dx, dy) {
       // Inverse of calculateConjugatePairFrom's IQ = zp * deg2rad(t) (paraxial,
       // linear - not zp * tan(deg2rad(t))), so recovering t from a dragged
       // image height is now a plain division, no atan() needed.
-      var zp = totalLens.n2 / totalLens.F;
+      var zp = Math.abs(totalLens.n2) / totalLens.F;      // (a mirror's negative index is no change to the size)
       var th = rad2deg(nowY / zp);
 
       var myPoint = { id: thisPoint.id, type: "beam", which: "object", t: th };
@@ -738,6 +743,7 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
      // zero-thickness thin lens/prism, where "2x the system length" alone
      // would collapse to zero.
      var refLength = Math.max(2*Math.abs(lens.L), Math.abs(F2 - F1));
+     if (!(refLength > 1e-9)) { refLength = viewBoxWidth; }     // (a mirror: no length, and F = F')
 
 
      // X1_1, Y1_1, X1_2, Y1_2 

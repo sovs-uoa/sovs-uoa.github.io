@@ -108,6 +108,68 @@ MAIN
 
  ---------------------------------------------------------------------------------- */
 
+/* ---------------------------------------------------------------------------------------------------------------
+
+   INTERMEDIATE IMAGES
+
+   An element ticked "Int. Image" in the prescription (args "intermediate": true in a .lens file) has the image the
+   system makes UP TO that element marked on the diagram: where its two outermost traced rays meet, or appear to meet
+   when extended backwards. It is a ringed point - solid for a real image, dashed for a virtual one - labelled I1, I2...
+   in order (the final image keeps its own point). The virtual image behind a mirror that the next lens goes on to
+   work on is the usual case.
+
+--------------------------------------------------------------------------------------------------------------- */
+
+function drawIntermediateImages (construction, ray, K, M) {
+
+  if (typeof renderableLens === "undefined" || !renderableLens || !renderableLens.elem) { return; }
+  var rows = renderableLens.elem, count = 0;
+
+  for (var k = 0; k < K; k++) {
+
+    var row = rows[k] && rows[k].elem;
+    if (!row || row.intermediate !== true) { continue; }
+
+    var a = ray[k][0], b = ray[k][M-1];
+    if (!a || !b || !(Math.abs(b.u - a.u) > 1e-12)) { continue; }          // parallel: the image is at infinity
+
+    var z = (a.h - b.h + b.u * b.z - a.u * a.z) / (b.u - a.u);              // where the two edge rays cross
+    var h = a.h + a.u * (z - a.z);
+    if (!isFinite(z) || !isFinite(h) || Math.abs(z) > 50 * viewBoxWidth) { continue; }
+
+    // light travels towards +z in positive index, back towards -z after a reflection (negative index)
+    var direction = 1;
+    for (var j = k; j < rows.length; j++) { if (rows[j].elem && rows[j].elem.type === "index") { direction = (rows[j].elem.index < 0) ? -1 : 1; break; } }
+    var real = (z - a.z) * direction > 0;
+
+    count++;
+
+    // a virtual image is where the light only seems to come from: show the lines it seems to come along
+    if (!real) {
+      [a, b].forEach(function (r) {
+        var back = paper.path(["M", r.z, r.h, "L", z, h]);
+        back.attr({ stroke: "#000000", "stroke-opacity": 0.5, "stroke-width": 1, "stroke-dasharray": "--" });
+        back.node.setAttribute("pointer-events", "none");
+        construction.cd_set.push(back);
+      });
+    }
+
+    var ring = paper.circle(z, h, kx * 5);
+    ring.attr({ fill: "#ffffff", "fill-opacity": 0.7, stroke: "#000000", "stroke-width": 1 });
+    if (!real) { ring.node.setAttribute("stroke-dasharray", "2,2"); }
+    ring.node.setAttribute("class", "intermediate-image");
+    ring.node.setAttribute("title", real ? "Intermediate image (real)" : "Intermediate image (virtual)");
+    RegisterWheelCallback({ type: "point", handle: ring });
+
+    var label = drawText(z, h, "I" + count);
+    label.data("data-shift-Y", -1.1);                                        // just above the point
+    RegisterWheelCallback({ type: "text", handle: label });
+
+    construction.cd_set.push(ring, label);
+  }
+}
+
+
 class PointSourceConstruction { // create a ray construction using raphael.js
 
 
@@ -623,6 +685,8 @@ class PointSourceConstruction { // create a ray construction using raphael.js
      var F2 = lens.L + lens.cardinal.VF2;
      var focalSpan = (isFinite(F1) && isFinite(F2)) ? Math.abs(F2 - F1) : 0;
      var fadeDistance = Math.max(2*Math.abs(V2 - V1), focalSpan);
+     // a mirror has no length and F = F': nothing to measure a distance by, so draw the beam out across the view
+     if (!(fadeDistance > 1e-9)) { fadeDistance = viewBoxWidth; }
      
 
 
@@ -790,13 +854,35 @@ class PointSourceConstruction { // create a ray construction using raphael.js
      // For a virtual object/image, stop the fill at the system's entry/exit
      // surface instead - see the comment above.
      if (isFinite(this.data.X1)) {
-        var envelope = [];
-        if (isRealObjectPath) { envelope.push([this.data.X1, this.data.Y1]); }
-        for (var k=0; k < K; k++) { envelope.push([ray[k][0].z, ray[k][0].h]); }
-        if (isRealImagePath) { envelope.push([this.data.X2, this.data.Y2]); }
-        for (var k=K-1; k >= 0; k--) { envelope.push([ray[k][M-1].z, ray[k][M-1].h]); }
-        shadeBoundedBeamRegion(this.cd_set, envelope);
+
+        // Light that is reflected turns round (the surfaces after a mirror lie to its LEFT). One outline then runs
+        // forwards along one edge of the beam and back along the other, crossing over itself, and wherever the
+        // two passes overlap the fill cancels out and leaves a hole. So a beam that turns round is shaded a stretch
+        // at a time instead.
+        var turnsRound = false;
+        for (var k=0; k < K-1; k++) { if (ray[k+1][0].z < ray[k][0].z - 1e-12) { turnsRound = true; } }
+
+        if (!turnsRound) {
+
+          var envelope = [];
+          if (isRealObjectPath) { envelope.push([this.data.X1, this.data.Y1]); }
+          for (var k=0; k < K; k++) { envelope.push([ray[k][0].z, ray[k][0].h]); }
+          if (isRealImagePath) { envelope.push([this.data.X2, this.data.Y2]); }
+          for (var k=K-1; k >= 0; k--) { envelope.push([ray[k][M-1].z, ray[k][M-1].h]); }
+          shadeBoundedBeamRegion(this.cd_set, envelope);
+
+        } else {
+
+          if (isRealObjectPath) { shadeBoundedBeamRegion(this.cd_set, [[this.data.X1, this.data.Y1], [ray[0][0].z, ray[0][0].h], [ray[0][M-1].z, ray[0][M-1].h]]); }
+          for (var k=0; k < K-1; k++) {
+            shadeBoundedBeamRegion(this.cd_set, [[ray[k][0].z, ray[k][0].h], [ray[k+1][0].z, ray[k+1][0].h],
+                                                 [ray[k+1][M-1].z, ray[k+1][M-1].h], [ray[k][M-1].z, ray[k][M-1].h]]);
+          }
+          if (isRealImagePath) { shadeBoundedBeamRegion(this.cd_set, [[ray[K-1][0].z, ray[K-1][0].h], [this.data.X2, this.data.Y2], [ray[K-1][M-1].z, ray[K-1][M-1].h]]); }
+        }
      }
+
+     drawIntermediateImages(this, ray, K, M);
 
 /*
 

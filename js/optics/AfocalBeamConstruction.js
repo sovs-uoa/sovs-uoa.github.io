@@ -363,14 +363,17 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
 
 
    // Where this beam comes to a focus (a focal system; an afocal one has no image point). In advanced materials
-   // mode each colour's focus is drawn in that colour.
+   // mode each colour's focus has a ring in that colour.
    updateImagePoint () {
 
       var hasImagePoint = isFinite(this.data.X2) && isFinite(this.data.Y2) && Math.abs(this.lens.F) > 0.0001;
       if (hasImagePoint) {
           this.imagePoint.show();
           this.imagePoint.attr({ cx: this.data.X2, cy: this.data.Y2 });
-          this.imagePoint.attr({ fill: (typeof beamShadeColor === "function" && typeof SovsSettings !== "undefined" && SovsSettings.advancedMaterials) ? beamShadeColor() : "red" });
+          // an image point is cyan, as everywhere else; in advanced materials mode it wears its beam's colour as a ring
+          // round it, so the foci of a white-light group can still be told apart
+          var coloured = (typeof beamShadeColor === "function" && typeof SovsSettings !== "undefined" && SovsSettings.advancedMaterials);
+          this.imagePoint.attr({ fill: "cyan", stroke: coloured ? beamShadeColor() : "#000000", "stroke-width": coloured ? 2.5 : 1 });
       } else {
           this.imagePoint.hide();
       }
@@ -501,7 +504,7 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
         console.log ('DRAW POINT DATA');
         console.log (this.data);
 
-        this.imagePoint    = drawPoint(X2, Y2, "red"); // image  
+        this.imagePoint    = drawPoint(X2, Y2, "cyan"); // image  
         this.imagePoint.id = "point-" + this.data.id + "-image";
         this.imagePoint.data("data-attr", {  "element_id"     : "point-" + this.data.id + "-image",
                                               "id"            : this.data.id, 
@@ -510,6 +513,10 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
 
          
         this.updateImagePoint();     // shown only where there is a focus
+        // the focus can be dragged up and down to tilt the beam, as the focus of a beam in the other construction can
+        // (the same handlers: the height it is dragged to is turned back into the beam's angle)
+        this.imagePoint.drag(moveBeamImagePoint, startBeamImagePoint, upBeamImagePoint);
+        this.imagePoint.attr({ cursor: "grab" });
 
 
 
@@ -673,6 +680,8 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
      }
 
 
+     drawIntermediateImages(this, ray, K, M);       // (defined in PointSourceConstruction.js)
+
      /* final rays */
 
      // This whole section either connects the last TRACED point to
@@ -687,6 +696,18 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
      console.log ('LENS');
      console.log (lens);
 
+
+     // Light that has been reflected travels towards -z (the medium after a mirror has a negative index), so "ahead"
+     // of the last traced point is to its LEFT. The image is real if it lies ahead, virtual if it lies behind. A beam
+     // that ends on a screen has been drawn right down to the screen already: if its focus is behind the screen's
+     // last traced point (the beam has crossed over and is spreading again) there is nothing more to add - drawing
+     // on to the focus would send the beam back off the screen as if it were reflected.
+     var travel      = (lens.n2 < 0) ? -1 : 1;
+     var lastRow     = renderableLens && renderableLens.elem ? renderableLens.elem[renderableLens.elem.length - 1] : null;
+     var endsOnScreen = !!(lastRow && lastRow.elem && lastRow.elem.type === "img");
+     var imageAhead  = !isFinite(this.data.X2) || ((this.data.X2 - ray[K-1][0].z) * travel > -1e-9);
+     var virtualImage = (travel < 0) ? !imageAhead : (lens.VI < -etol);
+     if (endsOnScreen && !imageAhead) { this.cd_set.toFront(); placeWidthGrip(this, gripPairs); return; }
 
      if (Math.abs(lens.F) > 0.0001) {   // focal system 
 
@@ -722,7 +743,7 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
 
             etol < 1e-4;
 
-            if (lens.VI < -etol) {  // probably virtual 
+            if (virtualImage) {  // virtual
 
 
                 console.log ('SOME VIRTUAL CRZINESS');
@@ -734,7 +755,7 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
                 // extend the rays - real light continuing on past this
                 // (virtual) construction line, out towards "infinity"
 
-                var dx  = + refLength;
+                var dx  = refLength * travel;
                 var i1  = u1 * dx + Y1; // upper height on N1 
                 var p5  = paper.path( ["M", X1, Y1,  "L", X1 + dx, i1 ]);    // O  -> H1   (ray through F1)
                 p5.attr(real);
@@ -761,7 +782,7 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
 
           }
 
-          if (lens.VI < -etol) {
+          if (virtualImage) {
             // real light continuing past the virtual construction lines,
             // fading out towards infinity - mirrors the incoming-ray fade
             var extFadeFrom = [finalX1_0, (finalY1[0]+finalY1[M-1])/2], extFadeTo = [extX2_0, (extY_0+extY_M)/2];

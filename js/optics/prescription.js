@@ -31,6 +31,7 @@ lens     = {  prescription : null,
                         material:    "",
                         thickness:   "",
                         stop:        "",
+                        intermediate: false,
                         aperture:    "",
                         base:        "up",
                       
@@ -482,6 +483,7 @@ function editCheck (cell) {
       if (columnName == "radius")   { return true; }; 
       if (columnName == "aperture") { return true; }; 
       if (columnName == "stop")     { return true; };       
+      if (columnName == "intermediate") { return true; };
       break;
 
       case "thin":
@@ -489,6 +491,7 @@ function editCheck (cell) {
       if (columnName == "material") { return true; };
       if (columnName == "aperture") { return true; };
       if (columnName == "stop")     { return true; };
+      if (columnName == "intermediate") { return true; };
       break;
 
       case "prism":
@@ -497,6 +500,7 @@ function editCheck (cell) {
       if (columnName == "base")    { return true; };
       if (columnName == "aperture") { return true; };
       if (columnName == "stop")     { return true; };
+      if (columnName == "intermediate") { return true; };
       break;
 
 
@@ -710,7 +714,12 @@ function initializePrescriptionTable(data, updatePrescriptionCallback, success) 
           {title:"Thickness",     field:"thickness",        minWidth:75, mutator:Number, formatter: distanceFormatter, editor: distanceEditor, formatterParams:{ precision: 4, emptyVal: "" }, align:"center", headerSort:false, editable: editCheck},
           {title:"Ap. Diameter",  field:"aperture",         minWidth:75, mutator:Number, formatter: distanceFormatter, editor: distanceEditor, formatterParams:{ precision: 4, emptyVal: "" }, align:"center", headerSort:false, editable: editCheck},
           {title:"Stop Flag",     field:"stop",             minWidth:75, align:"center", headerSort:false, formatter: apertureStop, editable: editCheck, editor:"tickCross"
-           }],
+           },
+          // tick it to mark the image the system makes up to this element (e.g. the virtual image behind a mirror that
+          // the next lens then works on): it is drawn on the diagram as a ringed point, I1, I2...
+          {title:"Int. Image",    field:"intermediate",     minWidth:70, align:"center", headerSort:false, editable: editCheck, editor:"tickCross",
+           titleFormatter: function () { return '<span title="Mark the image formed up to this element (an intermediate image) on the diagram">Int. Image</span>'; },
+           formatter: function (cell) { var d = cell.getRow().getData(); if (d.type === "index" || d.type === "img") { return ""; } return cell.getValue() === true ? "&#10003;" : ""; }}],
     });
 
 

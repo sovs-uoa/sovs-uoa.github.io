@@ -40,6 +40,7 @@ Assignment : Keratometer
 		"type": "sphere",
 		"description": "mirror",
 		"args": {
+			"intermediate": true,
 			"radius": 0.008,
 			"height": 0.005
 		}

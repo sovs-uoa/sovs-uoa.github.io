@@ -874,20 +874,21 @@ function openObjectTypeMenu (cell) {
   if (!drawsABeam(data)) { return; }
 
   var afocal = (typeof renderableLens !== "undefined") && renderableLens && renderableLens.total && renderableLens.total.F == 0;
+  var reflects = (typeof systemReflects === "function") && systemReflects();     // a mirror turns the light round
 
   var choices = [
     { type: "point",  title: "point",  note: "the three principal rays through the cardinal points (a finite point, focal systems only)",
-      unavailable: afocal ? "an afocal system has no cardinal points to draw through" : "" },
+      unavailable: afocal ? "an afocal system has no cardinal points to draw through" : (reflects ? "the cardinal points cannot follow light that a mirror turns round" : "") },
     { type: "object", title: "object", note: "a pencil of rays from a finite point, or a beam from infinity (tick the infinity box)", unavailable: "" }
   ];
 
   // a beam from infinity can be drawn two ways
   var traces = [];
   if (data.type === "object" && data.infinity) {
-    var current = (data.draw === "rays" || afocal) ? "rays" : "planes";
+    var current = (data.draw === "rays" || afocal || reflects) ? "rays" : "planes";
     traces = [
       { draw: "planes", title: "principal planes", note: "three rays through the cardinal points and the equivalent lens - the elements are not drawn",
-        unavailable: afocal ? "an afocal system has no principal planes" : "", on: current === "planes" },
+        unavailable: afocal ? "an afocal system has no principal planes" : (reflects ? "a mirror turns the light round: trace it surface by surface" : ""), on: current === "planes" },
       { draw: "rays",   title: "surface by surface", note: "the rays traced through each element in turn (shows a prism's bend, each surface's refraction)", unavailable: "", on: current === "rays" }
     ];
   }
