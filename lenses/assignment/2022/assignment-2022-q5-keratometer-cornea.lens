@@ -7,6 +7,8 @@ Assignment : Keratometer Mires
 	"category"    : "Assignments",
 	"subcategory" : "2022",
 	"keywords"    : [ "assignment", "instrument", "keratometer" ],
+	"shortName"   : "Q5.1 Keratometer (cornea)",
+	"about"       : "2022 assignment, question 5.1: the keratometer mires imaged by the cornea.",
 
 	"title": "Mirror",
 	"visible": { 	"radius": true,

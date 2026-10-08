@@ -7,7 +7,9 @@
 {
 	"category"    : "Components",
 	"subcategory" : "Thick lens",
-	"keywords"    : [ "thick lens" ],
+	"keywords"    : [ "plus", "thick lens" ],
+	"shortName"   : "Plus lens",
+	"about"       : "A thick plus lens in air, with a point object and a beam from infinity. Its cardinal points, principal planes and pupils are drawn.",
 
 
 

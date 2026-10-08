@@ -7,6 +7,8 @@ Assignment : Keratometer
 	"category"    : "Instruments",
 	"subcategory" : "Keratometer",
 	"keywords"    : [ "instrument", "keratometer" ],
+	"shortName"   : "Keratometer",
+	"about"       : "A keratometer: a target imaged by the cornea.",
 
 	"title": "Mirror",
 	"visible": { 	"radius": true,

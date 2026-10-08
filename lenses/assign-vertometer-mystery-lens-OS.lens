@@ -7,6 +7,8 @@ Vertometer standard
 	"category"    : "Instruments",
 	"subcategory" : "Vertometer",
 	"keywords"    : [ "instrument", "vertometer" ],
+	"shortName"   : "Mystery lens, left eye (OS)",
+	"about"       : "A vertometer with the mystery lens for the left eye (OS).",
 
 	"title": "Vertometer (Lab 6)",
 	"visible": { 	"radius": true,

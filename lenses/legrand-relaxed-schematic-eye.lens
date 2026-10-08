@@ -7,6 +7,8 @@
 	"category"    : "Schematic eyes",
 	"subcategory" : "Le Grand",
 	"keywords"    : [ "schematic eye", "Le Grand" ],
+	"shortName"   : "Relaxed",
+	"about"       : "The Le Grand relaxed schematic eye: cornea, aqueous humour, lens and vitreous, ending at the retina.",
 
 
 	"units" : "m",

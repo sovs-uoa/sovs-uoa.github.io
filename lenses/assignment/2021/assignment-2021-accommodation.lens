@@ -7,6 +7,8 @@ Assignment : basic eye model
 	"category"    : "Assignments",
 	"subcategory" : "2021",
 	"keywords"    : [ "assignment" ],
+	"shortName"   : "Q3 Accommodation",
+	"about"       : "2021 assignment, question 3: accommodation in a basic eye model.",
 
 	"title": "Basic eye",
 	"visible": { 	"radius": true,

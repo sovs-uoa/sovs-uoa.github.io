@@ -7,6 +7,8 @@ Assignment: Telescope with reduced eye and ametropia
 	"category"    : "Assignments",
 	"subcategory" : "Earlier",
 	"keywords"    : [ "assignment" ],
+	"shortName"   : "Telescope (myopia)",
+	"about"       : "An earlier assignment: a telescope in front of a myopic reduced eye.",
 
 	"title": "Telescope (Lab 5)",
 	"visible": { 	"radius": true,

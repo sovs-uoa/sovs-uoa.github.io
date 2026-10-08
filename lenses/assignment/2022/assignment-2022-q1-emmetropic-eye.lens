@@ -7,6 +7,8 @@ Assignment : basic eye model
 	"category"    : "Assignments",
 	"subcategory" : "2022",
 	"keywords"    : [ "assignment" ],
+	"shortName"   : "Q1 Emmetropic eye",
+	"about"       : "2022 assignment, question 1: the emmetropic eye.",
 
 	"title": "Basic eye",
 	"visible": { 	"radius": true,

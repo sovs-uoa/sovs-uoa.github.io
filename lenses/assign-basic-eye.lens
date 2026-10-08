@@ -7,6 +7,8 @@ Assignment : basic eye model
 	"category"    : "Assignments",
 	"subcategory" : "Earlier",
 	"keywords"    : [ "assignment" ],
+	"shortName"   : "Eye model",
+	"about"       : "An earlier assignment: a basic eye model.",
 
 	"title": "Basic eye",
 	"visible": { 	"radius": true,

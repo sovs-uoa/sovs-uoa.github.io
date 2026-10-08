@@ -7,6 +7,8 @@ Assignment : simple magnifier with basic eye
 	"category"    : "Assignments",
 	"subcategory" : "2022",
 	"keywords"    : [ "assignment", "instrument", "magnifier" ],
+	"shortName"   : "Q3.1 Magnifier",
+	"about"       : "2022 assignment, question 3.1: a simple magnifier with the basic eye model.",
 
 	"title": "Simple magnifier with basic eye",
 	"visible": { 	"radius": true,

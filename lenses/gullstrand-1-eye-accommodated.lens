@@ -15,6 +15,8 @@
 	"category"    : "Schematic eyes",
 	"subcategory" : "Gullstrand",
 	"keywords"    : [ "schematic eye", "Gullstrand" ],
+	"shortName"   : "Accommodated",
+	"about"       : "Gullstrand's number 1 schematic eye accommodated for near.",
 
 	"title": "Gullstrand 1 eye accommodated",
 	"units" : "m",

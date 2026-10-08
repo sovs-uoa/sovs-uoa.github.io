@@ -7,7 +7,9 @@
 {
 	"category"    : "Components",
 	"subcategory" : "Thin lens",
-	"keywords"    : [ "thin lens" ],
+	"keywords"    : [ "minus", "thin lens" ],
+	"shortName"   : "Minus lens",
+	"about"       : "A thin minus lens and a point object. Drag the object to see its virtual image.",
 
 
 

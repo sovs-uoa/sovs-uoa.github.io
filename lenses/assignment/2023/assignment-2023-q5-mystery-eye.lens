@@ -7,6 +7,8 @@ Assignment : Mystery Eye
 	"category"    : "Assignments",
 	"subcategory" : "2023",
 	"keywords"    : [ "assignment" ],
+	"shortName"   : "Q5 Mystery eye",
+	"about"       : "2023 assignment, question 5: a mystery eye.",
 
 	"title": "Basic eye",
 	"visible": { 	"radius": true,

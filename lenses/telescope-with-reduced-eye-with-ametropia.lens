@@ -7,6 +7,8 @@ Assignment: Telescope with reduced eye and ametropia
 	"category"    : "Instruments",
 	"subcategory" : "Telescope",
 	"keywords"    : [ "instrument", "telescope" ],
+	"shortName"   : "Telescope and eye",
+	"about"       : "A telescope in front of a reduced eye with ametropia.",
 
 	"title": "Telescope (Lab 5)",
 	"visible": { 	"radius": true,

@@ -17,6 +17,8 @@
 	"category"    : "Schematic eyes",
 	"subcategory" : "Gullstrand",
 	"keywords"    : [ "schematic eye", "Gullstrand" ],
+	"shortName"   : "Relaxed, grouped beams",
+	"about"       : "The relaxed Gullstrand eye with its beams linked as a group, so they move together.",
 
 	"title": "Gullstrand 1 eye relaxed (grouped)",
 	"units" : "m",

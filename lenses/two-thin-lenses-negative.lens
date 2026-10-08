@@ -6,7 +6,9 @@
 {
 	"category"    : "Components",
 	"subcategory" : "Thin lens",
-	"keywords"    : [ "thin lens", "two lenses" ],
+	"keywords"    : [ "minus", "thin lens", "two lenses" ],
+	"shortName"   : "Two lenses, minus",
+	"about"       : "Two thin lenses in air whose combined power is minus, treated as one system.",
 
 
 	"general" :  { "cardinalVertHeight" : 0.75 },

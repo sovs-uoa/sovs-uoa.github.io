@@ -21,6 +21,8 @@
 	"category"    : "Instruments",
 	"subcategory" : "Telescope",
 	"keywords"    : [ "instrument", "telescope", "Keplerian" ],
+	"shortName"   : "Keplerian, stop at the intermediate image",
+	"about"       : "A Keplerian telescope with a manual aperture stop placed at the intermediate image.",
 
 
 	"viewBox" : [ -0.05, 0.15, 0.35, 0.3 ],

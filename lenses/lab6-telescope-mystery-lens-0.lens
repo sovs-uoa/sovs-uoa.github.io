@@ -7,6 +7,8 @@ Vertometer standard
 	"category"    : "Instruments",
 	"subcategory" : "Telescope",
 	"keywords"    : [ "instrument", "telescope" ],
+	"shortName"   : "Telescope, mystery lens",
+	"about"       : "A telescope with a mystery lens in the system.",
 
 	"title": "Vertometer (Lab 6)",
 	"visible": { 	"radius": true,

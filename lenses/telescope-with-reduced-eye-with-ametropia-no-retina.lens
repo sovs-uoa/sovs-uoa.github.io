@@ -7,6 +7,8 @@ Telescope with reduced eye and ametropia  (Lab 45
 	"category"    : "Instruments",
 	"subcategory" : "Telescope",
 	"keywords"    : [ "instrument", "telescope" ],
+	"shortName"   : "Telescope and eye, no retina",
+	"about"       : "A telescope in front of a reduced eye with ametropia, with no retina drawn.",
 
 	"title": "Telescope (Lab 5)",
 	"visible": { 	"radius": true,

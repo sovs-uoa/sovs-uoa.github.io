@@ -11,6 +11,8 @@
 	"category"    : "Instruments",
 	"subcategory" : "Telescope",
 	"keywords"    : [ "instrument", "telescope", "Keplerian" ],
+	"shortName"   : "Keplerian",
+	"about"       : "Two plus lenses forming a Keplerian telescope: an afocal system with an inverted image, with its entrance and exit pupils.",
 
 
 

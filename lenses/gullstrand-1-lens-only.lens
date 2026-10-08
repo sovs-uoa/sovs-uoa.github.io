@@ -18,6 +18,8 @@
 	"category"    : "Schematic eyes",
 	"subcategory" : "Gullstrand",
 	"keywords"    : [ "schematic eye", "Gullstrand" ],
+	"shortName"   : "Lens only",
+	"about"       : "Gullstrand's crystalline lens on its own, built up from its cortex and nucleus layers.",
 
 	"title": "Gullstrand 1 eye — isolated lens",
 	"visible": { 	"radius": true,

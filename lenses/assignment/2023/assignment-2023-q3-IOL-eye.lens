@@ -7,6 +7,8 @@ Assignment : basic eye model
 	"category"    : "Assignments",
 	"subcategory" : "2023",
 	"keywords"    : [ "assignment" ],
+	"shortName"   : "Q3 IOL eye",
+	"about"       : "2023 assignment, question 3: an eye with an intraocular lens (IOL).",
 
 	"title": "Basic eye",
 	"visible": { 	"radius": true,

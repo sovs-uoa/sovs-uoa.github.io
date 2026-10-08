@@ -7,6 +7,8 @@ Emmetropic eye with presbyopia (FA=0) and spectacles (Lab 3)
 	"category"    : "Schematic eyes",
 	"subcategory" : "Reduced eye",
 	"keywords"    : [ "schematic eye", "reduced eye", "mystery" ],
+	"shortName"   : "Presbyopic eye with spectacles",
+	"about"       : "An emmetropic eye with presbyopia and spectacles.",
 
 	"title": "Summary problem eye (Lab 3)",
 	"visible": { 	"radius": true,

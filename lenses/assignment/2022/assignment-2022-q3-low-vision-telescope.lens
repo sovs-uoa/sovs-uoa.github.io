@@ -7,6 +7,8 @@ Telescope with Lens Cap
 	"category"    : "Assignments",
 	"subcategory" : "2022",
 	"keywords"    : [ "assignment", "instrument", "telescope" ],
+	"shortName"   : "Q3.2 Telescope",
+	"about"       : "2022 assignment, question 3.2: a telescope with a lens cap.",
 
 	"title": "Telescope with Lens Cap",
 	"visible": { 	"radius": true,

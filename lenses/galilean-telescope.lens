@@ -7,6 +7,8 @@ Telescope with reduced eye and ametropia  (Lab 5)
 	"category"    : "Instruments",
 	"subcategory" : "Telescope",
 	"keywords"    : [ "instrument", "telescope", "Galilean" ],
+	"shortName"   : "Galilean",
+	"about"       : "A Galilean telescope: a plus objective and a minus eyepiece, an afocal system with an upright image.",
 
 	"title": "Galilean Telescope (Lab 5)",
 	"visible": { 	"radius": true,

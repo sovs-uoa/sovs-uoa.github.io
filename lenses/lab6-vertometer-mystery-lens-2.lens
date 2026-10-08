@@ -7,6 +7,8 @@ Vertometer standard
 	"category"    : "Instruments",
 	"subcategory" : "Vertometer",
 	"keywords"    : [ "instrument", "vertometer" ],
+	"shortName"   : "Mystery lens 2",
+	"about"       : "A vertometer with a second mystery lens in place. Find its power.",
 
 	"title": "Vertometer (Lab 6)",
 	"visible": { 	"radius": true,

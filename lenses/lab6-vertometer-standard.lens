@@ -7,6 +7,8 @@ Vertometer standard
 	"category"    : "Instruments",
 	"subcategory" : "Vertometer",
 	"keywords"    : [ "instrument", "vertometer" ],
+	"shortName"   : "Vertometer",
+	"about"       : "A vertometer (lensmeter) with its standard lens in place.",
 
 	"title": "Vertometer (Lab 6)",
 	"visible": { 	"radius": true,

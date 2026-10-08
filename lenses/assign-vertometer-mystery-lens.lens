@@ -7,6 +7,8 @@ Vertometer standard
 	"category"    : "Instruments",
 	"subcategory" : "Vertometer",
 	"keywords"    : [ "instrument", "vertometer" ],
+	"shortName"   : "Vertometer (assignment lens)",
+	"about"       : "A vertometer with the lens from an assignment.",
 
 	"title": "Vertometer (Lab 6)",
 	"visible": { 	"radius": true,

@@ -26,6 +26,8 @@ Click a beam (or drag it) and the Ref. Index column, the Summary and the pupils 
 	"category"    : "Components",
 	"subcategory" : "Dispersion",
 	"keywords"    : [ "dispersion", "advanced materials", "prism", "white light" ],
+	"shortName"   : "White light through a 100Δ SF11 prism and lens",
+	"about"       : "White light (red, green and blue beams) through a 100 prism-dioptre base-down SF11 prism, focused by a lens onto a screen: the colours separate. Uses Advanced materials.",
 
 
 	"viewBox" : [ -0.3, 0.17, 0.7, 0.34 ],

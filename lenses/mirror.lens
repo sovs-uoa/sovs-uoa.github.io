@@ -7,6 +7,8 @@ Assignment : mirror
 	"category"    : "Components",
 	"subcategory" : "Mirror",
 	"keywords"    : [ "mirror" ],
+	"shortName"   : "Mirror",
+	"about"       : "A mirror with a source in front of it.",
 
 	"title": "Mirror",
 	"visible": { 	"radius": true,

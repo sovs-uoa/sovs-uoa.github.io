@@ -2,7 +2,8 @@
 
   MODEL PICKER
 
-  The "Choose a model" dialog of main.html: a search box, the topics down the left, the matching models beside them.
+  The "Choose a model" dialog of main.html, in columns: categories, then the groups in the chosen category, then the
+  models in the chosen group, then a preview of the model you have selected. A search box above narrows them all.
 
   The topics come from the lens files themselves: each declares a "category", a "subcategory" and some "keywords"
   (see scripts/build-models.js, which gathers them into config/models-index.json). A model whose file says nothing
@@ -26,15 +27,9 @@ document.addEventListener("DOMContentLoaded", function () {
     "Assignments":    ["2024", "2023", "2022", "2021", "Earlier"]
   };
 
-  // pictures for the models that have one (images/models/), and a line about each
+  // pictures for the models that have one (images/models/)
   var PICTURES = { "58": "reduced-eye", "10": "legrand-eye", "59": "gullstrand-eye", "6": "keplerian-telescope", "7": "galilean-telescope" };
-  var BLURBS = {
-    "58": "One refracting surface and a retina: the simplest eye that still forms an image.",
-    "10": "The Le Grand relaxed eye: cornea, aqueous, lens and vitreous.",
-    "59": "Gullstrand's number 1 eye, relaxed.",
-    "6":  "Two positive lenses: an inverted image.",
-    "7":  "A positive objective and a negative eyepiece: an upright image."
-  };
+
 
   function el (tag, className, text) {
     var e = document.createElement(tag);
@@ -45,80 +40,90 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function rankIn (list, name) { var i = list.indexOf(name); return i < 0 ? list.length : i; }
 
-  var entries = [], topics = [], activeTopic = null, currentModel = null;     // activeTopic: { category, sub|null }
+  var entries = [], activeTopic = null, currentModel = null, selected = null;     // activeTopic: { category, sub|null }
+  var cats = {}, catNames = [], index = {}, duplicates = {};      // duplicates: id -> the id that stands for it in the list
 
-  function build (config, index) {
+  function build (config, idx) {
 
-    var groups = document.getElementById("groups"), nav = document.getElementById("topics");
-
+    index = idx;
     config.models.forEach(function (m, order) {
       var info = index[m.id] || {};
+      if (info.duplicateOf !== undefined) { duplicates[String(m.id)] = String(info.duplicateOf); return; }    // the same lens as another: listed once
       var category = info.category || "Miscellaneous", sub = info.subcategory || "";
-      var title = m.title.replace(/\s+/g, " ");
-      entries.push({ id: String(m.id), category: category, sub: sub, title: title, order: order,
+      var full  = m.title.replace(/\s+/g, " ");
+      var title = info.shortName || full;
+      entries.push({ id: String(m.id), category: category, sub: sub, title: title, full: full, order: order, keywords: info.keywords || [], about: info.about || "", about: info.about || "",
                      label: sub ? category + " \u00b7 " + sub : category,
-                     text: (title + " " + category + " " + sub + " " + (info.keywords || []).join(" ") + " " + m.id + " " + (BLURBS[m.id] || "")).toLowerCase() });
+                     text: (title + " " + full + " " + category + " " + sub + " " + (info.keywords || []).join(" ") + " " + m.id + " " + (info.about || "")).toLowerCase() });
     });
 
     // category -> sub -> entries, in the order the headings should come
-    var cats = {};
     entries.forEach(function (e) { ((cats[e.category] = cats[e.category] || {})[e.sub] = cats[e.category][e.sub] || []).push(e); });
-    var catNames = Object.keys(cats).sort(function (a, b) { var d = rankIn(CATEGORY_ORDER, a) - rankIn(CATEGORY_ORDER, b); return d || a.localeCompare(b); });
-
-    var all = el("button", "topic-all"); all.type = "button"; all.appendChild(el("span", "", "All models")); all.appendChild(el("span", "n"));
-    all.addEventListener("click", function () { selectTopic(null); });
-    nav.appendChild(all);
-    topics.push({ category: null, sub: null, button: all });
-
+    catNames = Object.keys(cats).sort(function (a, b) { var d = rankIn(CATEGORY_ORDER, a) - rankIn(CATEGORY_ORDER, b); return d || a.localeCompare(b); });
     catNames.forEach(function (cat) {
-
-      var heading = el("h5", "", cat);
-      groups.appendChild(heading);
-
-      var button = el("button", "topic-cat"); button.type = "button";
-      button.appendChild(el("span", "", cat)); button.appendChild(el("span", "n"));
-      button.addEventListener("click", function () { selectTopic({ category: cat, sub: null }); });
-      nav.appendChild(button);
-      topics.push({ category: cat, sub: null, button: button, heading: heading });
-
       var order = SUB_ORDER[cat] || [];
-      Object.keys(cats[cat]).sort(function (a, b) { var d = rankIn(order, a) - rankIn(order, b); return d || a.localeCompare(b); }).forEach(function (sub) {
+      cats[cat]._subs = Object.keys(cats[cat]).filter(function (k) { return k !== "_subs"; })
+        .sort(function (a, b) { var d = rankIn(order, a) - rankIn(order, b); return d || a.localeCompare(b); });
+    });
 
-        var subHeading = sub ? el("h6", "", sub) : null, list = el("ul");
-        if (subHeading) { groups.appendChild(subHeading); }
+    // the models, built once (the filters only hide and show them)
+    var groups = document.getElementById("groups");
+    catNames.forEach(function (cat) {
+      cats[cat]._subs.forEach(function (sub) {
+        var heading = el("h6", "", sub ? cat + " \u203a " + sub : cat), list = el("ul");
         cats[cat][sub].forEach(function (e) {
           var li = el("li"), a = el("a");
           a.href = "main.html?model=" + encodeURIComponent(e.id);
-          a.addEventListener("click", function (ev) {
-            if (typeof switchModel === "function" && !ev.metaKey && !ev.ctrlKey && !ev.shiftKey) {
-              ev.preventDefault(); $("#modelModal").modal("hide"); switchModel(e.id);
-            }
-          });
-          if (PICTURES[e.id]) { var img = el("img"); img.src = "images/models/" + PICTURES[e.id] + ".png"; img.alt = ""; img.loading = "lazy"; a.appendChild(img); }
-          var text = el("span", "text"), title = el("span", "title", e.title);
-          text.appendChild(title);
-          if (BLURBS[e.id]) { text.appendChild(el("span", "blurb", BLURBS[e.id])); }
-          a.appendChild(text);
+          a.addEventListener("click", function (ev) { if (!ev.metaKey && !ev.ctrlKey && !ev.shiftKey) { ev.preventDefault(); select(e); } });
+          a.addEventListener("dblclick", function (ev) { ev.preventDefault(); load(e); });
+          a.addEventListener("focus", function () { select(e, true); });
+          a.addEventListener("keydown", function (ev) { if (ev.key === "Enter") { ev.preventDefault(); load(e); } });
+          var title = el("span", "title", e.title);
+          a.appendChild(title);
           li.appendChild(a); list.appendChild(li);
-          e.li = li; e.titleEl = title;
+          e.li = li; e.titleEl = title; e.link = a;
         });
-        groups.appendChild(list);
-
-        if (sub) {
-          var subButton = el("button", "topic-sub"); subButton.type = "button";
-          subButton.appendChild(el("span", "", sub)); subButton.appendChild(el("span", "n"));
-          subButton.addEventListener("click", function () { selectTopic({ category: cat, sub: sub }); });
-          nav.appendChild(subButton);
-        }
-        topics.push({ category: cat, sub: sub || null, button: subButton || null, heading: subHeading, list: list, parent: heading });
+        groups.appendChild(heading); groups.appendChild(list);
+        cats[cat][sub].heading = heading; cats[cat][sub].list = list;
       });
     });
 
     filter();
     if (currentModel !== null) { window.markCurrentModel(currentModel); }
+    showDetail(null);
   }
 
-  function selectTopic (topic) { activeTopic = topic; filter(); document.querySelector(".model-results").scrollTop = 0; }
+  function load (e) { $("#modelModal").modal("hide"); if (typeof switchModel === "function") { switchModel(e.id); } }
+
+  function select (e, fromFocus) {
+    selected = e;
+    entries.forEach(function (x) { x.li.classList.toggle("selected", x === e); });
+    showDetail(e);
+    if (!fromFocus) { e.link.focus({ preventScroll: true }); }
+  }
+
+  // the preview column: a picture where there is one, the full name, where it sits, what it is searchable by
+  function showDetail (e) {
+    var box = document.getElementById("detail"); box.textContent = "";
+    if (!e) { box.appendChild(el("p", "text-muted small", "Choose a model to see it here.")); return; }
+    if (PICTURES[e.id]) { var img = el("img"); img.src = "images/models/" + PICTURES[e.id] + ".png"; img.alt = ""; box.appendChild(img); }
+    box.appendChild(el("h5", "", e.title));
+    if (e.full !== e.title) { box.appendChild(el("p", "text-muted small", e.full)); }
+    if (e.about) { box.appendChild(el("p", "pick-about", e.about)); }
+    box.appendChild(el("p", "text-muted small", e.label));
+    var chips = el("div", "chips");
+    e.keywords.forEach(function (k) {
+      var chip = el("button", "chip", k); chip.type = "button";
+      chip.addEventListener("click", function () { var q = document.getElementById("q"); q.value = k; activeTopic = null; filter(); q.focus(); });
+      chips.appendChild(chip);
+    });
+    if (e.keywords.length) { box.appendChild(chips); }
+    var open = el("button", "btn btn-primary btn-sm", e.id === currentModel ? "Reload this model" : "Open model"); open.type = "button";
+    open.addEventListener("click", function () { load(e); });
+    box.appendChild(open);
+  }
+
+  function selectTopic (topic) { activeTopic = topic; filter(); document.getElementById("groups").parentNode.scrollTop = 0; }
 
   function highlight (entry, words) {
     var t = entry.titleEl; t.textContent = "";
@@ -139,6 +144,14 @@ document.addEventListener("DOMContentLoaded", function () {
     return activeTopic === null || (e.category === activeTopic.category && (activeTopic.sub === null || e.sub === activeTopic.sub));
   }
 
+  function columnButton (label, n, active, onclick, className) {
+    var b = el("button", className || ""); b.type = "button";
+    b.appendChild(el("span", "", label)); b.appendChild(el("span", "n", String(n)));
+    b.classList.toggle("active", !!active); b.disabled = (n === 0);
+    b.addEventListener("click", onclick);
+    return b;
+  }
+
   function filter () {
 
     var words = document.getElementById("q").value.toLowerCase().split(/\s+/).filter(Boolean);
@@ -149,30 +162,47 @@ document.addEventListener("DOMContentLoaded", function () {
       e.li.hidden = !(e.match && inTopic(e));
     });
 
-    var shown = entries.filter(function (e) { return !e.li.hidden; }).length;
+    var count = function (cat, sub) {
+      return entries.filter(function (e) { return e.match && (cat === null || (e.category === cat && (sub === null || e.sub === sub))); }).length;
+    };
 
-    topics.forEach(function (t) {
-      var n = entries.filter(function (e) {
-        return e.match && (t.category === null || (e.category === t.category && (t.sub === null || e.sub === t.sub)));
-      }).length;
-      if (t.button) {
-        t.button.querySelector(".n").textContent = n;
-        t.button.disabled = (n === 0 && t.category !== null);
-        t.button.classList.toggle("active", activeTopic === null ? t.category === null :
-          (t.category === activeTopic.category && t.sub === activeTopic.sub));
-      }
-      if (t.heading) {
-        var visible = entries.some(function (e) { return !e.li.hidden && e.category === t.category && (t.sub === null || e.sub === t.sub); });
-        t.heading.hidden = !visible; if (t.list) { t.list.hidden = !visible; }
-      }
+    // column 1: the categories
+    var nav = document.getElementById("topics"); nav.textContent = "";
+    nav.appendChild(columnButton("All models", count(null, null), activeTopic === null, function () { selectTopic(null); }, "topic-all"));
+    catNames.forEach(function (cat) {
+      nav.appendChild(columnButton(cat, count(cat, null), activeTopic && activeTopic.category === cat, function () { selectTopic({ category: cat, sub: null }); }, "topic-cat"));
     });
 
+    // column 2: the groups of the chosen category
+    var subnav = document.getElementById("subtopics"); subnav.textContent = "";
+    if (activeTopic) {
+      var cat = activeTopic.category, subs = cats[cat]._subs.filter(Boolean);
+      if (subs.length) {
+        subnav.appendChild(columnButton("All " + cat.toLowerCase(), count(cat, null), activeTopic.sub === null, function () { selectTopic({ category: cat, sub: null }); }, "topic-all"));
+        subs.forEach(function (sub) {
+          subnav.appendChild(columnButton(sub, count(cat, sub), activeTopic.sub === sub, function () { selectTopic({ category: cat, sub: sub }); }, "topic-sub"));
+        });
+      }
+    } else {
+      subnav.appendChild(el("p", "text-muted small px-2", "Choose a category to see its groups."));
+    }
+
+    // column 3: the models (a heading above each group that still has some)
+    catNames.forEach(function (c) {
+      cats[c]._subs.forEach(function (sub) {
+        var g = cats[c][sub], visible = g.some(function (e) { return !e.li.hidden; });
+        g.heading.hidden = !visible; g.list.hidden = !visible;
+      });
+    });
+
+    var shown = entries.filter(function (e) { return !e.li.hidden; }).length;
     document.getElementById("none").hidden = shown > 0;
-    document.getElementById("status").textContent = words.length ? shown + (shown === 1 ? " model" : " models") + " found" : "";
+    document.getElementById("status").textContent = words.length ? shown + (shown === 1 ? " model" : " models") + " found" : shown + " models";
   }
 
   window.markCurrentModel = function (id) {
     currentModel = String(id);
+    if (duplicates[currentModel] !== undefined) { currentModel = duplicates[currentModel]; }     // (on show through another lab's link)
     entries.forEach(function (e) { e.li.classList.toggle("current", e.id === currentModel); });
   };
 
@@ -181,7 +211,7 @@ document.addEventListener("DOMContentLoaded", function () {
   var box = document.getElementById("q");
   box.addEventListener("input", function () { filter(); });
   box.addEventListener("keydown", function (e) {
-    if (e.key === "Enter")     { var l = links(); if (l.length) { e.preventDefault(); l[0].click(); } }
+    if (e.key === "Enter")     { var f = entries.filter(function (x) { return !x.li.hidden; })[0]; if (f) { e.preventDefault(); load(f); } }
     if (e.key === "ArrowDown") { var m = links(); if (m.length) { e.preventDefault(); m[0].focus(); } }
   });
   document.getElementById("groups").addEventListener("keydown", function (e) {
@@ -287,7 +317,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   Promise.all([ fetch("config/config.json", { cache: "no-cache" }).then(function (r) { return r.json(); }),
                 fetch("config/models-index.json", { cache: "no-cache" }).then(function (r) { return r.ok ? r.json() : {}; }).catch(function () { return {}; }) ])
-    .then(function (both) { build(both[0], both[1]); })
+    .then(function (both) { build(both[0], both[1]); if (currentModel !== null) { var cur = entries.filter(function (x) { return x.id === currentModel; })[0]; if (cur) { showDetail(cur); } } })
     .catch(function () {
       var none = document.getElementById("none"); none.hidden = false;
       none.innerHTML = 'The model list could not be loaded. Try the <a href="index.classic.html">classic index</a>.';

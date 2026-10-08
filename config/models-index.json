@@ -3,45 +3,63 @@
   "category": "Components",
   "subcategory": "Thick lens",
   "keywords": [
+   "plus",
    "thick lens"
-  ]
+  ],
+  "shortName": "Plus lens",
+  "about": "A thick plus lens in air, with a point object and a beam from infinity. Its cardinal points, principal planes and pupils are drawn."
  },
  "1": {
   "category": "Components",
   "subcategory": "Thick lens",
   "keywords": [
+   "minus",
    "thick lens"
-  ]
+  ],
+  "shortName": "Minus lens",
+  "about": "A thick minus lens in air, with a point object and a beam from infinity. Its cardinal points, principal planes and pupils are drawn."
  },
  "2": {
   "category": "Components",
   "subcategory": "Thin lens",
   "keywords": [
+   "plus",
    "thin lens"
-  ]
+  ],
+  "shortName": "Plus lens",
+  "about": "A thin plus lens and a point object. Drag the object to see where the image forms."
  },
  "3": {
   "category": "Components",
   "subcategory": "Thin lens",
   "keywords": [
+   "minus",
    "thin lens"
-  ]
+  ],
+  "shortName": "Minus lens",
+  "about": "A thin minus lens and a point object. Drag the object to see its virtual image."
  },
  "4": {
   "category": "Components",
   "subcategory": "Thin lens",
   "keywords": [
+   "plus",
    "thin lens",
    "two lenses"
-  ]
+  ],
+  "shortName": "Two lenses, plus",
+  "about": "Two thin lenses in air whose combined power is plus, treated as one system."
  },
  "5": {
   "category": "Components",
   "subcategory": "Thin lens",
   "keywords": [
+   "minus",
    "thin lens",
    "two lenses"
-  ]
+  ],
+  "shortName": "Two lenses, minus",
+  "about": "Two thin lenses in air whose combined power is minus, treated as one system."
  },
  "6": {
   "category": "Instruments",
@@ -50,7 +68,9 @@
    "instrument",
    "telescope",
    "Keplerian"
-  ]
+  ],
+  "shortName": "Keplerian",
+  "about": "Two plus lenses forming a Keplerian telescope: an afocal system with an inverted image, with its entrance and exit pupils."
  },
  "7": {
   "category": "Instruments",
@@ -59,7 +79,9 @@
    "instrument",
    "telescope",
    "Galilean"
-  ]
+  ],
+  "shortName": "Galilean",
+  "about": "A Galilean telescope: a plus objective and a minus eyepiece, an afocal system with an upright image."
  },
  "10": {
   "category": "Schematic eyes",
@@ -67,7 +89,9 @@
   "keywords": [
    "schematic eye",
    "Le Grand"
-  ]
+  ],
+  "shortName": "Relaxed",
+  "about": "The Le Grand relaxed schematic eye: cornea, aqueous humour, lens and vitreous, ending at the retina."
  },
  "11": {
   "category": "Schematic eyes",
@@ -75,7 +99,9 @@
   "keywords": [
    "schematic eye",
    "Le Grand"
-  ]
+  ],
+  "shortName": "Relaxed, no retina",
+  "about": "The Le Grand relaxed schematic eye with no retina drawn, so the image can fall where it falls."
  },
  "12": {
   "category": "Schematic eyes",
@@ -83,7 +109,9 @@
   "keywords": [
    "schematic eye",
    "reduced eye"
-  ]
+  ],
+  "shortName": "With accommodation",
+  "about": "A reduced eye (one refracting surface and a retina) that accommodates: see how the image moves as the eye focuses near."
  },
  "13": {
   "category": "Schematic eyes",
@@ -91,7 +119,9 @@
   "keywords": [
    "schematic eye",
    "reduced eye"
-  ]
+  ],
+  "shortName": "Emmetropic reduced eye",
+  "about": "A reduced eye with a retina and thin lenses in front of it for adding corrections."
  },
  "14": {
   "category": "Schematic eyes",
@@ -100,7 +130,9 @@
    "schematic eye",
    "reduced eye",
    "mystery"
-  ]
+  ],
+  "shortName": "Mystery eye 1",
+  "about": "A mystery reduced eye. Work out what its refractive error is."
  },
  "15": {
   "category": "Schematic eyes",
@@ -109,7 +141,9 @@
    "schematic eye",
    "reduced eye",
    "mystery"
-  ]
+  ],
+  "shortName": "Mystery eye 2",
+  "about": "A second mystery reduced eye. Work out what its refractive error is."
  },
  "16": {
   "category": "Instruments",
@@ -117,7 +151,9 @@
   "keywords": [
    "instrument",
    "telescope"
-  ]
+  ],
+  "shortName": "Telescope and eye",
+  "about": "A telescope in front of a reduced eye with ametropia."
  },
  "17": {
   "category": "Schematic eyes",
@@ -125,7 +161,10 @@
   "keywords": [
    "schematic eye",
    "reduced eye"
-  ]
+  ],
+  "shortName": "Emmetropic reduced eye",
+  "about": "A reduced eye with a retina and thin lenses in front of it for adding corrections.",
+  "duplicateOf": "13"
  },
  "18": {
   "category": "Instruments",
@@ -133,28 +172,36 @@
   "keywords": [
    "instrument",
    "telescope"
-  ]
+  ],
+  "shortName": "Telescope and eye, no retina",
+  "about": "A telescope in front of a reduced eye with ametropia, with no retina drawn."
  },
  "19": {
   "category": "Assignments",
   "subcategory": "Earlier",
   "keywords": [
    "assignment"
-  ]
+  ],
+  "shortName": "Thick lens",
+  "about": "An earlier assignment: a thick lens in air."
  },
  "20": {
   "category": "Assignments",
   "subcategory": "Earlier",
   "keywords": [
    "assignment"
-  ]
+  ],
+  "shortName": "Eye model",
+  "about": "An earlier assignment: a basic eye model."
  },
  "21": {
   "category": "Assignments",
   "subcategory": "Earlier",
   "keywords": [
    "assignment"
-  ]
+  ],
+  "shortName": "Telescope (myopia)",
+  "about": "An earlier assignment: a telescope in front of a myopic reduced eye."
  },
  "22": {
   "category": "Instruments",
@@ -162,7 +209,9 @@
   "keywords": [
    "instrument",
    "vertometer"
-  ]
+  ],
+  "shortName": "Vertometer",
+  "about": "A vertometer (lensmeter) with its standard lens in place."
  },
  "23": {
   "category": "Instruments",
@@ -170,7 +219,9 @@
   "keywords": [
    "instrument",
    "vertometer"
-  ]
+  ],
+  "shortName": "Mystery lens 1",
+  "about": "A vertometer with a mystery lens in place. Find its power."
  },
  "24": {
   "category": "Instruments",
@@ -178,7 +229,9 @@
   "keywords": [
    "instrument",
    "vertometer"
-  ]
+  ],
+  "shortName": "Mystery lens 2",
+  "about": "A vertometer with a second mystery lens in place. Find its power."
  },
  "25": {
   "category": "Instruments",
@@ -186,7 +239,9 @@
   "keywords": [
    "instrument",
    "telescope"
-  ]
+  ],
+  "shortName": "Telescope, mystery lens",
+  "about": "A telescope with a mystery lens in the system."
  },
  "26": {
   "category": "Instruments",
@@ -194,7 +249,9 @@
   "keywords": [
    "instrument",
    "vertometer"
-  ]
+  ],
+  "shortName": "Mystery lens, left eye (OS)",
+  "about": "A vertometer with the mystery lens for the left eye (OS)."
  },
  "27": {
   "category": "Instruments",
@@ -202,7 +259,9 @@
   "keywords": [
    "instrument",
    "vertometer"
-  ]
+  ],
+  "shortName": "Mystery lens, right eye (OD)",
+  "about": "A vertometer with the mystery lens for the right eye (OD)."
  },
  "28": {
   "category": "Instruments",
@@ -210,14 +269,18 @@
   "keywords": [
    "instrument",
    "vertometer"
-  ]
+  ],
+  "shortName": "Vertometer (assignment lens)",
+  "about": "A vertometer with the lens from an assignment."
  },
  "29": {
   "category": "Components",
   "subcategory": "Mirror",
   "keywords": [
    "mirror"
-  ]
+  ],
+  "shortName": "Mirror",
+  "about": "A mirror with a source in front of it."
  },
  "30": {
   "category": "Instruments",
@@ -225,35 +288,45 @@
   "keywords": [
    "instrument",
    "keratometer"
-  ]
+  ],
+  "shortName": "Keratometer",
+  "about": "A keratometer: a target imaged by the cornea."
  },
  "31": {
   "category": "Assignments",
   "subcategory": "2021",
   "keywords": [
    "assignment"
-  ]
+  ],
+  "shortName": "Q1 Thick lens",
+  "about": "2021 assignment, question 1: a thick lens in air."
  },
  "32": {
   "category": "Assignments",
   "subcategory": "2021",
   "keywords": [
    "assignment"
-  ]
+  ],
+  "shortName": "Q2 Ametropia with anisometropia",
+  "about": "2021 assignment, question 2: ametropia with anisometropia in a basic eye model."
  },
  "33": {
   "category": "Assignments",
   "subcategory": "2021",
   "keywords": [
    "assignment"
-  ]
+  ],
+  "shortName": "Q3 Accommodation",
+  "about": "2021 assignment, question 3: accommodation in a basic eye model."
  },
  "34": {
   "category": "Assignments",
   "subcategory": "2021",
   "keywords": [
    "assignment"
-  ]
+  ],
+  "shortName": "Q4 The add",
+  "about": "2021 assignment, question 4: the add."
  },
  "35": {
   "category": "Assignments",
@@ -262,21 +335,27 @@
    "assignment",
    "instrument",
    "vertometer"
-  ]
+  ],
+  "shortName": "Q5 Vertometer",
+  "about": "2021 assignment, question 5: the vertometer."
  },
  "36": {
   "category": "Assignments",
   "subcategory": "2022",
   "keywords": [
    "assignment"
-  ]
+  ],
+  "shortName": "Q1 Emmetropic eye",
+  "about": "2022 assignment, question 1: the emmetropic eye."
  },
  "37": {
   "category": "Assignments",
   "subcategory": "2022",
   "keywords": [
    "assignment"
-  ]
+  ],
+  "shortName": "Q2 Fluid lens",
+  "about": "2022 assignment, question 2: a fluid lens."
  },
  "38": {
   "category": "Assignments",
@@ -285,7 +364,9 @@
    "assignment",
    "instrument",
    "magnifier"
-  ]
+  ],
+  "shortName": "Q3.1 Magnifier",
+  "about": "2022 assignment, question 3.1: a simple magnifier with the basic eye model."
  },
  "39": {
   "category": "Assignments",
@@ -294,14 +375,18 @@
    "assignment",
    "instrument",
    "telescope"
-  ]
+  ],
+  "shortName": "Q3.2 Telescope",
+  "about": "2022 assignment, question 3.2: a telescope with a lens cap."
  },
  "40": {
   "category": "Assignments",
   "subcategory": "2022",
   "keywords": [
    "assignment"
-  ]
+  ],
+  "shortName": "Q4 Accommodation",
+  "about": "2022 assignment, question 4: accommodation in a basic eye model."
  },
  "41": {
   "category": "Assignments",
@@ -310,7 +395,9 @@
    "assignment",
    "instrument",
    "keratometer"
-  ]
+  ],
+  "shortName": "Q5.1 Keratometer (cornea)",
+  "about": "2022 assignment, question 5.1: the keratometer mires imaged by the cornea."
  },
  "42": {
   "category": "Assignments",
@@ -319,56 +406,72 @@
    "assignment",
    "instrument",
    "keratometer"
-  ]
+  ],
+  "shortName": "Q5.2 Keratometer (full)",
+  "about": "2022 assignment, question 5.2: the full keratometer."
  },
  "43": {
   "category": "Assignments",
   "subcategory": "2023",
   "keywords": [
    "assignment"
-  ]
+  ],
+  "shortName": "Q1 Le Grand eye (relaxed)",
+  "about": "2023 assignment, question 1: the Le Grand relaxed eye."
  },
  "44": {
   "category": "Assignments",
   "subcategory": "2023",
   "keywords": [
    "assignment"
-  ]
+  ],
+  "shortName": "Q2 Emmetropic eye",
+  "about": "2023 assignment, question 2: the emmetropic eye."
  },
  "45": {
   "category": "Assignments",
   "subcategory": "2023",
   "keywords": [
    "assignment"
-  ]
+  ],
+  "shortName": "Q3 IOL eye",
+  "about": "2023 assignment, question 3: an eye with an intraocular lens (IOL)."
  },
  "46": {
   "category": "Assignments",
   "subcategory": "2023",
   "keywords": [
    "assignment"
-  ]
+  ],
+  "shortName": "Q4 Accommodation",
+  "about": "2023 assignment, question 4: accommodation in a basic eye model."
  },
  "47": {
   "category": "Assignments",
   "subcategory": "2023",
   "keywords": [
    "assignment"
-  ]
+  ],
+  "shortName": "Q5 Mystery eye",
+  "about": "2023 assignment, question 5: a mystery eye."
  },
  "48": {
   "category": "Assignments",
   "subcategory": "2024",
   "keywords": [
    "assignment"
-  ]
+  ],
+  "shortName": "Q1 The add and simple magnifier",
+  "about": "2024 assignment, question 1: the add and a simple magnifier."
  },
  "49": {
   "category": "Assignments",
   "subcategory": "2024",
   "keywords": [
    "assignment"
-  ]
+  ],
+  "shortName": "Q2 Accommodation",
+  "about": "2024 assignment, question 2: accommodation in a basic eye model."
  },
  "50": {
   "category": "Assignments",
@@ -377,14 +480,18 @@
    "assignment",
    "instrument",
    "magnifier"
-  ]
+  ],
+  "shortName": "Q3 Stand magnifier",
+  "about": "2024 assignment, question 3: the stand magnifier."
  },
  "51": {
   "category": "Assignments",
   "subcategory": "2024",
   "keywords": [
    "assignment"
-  ]
+  ],
+  "shortName": "Q4 The size lens",
+  "about": "2024 assignment, question 4: the size of a thick lens."
  },
  "52": {
   "category": "Components",
@@ -392,7 +499,9 @@
   "keywords": [
    "thick lens",
    "two lenses"
-  ]
+  ],
+  "shortName": "Two lenses",
+  "about": "Two thick lenses in air, treated as one system."
  },
  "53": {
   "category": "Schematic eyes",
@@ -401,7 +510,9 @@
    "schematic eye",
    "reduced eye",
    "mystery"
-  ]
+  ],
+  "shortName": "Mystery eye 3",
+  "about": "A third mystery reduced eye. Work out what its refractive error is."
  },
  "54": {
   "category": "Schematic eyes",
@@ -410,7 +521,9 @@
    "schematic eye",
    "reduced eye",
    "mystery"
-  ]
+  ],
+  "shortName": "Presbyopic eye with spectacles",
+  "about": "An emmetropic eye with presbyopia and spectacles."
  },
  "55": {
   "category": "Schematic eyes",
@@ -418,7 +531,10 @@
   "keywords": [
    "schematic eye",
    "reduced eye"
-  ]
+  ],
+  "shortName": "Emmetropic reduced eye",
+  "about": "A reduced eye with a retina and thin lenses in front of it for adding corrections.",
+  "duplicateOf": "13"
  },
  "56": {
   "category": "Schematic eyes",
@@ -427,7 +543,10 @@
    "schematic eye",
    "reduced eye",
    "mystery"
-  ]
+  ],
+  "shortName": "Mystery eye 1",
+  "about": "A mystery reduced eye. Work out what its refractive error is.",
+  "duplicateOf": "14"
  },
  "57": {
   "category": "Schematic eyes",
@@ -436,7 +555,10 @@
    "schematic eye",
    "reduced eye",
    "mystery"
-  ]
+  ],
+  "shortName": "Mystery eye 2",
+  "about": "A second mystery reduced eye. Work out what its refractive error is.",
+  "duplicateOf": "15"
  },
  "58": {
   "category": "Schematic eyes",
@@ -444,7 +566,9 @@
   "keywords": [
    "schematic eye",
    "reduced eye"
-  ]
+  ],
+  "shortName": "Reduced eye",
+  "about": "The reduced eye of Laboratory 4: a retina, a beam from infinity, and thin lenses in front for corrections."
  },
  "59": {
   "category": "Schematic eyes",
@@ -452,7 +576,9 @@
   "keywords": [
    "schematic eye",
    "Gullstrand"
-  ]
+  ],
+  "shortName": "Relaxed",
+  "about": "Gullstrand's number 1 schematic eye, relaxed: cornea, aqueous humour, lens and vitreous."
  },
  "60": {
   "category": "Schematic eyes",
@@ -460,7 +586,9 @@
   "keywords": [
    "schematic eye",
    "Gullstrand"
-  ]
+  ],
+  "shortName": "Accommodated",
+  "about": "Gullstrand's number 1 schematic eye accommodated for near."
  },
  "61": {
   "category": "Schematic eyes",
@@ -468,21 +596,27 @@
   "keywords": [
    "schematic eye",
    "Gullstrand"
-  ]
+  ],
+  "shortName": "Lens only",
+  "about": "Gullstrand's crystalline lens on its own, built up from its cortex and nucleus layers."
  },
  "62": {
   "category": "Components",
   "subcategory": "Prism",
   "keywords": [
    "prism"
-  ]
+  ],
+  "shortName": "10Δ base-up prism and lens",
+  "about": "A 10 prism-dioptre base-up prism with a converging thin lens: the prism displaces the image."
  },
  "63": {
   "category": "Components",
   "subcategory": "Prism",
   "keywords": [
    "prism"
-  ]
+  ],
+  "shortName": "10Δ base-down prism and lens",
+  "about": "A 10 prism-dioptre base-down prism with a converging thin lens: the prism displaces the image the other way."
  },
  "65": {
   "category": "Schematic eyes",
@@ -490,7 +624,9 @@
   "keywords": [
    "schematic eye",
    "Gullstrand"
-  ]
+  ],
+  "shortName": "Relaxed, grouped beams",
+  "about": "The relaxed Gullstrand eye with its beams linked as a group, so they move together."
  },
  "66": {
   "category": "Instruments",
@@ -499,7 +635,9 @@
    "instrument",
    "telescope",
    "Keplerian"
-  ]
+  ],
+  "shortName": "Keplerian, stop at the intermediate image",
+  "about": "A Keplerian telescope with a manual aperture stop placed at the intermediate image."
  },
  "67": {
   "category": "Components",
@@ -507,7 +645,9 @@
   "keywords": [
    "dispersion",
    "advanced materials"
-  ]
+  ],
+  "shortName": "Thick BK7 lens",
+  "about": "A thick lens in BK7 glass. Turn on Advanced materials in Settings to trace several wavelengths and see chromatic dispersion."
  },
  "68": {
   "category": "Components",
@@ -515,7 +655,9 @@
   "keywords": [
    "dispersion",
    "advanced materials"
-  ]
+  ],
+  "shortName": "Thin polycarbonate lens",
+  "about": "A thin polycarbonate lens. Turn on Advanced materials in Settings to trace several wavelengths and see chromatic dispersion."
  },
  "69": {
   "category": "Components",
@@ -525,6 +667,8 @@
    "advanced materials",
    "prism",
    "white light"
-  ]
+  ],
+  "shortName": "White light through a 100Δ SF11 prism and lens",
+  "about": "White light (red, green and blue beams) through a 100 prism-dioptre base-down SF11 prism, focused by a lens onto a screen: the colours separate. Uses Advanced materials."
  }
 }

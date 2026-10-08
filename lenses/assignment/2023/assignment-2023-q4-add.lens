@@ -7,6 +7,8 @@ Assignment : basic eye model
 	"category"    : "Assignments",
 	"subcategory" : "2023",
 	"keywords"    : [ "assignment" ],
+	"shortName"   : "Q4 Accommodation",
+	"about"       : "2023 assignment, question 4: accommodation in a basic eye model.",
 
 	"title": "Basic eye",
 	"visible": { 	"radius": true,

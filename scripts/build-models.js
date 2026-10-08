@@ -12,8 +12,14 @@
       "category"    : "Schematic eyes",          one of: Components, Schematic eyes, Instruments, Assignments
       "subcategory" : "Gullstrand",              the group inside it
       "keywords"    : [ "schematic eye", "Gullstrand" ],      anything else worth searching for
+      "shortName"   : "Relaxed eye",             optional: the name the picker shows (the title in config.json stays what
+                                                 the page, the report and the tables use)
+      "about"       : "One sentence about the model.",   optional: shown beside it in the picker when it is selected
 
   A model whose file says no category is listed under "Miscellaneous".
+
+  Several models that load the same lens file (the laboratories link to their own ids) are listed once: the first
+  one in config.json stays in the picker and the others are marked "duplicateOf" it (they still open as before).
 
   Usage (from the repository root, after changing a lens file's category or keywords):
 
@@ -33,6 +39,7 @@ function field (text, name) {
 }
 
 const index = {};
+const firstWith = {};
 let tagged = 0;
 
 for (const model of config.models) {
@@ -41,9 +48,15 @@ for (const model of config.models) {
   try { text = fs.readFileSync(file, 'utf8'); } catch (e) { console.log(`missing lens file for model ${model.id}: ${model.filename}`); }
 
   const entry = { category: field(text, 'category') || 'Miscellaneous', subcategory: field(text, 'subcategory'), keywords: [] };
+  const shortName = field(text, 'shortName');
+  if (shortName) entry.shortName = shortName;
+  const about = field(text, 'about');
+  if (about) entry.about = about.replace(/\\"/g, '"');
   const list = text.match(/"keywords"\s*:\s*\[([^\]]*)\]/);
   if (list) entry.keywords = (list[1].match(/"[^"]*"/g) || []).map(s => s.slice(1, -1));
   if (entry.category !== 'Miscellaneous') tagged++;
+  if (firstWith[model.filename] !== undefined) entry.duplicateOf = firstWith[model.filename];
+  else firstWith[model.filename] = model.id;
   index[model.id] = entry;
 }
 

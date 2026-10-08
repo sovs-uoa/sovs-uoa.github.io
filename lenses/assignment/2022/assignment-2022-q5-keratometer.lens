@@ -7,6 +7,8 @@ Assignment : Keratometer
 	"category"    : "Assignments",
 	"subcategory" : "2022",
 	"keywords"    : [ "assignment", "instrument", "keratometer" ],
+	"shortName"   : "Q5.2 Keratometer (full)",
+	"about"       : "2022 assignment, question 5.2: the full keratometer.",
 
 	"title": "Mirror",
 	"visible": { 	"radius": true,

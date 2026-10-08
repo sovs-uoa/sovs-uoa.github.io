@@ -13,6 +13,8 @@
 	"category"    : "Components",
 	"subcategory" : "Dispersion",
 	"keywords"    : [ "dispersion", "advanced materials" ],
+	"shortName"   : "Thick BK7 lens",
+	"about"       : "A thick lens in BK7 glass. Turn on Advanced materials in Settings to trace several wavelengths and see chromatic dispersion.",
 
 
 	"viewBox" : [ -0.25, 0.125, 0.5, 0.25 ],

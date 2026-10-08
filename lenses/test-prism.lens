@@ -18,6 +18,8 @@ examples.
 	"category"    : "Components",
 	"subcategory" : "Prism",
 	"keywords"    : [ "prism" ],
+	"shortName"   : "10Δ base-up prism and lens",
+	"about"       : "A 10 prism-dioptre base-up prism with a converging thin lens: the prism displaces the image.",
 
 
 	"viewBox" : [ -1.0, 0.5, 2.5, 1.0 ],

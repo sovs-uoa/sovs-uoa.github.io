@@ -7,6 +7,8 @@ Vertometer standard
 	"category"    : "Assignments",
 	"subcategory" : "2021",
 	"keywords"    : [ "assignment", "instrument", "vertometer" ],
+	"shortName"   : "Q5 Vertometer",
+	"about"       : "2021 assignment, question 5: the vertometer.",
 
 	"title": "Vertometer (Lab 6)",
 	"visible": { 	"radius": true,

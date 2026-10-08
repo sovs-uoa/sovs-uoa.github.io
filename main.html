@@ -69,7 +69,7 @@
   <script src="js/optics/settings.js?v=1791496196"></script>
   <script src="js/optics/renderer.js?v=1791496196"></script>  
   <script src="js/optics/ruler.js?v=1791496841"></script>
-  <script src="js/model-browser.js?v=1791497953"></script>
+  <script src="js/model-browser.js?v=1791498852"></script>
   <script src="js/optics/RayConstruction.js?v=1773822656"></script>    
   <script src="js/optics/prescription.js?v=1791437828"></script>
   <script src="js/optics/raphael.export.js?v=1773822656"></script>
@@ -83,7 +83,7 @@
   <script src="js/main.js?v=1791497430"></script>  
   
 
-  <link rel="stylesheet" type="text/css" href="css/optics.css?v=1791497961">
+  <link rel="stylesheet" type="text/css" href="css/optics.css?v=1791498852">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
 
 
@@ -116,15 +116,17 @@
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
       </div>
       <div class="modal-body model-picker">
-        <nav id="topics" class="topic-list" aria-label="Topics"></nav>
-        <div class="model-results">
+        <nav id="topics" class="pick-col pick-topics" aria-label="Categories"></nav>
+        <nav id="subtopics" class="pick-col pick-subtopics" aria-label="Groups"></nav>
+        <div class="pick-col pick-models">
           <div class="status small text-muted" id="status" role="status"></div>
           <div id="groups"></div>
           <p class="text-muted" id="none" hidden>No model matches that. Try fewer words.</p>
         </div>
+        <aside id="detail" class="pick-col pick-detail" aria-live="polite"></aside>
       </div>
       <div class="modal-footer small text-muted">
-        <span class="mr-auto">Arrow keys to move, Enter to open</span>
+        <span class="mr-auto">Click to preview &middot; double-click, Enter or Open to load</span>
         <a href="index.html">laboratories</a> &middot; <a href="models.html">gallery</a> &middot; <a href="index.classic.html">classic index</a>
       </div>
     </div>

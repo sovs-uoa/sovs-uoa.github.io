@@ -7,6 +7,8 @@ Assignment : basic eye model
 	"category"    : "Assignments",
 	"subcategory" : "2024",
 	"keywords"    : [ "assignment" ],
+	"shortName"   : "Q1 The add and simple magnifier",
+	"about"       : "2024 assignment, question 1: the add and a simple magnifier.",
 
 	"title": "Basic eye",
 	"visible": { 	"radius": true,

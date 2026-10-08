@@ -7,6 +7,8 @@ Assignment : Fluid lens
 	"category"    : "Assignments",
 	"subcategory" : "2022",
 	"keywords"    : [ "assignment" ],
+	"shortName"   : "Q2 Fluid lens",
+	"about"       : "2022 assignment, question 2: a fluid lens.",
 
 	"title": "Fluid lens",
 	"visible": { 	"radius": true,

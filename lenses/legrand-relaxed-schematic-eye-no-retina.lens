@@ -7,6 +7,8 @@
 	"category"    : "Schematic eyes",
 	"subcategory" : "Le Grand",
 	"keywords"    : [ "schematic eye", "Le Grand" ],
+	"shortName"   : "Relaxed, no retina",
+	"about"       : "The Le Grand relaxed schematic eye with no retina drawn, so the image can fall where it falls.",
 
 
 	/* UNITS: this file's radii/thicknesses/viewBox/etc. are genuinely authored in

@@ -7,6 +7,8 @@ Reduced eye with accommodation
 	"category"    : "Schematic eyes",
 	"subcategory" : "Reduced eye",
 	"keywords"    : [ "schematic eye", "reduced eye" ],
+	"shortName"   : "With accommodation",
+	"about"       : "A reduced eye (one refracting surface and a retina) that accommodates: see how the image moves as the eye focuses near.",
 
 	"title": "Reduced eye with accommodation",
 	"visible": { 	"radius": true,
