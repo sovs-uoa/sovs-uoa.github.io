@@ -890,7 +890,7 @@ getConjuugateTo
      (V, V'). Each choice is remembered in the browser; a .lens file can start one off with
      "visible": { "cardinalPoints": false, "pupils": false, "vertices": false, "labels": false }.     */
 
-  var SHOW_KEYS = ["labels", "cardinalPoints", "pupils", "vertices"];
+  var SHOW_KEYS = ["labels", "cardinalPoints", "pupils", "vertices", "axis"];
   var fileShow  = {};      // what the lens file in front of us asked to hide
 
   function applyShowMenu (fileVisible) {
@@ -898,16 +898,19 @@ getConjuugateTo
     if (fileVisible !== undefined) { fileShow = fileVisible || {}; }
     var on = {};
     SHOW_KEYS.forEach(function (k) { on[k] = SovsSettings.showing(k) && fileShow[k] !== false; });
+    if (fileShow.axis === true) { on.axis = true; }       // (a lens file can ask for the optical axis, which is otherwise off)
     labelsVisible         = on.labels;
     cardinalPointsVisible = on.cardinalPoints;
     pupilsVisible         = on.pupils;
     verticesVisible       = on.vertices;
+    axisVisible           = on.axis;
+    if (typeof ensureOpticalAxis === "function") { ensureOpticalAxis(); }
 
     var hidden = 0;
     SHOW_KEYS.forEach(function (k) {
       var box = document.getElementById("show-" + k);
       if (box) { box.checked = on[k]; }
-      if (!on[k]) { hidden++; }
+      if (!on[k] && k !== "axis") { hidden++; }          // (the axis is something added, not something taken away)
     });
     var count = document.getElementById("show-menu-count");
     if (count) { count.textContent = hidden ? " \u00b7 " + hidden + " hidden" : ""; }

@@ -197,7 +197,7 @@ var SovsSettings = (function () {
 
   var NOMINAL_NM = 587.6;       // the d line - what a new object, and the Summary, start on
 
-  var state = { advancedMaterials: false, wavelengths: defaultWavelengths(), summaryNm: NOMINAL_NM, additiveBeams: false, beamEdges: false, darkCanvas: false, show: { labels: true, cardinalPoints: true, pupils: true, vertices: true } };
+  var state = { advancedMaterials: false, wavelengths: defaultWavelengths(), summaryNm: NOMINAL_NM, additiveBeams: false, beamEdges: false, darkCanvas: false, show: { labels: true, cardinalPoints: true, pupils: true, vertices: true, axis: false } };
 
   function load () {
 
@@ -230,7 +230,7 @@ var SovsSettings = (function () {
         state.additiveBeams = !!saved.additiveBeams;
         state.darkCanvas    = (saved.darkCanvas === undefined) ? !!saved.additiveBeams : !!saved.darkCanvas;   // additive used to imply dark
         state.beamEdges     = !!saved.beamEdges;
-        if (saved.show) { Object.keys(state.show).forEach(function (k) { state.show[k] = (saved.show[k] !== false); }); }
+        if (saved.show) { Object.keys(state.show).forEach(function (k) { state.show[k] = (k === "axis") ? (saved.show[k] === true) : (saved.show[k] !== false); }); }
         else if (saved.cardinalPoints === false) { state.show.cardinalPoints = false; }   // (an earlier build kept just this one)
         if (isFinite(saved.prescriptionNm) && saved.prescriptionNm > 0) { state.prescriptionNm = Number(saved.prescriptionNm); }
         if (isFinite(saved.summaryNm) && saved.summaryNm > 0) { state.summaryNm = Number(saved.summaryNm); }
@@ -268,7 +268,7 @@ var SovsSettings = (function () {
     set beamEdges (v)  { state.beamEdges = !!v; save(); },
 
     // which parts of the diagram the toolbar's Show menu has on: labels, cardinalPoints, pupils, vertices
-    showing (key)         { return state.show[key] !== false; },
+    showing (key)         { return key === "axis" ? state.show.axis === true : state.show[key] !== false; },
     setShowing (key, on)  { state.show[key] = !!on; save(); },
 
     // the diagram on a dark background (light lines and labels)

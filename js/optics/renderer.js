@@ -11,6 +11,7 @@
   var cardinalPointsVisible = true;
   var pupilsVisible         = true;
   var verticesVisible       = true;
+  var axisVisible           = false;     // the optical axis, a dash-dot line along y = 0 (off unless asked for)
   
 
   /* render options */
@@ -236,6 +237,7 @@ function hslToRgb(h, s, l){
 
         // draw the axis 
         drawAxis();
+        ensureOpticalAxis();
 
       
 
@@ -311,6 +313,25 @@ function ensureGridPattern () {
 }
 
 // panX / panY: how far the view has been dragged since the drag began (viewBox.X/Y only catch up when it ends)
+// the optical axis: one long thin dash-dot line, kept just above the grid
+function ensureOpticalAxis () {
+
+  if (typeof paper === "undefined" || !paper || !paper.canvas) { return; }
+  var line = paper.canvas.querySelector("path.optical-axis");
+  if (!axisVisible) { if (line) { line.style.display = "none"; } return; }
+  if (!line) {
+    var p = paper.path(["M", -1000, 0, "L", 1000, 0]);
+    p.attr({ "stroke-dasharray": "-." });
+    p.node.setAttribute("class", "optical-axis");
+    p.node.setAttribute("pointer-events", "none");
+    line = p.node;
+    p.toBack();
+    if (typeof gridRect !== "undefined" && gridRect) { gridRect.toBack(); }     // (the grid stays behind it)
+  }
+  line.style.display = "";
+}
+
+
 function drawAxis (panX, panY) {
   
   // var g = grid || false;

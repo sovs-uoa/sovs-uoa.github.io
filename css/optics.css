@@ -339,3 +339,7 @@ body.has-sidebar #filename_display { background: #fff; }
 @media (max-width: 600px) { .model-picker { grid-template-columns: 1fr; height: auto; } .pick-col { max-height: 30vh; } .pick-subtopics { display: none; } }
 
 .pick-detail .pick-about { font-size: .93rem; margin: 8px 0; }
+
+/* the optical axis (Show menu) */
+path.optical-axis { stroke: gray; stroke-opacity: 0.4; stroke-width: 1px; stroke-dasharray: none; fill: none; }
+#lens-container.dark-canvas path.optical-axis { stroke: #d0d4da; stroke-opacity: 0.35; }

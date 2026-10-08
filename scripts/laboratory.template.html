@@ -456,6 +456,8 @@
                 <label class="dropdown-item" title="The focal, principal and nodal points and their dashed planes"><input type="checkbox" id="show-cardinalPoints" checked onclick="setShowOption('cardinalPoints', this.checked);"> Cardinal points <small class="text-muted">F, P, N</small></label>
                 <label class="dropdown-item" title="The entrance and exit pupils"><input type="checkbox" id="show-pupils" checked onclick="setShowOption('pupils', this.checked);"> Pupils <small class="text-muted">E, E'</small></label>
                 <label class="dropdown-item" title="The first and last vertices of the lens"><input type="checkbox" id="show-vertices" checked onclick="setShowOption('vertices', this.checked);"> Vertices <small class="text-muted">V, V'</small></label>
+                <div class="dropdown-divider"></div>
+                <label class="dropdown-item" title="A dash-dot line along the optical axis"><input type="checkbox" id="show-axis" onclick="setShowOption('axis', this.checked);"> Optical axis</label>
               </div>
             </div>
             <button type="button" id="reset-view-button" class="rail-button" onclick="resetView();" title="Bring the diagram back to where it started (or double-click an empty part of it)">

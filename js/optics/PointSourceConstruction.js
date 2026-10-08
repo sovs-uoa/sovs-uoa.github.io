@@ -953,6 +953,15 @@ class PointSourceConstruction { // create a ray construction using raphael.js
 
         var XI = this.data.X2;
         var YI = this.data.Y2;
+
+        // A beam that ends on a screen has been drawn right down to the screen by the traced rays above. If its
+        // focus lies BEHIND the screen's position (along the way the light is going), the beam has crossed over and
+        // is spreading again by the time it arrives: drawing "on to the image" from there would lay a dashed
+        // virtual-image line on top of the real beam it came along. Nothing more is added.
+        var travelDir   = (lens.n2 < 0) ? -1 : 1;
+        var lastElement = (typeof renderableLens !== "undefined" && renderableLens && renderableLens.elem) ? renderableLens.elem[renderableLens.elem.length - 1] : null;
+        var onScreen    = !!(lastElement && lastElement.elem && lastElement.elem.type === "img");
+        if (onScreen && isFinite(XI) && (XI - ray[K-1][0].z) * travelDir < -1e-9) { this.cd_set.toBack(); return; }
          var realImageExtension = null; // envelope corners for the post-crossing fade, filled in below
          var virtualImageExitExtension = null; // envelope corners for the post-exit fade (virtual image case), filled in below
          var collimatedExtension = null; // envelope corners for the post-exit fade (collimated/image-at-infinity case), filled in below
