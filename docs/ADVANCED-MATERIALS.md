@@ -59,7 +59,8 @@ All optional, and a file without them loads exactly as before.
   * `"wavelength": 486.1` - the nm this source is traced at;
   * `"group": 1` - sources sharing a number are linked;
   * `"white": true` - shorthand for a linked group with one copy of the source per wavelength of the
-    white-light group (the copies get fresh ids);
+    white-light group (the copies get fresh ids). `"white": [453.8, 546.1, 656.3]` names the wavelengths instead;
+  * `"hidden": true` - start with this beam switched off the diagram (the Visible column of the Objects table is then unticked);
   * `"draw": "rays"` - for a beam from infinity: draw its rays element by element through the system, instead of
     the three-ray construction through the cardinal points. In a system with a lens the construction only shows
     the equivalent lens, so a prism's bend (and the colours it separates) would not be drawn.

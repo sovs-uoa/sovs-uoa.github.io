@@ -626,6 +626,8 @@ getConjuugateTo
                                           zo: pairData.VO, zi: pairData.VI,
                                           ho: pairData.OQ, hi: pairData.IQ,
                                           beamwidth: aPoint.beamwidth,
+                                          hidden: !!aPoint.hidden,   // beam switched off the diagram (the Hide column)
+                                          draw: aPoint.draw,         // "rays": drawn element by element (see resolveObjectConstructionType)
                                           group: aPoint.group,   // objects sharing a number are linked together (see settings.js)
                                           wavelength: aPoint.wavelength || (typeof SovsSettings !== "undefined" ? SovsSettings.NOMINAL_NM : 587.6),   // advanced materials mode
                                           pin: false, vig: false }]); // mutually exclusive - see setPinToApertureStop() and the Pin/Vig columns in prescription.js
@@ -772,8 +774,9 @@ getConjuugateTo
 
     var nm = (typeof focusedWavelength === "function") ? focusedWavelength() : undefined;
     inLensWavelength(nm, function () {
-      drawPupils(renderableLens.total, lensGraphicsOptions);
+      // cardinal points first: the labels that share a spot stack V (nearest the axis), then P/N, then E
       drawCardinalPoints(0, 0, renderableLens.total, lensGraphicsOptions); // (0,0)
+      drawPupils(renderableLens.total, lensGraphicsOptions);
     });
   }
 
@@ -1208,6 +1211,48 @@ getConjuugateTo
 
   }
 
+
+
+  /* ----------------------------------------------------------------------------------------------------------------
+
+      SETOBJECTINFINITY  Turn one object into a beam from infinity, or back into an object at a finite distance - the
+      drawing itself has to be swapped for a different kind of construction, so it is rebuilt. Starting values come
+      from what the row already has, otherwise from the size of the system.
+
+  ----------------------------------------------------------------------------------------------------------------   */
+
+  function setObjectInfinity (id, makeInfinite) {
+
+    var row = lens.pointsTable.getRow(id);
+    if (!row) { return; }
+
+    var d       = row.getData();
+    var current = lens.pointsTableHandler.convertRowData([ d ])[0];     // in the drawing's own signs
+    var size    = (typeof defaultBeamWidth === "function" && defaultBeamWidth()) ? defaultBeamWidth() * 3 : 0.1;
+
+    var aPoint = { id: d.id, type: "object", which: "object", infinity: makeInfinite, wavelength: d.wavelength,
+                   group: d.group, beamwidth: d.beamwidth, hidden: d.hidden, draw: d.draw };
+
+    if (makeInfinite) {
+      aPoint.t = isFinite(current.to) ? Number(current.to) : 0;
+    } else {
+      aPoint.z = isFinite(current.zo) ? Number(current.zo) : -4 * size;
+      aPoint.h = isFinite(current.ho) ? Number(current.ho) : -0.25 * size;
+    }
+
+    deleteConstruction(id);
+
+    var made = inLensWavelength(aPoint.wavelength, function () {
+      var pair = Optics.calculateConjugatePairFrom(aPoint, renderableLens.total);
+      updatePointsTable(id, pair);
+      var construction = instantiateConstruction(aPoint, pair, resolveObjectConstructionType(aPoint));
+      if (construction) { construction.WavelengthNm = aPoint.wavelength; }
+      return construction;
+    });
+
+    row.update({ infinity: makeInfinite, pin: false, vig: false });
+    if (made) { lens.raphael.constructions.push(made); }
+  }
 
 
   function deleteConstruction (id) {
@@ -1849,7 +1894,7 @@ getConjuugateTo
                                                           z         : undefined,
                                                           h         : undefined,
                                                           t         : 30,
-                                                          beamwidth : 5.0 } ];
+                                                          beamwidth : (defaultBeamWidth() || 5.0) } ];   // a third of the largest element
                                     }
 
 

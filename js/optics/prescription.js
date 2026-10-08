@@ -144,6 +144,8 @@ function lensObjectSelector(elem) {
     var asGroup = (objectType === "group");
     if (asGroup) { objectType = "object"; objectTypeLong = "object (white-light group)"; }
 
+    applyDefaultBeamWidths();      // a third of the largest element, not a fixed number
+
     // update this field
     $("#point-type-text-readonly").val(objectTypeLong);
 
@@ -335,6 +337,12 @@ the units selector. The row still keeps a plain design index (at the d line), so
 again leaves an ordinary, consistent prescription behind.
 
 ----------------------------------------------------------------------------------------------------------- */
+
+// l and l' (distances from the principal points) mean nothing for an afocal system - it has none: not editable
+function editNotAfocal (cell) {
+  var afocal = (typeof renderableLens !== "undefined") && renderableLens && renderableLens.total && renderableLens.total.F == 0;
+  return !afocal && editPointCheck(cell);
+}
 
 // a tick box for a table cell; disabled ones show a state that is not changed by clicking
 function checkBoxHTML (checked, disabled, tip) {
@@ -1090,11 +1098,20 @@ function initializePointsTable(data, updatePointsCallback, success) {
             {title: linkColumnTitle(), field:"group", width:60, align:"center", headerSort:false, visible: advancedMaterialsOn(),
              formatter: groupCellFormatter, cellClick: groupCellClick },
             {title:"&infin;", field:"infinity", width:42, align:"center", headerSort:false,
-             // read-only status: fixed by the "At infinity" checkbox at Add time,
-             // not editable afterwards - see toggleObjectInfinityCell()'s comment
+             // tick = a beam from infinity, clear = an object at a finite distance; changing it rebuilds the drawing
+             // (and a linked group changes together, since linked objects must be the same kind)
              formatter: function (cell) {
                if (cell.getRow().getData().type !== "object") { return ""; }
-               return checkBoxHTML(cell.getValue(), true, "At infinity (a beam) - fixed when the object is added");
+               return checkBoxHTML(cell.getValue(), false, "At infinity (a beam from infinity) - untick for an object at a finite distance");
+             },
+             cellClick: function (e, cell) {
+               var row = cell.getRow();
+               if (row.getData().type !== "object") { return; }
+               var makeInfinite = !row.getData().infinity;
+               var members = [ row ].concat(groupMates(row));
+               members.forEach(function (r) { setObjectInfinity(r.getData().id, makeInfinite); });
+               if (members.length > 1) { syncGroupFrom(row); }
+               lens.pointsTable.redraw(true);
              } },
             // Pin and Vig - mutually exclusive toggles, see applyPinVigMode() above.
             // Works for both a finite object (PointSourceConstruction) and a
@@ -1134,6 +1151,18 @@ function initializePointsTable(data, updatePointsCallback, success) {
                if (data.type !== "object") { return; }
                applyPinVigMode(row, data, "vig");
              } },
+            // Visible (ticked by default): untick to switch a beam off the diagram - the object (and its handle) stay in the table
+            {title: hideColumnTitle(), field:"hidden", width:54, align:"center", headerSort:false,
+             formatter: function (cell) {
+               if (cell.getRow().getData().type !== "object") { return ""; }
+               return checkBoxHTML(!cell.getValue(), false, "Ticked: this beam is drawn on the diagram (untick to hide it - the object stays in the table)");
+             },
+             cellClick: function (e, cell) {
+               var row = cell.getRow();
+               if (row.getData().type !== "object") { return; }
+               row.update({ hidden: !row.getData().hidden });
+               applyBeamVisibility();
+             } },
             {title:"id",     field:"id",       width:50, align:"center", headerSort:false, visible:false},   // the key tying a row to its beam - kept in the data, not shown
             // advanced materials mode only: the wavelength this object is traced at (see settings.js)
             {title:"&lambda; (nm)", field:"wavelength", minWidth:92, align:"center", headerSort:false, visible: advancedMaterialsOn(),
@@ -1146,8 +1175,8 @@ function initializePointsTable(data, updatePointsCallback, success) {
             {title:"Y1",                          field:"Y1", visible:false, width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 6, emptyVal: "--" },  cellEdited:  defaultEditFunction, editable:editPointCheck },                  
             {title:"X2",                          field:"X2", visible:false, width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 6, emptyVal: "--" },  cellEdited:  defaultEditFunction, editable:editPointCheck },                  
             {title:"Y2",                          field:"Y2", visible:false, width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 6, emptyVal: "--" },  cellEdited:  defaultEditFunction, editable:editPointCheck },                  
-            {title:"<i>l</i>",                    field:"l",  visible:true,  minWidth:72, editor: distanceEditor, headerSort:false, mutator:Number, formatter: distanceFormatter, formatterParams:{ precision: 3, emptyVal: "--", hideInfinite: true },  cellEdited:  defaultEditFunction, editable:editPointCheck },
-            {title:"<i>l&prime;</i>",             field:"ld", visible:true,  minWidth:72, editor: distanceEditor, headerSort:false, mutator:Number, formatter: distanceFormatter, formatterParams:{ precision: 3, emptyVal: "--", hideInfinite: true },  cellEdited:  defaultEditFunction, editable:editPointCheck },
+            {title:"<i>l</i>",                    field:"l",  visible:true,  minWidth:72, editor: distanceEditor, headerSort:false, mutator:Number, formatter: distanceFormatter, formatterParams:{ precision: 3, emptyVal: "--", hideInfinite: true },  cellEdited:  defaultEditFunction, editable: editNotAfocal },
+            {title:"<i>l&prime;</i>",             field:"ld", visible:true,  minWidth:72, editor: distanceEditor, headerSort:false, mutator:Number, formatter: distanceFormatter, formatterParams:{ precision: 3, emptyVal: "--", hideInfinite: true },  cellEdited:  defaultEditFunction, editable: editNotAfocal },
             {title:"<i>l<sub>v</sub></i>",        field:"zo", visible:true,  minWidth:72, editor: distanceEditor, headerSort:false, mutator:Number, formatter: distanceFormatter, formatterParams:{ precision: 3, emptyVal: "--" },  cellEdited:  defaultEditFunction, editable:editPointCheck },
             {title:"<i>l<sub>v&prime;</sub></i>", field:"zi", visible:true,  minWidth:72, editor: distanceEditor, headerSort:false, mutator:Number, formatter: distanceFormatter, formatterParams:{ precision: 3, emptyVal: "--" },  cellEdited:  defaultEditFunction, editable:editPointCheck },
             {title:"<i>h</i>",                    field:"ho", visible:true,  minWidth:72, editor: distanceEditor, headerSort:false, mutator:Number, formatter: distanceFormatter, formatterParams:{ precision: 3, emptyVal: "--",  flipVal:false },  cellEdited:  defaultEditFunction, editable:editPointCheck },

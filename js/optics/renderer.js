@@ -391,6 +391,7 @@ function drawAxis (panX, panY) {
 
       pup_set.remove();
       pup_set = paper.set();
+      // (the label slots are reset by drawCardinalPoints, which is drawn first - see drawFocusLensGraphics)
 
 
       if (info.stop) {
@@ -428,14 +429,17 @@ function drawAxis (panX, panY) {
         RegisterWheelCallback ({ type: "point", handle: c5 });
         RegisterWheelCallback ({ type: "point", handle: c6 });
 
-        c7 = drawText(E1, 0 , "E"); 
-        c7.attr({ "text-anchor" : "start" });
-
-        c8 = drawText(E2, 0 , "E'");
-        c8.attr({ "text-anchor" : "end" });
+        // entrance and exit pupils at the same place share one label, E/E'
+        if (isFinite(E1) && isFinite(E2) && Math.abs(E1 - E2) < 14 * kx) {      // 14 pixels
+          c7 = placeLabel(drawText(E1, 0 , "E/E'"), E1, "AL");
+          c8 = paper.set();
+        } else {
+          c7 = placeLabel(drawText(E1, 0 , "E"),  E1, "AL");
+          c8 = placeLabel(drawText(E2, 0 , "E'"), E2, "BR");
+        }
 
         RegisterWheelCallback ({ type: "text", handle: c7 });
-        RegisterWheelCallback ({ type: "text", handle: c8 });
+        if (c8.type === "text") { RegisterWheelCallback ({ type: "text", handle: c8 }); }
 
         pup_set.push(c7, c8);
 
@@ -471,6 +475,7 @@ function drawAxis (panX, panY) {
 
     cp_set.remove();
     cp_set = paper.set();
+    resetLabelSlots();       // stacked labels, nearest the axis first: V, then P/N, then (drawn afterwards) E
 
     var cp;
 
@@ -480,6 +485,14 @@ function drawAxis (panX, panY) {
 
 
     var h  = 1 || displayOptions.cardinalVertHeight;   // back vertex 
+
+    // V' and F' that fall on the same point (a reduced eye's retina, a flat screen) share ONE label, V'F', on a
+    // single line - never stacked one above the other
+    var mergeVF = false;
+    if (displayOptions.showVertices && displayOptions.showCardinalPoints && displayOptions.showFocalPoints) {
+      var f2xTest = v2 + systemPoints.cardinal.VP2 + systemPoints.cardinal.PF2;
+      mergeVF = isFinite(f2xTest) && Math.abs(f2xTest - v2) < 14 * kx;      // 14 pixels
+    }
 
 
     // nodal points
@@ -507,12 +520,16 @@ function drawAxis (panX, panY) {
 
           r =  cp1.attr("r");
           // dX = cp1.attr("r")*kx*20;
-          cp1 = drawText(x1, y , "V"); // - 4*cp1.attr("r")
-          cp1.attr({ "text-anchor" : "middle"});
+          cp1 = placeLabel(drawText(x1, y , "V"), x1, "AL");
           //cp1.transform("...t-100,0");
           cp2 = drawText(x2, y , "V'"); // - 4*cp2.attr("r")
-          cp2.attr({ "text-anchor" : "middle"});
-          if (flatScreenAt(x2)) { cp2.attr({ "text-anchor" : "end" }); cp2.data("data-shift-X", -1.15); }   // V' F' read left to right, ending at the screen
+          if (mergeVF) {
+            cp2.hide();                                          // drawn as part of the F' label below ("V'F'")
+          } else if (flatScreenAt(x2)) {
+            cp2.attr({ "text-anchor" : "end" }); cp2.data("data-shift-X", -1.15);   // V' F' on one line, left of the screen
+          } else {
+            placeLabel(cp2, x2, "BR");
+          }   // V' F' read left to right, ending at the screen
           //cp1.transform("...t100,0");
 
           cp_set.push(cp1, cp2);
@@ -560,7 +577,7 @@ function drawAxis (panX, panY) {
 
           let cp1F = drawText(x1, y, "F");
           cp1F.attr({ "text-anchor" : "end"});
-          let cp2F = drawText(x2, y, "F'");
+          let cp2F = drawText(x2, y, mergeVF ? "V'F'" : "F'");
           cp2F.attr({ "text-anchor" : "start"});
           if (flatScreenAt(x2)) { cp2F.attr({ "text-anchor" : "end" }); cp2F.data("data-shift-X", -0.4); }   
           cp_set.push(cp1F, cp2F);
@@ -616,9 +633,7 @@ function drawAxis (panX, panY) {
             cp_set.push(cp1);
             RegisterWheelCallback ({ type: "point", handle: cp1 });
           
-            cp1 = drawText(x1, 0, "P/N");
-            cp1.attr({ "text-anchor" : "middle"});
-            cp1.data({ "data-shift-Y" : 1.0 });
+            cp1 = placeLabel(drawText(x1, 0, "P/N"), x1, "AL");
             cp_set.push(cp1);
             RegisterWheelCallback ({ type: "text", handle: cp1 });
 
@@ -626,9 +641,7 @@ function drawAxis (panX, panY) {
             cp_set.push(cp2);
             RegisterWheelCallback ({ type: "point", handle: cp2 });
 
-            cp2 = drawText(x2, 0, "P'/N'");
-            cp2.attr({ "text-anchor" : "middle"});            
-            cp2.data({ "data-shift-Y" : -1.0 });
+            cp2 = placeLabel(drawText(x2, 0, "P'/N'"), x2, "BR");
             cp_set.push(cp2);
             RegisterWheelCallback ({ type: "text", handle: cp2 });
 
@@ -648,15 +661,11 @@ function drawAxis (panX, panY) {
           
             // the planes coincide (a thin lens, say): P/N sits above the axis, left of the line, and P'/N' below
             // it, right of the line - so neither is written across the element's own line
-            cp1 = drawText(x1, 0, "P/N");
-            cp1.attr({ "text-anchor" : "end"});
-            cp1.data({ "data-shift-Y" : -1.0 });
+            cp1 = placeLabel(drawText(x1, 0, "P/N"), x1, "AL");
             cp_set.push(cp1);
             RegisterWheelCallback ({ type: "text", handle: cp1 });
 
-            cp2 = drawText(x1, 0, "P'/N'");
-            cp2.attr({ "text-anchor" : "start"});
-            cp2.data({ "data-shift-Y" : 1.0 });
+            cp2 = placeLabel(drawText(x1, 0, "P'/N'"), x1, "BR");
             cp_set.push(cp2);
             RegisterWheelCallback ({ type: "text", handle: cp2 });
 
@@ -677,74 +686,38 @@ function drawAxis (panX, panY) {
             RegisterWheelCallback ({ type: "cardinal", handle: cp2 });
 
 
-            var isN1nearN2 = Math.abs((v1 + vn1)-(v2 + vn2)) < 0.001;
-            //console.log (`near vn1=${vn1} vn2=${vn2} ${isN1nearN2}`);
+            // Labels sit LEFT of their points (so they never lie across the element's line or each other):
+            // a pair of points closer together than a label is wide gets one combined label, N/N' or P/P'.
+            var near = function (a, b) { return Math.abs(a - b) < 14 * kx; };      // 14 pixels
+            var n1x  = v1 + vn1, n2x = v2 + vn2;
+            var isN1nearN2 = near(n1x, n2x);
+            var isP1nearP2b = near(p1, p2);
+
+            // the N row moves one line up when it would run into the P labels
+            var nRowShift = (Math.abs(Math.min(n1x, n2x) - Math.min(p1, p2)) < 60 * kx) ? -1.0 : 0.0;
+
+            var leftOf = function (x, text, shiftY, shiftX) {
+              var t = drawText(x, 0, text);
+              t.attr({ "text-anchor" : "end" });
+              t.data({ "data-shift-Y" : shiftY, "data-shift-X" : shiftX || 0 });
+              cp_set.push(t);
+              RegisterWheelCallback ({ type: "text", handle: t });
+              return t;
+            };
 
             if (isN1nearN2) {
-        
-              cp1 = drawText(x1, 0, "N/N'");
-              cp1.attr({ "text-anchor" : "middle"});
-              cp1.data({ "data-shift-Y" : 0.0 });
-              cp_set.push(cp1);
-              RegisterWheelCallback ({ type: "text", handle: cp1 });
-
-
+              leftOf(Math.min(n1x, n2x), "N/N'", nRowShift);
             } else {
-
-
-             //console.log (`n1 = ${v1 + vn1}`);
-              //console.log (`n2 = ${v2 + vn2}`);
-
-              cp1 = drawText(v1 + vn1, 0, "N");
-              cp1.attr({ "text-anchor" : "middle"});
-              cp1.data({ "data-shift-Y" : 0.0 });
-              cp_set.push(cp1);
-              RegisterWheelCallback ({ type: "text", handle: cp1 });
-
-              cp2 = drawText(v2 + vn2, 0, "N'");
-              cp2.attr({ "text-anchor" : "middle"});
-              cp2.data({ "data-shift-Y" : 0.0 });
-              cp_set.push(cp2);
-              RegisterWheelCallback ({ type: "text", handle: cp2 });
-
-
-
-
+              leftOf(n1x, "N", nRowShift);
+              leftOf(n2x, "N'", nRowShift);
             }
 
-        
-            /* P not on P'*/
-            //console.log (`near p1=${p1} p2=${p2} ${isP1nearP2}`);
-
-            if (!isP1nearP2) {
-
-                /* principal points */
-            
-                cp1 = drawText(p1, 0, "P");
-                cp1.attr({ "text-anchor" : "middle"});
-                cp1.data({ "data-shift-Y" : 0.0 });
-                cp_set.push(cp1);
-                RegisterWheelCallback ({ type: "text", handle: cp1 });
-
-                cp2 = drawText(p2, 0, "P'");
-                cp2.attr({ "text-anchor" : "middle"});
-                cp2.data({ "data-shift-Y" : 0.0 });
-                cp_set.push(cp2);
-                RegisterWheelCallback ({ type: "text", handle: cp2 });
-
-
+            if (isP1nearP2b) {
+              leftOf(Math.min(p1, p2), "P/P'", 0.0);
             } else {
-
-                cp1 = drawText(p1, 0, "P/P'");
-                cp1.attr({ "text-anchor" : "middle"});
-                cp1.data({ "data-shift-Y" : 0.0 });
-                cp_set.push(cp1);
-                RegisterWheelCallback ({ type: "text", handle: cp1 });
-
+              leftOf(p1, "P", 0.0);
+              leftOf(p2, "P'", 0.0);
             }
-
-
-
 
           }
 
@@ -1270,6 +1243,24 @@ function drawAxis (panX, panY) {
    --------------------------------------------------------------------------------------------------------------- */
 
 
+  // Labels that belong on the optical axis would sit across the line of whatever element they mark. Instead
+  // front-side labels (E, V, P/N) go ABOVE the axis and left of the line, back-side ones (E', V', P'/N') BELOW the
+  // axis and right of it; labels that land at (nearly) the same place are stacked one above the other.
+  var labelSlots = {};
+  function resetLabelSlots () { labelSlots = {}; }
+
+  function placeLabel(handle, x, corner) {      // corner: "AL" above-left, "BR" below-right
+
+    var key = corner + ":" + Math.round(x / (0.04 * viewBoxWidth));
+    var n   = labelSlots[key] || 0;
+    labelSlots[key] = n + 1;
+
+    handle.attr({ "text-anchor" : (corner === "AL") ? "end" : "start" });
+    handle.data("data-shift-Y", ((corner === "AL") ? -1 : 1) * (1 + 1.1 * n));
+    return handle;
+  }
+
+
   function drawText(x, y, text, color) {
 
     //console.log('drawing at X:' +x +',Y:'+y + ' KX:' + kx);
@@ -1285,7 +1276,7 @@ function drawAxis (panX, panY) {
 
     // \c.drag(dragPointMove, dragPointStart, dragPointUp);
     // c.drag(dragPointMove, dragPointStart, dragPointUp);
-    if (!labelsVisible) { c.hide(); }
+    if (!labelsVisible || !isFinite(x)) { c.hide(); }   // (a point at infinity - a pupil at an image of the stop, say - has no place on the page)
     return c;
   }
 

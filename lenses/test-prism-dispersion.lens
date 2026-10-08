@@ -35,7 +35,7 @@ Click a beam (or drag it) and the Ref. Index column, the Summary and the pupils 
 					"which"		: "object",
 					"infinity"	: true,
 					"draw"		: "rays",
-					"white"		: true,
+					"white"		: [ 453.8, 546.1, 656.3 ],
 					"beamwidth" : 0.01,
 					"z"			: NaN,
 					"h"			: NaN,

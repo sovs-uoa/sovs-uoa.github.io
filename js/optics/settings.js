@@ -510,6 +510,34 @@ function syncPrescriptionToFocus () {
   }
 }
 
+/* --- the default beam size ------------------------------------------------------------------------------------ */
+
+// A new beam should be narrower than the elements it passes through: a third of the largest aperture (or, where an
+// element has none, its height) in the prescription. In metres; null when the prescription gives no sizes.
+function defaultBeamWidth () {
+
+  if (typeof lens === "undefined" || !lens.table) { return null; }
+
+  var largest = 0;
+  lens.table.getData().forEach(function (d) {
+    var size = isFinite(d.aperture) && d.aperture > 0 ? d.aperture : (isFinite(d.height) && d.height > 0 ? d.height : 0);
+    if (size > largest) { largest = size; }
+  });
+  return largest > 0 ? largest / 3 : null;
+}
+
+// the Add Object dialog starts with that width, in the units currently shown
+function applyDefaultBeamWidths () {
+
+  var width = defaultBeamWidth();
+  if (width === null) { return; }
+
+  var shown = Number(toDisplayDistance(width).toPrecision(3));
+  [ "modal-object-finite-beam-width", "modal-object-infinite-beam-width", "modal-source-beam-width", "modal-beam-width", "modal-afocal-width" ]
+    .forEach(function (id) { var box = document.getElementById(id); if (box) { box.value = shown; } });
+}
+
+
 /* --- sources defined in a .lens file ----------------------------------------------------------------------------- */
 
 /*
@@ -533,7 +561,9 @@ function expandSources (points) {
     if (!p.white) { out.push(p); return; }
 
     var gid = nextGroupId++;
-    SovsSettings.groupWavelengths.forEach(function (nm, i) {
+    // "white": true takes the white-light group of the Wavelengths dialog; "white": [453.8, 546.1, 656.3] names its own
+    var wavelengths = Array.isArray(p.white) ? p.white.map(Number) : SovsSettings.groupWavelengths;
+    wavelengths.forEach(function (nm, i) {
       var copy = Object.assign({}, p, { wavelength: nm, group: gid });
       delete copy.white;
       if (i > 0) { copy.id = ++maxId; }
@@ -823,6 +853,8 @@ var ICON_PATHS = {
   plus:  "M12 5v14M5 12h14",
   trash: "M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6",
   funnel: "M22 3H2l8 9.46V19l4 2v-8.54z",
+  eye:    "M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8zM12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z",
+  eyeoff: "M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24M1 1l22 22",
   pin:   "M12 17v5M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z",
   link:  "M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"
 };
@@ -913,6 +945,7 @@ function tagBeamEdges () {
   });
 
   applyGroupHandleVisibility();
+  applyBeamVisibility();
 }
 
 // Linked objects move as one, so only one handle per group is shown - the first of the group in the table.
@@ -1128,3 +1161,23 @@ function linkColumnTitle () { return "<span class=\"table-icon\" title=\"Linked 
 function pinColumnTitle () { return "<span class=\"table-icon\" title=\"Pin: fill the designated aperture stop\">" + iconSVG("pin", 18) + "</span>"; }
 
 function vigColumnTitle () { return "<span class=\"table-icon\" title=\"Vig: your beam width, clipped by whichever elements vignette it\">" + iconSVG("funnel", 18) + "</span>"; }
+
+function hideColumnTitle () { return "<span class=\"table-icon\" title=\"Visible: ticked beams are drawn on the diagram (untick to hide one - the object stays in the table)\">" + iconSVG("eye", 18) + "</span>"; }
+
+// Hidden beams: the drawing of the beam (its shading, rays and construction lines) goes, the object and its handle
+// stay. Beams are redrawn all the time, so this runs after every redraw (see tagBeamEdges).
+function applyBeamVisibility () {
+
+  if (typeof lens === "undefined" || !lens.raphael || !lens.pointsTable) { return; }
+
+  var hidden = {};
+  lens.pointsTable.getData().forEach(function (d) { if (d.hidden) { hidden[d.id] = true; } });
+
+  lens.raphael.constructions.forEach(function (c) {
+    if (!c.cd_set || !c.cd_set.items) { return; }
+    var hide = !!hidden[c.getId()];
+    c.cd_set.items.forEach(function (item) {
+      if (item.node) { item.node.classList.toggle("beam-hidden", hide); }
+    });
+  });
+}

@@ -231,3 +231,6 @@ table, th, td, tr {
 .wavelength-palette tr.divider td { padding: 0; border-bottom: 2px solid #adb5bd; height: 0; }
 .wavelength-palette tr.custom td { font-style: italic; }
 .wavelength-palette tr.custom input { width: 56px; text-align: right; font-style: normal; }
+
+/* a beam switched off with the Hide column of the Objects table */
+#lens-container .beam-hidden { display: none !important; }
