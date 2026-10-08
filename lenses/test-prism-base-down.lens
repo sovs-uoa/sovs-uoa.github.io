@@ -12,6 +12,10 @@ examples.
 ----------------------------------------------*/
 
 {
+	"category"    : "Components",
+	"subcategory" : "Prism",
+	"keywords"    : [ "prism" ],
+
 
 	"viewBox" : [ -1.0, 0.5, 2.5, 1.0 ],
 

@@ -4,6 +4,10 @@ Vertometer standard
 
 ----------------------------------------------*/
 {
+	"category"    : "Instruments",
+	"subcategory" : "Vertometer",
+	"keywords"    : [ "instrument", "vertometer" ],
+
 	"title": "Vertometer (Lab 6)",
 	"visible": { 	"radius": true,
 				 	"power":true,

@@ -4,6 +4,10 @@ Vertometer standard
 
 ----------------------------------------------*/
 {
+	"category"    : "Assignments",
+	"subcategory" : "2021",
+	"keywords"    : [ "assignment", "instrument", "vertometer" ],
+
 	"title": "Vertometer (Lab 6)",
 	"visible": { 	"radius": true,
 				 	"power":true,

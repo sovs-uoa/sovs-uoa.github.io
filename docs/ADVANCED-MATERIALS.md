@@ -59,9 +59,9 @@ All optional, and a file without them loads exactly as before.
   * `"wavelength": 486.1` - the nm this source is traced at;
   * `"group": 1` - sources sharing a number are linked;
   * `"white": true` - shorthand for a linked group with one copy of the source per wavelength of the
-    white-light group (the copies get fresh ids). `"white": [453.8, 546.1, 656.3]` names the wavelengths instead;
+    white-light group (the copies get fresh ids). `"white": [435.8, 514.5, 656.3]` names the wavelengths instead;
   * `"hidden": true` - start with this beam switched off the diagram (the Visible column of the Objects table is then unticked);
-  * `"draw": "rays"` - for a beam from infinity: draw its rays element by element through the system, instead of
+  * `"draw": "rays"` (or `"planes"`) - for a beam from infinity: how it is drawn. `"rays"` draws the rays element by element through the system, instead of
     the three-ray construction through the cardinal points. In a system with a lens the construction only shows
     the equivalent lens, so a prism's bend (and the colours it separates) would not be drawn.
 * `"settings": { "advancedMaterials": true, "darkCanvas": true, "additiveBeams": true }` - what the file needs
@@ -82,3 +82,13 @@ browsers pick up new files.
 `power`, `thickness`, `aperture` and `stop`). `"cardinalPoints": false` leaves the cardinal points (F, P, N, V and
 their labels) off the diagram. Only a column is hidden - the data stay, so a prism's aperture still
 shapes its drawing. Radius and Base already appear and disappear with the rows that use them.
+
+## Two ways to trace a beam from infinity
+
+* **Principal planes** (`"draw": "planes"`, the default for a focal system): three rays through the cardinal points and the
+  equivalent lens - the elements themselves are not drawn.
+* **Surface by surface** (`"draw": "rays"`, and always for an afocal system): the rays are traced through each element in turn.
+  A prism's bend, each surface's refraction and the colours separating inside glass only show this way.
+
+Click the **type** cell of an object from infinity in the Objects table to switch between them. A finite *point* is always the
+principal-plane construction, and a finite *object* is always surface by surface.

@@ -4,6 +4,10 @@ Assignment : Mystery Eye
 
 ----------------------------------------------*/
 {
+	"category"    : "Assignments",
+	"subcategory" : "2023",
+	"keywords"    : [ "assignment" ],
+
 	"title": "Basic eye",
 	"visible": { 	"radius": true,
 				 	"power":true,

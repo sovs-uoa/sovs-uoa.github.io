@@ -5,6 +5,10 @@
 ----------------------------------------------*/
 
 {
+	"category"    : "Components",
+	"subcategory" : "Thin lens",
+	"keywords"    : [ "thin lens" ],
+
 
 	/* VIEWBOX */
 

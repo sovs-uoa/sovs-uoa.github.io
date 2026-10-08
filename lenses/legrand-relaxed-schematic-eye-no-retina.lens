@@ -4,6 +4,10 @@
 
 ----------------------------------------------*/
 {
+	"category"    : "Schematic eyes",
+	"subcategory" : "Le Grand",
+	"keywords"    : [ "schematic eye", "Le Grand" ],
+
 
 	/* UNITS: this file's radii/thicknesses/viewBox/etc. are genuinely authored in
 	   millimetres, not the app's usual metres - "units" tells the loader to convert

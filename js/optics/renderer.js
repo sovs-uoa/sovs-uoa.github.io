@@ -4,9 +4,13 @@
   // Cardinal/pupil/vertex point labels (E, F, N, P, V...) all sit on the
   // optical axis (y=0) and can visually overlap when several points land
   // close together along z - toggled from a checkbox in the toolbar (see
-  // toggleLabelsVisibility() in application.js) rather than trying to
+  // setShowOption() in application.js) rather than trying to
   // auto-layout them apart.
   var labelsVisible    = true;
+  // the toolbar's Show menu (application.js): F, P, N and their dashed planes / the pupils E, E' / the vertices V, V'
+  var cardinalPointsVisible = true;
+  var pupilsVisible         = true;
+  var verticesVisible       = true;
   
 
   /* render options */
@@ -181,6 +185,7 @@ function hslToRgb(h, s, l){
         optics_set  = paper.set();
         index_set   = paper.set();
         pup_set     = paper.set();
+        if (typeof clearRulers === "function") { clearRulers(); }   // (paper.clear() above took the drawings)
 
         // paper.clear() above (when switching models) wipes the whole SVG,
         // including the grid <pattern>/<rect> drawAxis() creates - drop the
@@ -391,6 +396,7 @@ function drawAxis (panX, panY) {
 
       pup_set.remove();
       pup_set = paper.set();
+      if (!pupilsVisible) { return; }
       // (the label slots are reset by drawCardinalPoints, which is drawn first - see drawFocusLensGraphics)
 
 
@@ -435,7 +441,7 @@ function drawAxis (panX, panY) {
           c8 = paper.set();
         } else {
           c7 = placeLabel(drawText(E1, 0 , "E"),  E1, "AL");
-          c8 = placeLabel(drawText(E2, 0 , "E'"), E2, "BR");
+          c8 = placeLabel(drawText(E2, 0 , "E'"), E2, "AR");
         }
 
         RegisterWheelCallback ({ type: "text", handle: c7 });
@@ -475,6 +481,12 @@ function drawAxis (panX, panY) {
 
     cp_set.remove();
     cp_set = paper.set();
+    // (the Cardinal points tick box: F, P, N and their dashed planes go; the vertices V, V' stay - they are not cardinal)
+    if (!cardinalPointsVisible || !verticesVisible) {
+      displayOptions = Object.assign({}, displayOptions);
+      if (!cardinalPointsVisible) { displayOptions.showCardinalPoints = false; }
+      if (!verticesVisible)       { displayOptions.showVertices       = false; }
+    }
     resetLabelSlots();       // stacked labels, nearest the axis first: V, then P/N, then (drawn afterwards) E
 
     var cp;
@@ -484,7 +496,17 @@ function drawAxis (panX, panY) {
     var v2 = x + systemPoints.L;
 
 
-    var h  = 1 || displayOptions.cardinalVertHeight;   // back vertex 
+    // how tall the dashed bars through the cardinal points are: a little taller than the tallest element (it was a
+    // fixed 1 m, far off the page for a small lens)
+    var h  = 1;
+    if (typeof renderableLens !== "undefined" && renderableLens && renderableLens.elem) {
+      var tallest = 0;
+      renderableLens.elem.forEach(function (e) {
+        var size = e && e.elem && isFinite(e.elem.height) ? e.elem.height : 0;
+        if (size > tallest) { tallest = size; }
+      });
+      if (tallest > 0) { h = 1.3 * tallest; }
+    }
 
     // V' and F' that fall on the same point (a reduced eye's retina, a flat screen) share ONE label, V'F', on a
     // single line - never stacked one above the other
@@ -520,7 +542,7 @@ function drawAxis (panX, panY) {
 
           r =  cp1.attr("r");
           // dX = cp1.attr("r")*kx*20;
-          cp1 = placeLabel(drawText(x1, y , "V"), x1, "AL");
+          cp1 = placeLabel(drawText(x1, y , "V"), x1, "XL");
           //cp1.transform("...t-100,0");
           cp2 = drawText(x2, y , "V'"); // - 4*cp2.attr("r")
           if (mergeVF) {
@@ -528,7 +550,7 @@ function drawAxis (panX, panY) {
           } else if (flatScreenAt(x2)) {
             cp2.attr({ "text-anchor" : "end" }); cp2.data("data-shift-X", -1.15);   // V' F' on one line, left of the screen
           } else {
-            placeLabel(cp2, x2, "BR");
+            placeLabel(cp2, x2, "XR");
           }   // V' F' read left to right, ending at the screen
           //cp1.transform("...t100,0");
 
@@ -633,7 +655,7 @@ function drawAxis (panX, panY) {
             cp_set.push(cp1);
             RegisterWheelCallback ({ type: "point", handle: cp1 });
           
-            cp1 = placeLabel(drawText(x1, 0, "P/N"), x1, "AL");
+            cp1 = placeLabel(drawText(x1, 0, "P/N"), x1, "BL");
             cp_set.push(cp1);
             RegisterWheelCallback ({ type: "text", handle: cp1 });
 
@@ -661,7 +683,7 @@ function drawAxis (panX, panY) {
           
             // the planes coincide (a thin lens, say): P/N sits above the axis, left of the line, and P'/N' below
             // it, right of the line - so neither is written across the element's own line
-            cp1 = placeLabel(drawText(x1, 0, "P/N"), x1, "AL");
+            cp1 = placeLabel(drawText(x1, 0, "P/N"), x1, "BL");
             cp_set.push(cp1);
             RegisterWheelCallback ({ type: "text", handle: cp1 });
 
@@ -1243,20 +1265,28 @@ function drawAxis (panX, panY) {
    --------------------------------------------------------------------------------------------------------------- */
 
 
-  // Labels that belong on the optical axis would sit across the line of whatever element they mark. Instead
-  // front-side labels (E, V, P/N) go ABOVE the axis and left of the line, back-side ones (E', V', P'/N') BELOW the
-  // axis and right of it; labels that land at (nearly) the same place are stacked one above the other.
+  // Labels that belong on the optical axis would sit across the line of whatever element they mark, so they are
+  // moved off it:
+  //     V  / V'        on the axis, just left / right of the vertex  (nearest to the point)
+  //     E  / E'        above the axis, left / right
+  //     P/N / P'/N'    below the axis, left / right
+  // Labels that land at (nearly) the same place in the same corner are stacked one above the other.
   var labelSlots = {};
   function resetLabelSlots () { labelSlots = {}; }
 
-  function placeLabel(handle, x, corner) {      // corner: "AL" above-left, "BR" below-right
+  var LABEL_CORNERS = { XL: { anchor: "end",   side:  0 }, XR: { anchor: "start", side:  0 },
+                        AL: { anchor: "end",   side: -1 }, AR: { anchor: "start", side: -1 },
+                        BL: { anchor: "end",   side:  1 }, BR: { anchor: "start", side:  1 } };
 
-    var key = corner + ":" + Math.round(x / (0.04 * viewBoxWidth));
-    var n   = labelSlots[key] || 0;
+  function placeLabel(handle, x, corner) {
+
+    var spec = LABEL_CORNERS[corner];
+    var key  = corner + ":" + Math.round(x / (0.04 * viewBoxWidth));
+    var n    = labelSlots[key] || 0;
     labelSlots[key] = n + 1;
 
-    handle.attr({ "text-anchor" : (corner === "AL") ? "end" : "start" });
-    handle.data("data-shift-Y", ((corner === "AL") ? -1 : 1) * (1 + 1.1 * n));
+    handle.attr({ "text-anchor" : spec.anchor });
+    handle.data("data-shift-Y", spec.side * (spec.side === 0 ? 0 : 1 + 1.1 * n));
     return handle;
   }
 
@@ -2190,7 +2220,7 @@ function drawAxis (panX, panY) {
         //console.log("pan start");
 
 
-        if (e.target.tagName !== "svg") {
+        if (e.target.tagName !== "svg" || (typeof rulerMode !== "undefined" && rulerMode)) {
           // console.log("dont allow pan.");
           return;
         }
@@ -2331,6 +2361,10 @@ function drawAxis (panX, panY) {
                     curr.handle.attr({r: kx*4});
                     break;
 
+                  case "hit" :       // the invisible target round a handle
+                    curr.handle.attr({r: kx*11});
+                    break;
+
                   default:
                     //console.log("well lets see");
                     curr.handle.attr({r: kx*4});
@@ -2379,6 +2413,7 @@ function drawAxis (panX, panY) {
           // curr = callbackList[i];
           transformScalableObject(callbackList[i]);
         }
+        if (typeof rescaleRulers === "function") { rescaleRulers(); }     // (the rulers keep their handles the same size)
 
 
         // cycle through points Registered to stay the same size 

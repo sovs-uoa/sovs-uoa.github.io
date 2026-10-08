@@ -4,6 +4,10 @@ Assignment : Keratometer
 
 ----------------------------------------------*/
 {
+	"category"    : "Instruments",
+	"subcategory" : "Keratometer",
+	"keywords"    : [ "instrument", "keratometer" ],
+
 	"title": "Mirror",
 	"visible": { 	"radius": true,
 				 	"power":true,

@@ -4,6 +4,10 @@ Telescope with Lens Cap
 
 ----------------------------------------------*/
 {
+	"category"    : "Assignments",
+	"subcategory" : "2022",
+	"keywords"    : [ "assignment", "instrument", "telescope" ],
+
 	"title": "Telescope with Lens Cap",
 	"visible": { 	"radius": true,
 				 	"power":true,

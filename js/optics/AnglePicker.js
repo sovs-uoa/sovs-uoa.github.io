@@ -39,6 +39,7 @@ function movePicker(dx,dy) {
     anchorX = a.parent.anchorX; 
     anchorY = a.parent.anchorY;
     this.attr({ cx: nowX, cy: nowY }); // call the circle 
+    a.parent.syncHit();
     var extender = this.data("data-extender"); 
 
     a.parent.extender.attr("path", ["M", anchorX, anchorY, "L", nowX, nowY ]);  
@@ -170,6 +171,7 @@ class AnglePicker { // create a ray construction using raphael.js
       // this.cd_set.remove();
       this.extender.remove();
       this.clicker.remove();
+      if (this.hit) { this.hit.remove(); }
 
    }
 
@@ -177,6 +179,7 @@ class AnglePicker { // create a ray construction using raphael.js
     hide () {
       this.extender.hide();
       this.clicker.hide();
+      if (this.hit) { this.hit.hide(); }
       this.clicker.attr({ "pointer-events": "none" }); // stays undraggable while hidden
     }
 
@@ -184,9 +187,18 @@ class AnglePicker { // create a ray construction using raphael.js
     show () {
       this.extender.show();
       this.clicker.show();
+      if (this.hit) { this.hit.show(); }
       this.clicker.attr({ "pointer-events": "" });
     }
 
+
+
+    // keep the invisible target on the handle
+    syncHit () {
+      if (!this.hit) { return; }
+      this.hit.attr({ cx: this.clicker.attr("cx"), cy: this.clicker.attr("cy") });
+      this.hit.toFront();
+    }
 
 
     data (...args) {
@@ -195,6 +207,7 @@ class AnglePicker { // create a ray construction using raphael.js
         //console.log("data AnglePicker stored");
         //console.log("name = " + args[0] + " value = " + args[1]);
         //console.log(args[1]);
+        if (args.length > 1 && this.hit) { this.hit.data(...args); }   // (so the target knows what it belongs to, too)
         return this.clicker.data(...args); 
     }
 
@@ -235,7 +248,7 @@ class AnglePicker { // create a ray construction using raphael.js
 
 
       this.extender.toFront();
-      this.clicker.toFront();
+      this.clicker.toFront(); this.syncHit();
 
     }
 
@@ -257,7 +270,7 @@ class AnglePicker { // create a ray construction using raphael.js
 
 
       this.extender.toFront();
-      this.clicker.toFront();
+      this.clicker.toFront(); this.syncHit();
 
 
     }
@@ -278,7 +291,7 @@ class AnglePicker { // create a ray construction using raphael.js
       this.extender.attr("path", ["M", anchorX, anchorY, "L", x, y ]);
 
       this.extender.toFront();
-      this.clicker.toFront();
+      this.clicker.toFront(); this.syncHit();
 
     }
 
@@ -318,8 +331,22 @@ class AnglePicker { // create a ray construction using raphael.js
 
       RegisterWheelCallback({ type: "point", handle: this.clicker });
 
+      // A bigger, invisible target round the handle so it is easy to catch: pressing on it presses the handle. While
+      // the pointer is over it the handle swells a little.
+      var self = this;
+      this.hit = paper.circle(x, y, kx * 11);
+      this.hit.attr({ fill: "#000", "fill-opacity": 0.001, stroke: "none", cursor: "grab" });
+      this.hit.node.addEventListener("mousedown", function (e) {
+        e.stopPropagation();
+        self.clicker.node.dispatchEvent(new MouseEvent("mousedown", { bubbles: true, cancelable: true, view: window, button: e.button,
+                                                                       clientX: e.clientX, clientY: e.clientY, screenX: e.screenX, screenY: e.screenY }));
+      });
+      this.hit.node.addEventListener("mouseover", function () { self.clicker.attr({ r: kx * 6 }); });
+      this.hit.node.addEventListener("mouseout",  function () { self.clicker.attr({ r: kx * 4 }); });
+      RegisterWheelCallback({ type: "hit", handle: this.hit });
+
       this.extender.toFront();
-      this.clicker.toFront();
+      this.clicker.toFront(); this.syncHit();
 
 
       //this.myset.push(extender, clicker);      

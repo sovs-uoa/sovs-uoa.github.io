@@ -65,23 +65,25 @@
   <!-- Other -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/json5/0.5.1/json5.js"></script>
   <script src="js/optics/optics.js?v=1791016726"></script>
-  <script src="js/optics/materials.js?v=1791016264"></script>
-  <script src="js/optics/settings.js?v=1791435933"></script>
-  <script src="js/optics/renderer.js?v=1791436393"></script>  
+  <script src="js/optics/materials.js?v=1791496006"></script>
+  <script src="js/optics/settings.js?v=1791496196"></script>
+  <script src="js/optics/renderer.js?v=1791496196"></script>  
+  <script src="js/optics/ruler.js?v=1791496841"></script>
+  <script src="js/model-browser.js?v=1791497953"></script>
   <script src="js/optics/RayConstruction.js?v=1773822656"></script>    
-  <script src="js/optics/prescription.js?v=1791435933"></script>
+  <script src="js/optics/prescription.js?v=1791437828"></script>
   <script src="js/optics/raphael.export.js?v=1773822656"></script>
-  <script src="js/optics/AnglePicker.js?v=1790230677"></script>  
-  <script src="js/optics/PrincipalRayConstruction.js?v=1790576039"></script>  
-  <script src="js/optics/ParallelBeamConstruction.js?v=1791014976"></script>  
-  <script src="js/optics/AfocalBeamConstruction.js?v=1791430051"></script>    
+  <script src="js/optics/AnglePicker.js?v=1791494256"></script>  
+  <script src="js/optics/PrincipalRayConstruction.js?v=1791494275"></script>  
+  <script src="js/optics/ParallelBeamConstruction.js?v=1791495594"></script>  
+  <script src="js/optics/AfocalBeamConstruction.js?v=1791495594"></script>    
   <script src="js/optics/PointSourceConstruction.js?v=1790629835"></script>    
   <script src="js/optics/DataTableHandler.js?v=1791017730"></script>      
   <script src="js/utils.js?v=1773822656"></script>  
-  <script src="js/main.js?v=1773822656"></script>  
+  <script src="js/main.js?v=1791497430"></script>  
   
 
-  <link rel="stylesheet" type="text/css" href="css/optics.css?v=1791430088">
+  <link rel="stylesheet" type="text/css" href="css/optics.css?v=1791497961">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
 
 
@@ -205,12 +207,6 @@
     <!-- Point labels (E, F, N, P, V...) can overlap when several land close
          together along the axis - this just turns them all off rather than
          trying to auto-layout them apart. -->
-    <button type="button" class="btn btn-sm btn-outline-secondary float-right" style="margin-top: 4px;" onclick="resetView();" title="Bring the diagram back to where it started (or double-click an empty part of it)">Reset view</button>
-    <div class="form-check form-check-inline float-right" style="margin-right: 12px; margin-top: 6px;">
-      <input class="form-check-input" type="checkbox" id="toggle-labels" checked onclick="toggleLabelsVisibility(this.checked);">
-      <label class="form-check-label" for="toggle-labels">Labels</label>
-    </div>
-
 
     <!-- Settings dialog -->
     <div class="modal fade" id="settingsModal" tabindex="-1" role="dialog" aria-labelledby="settingsModalLabel" aria-hidden="true">
@@ -417,10 +413,32 @@
 -->
 
         <div id="lens-container" class="border border-dark">
+
+          <!-- the tool rail: icons down the left edge that slide out to say what they are on hover -->
+          <nav id="tool-rail" aria-label="Diagram tools">
+            <button type="button" id="pointer-button" class="rail-button active" onclick="setRulerMode(false);" aria-pressed="true" title="Pointer: grab and drag things on the diagram">
+              <i class="fas fa-mouse-pointer"></i><span>Pointer</span></button>
+            <button type="button" id="ruler-button" class="rail-button" onclick="setRulerMode(true);" aria-pressed="false" title="Ruler: drag across the diagram to measure a distance">
+              <i class="fas fa-ruler-horizontal"></i><span>Ruler</span></button>
+            <div class="dropright">
+              <button type="button" id="show-menu" class="rail-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Choose what is drawn on the diagram">
+                <i class="fas fa-eye"></i><span>Show<span id="show-menu-count"></span></span></button>
+              <div class="dropdown-menu show-menu" aria-labelledby="show-menu" onclick="event.stopPropagation();">
+                <label class="dropdown-item" title="The text beside each point"><input type="checkbox" id="show-labels" checked onclick="setShowOption('labels', this.checked);"> Labels</label>
+                <label class="dropdown-item" title="The focal, principal and nodal points and their dashed planes"><input type="checkbox" id="show-cardinalPoints" checked onclick="setShowOption('cardinalPoints', this.checked);"> Cardinal points <small class="text-muted">F, P, N</small></label>
+                <label class="dropdown-item" title="The entrance and exit pupils"><input type="checkbox" id="show-pupils" checked onclick="setShowOption('pupils', this.checked);"> Pupils <small class="text-muted">E, E'</small></label>
+                <label class="dropdown-item" title="The first and last vertices of the lens"><input type="checkbox" id="show-vertices" checked onclick="setShowOption('vertices', this.checked);"> Vertices <small class="text-muted">V, V'</small></label>
+              </div>
+            </div>
+            <button type="button" id="reset-view-button" class="rail-button" onclick="resetView();" title="Bring the diagram back to where it started (or double-click an empty part of it)">
+              <i class="fas fa-expand"></i><span>Reset view</span></button>
+          </nav>
+
           <div id="scale-bar">
             <span id="scale-bar-label"></span>
             <div id="scale-bar-bar"></div>
           </div>
+          <div id="ruler-hint" style="display: none;">Drag to measure (the arrow marks the end) &middot; click the reading to copy it &middot; Shift keeps it level &middot; click a ruler, then Delete removes it &middot; Esc to finish</div>
         </div>
 
   </div>
@@ -992,7 +1010,7 @@
 
   <!-- main application -->
   <script>installLensWavelengthWrappers();</script>
-  <script src="js/optics/application.js?v=1791436393"></script>  
+  <script src="js/optics/application.js?v=1791496196"></script>  
 
 
 </html>

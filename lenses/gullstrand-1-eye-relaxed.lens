@@ -9,6 +9,10 @@
 
 ----------------------------------------------*/
 {
+	"category"    : "Schematic eyes",
+	"subcategory" : "Gullstrand",
+	"keywords"    : [ "schematic eye", "Gullstrand" ],
+
 	"title": "Gullstrand 1 eye relaxed",
 	"units" : "m",
 	"visible": { 	"radius": true,

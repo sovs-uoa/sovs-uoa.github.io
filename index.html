@@ -1,342 +1,149 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="">
-  <meta name="author" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SOVS Optics Bench</title>
+  <meta name="description" content="Interactive paraxial ray-tracing for OPTOM 263 Essential Optics, School of Optometry and Vision Science, University of Auckland.">
 
-  <title>School of Optometry and Vision Science Optics Bench</title>
+  <style>
+    :root {
+      --bg: #f6f7f9;  --card: #ffffff;  --ink: #1f2933;  --muted: #66727f;  --line: #dfe3e8;
+      --accent: #1d6fdc;  --accent-ink: #ffffff;
+      --chip: #eef3fb;  --chip-ink: #1b4b8f;  --chip-hover: #dbe8fb;  --chip-line: #c7d7f0;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #14171b;  --card: #1d2228;  --ink: #e8ecf0;  --muted: #98a4b0;  --line: #2c333b;
+        --accent: #5b9dff;  --accent-ink: #0d1116;
+        --chip: #25324a;  --chip-ink: #bcd4ff;  --chip-hover: #2f4066;  --chip-line: #3a4c70;
+      }
+    }
 
-  <!-- Bootstrap -->
- 
-<!--
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-  -->
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--ink);
+           font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
 
-  <script src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.4.0/cjs/popper.min.js" integrity="sha256-OH05DFHUWzr725HmuHo3pnuvUUn+TJuj8/Qz9xytFEw=" crossorigin="anonymous"></script>
+    header { padding: 56px 20px 28px; text-align: center; }
+    header h1 { margin: 0 0 6px; font-size: clamp(1.8rem, 4vw, 2.6rem); letter-spacing: -0.01em; }
+    header p  { margin: 2px 0; color: var(--muted); }
 
-<!--
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
-  -->
+    main { max-width: 1100px; margin: 0 auto; padding: 0 16px 56px; display: grid; gap: 18px;
+           grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); }
 
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    .lab { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 18px 18px 16px;
+           display: flex; flex-direction: column; gap: 10px; box-shadow: 0 1px 2px rgba(0,0,0,.04); }
+    .lab h2 { margin: 0; font-size: 1.1rem; }
+    .lab .kicker { font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+    .lab p { margin: 0; color: var(--muted); font-size: .92rem; }
 
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 2px 0 4px; }
+    .chip { display: inline-block; padding: 5px 12px; border-radius: 999px; font-size: .84rem; line-height: 1.3;
+            color: var(--chip-ink); background: var(--chip); border: 1px solid var(--chip-line); text-decoration: none;
+            transition: background .12s; }
+    .chip:hover, .chip:focus-visible { background: var(--chip-hover); outline: none; }
+    .chip.first { font-weight: 600; }
 
+    .open { margin-top: auto; align-self: flex-start; padding: 8px 16px; border-radius: 8px; text-decoration: none;
+            background: var(--accent); color: var(--accent-ink); font-weight: 600; font-size: .9rem; }
+    .open:hover { filter: brightness(1.08); }
+
+    .note { grid-column: 1 / -1; text-align: center; color: var(--muted); font-size: .9rem; }
+    .note a { color: var(--accent); }
+    footer { text-align: center; color: var(--muted); font-size: .82rem; padding: 0 16px 36px; }
+  </style>
 </head>
-
-<style>
-  
-  div.card {
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-    padding: 2px;
-  }
-
-
-
-
-</style>
 
 <body>
 
-  <!-- Navigation -->
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark static-top">
-    <div class="container">
-<!--
-      <a class="navbar-brand" href="#">Start Bootstrap</a>
--->
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarResponsive">
-
-
-      </div>
-    </div>
-  </nav>
-
-  <!-- Page Content -->
-  <div class="container">
-    
-    <div class="row">
-      <div class="col-lg-12 text-center">
-        <h1 class="mt-5">SOVS optics bench</h1>
-        <p class="lead">OPTOM 263AB Essential Optics</p>
-        <p class="lead">Jason Turuwhenua</p>
-      </div>
-    </div>
-
-
-    <div class="row">
-
-
-       <!-- LAB1 CARD -->
-
-        <div class="col-sm-4">
-          <div class="card" style="width: 16rem;">
-            <img class="card-img-top" src="images/1538619402496.jpg" alt="Card image">
-            <div class="card-body">
-              <h4 class="card-title">Laboratory No.1</h4>
-              <p class="card-text">SOVS OPTICS BENCH - PART I. THIN LENS  </p>
-              <a href="Laboratory1.html" target="_blank" role="button" class="btn btn-primary">Start Experiment</a>
-
-<!--
-
-              <button type="button" class="btn btn-secondary">Back Soon</button>
--->
-
-
-            </div>
-          </div>
-        </div>
-
-       <!-- LAB2 CARD -->
-
-        <div class="col-sm-4">
-          <div class="card" style="width: 16rem;">
-            <img id="image2" class="card-img-top" src="images/1410474425867.png" alt="Card image">
-            <div class="card-body">
-              <h4 class="card-title">Laboratory No.2</h4>
-              <p class="card-text">SOVS OPTICS BENCH - PART II. THICK LENS</p>
-              <a href="Laboratory2.html" target="_blank" role="button" class="btn btn-primary">Start Experiment</a>
-
-<!--
-              <button type="button" class="btn btn-secondary" disabled>Coming Soon</button>
--->
-
-            </div>
-          </div>
-        </div>
-
-
-       <!-- LAB3 CARD -->
-
-        <div class="col-sm-4">
-          <div class="card" style="width: 16rem;">
-            <img id="image2" class="card-img-top" src="images/1410474425867.png" alt="Card image">
-            <div class="card-body">
-              <h4 class="card-title">Laboratory No. 3</h4>
-              <p class="card-text">SOVS OPTICS BENCH - THE EMMETROPIC EYE</p>
-
-              <a href="Laboratory3.html" target="_blank" role="button" class="btn btn-primary">Start Experiment</a>
-
-<!--
-
-              <button type="button" class="btn btn-secondary" disabled>Coming Soon</button>
--->
-
-            </div>
-          </div>
-        </div>
-
-
-       <!-- LAB4 CARD -->
-
-        <div class="col-sm-4">
-          <div class="card" style="width: 16rem;">
-            <img id="image2" class="card-img-top" src="images/1410474425867.png" alt="Card image">
-            <div class="card-body">
-              <h4 class="card-title">Laboratory No. 4</h4>
-              <p class="card-text">SOVS OPTICS BENCH - THE AMETROPIC EYE</p>
-
-
-              <a href="Laboratory4.html" target="_blank" role="button" class="btn btn-primary">Start Experiment</a>
-
-<!--
-
-              <button type="button" class="btn btn-secondary" disabled>Coming Soon</button>
--->
-
-
-            </div>
-          </div>
-        </div>
-
-
-
-       <!-- TELESCOPES -->
-
-        <div class="col-sm-4">
-          <div class="card" style="width: 16rem;">
-            <img id="image2" class="card-img-top" src="images/1538619610364.jpg" alt="Card image">
-            <div class="card-body">
-              <h4 class="card-title">Laboratory No. 6</h4>
-              <p class="card-text">SOVS OPTICS BENCH - TELESCOPES AND LOW VISION</p>
-
-
-
-              <a href="Laboratory6.html" target="_blank" role="button" class="btn btn-primary">Start Experiment</a>
-
-<!--
-
-              <button type="button" class="btn btn-secondary" disabled>Coming Soon</button>
--->
-
-
-
-            </div>
-          </div>
-        </div>
-
-
-       <!-- VERTOMETER  -->
-
-<!--
-
-        <div class="col-sm-4">
-          <div class="card" style="width: 16rem;">
-            <img id="image2" class="card-img-top" src="images/1538619610364.jpg" alt="Card image">
-            <div class="card-body">
-              <h4 class="card-title">Laboratory No. </h4>
-              <p class="card-text">SOVS OPTICS BENCH - THE VERTOMETER</p>
-
-              <a href="lab6.html" target="_blank" role="button" class="btn btn-primary">Start Experiment</a>
-
-
-              <button type="button" class="btn btn-secondary" disabled>Coming Soon</button>
-
-            </div>
-          </div>
-        </div>
--->
-
-
-       <!-- VERTOMETER  -->
-
-        <div class="col-sm-4">
-          <div class="card" style="width: 16rem;">
-            <img id="image2" class="card-img-top" src="images/1538619610364.jpg" alt="Card image">
-            <div class="card-body">
-              <h4 class="card-title">Laboratory No. 12</h4>
-              <p class="card-text">SOVS OPTICS BENCH - THE KERATOMETER</p>
-
-              <a href="lab12.html" target="_blank" role="button" class="btn btn-primary">Start Experiment</a>
-
-<!--
-
-              <button type="button" class="btn btn-secondary" disabled>Coming Soon</button>
--->
-
-            </div>
-          </div>
-        </div>
-
-
-
-       <!-- ASSIGNMENT -->
-
-        <div class="col-sm-4">
-          <div class="card" style="width: 16rem;">
-            <img id="image2" class="card-img-top" src="images/1538619610364.jpg" alt="Card image">
-            <div class="card-body">
-              <h4 class="card-title">Laboratory Assignment 2022</h4>
-              <p class="card-text">SOVS OPTICS BENCH - ASSIGNMENT</p>
-
-
-              <a href="assign2022.html" target="_blank" role="button" class="btn btn-primary">Go Assignment</a>
-
-<!--
-
-              <button type="button" class="btn btn-secondary" disabled>Coming Soon</button>
--->
-
-
-
-            </div>
-          </div>
-        </div>
-
-
-
-       <!-- ASSIGNMENT -->
-
-        <div class="col-sm-4">
-          <div class="card" style="width: 16rem;">
-            <img id="image2" class="card-img-top" src="images/1538619610364.jpg" alt="Card image">
-            <div class="card-body">
-              <h4 class="card-title">Laboratory Assignment 2021</h4>
-              <p class="card-text">SOVS OPTICS BENCH - ASSIGNMENT</p>
-
-
-              <a href="assign2021.html" target="_blank" role="button" class="btn btn-primary">Go Assignment</a>
-
-<!--
-
-              <button type="button" class="btn btn-secondary" disabled>Coming Soon</button>
--->
-
-
-
-            </div>
-          </div>
-        </div>
-
-
-
-
-
-
-       <!-- TEST EXAMPLES -->
-
-        <div class="col-sm-4">
-          <div class="card" style="width: 16rem;">
-            <img id="image2" class="card-img-top" src="images/1538619610364.jpg" alt="Card image">
-            <div class="card-body">
-              <h4 class="card-title">Test Examples</h4>
-              <p class="card-text">SOVS OPTICS BENCH - TEST/DEMO MODELS</p>
-
-              <a href="Test.html" target="_blank" role="button" class="btn btn-primary">Start Experiment</a>
-
-            </div>
-          </div>
-        </div>
-
-
-       <!-- EYE  -->
-
-        <div class="col-sm-4">
-          <div class="card" style="width: 16rem;">
-            <img id="image2" class="card-img-top" src="images/1538619610364.jpg" alt="Card image">
-            <div class="card-body">
-              <h4 class="card-title">Supplementary I</h4>
-              <p class="card-text">SOVS OPTICS BENCH - EYE</p>
-
-              <a href="eye.html" target="_blank" role="button" class="btn btn-primary">Start Experiment</a>
-
-<!--           
-
-              <button type="button" class="btn btn-secondary" disabled>Coming Soon</button>
--->
-
-<!--
-
-              <button type="button" class="btn btn-secondary">Back Soon</button>
--->
-
-            </div>
-          </div>
-        </div>
-
-
-
-
-
-    </div>
-  
-
-  </div>
-
-
-  <!-- Bootstrap core JavaScript -->
-<!--
-  <script src="vendor/jquery/jquery.min.js"></script>
-  <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
--->
+  <header>
+    <h1>SOVS Optics Bench</h1>
+    <p>OPTOM 263 Essential Optics &middot; School of Optometry and Vision Science, University of Auckland</p>
+    <p>Pick a laboratory, or jump straight to a model. <a href="main.html" style="color: var(--accent);">Search all the models &rarr;</a> &middot; <a href="models.html" style="color: var(--accent);">gallery</a></p>
+  </header>
+
+  <main id="labs">
+    <p class="note" id="loading">Loading the models&hellip;</p>
+  </main>
+
+  <footer>
+    Interactive paraxial ray-tracing &middot; Jason Turuwhenua &middot;
+    <a href="index.classic.html" style="color: inherit;">classic index (assignments and older pages)</a>
+  </footer>
+
+  <script>
+  /*
+     Each laboratory is a page (Laboratory1.html ...) that offers a handful of models, listed in config/config.json
+     under the profile of the same name. This page reads that file, so a model added to a profile appears here as a
+     chip with no further change; the chip opens the lab with that model loaded (?model=ID, see js/main.js).
+  */
+  var LABS = [
+    { profile: "lab-1", page: "Laboratory1.html", kicker: "Laboratory 1", title: "Thin lenses",
+      blurb: "Object and image from a thin lens, and a thin prism." },
+    { profile: "lab-2", page: "Laboratory2.html", kicker: "Laboratory 2", title: "Thick lens",
+      blurb: "Cardinal points, principal planes and the pupils of a thick lens." },
+    { profile: "lab-3", page: "Laboratory3.html", kicker: "Laboratory 3", title: "The emmetropic eye",
+      blurb: "The reduced eye: where the image forms and how big it is." },
+    { profile: "lab-4", page: "Laboratory4.html", kicker: "Laboratory 4", title: "The ametropic eye",
+      blurb: "Myopia and hyperopia, and the mystery eyes." },
+    { profile: "lab-6", page: "Laboratory6.html", kicker: "Laboratory 6", title: "Telescopes and low vision",
+      blurb: "Afocal systems and angular magnification." },
+    { profile: "eye",   page: "eye.html",         kicker: "Supplementary", title: "Schematic eyes",
+      blurb: "The LeGrand and Gullstrand schematic eyes." },
+    { profile: "test",  page: "Test.html",        kicker: "Demonstrations", title: "Test and demo models",
+      blurb: "Dispersion through a prism in white light, advanced materials, and telescopes." }
+  ];
+
+  function el (tag, className, text) {
+    var e = document.createElement(tag);
+    if (className) { e.className = className; }
+    if (text !== undefined) { e.textContent = text; }
+    return e;
+  }
+
+  fetch("config/config.json", { cache: "no-cache" })
+    .then(function (r) { return r.json(); })
+    .then(function (config) {
+
+      var models = {};
+      config.models.forEach(function (m) { models[m.id] = m; });
+
+      var main = document.getElementById("labs");
+      main.innerHTML = "";
+
+      LABS.forEach(function (lab) {
+
+        var profile = config.profiles.filter(function (p) { return p.name === lab.profile; })[0];
+        if (!profile) { return; }
+
+        var card = el("section", "lab");
+        card.appendChild(el("div", "kicker", lab.kicker));
+        card.appendChild(el("h2", "", lab.title));
+        card.appendChild(el("p", "", lab.blurb));
+
+        var chips = el("div", "chips");
+        profile.list.forEach(function (id, i) {
+          var model = models[id];
+          if (!model) { return; }
+          var chip = el("a", "chip" + (i === 0 ? " first" : ""), model.title);
+          chip.href = lab.page + "?model=" + encodeURIComponent(id);
+          chip.title = "Open this model in " + lab.title;
+          chips.appendChild(chip);
+        });
+        card.appendChild(chips);
+
+        var open = el("a", "open", "Open laboratory");
+        open.href = lab.page;
+        card.appendChild(open);
+
+        main.appendChild(card);
+      });
+    })
+    .catch(function () {
+      var note = document.getElementById("loading");
+      note.innerHTML = 'The model list could not be loaded. The laboratories can still be opened from the <a href="index.classic.html">classic index</a>.';
+    });
+  </script>
 
 </body>
-
 </html>

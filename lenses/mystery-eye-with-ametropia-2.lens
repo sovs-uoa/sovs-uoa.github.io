@@ -4,6 +4,10 @@ Mystery reduced eye with accommodation #2 (58D cornea)
 
 ----------------------------------------------*/
 {
+	"category"    : "Schematic eyes",
+	"subcategory" : "Reduced eye",
+	"keywords"    : [ "schematic eye", "reduced eye", "mystery" ],
+
 	"title": "Mystery eye with accommodation",
 	"visible": { 	"radius": true,
 				 	"power":true,

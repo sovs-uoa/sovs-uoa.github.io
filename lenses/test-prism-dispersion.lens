@@ -23,6 +23,10 @@ Click a beam (or drag it) and the Ref. Index column, the Summary and the pupils 
 ----------------------------------------------*/
 
 {
+	"category"    : "Components",
+	"subcategory" : "Dispersion",
+	"keywords"    : [ "dispersion", "advanced materials", "prism", "white light" ],
+
 
 	"viewBox" : [ -0.3, 0.17, 0.7, 0.34 ],
 
@@ -35,7 +39,7 @@ Click a beam (or drag it) and the Ref. Index column, the Summary and the pupils 
 					"which"		: "object",
 					"infinity"	: true,
 					"draw"		: "rays",
-					"white"		: [ 453.8, 546.1, 656.3 ],
+					"white"		: [ 435.8, 514.5, 656.3 ],
 					"beamwidth" : 0.01,
 					"z"			: NaN,
 					"h"			: NaN,

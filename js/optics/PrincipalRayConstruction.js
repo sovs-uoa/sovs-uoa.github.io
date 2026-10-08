@@ -475,12 +475,11 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
 
         var ImageStyles = getImageStyle(myData);
 
-        // A virtual-image construction line only APPEARS to converge at (X2,Y2) -
-        // no light actually reaches it - so, unlike a real image point, overshooting
-        // a bit past it (in the same direction) reads better as "these rays meet
-        // here" than stopping dead exactly on the point.
+        // A virtual-image construction line only APPEARS to converge at (X2,Y2) - no light reaches it. It
+        // used to overshoot the image point by a quarter, which read as lines running on past the image;
+        // it now stops at the image point, like the real ones.
         var isVirtualImageLine = (ImageStyles.Y1I === virtual);
-        var overshoot = 0.25;
+        var overshoot = 0;
         function extendPastImage (sx, sy) {
           return isVirtualImageLine ? [ X2 + (X2-sx)*overshoot, Y2 + (Y2-sy)*overshoot ] : [ X2, Y2 ];
         }

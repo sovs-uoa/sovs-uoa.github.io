@@ -1,0 +1,530 @@
+{
+ "0": {
+  "category": "Components",
+  "subcategory": "Thick lens",
+  "keywords": [
+   "thick lens"
+  ]
+ },
+ "1": {
+  "category": "Components",
+  "subcategory": "Thick lens",
+  "keywords": [
+   "thick lens"
+  ]
+ },
+ "2": {
+  "category": "Components",
+  "subcategory": "Thin lens",
+  "keywords": [
+   "thin lens"
+  ]
+ },
+ "3": {
+  "category": "Components",
+  "subcategory": "Thin lens",
+  "keywords": [
+   "thin lens"
+  ]
+ },
+ "4": {
+  "category": "Components",
+  "subcategory": "Thin lens",
+  "keywords": [
+   "thin lens",
+   "two lenses"
+  ]
+ },
+ "5": {
+  "category": "Components",
+  "subcategory": "Thin lens",
+  "keywords": [
+   "thin lens",
+   "two lenses"
+  ]
+ },
+ "6": {
+  "category": "Instruments",
+  "subcategory": "Telescope",
+  "keywords": [
+   "instrument",
+   "telescope",
+   "Keplerian"
+  ]
+ },
+ "7": {
+  "category": "Instruments",
+  "subcategory": "Telescope",
+  "keywords": [
+   "instrument",
+   "telescope",
+   "Galilean"
+  ]
+ },
+ "10": {
+  "category": "Schematic eyes",
+  "subcategory": "Le Grand",
+  "keywords": [
+   "schematic eye",
+   "Le Grand"
+  ]
+ },
+ "11": {
+  "category": "Schematic eyes",
+  "subcategory": "Le Grand",
+  "keywords": [
+   "schematic eye",
+   "Le Grand"
+  ]
+ },
+ "12": {
+  "category": "Schematic eyes",
+  "subcategory": "Reduced eye",
+  "keywords": [
+   "schematic eye",
+   "reduced eye"
+  ]
+ },
+ "13": {
+  "category": "Schematic eyes",
+  "subcategory": "Reduced eye",
+  "keywords": [
+   "schematic eye",
+   "reduced eye"
+  ]
+ },
+ "14": {
+  "category": "Schematic eyes",
+  "subcategory": "Reduced eye",
+  "keywords": [
+   "schematic eye",
+   "reduced eye",
+   "mystery"
+  ]
+ },
+ "15": {
+  "category": "Schematic eyes",
+  "subcategory": "Reduced eye",
+  "keywords": [
+   "schematic eye",
+   "reduced eye",
+   "mystery"
+  ]
+ },
+ "16": {
+  "category": "Instruments",
+  "subcategory": "Telescope",
+  "keywords": [
+   "instrument",
+   "telescope"
+  ]
+ },
+ "17": {
+  "category": "Schematic eyes",
+  "subcategory": "Reduced eye",
+  "keywords": [
+   "schematic eye",
+   "reduced eye"
+  ]
+ },
+ "18": {
+  "category": "Instruments",
+  "subcategory": "Telescope",
+  "keywords": [
+   "instrument",
+   "telescope"
+  ]
+ },
+ "19": {
+  "category": "Assignments",
+  "subcategory": "Earlier",
+  "keywords": [
+   "assignment"
+  ]
+ },
+ "20": {
+  "category": "Assignments",
+  "subcategory": "Earlier",
+  "keywords": [
+   "assignment"
+  ]
+ },
+ "21": {
+  "category": "Assignments",
+  "subcategory": "Earlier",
+  "keywords": [
+   "assignment"
+  ]
+ },
+ "22": {
+  "category": "Instruments",
+  "subcategory": "Vertometer",
+  "keywords": [
+   "instrument",
+   "vertometer"
+  ]
+ },
+ "23": {
+  "category": "Instruments",
+  "subcategory": "Vertometer",
+  "keywords": [
+   "instrument",
+   "vertometer"
+  ]
+ },
+ "24": {
+  "category": "Instruments",
+  "subcategory": "Vertometer",
+  "keywords": [
+   "instrument",
+   "vertometer"
+  ]
+ },
+ "25": {
+  "category": "Instruments",
+  "subcategory": "Telescope",
+  "keywords": [
+   "instrument",
+   "telescope"
+  ]
+ },
+ "26": {
+  "category": "Instruments",
+  "subcategory": "Vertometer",
+  "keywords": [
+   "instrument",
+   "vertometer"
+  ]
+ },
+ "27": {
+  "category": "Instruments",
+  "subcategory": "Vertometer",
+  "keywords": [
+   "instrument",
+   "vertometer"
+  ]
+ },
+ "28": {
+  "category": "Instruments",
+  "subcategory": "Vertometer",
+  "keywords": [
+   "instrument",
+   "vertometer"
+  ]
+ },
+ "29": {
+  "category": "Components",
+  "subcategory": "Mirror",
+  "keywords": [
+   "mirror"
+  ]
+ },
+ "30": {
+  "category": "Instruments",
+  "subcategory": "Keratometer",
+  "keywords": [
+   "instrument",
+   "keratometer"
+  ]
+ },
+ "31": {
+  "category": "Assignments",
+  "subcategory": "2021",
+  "keywords": [
+   "assignment"
+  ]
+ },
+ "32": {
+  "category": "Assignments",
+  "subcategory": "2021",
+  "keywords": [
+   "assignment"
+  ]
+ },
+ "33": {
+  "category": "Assignments",
+  "subcategory": "2021",
+  "keywords": [
+   "assignment"
+  ]
+ },
+ "34": {
+  "category": "Assignments",
+  "subcategory": "2021",
+  "keywords": [
+   "assignment"
+  ]
+ },
+ "35": {
+  "category": "Assignments",
+  "subcategory": "2021",
+  "keywords": [
+   "assignment",
+   "instrument",
+   "vertometer"
+  ]
+ },
+ "36": {
+  "category": "Assignments",
+  "subcategory": "2022",
+  "keywords": [
+   "assignment"
+  ]
+ },
+ "37": {
+  "category": "Assignments",
+  "subcategory": "2022",
+  "keywords": [
+   "assignment"
+  ]
+ },
+ "38": {
+  "category": "Assignments",
+  "subcategory": "2022",
+  "keywords": [
+   "assignment",
+   "instrument",
+   "magnifier"
+  ]
+ },
+ "39": {
+  "category": "Assignments",
+  "subcategory": "2022",
+  "keywords": [
+   "assignment",
+   "instrument",
+   "telescope"
+  ]
+ },
+ "40": {
+  "category": "Assignments",
+  "subcategory": "2022",
+  "keywords": [
+   "assignment"
+  ]
+ },
+ "41": {
+  "category": "Assignments",
+  "subcategory": "2022",
+  "keywords": [
+   "assignment",
+   "instrument",
+   "keratometer"
+  ]
+ },
+ "42": {
+  "category": "Assignments",
+  "subcategory": "2022",
+  "keywords": [
+   "assignment",
+   "instrument",
+   "keratometer"
+  ]
+ },
+ "43": {
+  "category": "Assignments",
+  "subcategory": "2023",
+  "keywords": [
+   "assignment"
+  ]
+ },
+ "44": {
+  "category": "Assignments",
+  "subcategory": "2023",
+  "keywords": [
+   "assignment"
+  ]
+ },
+ "45": {
+  "category": "Assignments",
+  "subcategory": "2023",
+  "keywords": [
+   "assignment"
+  ]
+ },
+ "46": {
+  "category": "Assignments",
+  "subcategory": "2023",
+  "keywords": [
+   "assignment"
+  ]
+ },
+ "47": {
+  "category": "Assignments",
+  "subcategory": "2023",
+  "keywords": [
+   "assignment"
+  ]
+ },
+ "48": {
+  "category": "Assignments",
+  "subcategory": "2024",
+  "keywords": [
+   "assignment"
+  ]
+ },
+ "49": {
+  "category": "Assignments",
+  "subcategory": "2024",
+  "keywords": [
+   "assignment"
+  ]
+ },
+ "50": {
+  "category": "Assignments",
+  "subcategory": "2024",
+  "keywords": [
+   "assignment",
+   "instrument",
+   "magnifier"
+  ]
+ },
+ "51": {
+  "category": "Assignments",
+  "subcategory": "2024",
+  "keywords": [
+   "assignment"
+  ]
+ },
+ "52": {
+  "category": "Components",
+  "subcategory": "Thick lens",
+  "keywords": [
+   "thick lens",
+   "two lenses"
+  ]
+ },
+ "53": {
+  "category": "Schematic eyes",
+  "subcategory": "Reduced eye",
+  "keywords": [
+   "schematic eye",
+   "reduced eye",
+   "mystery"
+  ]
+ },
+ "54": {
+  "category": "Schematic eyes",
+  "subcategory": "Reduced eye",
+  "keywords": [
+   "schematic eye",
+   "reduced eye",
+   "mystery"
+  ]
+ },
+ "55": {
+  "category": "Schematic eyes",
+  "subcategory": "Reduced eye",
+  "keywords": [
+   "schematic eye",
+   "reduced eye"
+  ]
+ },
+ "56": {
+  "category": "Schematic eyes",
+  "subcategory": "Reduced eye",
+  "keywords": [
+   "schematic eye",
+   "reduced eye",
+   "mystery"
+  ]
+ },
+ "57": {
+  "category": "Schematic eyes",
+  "subcategory": "Reduced eye",
+  "keywords": [
+   "schematic eye",
+   "reduced eye",
+   "mystery"
+  ]
+ },
+ "58": {
+  "category": "Schematic eyes",
+  "subcategory": "Reduced eye",
+  "keywords": [
+   "schematic eye",
+   "reduced eye"
+  ]
+ },
+ "59": {
+  "category": "Schematic eyes",
+  "subcategory": "Gullstrand",
+  "keywords": [
+   "schematic eye",
+   "Gullstrand"
+  ]
+ },
+ "60": {
+  "category": "Schematic eyes",
+  "subcategory": "Gullstrand",
+  "keywords": [
+   "schematic eye",
+   "Gullstrand"
+  ]
+ },
+ "61": {
+  "category": "Schematic eyes",
+  "subcategory": "Gullstrand",
+  "keywords": [
+   "schematic eye",
+   "Gullstrand"
+  ]
+ },
+ "62": {
+  "category": "Components",
+  "subcategory": "Prism",
+  "keywords": [
+   "prism"
+  ]
+ },
+ "63": {
+  "category": "Components",
+  "subcategory": "Prism",
+  "keywords": [
+   "prism"
+  ]
+ },
+ "65": {
+  "category": "Schematic eyes",
+  "subcategory": "Gullstrand",
+  "keywords": [
+   "schematic eye",
+   "Gullstrand"
+  ]
+ },
+ "66": {
+  "category": "Instruments",
+  "subcategory": "Telescope",
+  "keywords": [
+   "instrument",
+   "telescope",
+   "Keplerian"
+  ]
+ },
+ "67": {
+  "category": "Components",
+  "subcategory": "Dispersion",
+  "keywords": [
+   "dispersion",
+   "advanced materials"
+  ]
+ },
+ "68": {
+  "category": "Components",
+  "subcategory": "Dispersion",
+  "keywords": [
+   "dispersion",
+   "advanced materials"
+  ]
+ },
+ "69": {
+  "category": "Components",
+  "subcategory": "Dispersion",
+  "keywords": [
+   "dispersion",
+   "advanced materials",
+   "prism",
+   "white light"
+  ]
+ }
+}

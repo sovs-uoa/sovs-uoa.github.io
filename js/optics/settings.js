@@ -864,6 +864,100 @@ function iconSVG (name, size) {
          "stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" style=\"vertical-align:middle;\"><path d=\"" + ICON_PATHS[name] + "\"/></svg>";
 }
 
+/* --- changing what kind of object a row is -------------------------------------------------------------------------- */
+
+// Clicking the type cell opens a small menu of the kinds of object a row can be.
+function openObjectTypeMenu (cell) {
+
+  var row  = cell.getRow();
+  var data = row.getData();
+  if (!drawsABeam(data)) { return; }
+
+  var afocal = (typeof renderableLens !== "undefined") && renderableLens && renderableLens.total && renderableLens.total.F == 0;
+
+  var choices = [
+    { type: "point",  title: "point",  note: "the three principal rays through the cardinal points (a finite point, focal systems only)",
+      unavailable: afocal ? "an afocal system has no cardinal points to draw through" : "" },
+    { type: "object", title: "object", note: "a pencil of rays from a finite point, or a beam from infinity (tick the infinity box)", unavailable: "" }
+  ];
+
+  // a beam from infinity can be drawn two ways
+  var traces = [];
+  if (data.type === "object" && data.infinity) {
+    var current = (data.draw === "rays" || afocal) ? "rays" : "planes";
+    traces = [
+      { draw: "planes", title: "principal planes", note: "three rays through the cardinal points and the equivalent lens - the elements are not drawn",
+        unavailable: afocal ? "an afocal system has no principal planes" : "", on: current === "planes" },
+      { draw: "rays",   title: "surface by surface", note: "the rays traced through each element in turn (shows a prism's bend, each surface's refraction)", unavailable: "", on: current === "rays" }
+    ];
+  }
+
+  var old = document.querySelector(".object-type-menu");
+  if (old) { old.parentNode.removeChild(old); }
+
+  var menu = document.createElement("div");
+  menu.className = "wavelength-palette object-type-menu";
+  var table = document.createElement("table");
+  table.innerHTML = "<thead><tr><th>Type</th><th>What it draws</th></tr></thead>";
+  var body = document.createElement("tbody");
+  table.appendChild(body);
+  menu.appendChild(table);
+
+  function close () {
+    document.removeEventListener("mousedown", outside, true);
+    document.removeEventListener("keydown", escape, true);
+    if (menu.parentNode) { menu.parentNode.removeChild(menu); }
+  }
+  function outside (e) { if (!menu.contains(e.target)) { close(); } }
+  function escape (e) { if (e.key === "Escape") { close(); } }
+
+  choices.forEach(function (c) {
+    var tr = document.createElement("tr");
+    tr.className = (data.type === c.type ? "selected" : "") + (c.unavailable ? " unavailable" : "");
+    tr.title = c.unavailable || "";
+    tr.innerHTML = "<td><strong>" + escapeHTML(c.title) + "</strong></td><td>" + escapeHTML(c.note) + (c.unavailable ? " <em>(" + escapeHTML(c.unavailable) + ")</em>" : "") + "</td>";
+    if (!c.unavailable) {
+      tr.addEventListener("mousedown", function (e) {
+        e.preventDefault(); e.stopPropagation();
+        close();
+        changeObjectType(data.id, c.type);
+        lens.pointsTable.redraw(true);
+        if (typeof scheduleBeamEdgeTagging === "function") { scheduleBeamEdgeTagging(); }
+      });
+    }
+    body.appendChild(tr);
+  });
+
+  if (traces.length) {
+    var head = document.createElement("tr");
+    head.innerHTML = "<th colspan=\"2\" style=\"padding-top:8px;\">How the beam is traced</th>";
+    body.appendChild(head);
+    traces.forEach(function (t) {
+      var tr = document.createElement("tr");
+      tr.className = (t.on ? "selected" : "") + (t.unavailable ? " unavailable" : "");
+      tr.title = t.unavailable || "";
+      tr.innerHTML = "<td><strong>" + escapeHTML(t.title) + "</strong></td><td>" + escapeHTML(t.note) + (t.unavailable ? " <em>(" + escapeHTML(t.unavailable) + ")</em>" : "") + "</td>";
+      if (!t.unavailable) {
+        tr.addEventListener("mousedown", function (e) {
+          e.preventDefault(); e.stopPropagation();
+          close();
+          if (!t.on) { setObjectTrace(data.id, t.draw); lens.pointsTable.redraw(true); if (typeof scheduleBeamEdgeTagging === "function") { scheduleBeamEdgeTagging(); } }
+        });
+      }
+      body.appendChild(tr);
+    });
+  }
+
+  document.body.appendChild(menu);
+  var r = cell.getElement().getBoundingClientRect();
+  menu.style.left = Math.max(0, Math.min(r.left, window.innerWidth - menu.offsetWidth)) + "px";
+  menu.style.top  = ((r.bottom + menu.offsetHeight > window.innerHeight && r.top - menu.offsetHeight > 0) ? r.top - menu.offsetHeight : r.bottom) + "px";
+
+  document.addEventListener("mousedown", outside, true);
+  document.addEventListener("keydown", escape, true);
+}
+
+
 /* --- the + icon in a table's top left corner ---------------------------------------------------------------------- */
 
 // A small pop-up list built from the entries of a table's own "New" menu, so the two can never disagree.
@@ -927,25 +1021,66 @@ function tagBeamEdges () {
 
   lens.raphael.constructions.forEach(function (c) {
     if (!c.cd_set || !c.cd_set.items) { return; }
+
+    // Only a beam that is drawn as a shaded region has "edges". A construction with no shading at all (the three
+    // principal rays of a point object) is made of its lines: they are the diagram, not an outline of it.
+    // (a construction with no wavelength of its own is traced at the nominal one, the d line)
+    var beamNm = isFinite(Number(c.WavelengthNm)) && c.WavelengthNm !== null && c.WavelengthNm !== "" ? Number(c.WavelengthNm) : SovsSettings.NOMINAL_NM;
+
+    var shaded = c.cd_set.items.some(function (item) { return item.node && item.node.classList.contains("beam-shade"); });
+
     c.cd_set.items.forEach(function (item) {
       var node = item.node;
+      if (node && !shaded) { node.classList.remove("beam-edge"); }       // (see above)
       if (!node || node.tagName !== "path" || node.classList.contains("beam-shade")) { return; }
       var dashed = node.getAttribute("stroke-dasharray");
       if (dashed && dashed !== "none") {
         // a virtual (construction) line: in advanced materials mode it takes the colour of its own beam
         var stroke = node.getAttribute("stroke") || "";
         if (stroke.indexOf("url") === 0 || stroke === "none") { return; }
-        var nm = Number(c.WavelengthNm);
-        node.style.stroke = (SovsSettings.advancedMaterials && isFinite(nm)) ? SovsSettings.entryFor(nm).color : "";
+        node.style.stroke = SovsSettings.advancedMaterials ? SovsSettings.entryFor(beamNm).color : "";
         return;
       }
       if (node.getAttribute("stroke") === "none") { return; }
+
+      // in advanced materials mode a beam's lines take the colour of its wavelength (the d line is the familiar yellow)
+      var lineColor = SovsSettings.advancedMaterials ? SovsSettings.entryFor(beamNm).color : "";
+      var solidStroke = node.getAttribute("stroke") || "";
+      if (solidStroke.indexOf("url(#") === 0) {
+        // a line that fades out towards infinity is stroked with a gradient: colour the stops of that gradient
+        var grad = document.getElementById(solidStroke.slice(5, -1));
+        if (grad) { Array.prototype.forEach.call(grad.querySelectorAll("stop"), function (stop) { stop.style.stopColor = lineColor; }); }
+      } else {
+        node.style.stroke = lineColor;
+      }
+
+      if (!shaded) { return; }
       node.classList.add("beam-edge");
     });
   });
 
   applyGroupHandleVisibility();
   applyBeamVisibility();
+  bringPointsToFront();
+  if (typeof bringRulersToFront === "function") { bringRulersToFront(); }
+}
+
+// The points (object, image and cardinal points, and the handles) are drawn in front of every line: a line drawn
+// after a point would otherwise run across it. Beams are redrawn all the time, so this runs after each redraw; it
+// only moves a point when some line really is above it, so it settles at once.
+function bringPointsToFront () {
+
+  if (typeof paper === "undefined" || !paper || !paper.canvas) { return; }
+
+  var paths = Array.prototype.filter.call(paper.canvas.querySelectorAll("path"), function (p) { return p.parentNode === paper.canvas; });   // (not the rulers')
+  var last  = paths.length ? paths[paths.length - 1] : null;
+  if (!last) { return; }
+
+  Array.prototype.forEach.call(paper.canvas.querySelectorAll("circle"), function (dot) {
+    if (dot.parentNode === paper.canvas && (dot.compareDocumentPosition(last) & Node.DOCUMENT_POSITION_FOLLOWING)) {
+      paper.canvas.appendChild(dot);
+    }
+  });
 }
 
 // Linked objects move as one, so only one handle per group is shown - the first of the group in the table.
@@ -972,7 +1107,13 @@ function applyGroupHandleVisibility () {
     if (leadOf[d.group] === undefined) { leadOf[d.group] = d.id; }
   });
 
+  // each beam's image point (where it focuses) is not a handle: it is shown or hidden by the construction itself
+  var imagePoints = [];
+  lens.raphael.constructions.forEach(function (c) { if (c.imagePoint && c.imagePoint.node) { imagePoints.push(c.imagePoint.node); } });
+
   Array.prototype.forEach.call(document.querySelectorAll("#lens-container circle"), function (node) {
+
+    if (imagePoints.indexOf(node) !== -1) { return; }
 
     var el    = paper.getById(node.raphaelid);
     var owner = el ? handleOwner(el) : null;
@@ -990,6 +1131,13 @@ function applyGroupHandleVisibility () {
     var id = c.getId();
     var hide = groupOf[id] !== undefined && leadOf[groupOf[id]] != id;
     c.anglePicker.extender.node.style.display = hide ? "none" : "";
+  });
+
+  // ... and the width grip of a linked beam: only the first of the group has one (it resizes the whole group)
+  lens.raphael.constructions.forEach(function (c) {
+    if (!c.widthGrip || !c.widthGrip.nodes) { return; }
+    var id = c.getId();
+    if (groupOf[id] !== undefined && leadOf[groupOf[id]] != id) { c.widthGrip.nodes.forEach(function (n) { n.node.style.display = "none"; }); }
   });
 }
 
@@ -1179,5 +1327,7 @@ function applyBeamVisibility () {
     c.cd_set.items.forEach(function (item) {
       if (item.node) { item.node.classList.toggle("beam-hidden", hide); }
     });
+    if (c.imagePoint && c.imagePoint.node) { c.imagePoint.node.classList.toggle("beam-hidden", hide); }   // its focus too
+    if (c.widthGrip && c.widthGrip.nodes)  { c.widthGrip.nodes.forEach(function (n) { n.node.classList.toggle("beam-hidden", hide); }); }   // and its width edges
   });
 }

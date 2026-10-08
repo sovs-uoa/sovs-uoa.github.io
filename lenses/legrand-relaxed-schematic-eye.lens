@@ -4,6 +4,10 @@
 
 ----------------------------------------------*/
 {
+	"category"    : "Schematic eyes",
+	"subcategory" : "Le Grand",
+	"keywords"    : [ "schematic eye", "Le Grand" ],
+
 
 	"units" : "m",
 

@@ -4,6 +4,10 @@ Assignment : mirror
 
 ----------------------------------------------*/
 {
+	"category"    : "Components",
+	"subcategory" : "Mirror",
+	"keywords"    : [ "mirror" ],
+
 	"title": "Mirror",
 	"visible": { 	"radius": true,
 				 	"power":true,

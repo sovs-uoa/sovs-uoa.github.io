@@ -66,6 +66,7 @@
     // immediately and stay consistent with each other
     if (lens.table)       { lens.table.redraw(true); }
     if (lens.pointsTable) { lens.pointsTable.redraw(true); }
+    if (typeof rescaleRulers === "function") { rescaleRulers(); }
     if (typeof updateSummaryView === 'function' && renderableLens) { updateSummaryView(); }
 
     refreshModalDistanceUnitLabels();
@@ -826,8 +827,10 @@ getConjuugateTo
     // a .lens file may leave the cardinal points off the diagram:  "visible" : { "cardinalPoints": false }
     if (response.visible && response.visible.cardinalPoints === false) {
       displayOptions.showCardinalPoints = displayOptions.showFocalPoints = displayOptions.showNodalPoints =
-      displayOptions.showPrincipalPoints = displayOptions.showVertices = false;
+      displayOptions.showPrincipalPoints = false;      // (V and V' are not cardinal points: they stay)
     }
+    // (a lens file that hides them wins for this session, without overwriting the saved choice)
+    applyShowMenu(response.visible || {});
     lensGraphicsOptions = Object.assign({}, displayOptions);
 
 
@@ -882,19 +885,38 @@ getConjuugateTo
   }
 
 
-  /* ----------------------------------------------------------------------------------------------------------------
+  /* The toolbar's Show menu: Labels, Cardinal points (F, P, N and their dashed planes), Pupils (E, E') and Vertices
+     (V, V'). Each choice is remembered in the browser; a .lens file can start one off with
+     "visible": { "cardinalPoints": false, "pupils": false, "vertices": false, "labels": false }.     */
 
-      TOGGLELABELSVISIBILITY  Called from the "Labels" checkbox in the toolbar (see the laboratory
-      template). labelsVisible itself lives in renderer.js, next to drawText() which reads it -
-      re-running the whole prescription view is the simplest way to get every already-drawn label
-      (cardinal points, pupils, vertices) to pick up the new state, short of hunting down and
-      show()/hide()-ing each one individually.
+  var SHOW_KEYS = ["labels", "cardinalPoints", "pupils", "vertices"];
+  var fileShow  = {};      // what the lens file in front of us asked to hide
 
-  ----------------------------------------------------------------------------------------------------------------   */
+  function applyShowMenu (fileVisible) {
 
-  function toggleLabelsVisibility (checked) {
+    if (fileVisible !== undefined) { fileShow = fileVisible || {}; }
+    var on = {};
+    SHOW_KEYS.forEach(function (k) { on[k] = SovsSettings.showing(k) && fileShow[k] !== false; });
+    labelsVisible         = on.labels;
+    cardinalPointsVisible = on.cardinalPoints;
+    pupilsVisible         = on.pupils;
+    verticesVisible       = on.vertices;
 
-    labelsVisible = !!checked;
+    var hidden = 0;
+    SHOW_KEYS.forEach(function (k) {
+      var box = document.getElementById("show-" + k);
+      if (box) { box.checked = on[k]; }
+      if (!on[k]) { hidden++; }
+    });
+    var count = document.getElementById("show-menu-count");
+    if (count) { count.textContent = hidden ? " \u00b7 " + hidden + " hidden" : ""; }
+  }
+
+  function setShowOption (key, checked) {
+
+    SovsSettings.setShowing(key, checked);
+    fileShow[key] = undefined;                 // the user has chosen: the lens file's default no longer applies
+    applyShowMenu();
     if (lens.table) { updatePrescriptionView(); }
 
   }
@@ -1141,6 +1163,7 @@ getConjuugateTo
     // a .lens source may ask for its rays to be drawn element by element ("draw": "rays") instead of through the
     // system's cardinal points - the only way a prism's bend shows up in a system that also has a lens
     if (aPoint.draw === "rays") { return "afocal"; }
+    if (aPoint.draw === "planes" && renderableLens.total.F != 0) { return "beam"; }
 
     var isafocal = (renderableLens.total.F == 0);
     return isafocal ? "afocal" : "beam";
@@ -1187,6 +1210,12 @@ getConjuugateTo
 
 
   function addConstruction (aPoint) {
+
+    // Older lens files (and the New menu's source / beam / afocal entries) name the kind of source directly. They
+    // are all just an "object": finite ("source") or from infinity ("beam", "afocal") - how a beam from infinity is
+    // drawn is worked out from the system. Saying so keeps the infinity box, Pin, Vig and Visible working for them.
+    if (aPoint.type === "beam" || aPoint.type === "afocal") { aPoint.type = "object"; aPoint.infinity = true; }
+    else if (aPoint.type === "source")                       { aPoint.type = "object"; aPoint.infinity = false; }
 
     /* update the points table */
 
@@ -1252,6 +1281,72 @@ getConjuugateTo
 
     row.update({ infinity: makeInfinite, pin: false, vig: false });
     if (made) { lens.raphael.constructions.push(made); }
+  }
+
+
+  /* ----------------------------------------------------------------------------------------------------------------
+
+      CHANGEOBJECTTYPE  Change what kind of object a row is (see openObjectTypeMenu in settings.js):
+        "point"   the classic three principal rays through the cardinal points - a finite point, focal systems only
+        "object"  a finite pencil of rays, or (tick the infinity box) a beam from infinity
+      The drawing is rebuilt; position, colour and the rest of the row are kept.
+
+  ----------------------------------------------------------------------------------------------------------------   */
+
+  function changeObjectType (id, newType) {
+
+    var row = lens.pointsTable.getRow(id);
+    if (!row) { return; }
+
+    var d = row.getData();
+    if (d.type === newType) { return; }
+
+    var current = lens.pointsTableHandler.convertRowData([ d ])[0];     // in the drawing's own signs
+    var size    = (typeof defaultBeamWidth === "function" && defaultBeamWidth()) ? defaultBeamWidth() * 3 : 0.1;
+
+    // a point is always finite, and cannot be one of a linked group (those are objects)
+    if (newType === "point" && d.group) {
+      var gid = d.group;
+      row.update({ group: undefined });
+      var rest = lens.pointsTable.getRows().filter(function (r) { return r.getData().group === gid; });
+      if (rest.length === 1) { rest[0].update({ group: undefined }); }
+    }
+
+    var aPoint = { id: d.id, type: newType, which: "object", infinity: false, wavelength: d.wavelength,
+                   group: (newType === "point") ? undefined : d.group, hidden: d.hidden, draw: d.draw,
+                   beamwidth: isFinite(d.beamwidth) ? d.beamwidth : ((typeof defaultBeamWidth === "function" && defaultBeamWidth()) || 0.05),
+                   z: isFinite(current.zo) ? Number(current.zo) : -4 * size,
+                   h: isFinite(current.ho) ? Number(current.ho) : -0.25 * size };
+
+    // an object from infinity stays one when it stays an "object"; becoming a point makes it finite
+    if (newType === "object" && d.infinity) {
+      aPoint.infinity = true;
+      aPoint.t = isFinite(current.to) ? Number(current.to) : 0;
+      delete aPoint.z; delete aPoint.h;
+    }
+
+    deleteConstruction(id);
+
+    var made = inLensWavelength(aPoint.wavelength, function () {
+      var pair = Optics.calculateConjugatePairFrom(aPoint, renderableLens.total);
+      updatePointsTable(id, pair);
+      var construction = instantiateConstruction(aPoint, pair, (newType === "object") ? resolveObjectConstructionType(aPoint) : newType);
+      if (construction) { construction.WavelengthNm = aPoint.wavelength; }
+      return construction;
+    });
+
+    row.update({ type: newType, infinity: aPoint.infinity, pin: false, vig: false, beamwidth: (newType === "point") ? null : aPoint.beamwidth });   // (a point has no beam width)
+    if (made) { lens.raphael.constructions.push(made); }
+  }
+
+
+  // How a beam from infinity is drawn: "planes" - through the principal planes / cardinal points (focal systems
+  // only) - or "rays" - surface by surface, element by element.
+  function setObjectTrace (id, draw) {
+    var row = lens.pointsTable.getRow(id);
+    if (!row || !row.getData().infinity) { return; }
+    row.update({ draw: draw });
+    setObjectInfinity(id, true);          // rebuilds the drawing, keeping everything else
   }
 
 
@@ -1814,10 +1909,11 @@ getConjuugateTo
 
                   // mouse events
                   paper.canvas.style.cursor = "default"; // normal pointer at rest - panStart/panEnd switch to "grabbing" for the duration of a drag
+                  attachRulerTool();
                   $(paper.canvas).mousedown( panStart );
                   $(paper.canvas).mousemove( panMove );
                   $(paper.canvas).mouseup( panEnd );
-                  $(paper.canvas).dblclick( function (e) { if (e.target.tagName === "svg") { resetView(); } } );   // back to the opening view
+                  $(paper.canvas).dblclick( function (e) { if (e.target.tagName === "svg" && !rulerMode) { resetView(); } } );   // back to the opening view
 
                   paper.canvas.addEventListener("touchstart", panStart, false);
                   paper.canvas.addEventListener("touchmove",  panMove, false);

@@ -4,6 +4,10 @@ Assignment : basic eye model
 
 ----------------------------------------------*/
 {
+	"category"    : "Assignments",
+	"subcategory" : "Earlier",
+	"keywords"    : [ "assignment" ],
+
 	"title": "Basic eye",
 	"visible": { 	"radius": true,
 				 	"power":true,

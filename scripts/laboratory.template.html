@@ -68,6 +68,8 @@
   <script src="js/optics/materials.js"></script>
   <script src="js/optics/settings.js"></script>
   <script src="js/optics/renderer.js"></script>  
+  <script src="js/optics/ruler.js"></script>
+  <script src="js/model-browser.js"></script>
   <script src="js/optics/RayConstruction.js"></script>    
   <script src="js/optics/prescription.js"></script>
   <script src="js/optics/raphael.export.js"></script>
@@ -103,6 +105,32 @@
 </script>
 
 <body>
+<!--SIDEBAR-->
+<!-- Choose a model (main.html): a search box, the topics down the left and the matching models beside them -->
+<div class="modal fade" id="modelModal" tabindex="-1" role="dialog" aria-labelledby="modelModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+      <div class="modal-header model-picker-head">
+        <h5 class="modal-title" id="modelModalLabel">Choose a model</h5>
+        <input id="q" type="search" class="form-control" placeholder="Search: thin lens, Gullstrand, telescope, 2023&hellip;" autocomplete="off" aria-label="Search the models">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      </div>
+      <div class="modal-body model-picker">
+        <nav id="topics" class="topic-list" aria-label="Topics"></nav>
+        <div class="model-results">
+          <div class="status small text-muted" id="status" role="status"></div>
+          <div id="groups"></div>
+          <p class="text-muted" id="none" hidden>No model matches that. Try fewer words.</p>
+        </div>
+      </div>
+      <div class="modal-footer small text-muted">
+        <span class="mr-auto">Arrow keys to move, Enter to open</span>
+        <a href="index.html">laboratories</a> &middot; <a href="models.html">gallery</a> &middot; <a href="index.classic.html">classic index</a>
+      </div>
+    </div>
+  </div>
+</div>
+<!--/SIDEBAR-->
 
   <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
 
@@ -205,12 +233,6 @@
     <!-- Point labels (E, F, N, P, V...) can overlap when several land close
          together along the axis - this just turns them all off rather than
          trying to auto-layout them apart. -->
-    <button type="button" class="btn btn-sm btn-outline-secondary float-right" style="margin-top: 4px;" onclick="resetView();" title="Bring the diagram back to where it started (or double-click an empty part of it)">Reset view</button>
-    <div class="form-check form-check-inline float-right" style="margin-right: 12px; margin-top: 6px;">
-      <input class="form-check-input" type="checkbox" id="toggle-labels" checked onclick="toggleLabelsVisibility(this.checked);">
-      <label class="form-check-label" for="toggle-labels">Labels</label>
-    </div>
-
 
     <!-- Settings dialog -->
     <div class="modal fade" id="settingsModal" tabindex="-1" role="dialog" aria-labelledby="settingsModalLabel" aria-hidden="true">
@@ -417,10 +439,32 @@
 -->
 
         <div id="lens-container" class="border border-dark">
+<!--RAIL-->
+          <!-- the tool rail: icons down the left edge that slide out to say what they are on hover -->
+          <nav id="tool-rail" aria-label="Diagram tools">
+            <button type="button" id="pointer-button" class="rail-button active" onclick="setRulerMode(false);" aria-pressed="true" title="Pointer: grab and drag things on the diagram">
+              <i class="fas fa-mouse-pointer"></i><span>Pointer</span></button>
+            <button type="button" id="ruler-button" class="rail-button" onclick="setRulerMode(true);" aria-pressed="false" title="Ruler: drag across the diagram to measure a distance">
+              <i class="fas fa-ruler-horizontal"></i><span>Ruler</span></button>
+            <div class="dropright">
+              <button type="button" id="show-menu" class="rail-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Choose what is drawn on the diagram">
+                <i class="fas fa-eye"></i><span>Show<span id="show-menu-count"></span></span></button>
+              <div class="dropdown-menu show-menu" aria-labelledby="show-menu" onclick="event.stopPropagation();">
+                <label class="dropdown-item" title="The text beside each point"><input type="checkbox" id="show-labels" checked onclick="setShowOption('labels', this.checked);"> Labels</label>
+                <label class="dropdown-item" title="The focal, principal and nodal points and their dashed planes"><input type="checkbox" id="show-cardinalPoints" checked onclick="setShowOption('cardinalPoints', this.checked);"> Cardinal points <small class="text-muted">F, P, N</small></label>
+                <label class="dropdown-item" title="The entrance and exit pupils"><input type="checkbox" id="show-pupils" checked onclick="setShowOption('pupils', this.checked);"> Pupils <small class="text-muted">E, E'</small></label>
+                <label class="dropdown-item" title="The first and last vertices of the lens"><input type="checkbox" id="show-vertices" checked onclick="setShowOption('vertices', this.checked);"> Vertices <small class="text-muted">V, V'</small></label>
+              </div>
+            </div>
+            <button type="button" id="reset-view-button" class="rail-button" onclick="resetView();" title="Bring the diagram back to where it started (or double-click an empty part of it)">
+              <i class="fas fa-expand"></i><span>Reset view</span></button>
+          </nav>
+<!--/RAIL-->
           <div id="scale-bar">
             <span id="scale-bar-label"></span>
             <div id="scale-bar-bar"></div>
           </div>
+          <div id="ruler-hint" style="display: none;">Drag to measure (the arrow marks the end) &middot; click the reading to copy it &middot; Shift keeps it level &middot; click a ruler, then Delete removes it &middot; Esc to finish</div>
         </div>
 
   </div>

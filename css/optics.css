@@ -234,3 +234,100 @@ table, th, td, tr {
 
 /* a beam switched off with the Hide column of the Objects table */
 #lens-container .beam-hidden { display: none !important; }
+
+/* the menu that opens from the type cell of the Objects table */
+.object-type-menu { max-width: 420px; }
+.object-type-menu tbody tr { cursor: pointer; }
+.object-type-menu tr.unavailable { opacity: 0.5; cursor: not-allowed; }
+.object-type-menu td { white-space: normal; }
+
+/* the grabbable incoming edges of a beam from infinity (ParallelBeamConstruction.js: placeWidthGrip) */
+path.width-edge { stroke-width: 14px; stroke-linecap: butt; pointer-events: stroke; }
+
+/* the toolbar's Show menu */
+.show-menu .dropdown-item { cursor: pointer; margin: 0; white-space: nowrap; }
+.show-menu .dropdown-item input { margin-right: 6px; }
+
+/* the ruler tool (ruler.js) */
+#ruler-hint { position: absolute; left: 10px; bottom: 8px; font: 12px sans-serif; color: #444; background: rgba(255,255,255,0.8); padding: 1px 6px; border-radius: 3px; pointer-events: none; }
+#lens-container.dark-canvas #ruler-hint { color: #ddd; background: rgba(0,0,0,0.6); }
+path.ruler-line  { stroke: #d6336c; stroke-width: 1px; fill: none; }
+path.ruler-hit   { stroke: #d6336c; stroke-opacity: 0; stroke-width: 12px; fill: none; pointer-events: stroke; }
+circle.ruler-handle { fill: #d6336c; stroke: #ffffff; stroke-width: 1px; cursor: move; }
+circle.ruler-handle.snapped { fill: #ffffff; stroke: #d6336c; stroke-width: 1px; }
+text.ruler-label { fill: #d6336c; stroke: #ffffff; stroke-width: 0.08px; vector-effect: none; paint-order: stroke; stroke-linejoin: round; font-weight: normal; }
+#lens-container.dark-canvas text.ruler-label { fill: #ff8fb3; stroke: #0b0b0f; }
+#lens-container.dark-canvas path.ruler-line { stroke: #ff8fb3; }
+#lens-container.dark-canvas circle.ruler-handle { fill: #ff8fb3; stroke: #0b0b0f; }
+#lens-container.dark-canvas circle.ruler-handle.snapped { fill: #0b0b0f; stroke: #ff8fb3; }
+path.ruler-arrow { fill: #d6336c; stroke: #d6336c; stroke-width: 0.5px; stroke-linejoin: round; }
+#lens-container.dark-canvas path.ruler-arrow { fill: #ff8fb3; stroke: #ff8fb3; }
+text.ruler-label { pointer-events: auto; }
+/* a selected ruler (Delete removes it) is drawn a little heavier */
+path.ruler-line.selected { stroke-width: 2px; }
+path.ruler-arrow.selected { stroke-width: 1.5px; }
+circle.ruler-handle.selected { stroke-width: 2px; }
+
+/* the tool rail down the left edge of the diagram: icons only until the pointer is over it */
+#tool-rail { position: absolute; left: 8px; top: 8px; z-index: 20; display: flex; flex-direction: column; gap: 2px; padding: 3px;
+             background: rgba(255,255,255,0.92); border: 1px solid #ced4da; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,.12);
+             width: 38px; overflow: hidden; transition: width .15s ease; }
+#tool-rail:hover, #tool-rail:focus-within, #tool-rail.open { width: 132px; overflow: visible; }
+#tool-rail .dropright { position: static; }
+.rail-button { display: flex; align-items: center; gap: 10px; width: 100%; height: 30px; padding: 0 8px; border: 0; border-radius: 6px;
+               background: transparent; color: #343a40; font-size: 13px; white-space: nowrap; text-align: left; cursor: pointer; }
+.rail-button i { width: 16px; text-align: center; flex: none; }
+.rail-button span { opacity: 0; transition: opacity .12s; }
+#tool-rail:hover .rail-button span, #tool-rail:focus-within .rail-button span { opacity: 1; }
+.rail-button:hover { background: #e9ecef; }
+.rail-button.active { background: #d6336c; color: #fff; }
+.rail-button:focus { outline: none; box-shadow: 0 0 0 2px rgba(29,111,220,.5); }
+#tool-rail .dropdown-menu { margin-left: 6px; }
+#lens-container.dark-canvas #tool-rail { background: rgba(30,30,36,0.92); border-color: #444; }
+#lens-container.dark-canvas .rail-button { color: #e6e6e6; }
+#lens-container.dark-canvas .rail-button:hover { background: #3a3a44; }
+
+/* ---- the model picker of main.html (model-browser.js) ---- */
+/* the Model button opens the dialog instead of a drop-down */
+body.has-sidebar #dropdown-lens-menu { display: none; }
+body.has-sidebar #filename_display { background: #fff; }
+.model-picker-head { align-items: center; gap: 12px; }
+.model-picker-head .modal-title { white-space: nowrap; }
+.model-picker-head .close { margin: 0; padding: 0 4px; }
+.model-picker { display: flex; gap: 18px; min-height: 55vh; }
+.topic-list { flex: 0 0 210px; display: flex; flex-direction: column; gap: 2px; }
+.topic-list button { display: flex; justify-content: space-between; gap: 8px; width: 100%; padding: 6px 10px; border: 0; border-radius: 6px; background: none;
+                     text-align: left; font-size: .9rem; color: inherit; cursor: pointer; }
+.topic-list button:hover { background: #f0f5fd; }
+.topic-list button.active { background: #1d6fdc; color: #fff; }
+.topic-list button.active .n { color: #dbe8fb; }
+.topic-list .n { color: #6c757d; font-size: .8rem; }
+.topic-list button[disabled] { opacity: .45; cursor: default; }
+.model-results { flex: 1; min-width: 0; }
+.model-results h5 { margin: 20px 0 2px; padding-bottom: 4px; border-bottom: 1px solid #e3e6ea; font-size: 1rem; font-weight: 600; }
+.model-results h5:first-of-type { margin-top: 2px; }
+.model-results h6 { margin: 10px 0 2px 10px; font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; color: #6c757d; }
+.model-results ul { list-style: none; margin: 0; padding: 0; }
+.model-results li a { display: flex; align-items: center; gap: 12px; padding: 7px 10px; color: inherit; text-decoration: none; border-radius: 8px; }
+.model-results li a:hover, .model-results li a:focus { background: #f0f5fd; outline: none; }
+.model-results li.current a { background: #e4efff; }
+.model-results li img { width: 72px; height: 36px; object-fit: contain; border: 1px solid #e3e6ea; border-radius: 4px; background: #fff; flex: none; }
+.model-results li .text { flex: 1; min-width: 0; }
+.model-results li .title { display: block; font-size: .95rem; }
+.model-results li .blurb { display: block; color: #6c757d; font-size: .8rem; }
+.model-results li .where { color: #6c757d; font-size: .75rem; white-space: nowrap; }
+.model-results mark { background: #fff2a8; border-radius: 2px; padding: 0; }
+@media (max-width: 700px) { .model-picker { flex-direction: column; } .topic-list { flex: none; flex-direction: row; flex-wrap: wrap; } .topic-list button { width: auto; } }
+
+/* the quick search under the model title box (model-browser.js) */
+.quick-results { position: absolute; top: 100%; left: 0; right: 0; z-index: 1060; margin-top: 2px; background: #fff; border: 1px solid #ced4da;
+                 border-radius: 8px; box-shadow: 0 4px 14px rgba(0,0,0,.15); overflow: hidden; }
+.quick-row, .quick-more, .quick-none { padding: 7px 12px; font-size: .92rem; cursor: pointer; display: flex; justify-content: space-between; gap: 12px; }
+.quick-row.picked { background: #e4efff; }
+.quick-topic { color: #6c757d; font-size: .75rem; white-space: nowrap; align-self: center; }
+.quick-more { color: #1d6fdc; border-top: 1px solid #e3e6ea; font-size: .85rem; }
+.quick-more:hover { background: #f0f5fd; }
+.quick-none { color: #6c757d; cursor: default; }
+.quick-results mark { background: #fff2a8; border-radius: 2px; padding: 0; }
+.topic-list .topic-cat { margin-top: 8px; font-weight: 600; }
+.topic-list .topic-sub { padding-left: 24px; font-size: .85rem; }

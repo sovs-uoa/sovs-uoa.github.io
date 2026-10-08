@@ -15,6 +15,10 @@
 
 ----------------------------------------------*/
 {
+	"category"    : "Schematic eyes",
+	"subcategory" : "Gullstrand",
+	"keywords"    : [ "schematic eye", "Gullstrand" ],
+
 	"title": "Gullstrand 1 eye — isolated lens",
 	"visible": { 	"radius": true,
 				 	"power":true,

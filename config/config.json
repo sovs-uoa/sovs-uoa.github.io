@@ -86,5 +86,7 @@
                    { "name" : "assignment-2021",  "main" : "31", "list" : [ "31", "32", "33", "34", "35" ], "assignment" : true },
                    { "name" : "assignment-2022",  "main" : "36", "list" : [ "36", "37", "38", "39", "40", "41", "42" ], "assignment" : true },
                    { "name" : "assignment-2023",  "main" : "43", "list" : [ "43", "44", "45", "46", "47" ], "assignment" : true },
-                   { "name" : "assignment-2024",  "main" : "48", "list" : [ "48", "49", "50", "51" ], "assignment" : true } ]
+                   { "name" : "assignment-2024",  "main" : "48", "list" : [ "48", "49", "50", "51" ], "assignment" : true },
+
+                   { "name" : "main",             "main" : "2",  "list" : [ "2" ], "assignment" : false } ]
 }

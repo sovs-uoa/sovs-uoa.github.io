@@ -34,9 +34,9 @@ function onAfocalMove (th)  {
       // coincide only for a small T1). Clamp away from +-90 deg first (tan()
       // of exactly +-90 is infinite), matching ParallelBeamConstruction's
       // onmove().
-      // The handle is drawn perpendicular to the ray (its angle is the ray's + 90, like the focal beam's handle in
+      // The handle is drawn perpendicular to the ray (its angle is the ray's - 90, so it points up, like the focal beam's handle in
       // ParallelBeamConstruction), so it never lies along the beam it controls: convert back to the ray angle first.
-      th = th - 90;
+      th = th + 90;
       th = Math.max(-89.9, Math.min(89.9, th));
       var T1 = geometricAngleToFieldAngle(th);
 
@@ -49,7 +49,7 @@ function onAfocalMove (th)  {
       // it to the raw th before calling us) so the two stay consistent -
       // the handle visually "sticks" once T1 saturates.
       T1 = Math.max(-89.9, Math.min(89.9, T1));
-      this.setAngle(fieldAngleToGeometricAngle(T1) + 90);
+      this.setAngle(fieldAngleToGeometricAngle(T1) - 90);
 
       // update the graphic + associated table
       myPoint   = { id:this.parent.getId(), type: "beam", which: "object", t: T1 };
@@ -255,6 +255,7 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
       this.cd_set.remove();
       this.imagePoint.remove();
       this.anglePicker.delete();
+      removeWidthGrip(this);
 
    }
 
@@ -278,6 +279,7 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
       this.PinToApertureStop = !!flag;
       this.VignetteAware     = !!vignetteAware;
       this.refresh ();
+      if (this.widthGrip) { var fixed = this.PinToApertureStop && !this.VignetteAware; this.widthGrip.nodes.forEach(function (n) { if (fixed) { n.hide(); } }); }
     }
 
     setLens(lens) {
@@ -327,7 +329,7 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
         var V1 = pupilInfo ? renderableLens.total.pupil.VE1 : 0;
         var T1 = this.data.T1;
         this.anglePicker.setAnchor(V1, 0);  // change the anchor
-        this.anglePicker.setAngle (fieldAngleToGeometricAngle(T1) + 90);   // perpendicular to the ray
+        this.anglePicker.setAngle (fieldAngleToGeometricAngle(T1) - 90);   // perpendicular to the ray
         this.anglePicker.setLength (getXProportionFactor(0.1));
 
         this.setInputRays (T1); // this will re-calculate 
@@ -349,12 +351,7 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
       /* KLUDGE */
 
 
-      if (isFinite(this.data.X2)) {
-          this.imagePoint.show();
-          this.imagePoint.attr({ cx: this.data.X2, cy: this.data.Y2 }); // move the image point here
-      } else {
-          this.imagePoint.hide();
-      }
+      this.updateImagePoint();
 
 
       var V1 = 0;      
@@ -362,9 +359,21 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
       //this.anglePicker.setAngle(this.data.T1);        
       this.drawAfocalConstruction ();
 
-      /* JT: TRY AND HIDE THIS POINT - UNTIL IMG PROBLEM IS RESOLVED */
-      this.imagePoint.hide();
+   }
 
+
+   // Where this beam comes to a focus (a focal system; an afocal one has no image point). In advanced materials
+   // mode each colour's focus is drawn in that colour.
+   updateImagePoint () {
+
+      var hasImagePoint = isFinite(this.data.X2) && isFinite(this.data.Y2) && Math.abs(this.lens.F) > 0.0001;
+      if (hasImagePoint) {
+          this.imagePoint.show();
+          this.imagePoint.attr({ cx: this.data.X2, cy: this.data.Y2 });
+          this.imagePoint.attr({ fill: (typeof beamShadeColor === "function" && typeof SovsSettings !== "undefined" && SovsSettings.advancedMaterials) ? beamShadeColor() : "red" });
+      } else {
+          this.imagePoint.hide();
+      }
    }
 
 
@@ -500,8 +509,7 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
                                               "parent"        : this });
 
          
-        /* JT: TRY AND HIDE THIS POINT - UNTIL IMG PROBLEM IS RESOLVED */
-        this.imagePoint.hide();
+        this.updateImagePoint();     // shown only where there is a focus
 
 
 
@@ -516,7 +524,7 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
         var V2   = 1; //lens.V2;    // secondary nodal point 
 
         // this will add an anglePicker 
-        this.anglePicker = new AnglePicker (0, 0, 10, fieldAngleToGeometricAngle(this.data.T1) + 90);   // perpendicular to the ray
+        this.anglePicker = new AnglePicker (0, 0, 10, fieldAngleToGeometricAngle(this.data.T1) - 90);   // perpendicular to the ray
         this.anglePicker.setAnchor(V1, 0); // move to default point is N1
         this.anglePicker.setLength(getXProportionFactor(0.1));        
         this.anglePicker.data("data-attr-info", {  "conjugate_id"  : "point-" + this.data.id + "-image",
@@ -603,6 +611,7 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
         towards "infinity" since this end never really terminates. */
 
      var dX = -refLength;
+     var gripPairs = [];     // the stretches of the beam's edges that can be grabbed to change its width
      var inY1 = [], inY2 = [];
      var inX1_0, inX2_0, inP_0, inX1_M, inX2_M, inP_M;
      for (var i=0; i <  M ; i++) {
@@ -628,6 +637,7 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
 
      var inFadeFrom = [inX1_0, (inY1[0]+inY1[M-1])/2], inFadeTo = [inX2_0, (inY2[0]+inY2[M-1])/2];
      shadeFadingBeamRegion(this.cd_set, [[inX1_0,inY1[0]],[inX2_0,inY2[0]],[inX2_M,inY2[M-1]],[inX1_M,inY1[M-1]]], inFadeFrom, inFadeTo);
+     gripPairs.push({ a:[inX1_0,inY1[0],inX2_0,inY2[0]], b:[inX1_M,inY1[M-1],inX2_M,inY2[M-1]] });
      fadeRayStroke(inP_0, inFadeFrom, inFadeTo);
      fadeRayStroke(inP_M, inFadeFrom, inFadeTo);
 
@@ -659,6 +669,7 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
          }
 
          shadeBoundedBeamRegion(this.cd_set, [[alongX1_0,alongY1[0]],[alongX2_0,alongY2[0]],[alongX2_M,alongY2[M-1]],[alongX1_M,alongY1[M-1]]]);
+         gripPairs.push({ a:[alongX1_0,alongY1[0],alongX2_0,alongY2[0]], b:[alongX1_M,alongY1[M-1],alongX2_M,alongY2[M-1]] });
      }
 
 
@@ -671,7 +682,7 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
      // ray[K-1] at all. Skip it entirely rather than draw a phantom
      // continuing ray/image past a point nothing reaches (see the matching
      // guard and its rationale in PointSourceConstruction.js).
-     if (this.FullyVignetted) { this.cd_set.toFront(); return; }
+     if (this.FullyVignetted) { this.cd_set.toFront(); placeWidthGrip(this, gripPairs); return; }
 
      console.log ('LENS');
      console.log (lens);
@@ -755,11 +766,13 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
             // fading out towards infinity - mirrors the incoming-ray fade
             var extFadeFrom = [finalX1_0, (finalY1[0]+finalY1[M-1])/2], extFadeTo = [extX2_0, (extY_0+extY_M)/2];
             shadeFadingBeamRegion(this.cd_set, [[finalX1_0,finalY1[0]],[extX2_0,extY_0],[extX2_M,extY_M],[finalX1_M,finalY1[M-1]]], extFadeFrom, extFadeTo);
+            gripPairs.push({ a:[finalX1_0,finalY1[0],extX2_0,extY_0], b:[finalX1_M,finalY1[M-1],extX2_M,extY_M] });
             fadeRayStroke(extP_0, extFadeFrom, extFadeTo);
             fadeRayStroke(extP_M, extFadeFrom, extFadeTo);
           } else {
             // both ends real and finite (the actual focal point) - solid fill
             shadeBoundedBeamRegion(this.cd_set, [[finalX1_0,finalY1[0]],[this.data.X2,this.data.Y2],[finalX1_M,finalY1[M-1]]]);
+            gripPairs.push({ a:[finalX1_0,finalY1[0],this.data.X2,this.data.Y2], b:[finalX1_M,finalY1[M-1],this.data.X2,this.data.Y2] });
           }
 
 
@@ -809,6 +822,7 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
 
           var outFadeFrom = [outX1_0, (outY1[0]+outY1[M-1])/2], outFadeTo = [outX2_0, (outY2[0]+outY2[M-1])/2];
           shadeFadingBeamRegion(this.cd_set, [[outX1_0,outY1[0]],[outX2_0,outY2[0]],[outX2_M,outY2[M-1]],[outX1_M,outY1[M-1]]], outFadeFrom, outFadeTo);
+          gripPairs.push({ a:[outX1_0,outY1[0],outX2_0,outY2[0]], b:[outX1_M,outY1[M-1],outX2_M,outY2[M-1]] });
           fadeRayStroke(outP_0, outFadeFrom, outFadeTo);
           fadeRayStroke(outP_M, outFadeFrom, outFadeTo);
 
@@ -818,6 +832,7 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
 
  
     this.cd_set.toFront();
+    placeWidthGrip(this, gripPairs);
   }
 
  }

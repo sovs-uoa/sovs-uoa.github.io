@@ -4,6 +4,10 @@ Assignment : Keratometer Mires
 
 ----------------------------------------------*/
 {
+	"category"    : "Assignments",
+	"subcategory" : "2022",
+	"keywords"    : [ "assignment", "instrument", "keratometer" ],
+
 	"title": "Mirror",
 	"visible": { 	"radius": true,
 				 	"power":true,

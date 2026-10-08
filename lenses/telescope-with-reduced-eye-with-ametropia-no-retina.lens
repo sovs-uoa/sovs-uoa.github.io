@@ -4,6 +4,10 @@ Telescope with reduced eye and ametropia  (Lab 45
 
 ----------------------------------------------*/
 {
+	"category"    : "Instruments",
+	"subcategory" : "Telescope",
+	"keywords"    : [ "instrument", "telescope" ],
+
 	"title": "Telescope (Lab 5)",
 	"visible": { 	"radius": true,
 				 	"power":true,

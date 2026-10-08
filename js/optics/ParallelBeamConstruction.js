@@ -32,6 +32,83 @@ off the edge of the diagram.
 
 var beamShadeGradientCounter = 0;
 
+
+/* ---------------------------------------------------------------------------------------------------------------
+
+  THE WIDTH EDGES  The two edges of the INCOMING part of a beam from infinity can be grabbed anywhere along their
+  length: drag one towards or away from the beam's centre line and the beam gets narrower or wider. They are the edges
+  you asked for - before any aperture has clipped the beam - so there is always something to catch, even for a
+  vignetted beam. (Moving a beam is the job of its other handle, which rotates it: a beam from infinity has no other
+  position.) Each edge is an invisible band a few pixels wide (the cursor changes over it; nothing is drawn).
+
+--------------------------------------------------------------------------------------------------------------- */
+
+// `pairs` lists the two edges of the beam along each stretch of it, as {a:[x1,y1,x2,y2], b:[x1,y1,x2,y2]}: the
+// incoming rays, between the surfaces, and out the far side. Whichever edge is grabbed, the beam's width follows
+// the pointer: the edges stay symmetrical about the chief ray and scale with the width, so the new width is the
+// old one times (pointer's distance from the middle) / (the edge's distance from the middle) at that x.
+function placeWidthGrip (c, pairs) {
+
+  if (!c.widthGrip) { c.widthGrip = { nodes: [], pairs: [], state: null, dragging: false }; }
+  var grip = c.widthGrip;
+  grip.pairs = pairs;
+
+  function pointerInModelUnits (e) {
+    var pt = paper.canvas.createSVGPoint();
+    pt.x = e.clientX; pt.y = e.clientY;
+    return pt.matrixTransform(paper.canvas.getScreenCTM().inverse());
+  }
+
+  // Pin fixes the width at the stop's (Vig leaves it to you)
+  function widthIsFixed () { return !!(c.PinToApertureStop && !c.VignetteAware); }
+
+  function yAt (l, x) { return (l[2] === l[0]) ? NaN : l[1] + (l[3] - l[1]) * (x - l[0]) / (l[2] - l[0]); }
+
+  function makeNode () {
+    var edge = paper.path(["M", 0, 0, "L", 1, 0]);
+    edge.node.setAttribute("class", "width-edge");
+    edge.attr({ "stroke": "#ff9900", "stroke-opacity": 0, cursor: "ns-resize" });
+    edge.drag(
+      function (dx, dy, x, y, e) {                          // move
+        var s = grip.state; if (!s || widthIsFixed()) { return; }
+        var p = pointerInModelUnits(e || { clientX: x, clientY: y });
+        var U = yAt(s.pair.a, p.x), L = yAt(s.pair.b, p.x);
+        var halfNow = Math.abs(U - L) / 2;
+        if (!isFinite(halfNow) || halfNow < 1e-9) { return; }       // the edges cross here: no way to tell
+        var half  = Math.abs(p.y - (U + L) / 2);
+        var width = Math.max(s.w0 * half / halfNow, 0.0005);
+        c.setBeamWidth(width);                              // redraws the beam (and these edges, in their new place)
+        if (typeof lens !== "undefined" && lens.pointsTable) { lens.pointsTable.updateData([ { id: c.getId(), beamwidth: width } ]); }
+        // (the next move measures against the beam as it was when grabbed, so keep that frame)
+      },
+      function () {                                         // start
+        if (widthIsFixed()) { grip.state = null; return; }
+        var pair = grip.pairs[edge.pairIdx];
+        grip.state = { pair: JSON.parse(JSON.stringify(pair)), w0: Number(c.BeamWidth) };
+        grip.dragging = true; setGrabbingCursor(true);
+      },
+      function () { grip.dragging = false; grip.state = null; setGrabbingCursor(false); }   // up
+    );
+    return edge;
+  }
+
+  // two invisible bands per stretch (kept between redraws, so a drag in progress is not lost)
+  var fixed = widthIsFixed();      // no grip while the width is fixed by Pin (it is the stop's width then)
+  for (var k = 0; k < 2 * pairs.length; k++) {
+    if (!grip.nodes[k]) { grip.nodes[k] = makeNode(); }
+    var n = grip.nodes[k], pr = pairs[k >> 1], l = (k % 2) ? pr.b : pr.a;
+    n.pairIdx = k >> 1;
+    n.attr({ path: ["M", l[0], l[1], "L", l[2], l[3]] });
+    n.toFront();
+    fixed ? n.hide() : n.show();
+  }
+  for (var j = 2 * pairs.length; j < grip.nodes.length; j++) { grip.nodes[j].hide(); }
+}
+
+function removeWidthGrip (c) {
+  if (c.widthGrip) { c.widthGrip.nodes.forEach(function (n) { n.remove(); }); c.widthGrip = null; }
+}
+
 // The usual pale yellow - except in advanced materials mode, where each object's beam takes the colour of the
 // wavelength it is being traced at (see settings.js), so the diagram says which wavelength it is showing.
 function beamShadeColor () {
@@ -195,7 +272,7 @@ function onmove (th)  {
       // itself, since the ray is drawn with the linear slope deg2rad(T1), whose
       // true geometric angle is atan(deg2rad(T1)), not T1 (they coincide only for
       // a small T1) - see fieldAngleToGeometricAngle/geometricAngleToFieldAngle.
-      var geometricAngle = th - 90;
+      var geometricAngle = th + 90;
 
       // Clamp the GEOMETRIC angle away from +-90 deg first (tan() of exactly
       // +-90 is infinite) - and critically, dragging the CYAN IMAGE POINT
@@ -217,7 +294,7 @@ function onmove (th)  {
       // stay consistent - the handle visually "sticks" once T1 saturates,
       // rather than continuing to rotate past where T1 can still follow it.
       T1 = Math.max(-89.9, Math.min(89.9, T1));
-      this.setAngle(fieldAngleToGeometricAngle(T1) + 90);
+      this.setAngle(fieldAngleToGeometricAngle(T1) - 90);
 
       // update the graphic + associated table
       myPoint   = { id:this.parent.getId(), type: "beam", which: "object", t: T1 };
@@ -461,6 +538,7 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
       this.cd_set.remove();
       this.imagePoint.remove();
       this.anglePicker.delete();
+      removeWidthGrip(this);
 
    }
 
@@ -484,6 +562,7 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
       this.PinToApertureStop = !!flag;
       this.VignetteAware     = !!vignetteAware;
       this.refresh ();
+      if (this.widthGrip) { var fixed = this.PinToApertureStop && !this.VignetteAware; this.widthGrip.nodes.forEach(function (n) { if (fixed) { n.hide(); } }); }
     }
 
     setLens(lens) {
@@ -516,7 +595,7 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
         this.anglePicker.setAnchor(pivotZ, 0);  // change the anchor
 
         var T1 = this.data.T1;
-        this.anglePicker.setAngle(fieldAngleToGeometricAngle(T1) + 90);  // perpendicular to the ray, so the handle doesn't overlap it
+        this.anglePicker.setAngle(fieldAngleToGeometricAngle(T1) - 90);  // perpendicular to the ray, so the handle doesn't overlap it
 
         this.remove ();
         this.draw ();
@@ -584,11 +663,14 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
         var N2   = lens.L + lens.cardinal.VN2;    // secondary nodal point 
 
 
+        // 1.5 x the back focal distance - but never longer than a tenth of the view, which for a short lens in a small
+        // view was a stick many times the size of the lens itself
         var defaultHandleLength = lens.cardinal.VF2 * 1.5;
+        if (!isFinite(defaultHandleLength) || defaultHandleLength <= 0 || defaultHandleLength > 0.1 * viewBoxWidth) { defaultHandleLength = 0.1 * viewBoxWidth; }
 
-        // this will add an anglePicker, drawn perpendicular to the ray (T1+90) so its
+        // this will add an anglePicker, drawn perpendicular to the ray (T1-90, pointing up) so its
         // handle and line don't overlap the ray itself
-        this.anglePicker = new AnglePicker (0, 0, defaultHandleLength, fieldAngleToGeometricAngle(T1) + 90);
+        this.anglePicker = new AnglePicker (0, 0, defaultHandleLength, fieldAngleToGeometricAngle(T1) - 90);
         this.anglePicker.setAnchor(N1, 0); // move to default point is N1
         this.anglePicker.data("data-attr-info", {  "conjugate_id"  : "point-" + this.data.id + "-image",
                                                    "id"            : this.data.id,
@@ -722,6 +804,7 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
     // .... rays traced back towards infinity, out to 1x refLength before P1 -
     // just a further extension of the SAME p1/p2 ray computed above, so it
     // needs the same (paraxial) slope convention that ray was built with.
+    var gripPairs = [];     // the stretches of the beam's edges that can be grabbed to change its width
     var X   = P1 - refLength;
     var dx  = X - P1;
     var i1 = u * dx + y1;
@@ -743,6 +826,7 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
     // (somewhat arbitrary) drawn endpoint.
     var incomingFadeFrom = [P1, (y1+y2)/2], incomingFadeTo = [X, (i1+i2)/2];
     shadeFadingBeamRegion(this.cd_set, [[P1,y1],[X,i1],[X,i2],[P1,y2]], incomingFadeFrom, incomingFadeTo);
+    gripPairs.push({ a:[P1,y1,X,i1], b:[P1,y2,X,i2] });         // incoming edges
     fadeRayStroke(p1, incomingFadeFrom, incomingFadeTo);
     fadeRayStroke(p2, incomingFadeFrom, incomingFadeTo);
 
@@ -776,6 +860,7 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
     if (!ret.extend) {
       shadeBoundedBeamRegion(this.cd_set, [[P2,y1],[X2,Y2],[P2,y2]]);
     }
+    gripPairs.push({ a:[P2,y1,X2,Y2], b:[P2,y2,X2,Y2] });          // converging towards the image
 
 
     /* --------------------------------------------
@@ -794,6 +879,7 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
     // points) same as the converging region, so a plain solid fill is enough here
     // too - this was the gap between P and P' that was left unshaded before.
     shadeBoundedBeamRegion(this.cd_set, [[P1,y1],[P2,y1],[P2,y2],[P1,y2]]);
+    gripPairs.push({ a:[P1,y1,P2,y1], b:[P1,y2,P2,y2] });          // between the principal planes
 
 
 
@@ -825,6 +911,7 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
       // stroke the same way too, rather than leaving them solid.
       var virtFadeFrom = [P2, (y1+y2)/2], virtFadeTo = [X, (i1+i2)/2];
       shadeFadingBeamRegion(this.cd_set, [[P2,y1],[X,i1],[X,i2],[P2,y2]], virtFadeFrom, virtFadeTo);
+      gripPairs.push({ a:[P2,y1,X,i1], b:[P2,y2,X,i2] });
       fadeRayStroke(p7, virtFadeFrom, virtFadeTo);
       fadeRayStroke(p8, virtFadeFrom, virtFadeTo);
 
@@ -860,12 +947,14 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
       // the bounding rays' stroke the same way too.
       var realFadeFrom = [X2, Y2], realFadeTo = [X, (i1+i2)/2];
       shadeFadingBeamRegion(this.cd_set, [[X2,Y2],[X,i1],[X,i2]], realFadeFrom, realFadeTo);
+      gripPairs.push({ a:[X2,Y2,X,i1], b:[X2,Y2,X,i2] });
       fadeRayStroke(p7, realFadeFrom, realFadeTo);
       fadeRayStroke(p8, realFadeFrom, realFadeTo);
 
     }
 
     this.cd_set.toFront();
+    placeWidthGrip(this, gripPairs);
 
  }
 

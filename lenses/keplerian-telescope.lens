@@ -8,6 +8,10 @@
 
 ----------------------------------------------*/
 {
+	"category"    : "Instruments",
+	"subcategory" : "Telescope",
+	"keywords"    : [ "instrument", "telescope", "Keplerian" ],
+
 
 
 

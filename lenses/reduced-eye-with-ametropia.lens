@@ -4,6 +4,10 @@ Reduced eye with ametropia (Lab 4)
 
 ----------------------------------------------*/
 {
+	"category"    : "Schematic eyes",
+	"subcategory" : "Reduced eye",
+	"keywords"    : [ "schematic eye", "reduced eye" ],
+
 	"title": "Reduced eye (Lab 4)",
 	"visible": { 	"radius": true,
 				 	"power":true,

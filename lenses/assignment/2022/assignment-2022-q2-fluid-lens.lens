@@ -4,6 +4,10 @@ Assignment : Fluid lens
 
 ----------------------------------------------*/
 {
+	"category"    : "Assignments",
+	"subcategory" : "2022",
+	"keywords"    : [ "assignment" ],
+
 	"title": "Fluid lens",
 	"visible": { 	"radius": true,
 				 	"power":true,

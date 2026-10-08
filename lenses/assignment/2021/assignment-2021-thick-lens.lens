@@ -5,6 +5,10 @@ Assigment  Thick Lens in Air
 ----------------------------------------------*/
 
 {
+	"category"    : "Assignments",
+	"subcategory" : "2021",
+	"keywords"    : [ "assignment" ],
+
 
 
 	// viewbox

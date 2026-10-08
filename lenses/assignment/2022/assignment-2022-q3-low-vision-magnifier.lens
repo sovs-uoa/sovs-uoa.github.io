@@ -4,6 +4,10 @@ Assignment : simple magnifier with basic eye
 
 ----------------------------------------------*/
 {
+	"category"    : "Assignments",
+	"subcategory" : "2022",
+	"keywords"    : [ "assignment", "instrument", "magnifier" ],
+
 	"title": "Simple magnifier with basic eye",
 	"visible": { 	"radius": true,
 				 	"power":true,

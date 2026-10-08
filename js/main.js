@@ -55,6 +55,18 @@
 
 
 
+              // the side bar of main.html loads a model without leaving the page
+              window.switchModel = function (id) {
+                var found = fileList.find(function (m) { return m.id == id; });
+                if (!found) { return; }
+                clearLens ();
+                load(id);
+                $("#filename_display").val(found.title);
+                if (typeof markCurrentModel === "function") { markCurrentModel(id); }
+                try { history.replaceState(null, "", "?model=" + encodeURIComponent(id)); } catch (e) { /* a file:// page */ }
+              };
+
+
               // trigger on a selection
               $('#optics_report').on('click', function () {
                 downloadOpticsReport();
@@ -63,7 +75,12 @@
 
               initializeApp ();
 
-              load (main_profile.main); // 12 = Reduced Eye with Accommodation 
+              // a link such as  Laboratory2.html?model=1  opens that model (the index page's chips use this)
+              var wanted  = new URLSearchParams(window.location.search).get('model');
+              var startId = (wanted !== null && fileList.some(function (m) { return m.id == wanted; })) ? wanted : main_profile.main;
+
+              load (startId); // (the profile's own first model unless the link asked for another)
+              if (typeof markCurrentModel === "function") { markCurrentModel(startId); }
 
 
             // load ("19"); // 12 = Reduced Eye with Accommodation 

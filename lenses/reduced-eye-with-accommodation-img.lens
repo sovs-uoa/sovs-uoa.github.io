@@ -4,6 +4,10 @@ Reduced eye with accommodation
 
 ----------------------------------------------*/
 {
+	"category"    : "Schematic eyes",
+	"subcategory" : "Reduced eye",
+	"keywords"    : [ "schematic eye", "reduced eye" ],
+
 	"title": "Reduced eye with accommodation",
 	"visible": { 	"radius": true,
 				 	"power":true,

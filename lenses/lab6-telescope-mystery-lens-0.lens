@@ -4,6 +4,10 @@ Vertometer standard
 
 ----------------------------------------------*/
 {
+	"category"    : "Instruments",
+	"subcategory" : "Telescope",
+	"keywords"    : [ "instrument", "telescope" ],
+
 	"title": "Vertometer (Lab 6)",
 	"visible": { 	"radius": true,
 				 	"power":true,

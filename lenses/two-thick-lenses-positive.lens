@@ -5,6 +5,10 @@
 ----------------------------------------------*/
 
 {
+	"category"    : "Components",
+	"subcategory" : "Thick lens",
+	"keywords"    : [ "thick lens", "two lenses" ],
+
 
 
 	/* VIEWBOX */

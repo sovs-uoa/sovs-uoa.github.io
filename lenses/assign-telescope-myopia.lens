@@ -4,6 +4,10 @@ Assignment: Telescope with reduced eye and ametropia
 
 ----------------------------------------------*/
 {
+	"category"    : "Assignments",
+	"subcategory" : "Earlier",
+	"keywords"    : [ "assignment" ],
+
 	"title": "Telescope (Lab 5)",
 	"visible": { 	"radius": true,
 				 	"power":true,

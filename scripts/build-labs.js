@@ -40,6 +40,8 @@ const PAGES = [
   { output: 'Laboratory6.html', lensesMenu: 'lab-6', reportVersion: 'v2.1' },
   { output: 'eye.html',         lensesMenu: 'eye',   reportVersion: 'v2.1' },
   { output: 'Test.html',        lensesMenu: 'test',  reportVersion: 'v2.1' },
+  // the workbench: the Model button opens a slide-in, searchable list of every model
+  { output: 'main.html',        lensesMenu: 'main',  reportVersion: 'v2.1', sidebar: true },
 ];
 
 // Browsers keep serving an old copy of a script or stylesheet for a while after it has changed (so an edited
@@ -66,7 +68,15 @@ function build () {
       throw new Error(`Template is missing expected token(s): ${missingTokens.join(', ')}`);
     }
 
-    const out = withCacheBusters(template
+    // the tool rail sits in the diagram on the laboratory pages; the side bar page has its tools in the side bar
+    // the side bar (a searchable list of every model, opened by the Model button) is only on the pages that ask for it
+    const strip = (html, tag) => html.replace(new RegExp(`<!--${tag}-->[\\s\\S]*?<!--/${tag}-->\\n?`), '');
+    const keep  = (html, tag) => html.replace(`<!--${tag}-->`, '').replace(`<!--/${tag}-->`, '');
+    let body = keep(template, 'RAIL');
+    body = page.sidebar ? keep(body, 'SIDEBAR') : strip(body, 'SIDEBAR');
+    if (page.sidebar) body = body.replace('<body>', '<body class="has-sidebar">');
+
+    const out = withCacheBusters(body
       .split('__LENSES_MENU__').join(page.lensesMenu)
       .split('__REPORT_VERSION__').join(page.reportVersion));
 

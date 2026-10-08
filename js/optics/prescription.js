@@ -344,6 +344,11 @@ function editNotAfocal (cell) {
   return !afocal && editPointCheck(cell);
 }
 
+// every kind of row that has something drawn for it (a point or an object, a source, a beam): these can be hidden
+function drawsABeam (data) {
+  return [ "object", "point", "source", "beam", "afocal" ].indexOf(data.type) !== -1;
+}
+
 // a tick box for a table cell; disabled ones show a state that is not changed by clicking
 function checkBoxHTML (checked, disabled, tip) {
   return "<input type=\"checkbox\" " + (checked ? "checked " : "") + (disabled ? "disabled " : "") +
@@ -1154,12 +1159,12 @@ function initializePointsTable(data, updatePointsCallback, success) {
             // Visible (ticked by default): untick to switch a beam off the diagram - the object (and its handle) stay in the table
             {title: hideColumnTitle(), field:"hidden", width:54, align:"center", headerSort:false,
              formatter: function (cell) {
-               if (cell.getRow().getData().type !== "object") { return ""; }
+               if (!drawsABeam(cell.getRow().getData())) { return ""; }
                return checkBoxHTML(!cell.getValue(), false, "Ticked: this beam is drawn on the diagram (untick to hide it - the object stays in the table)");
              },
              cellClick: function (e, cell) {
                var row = cell.getRow();
-               if (row.getData().type !== "object") { return; }
+               if (!drawsABeam(row.getData())) { return; }
                row.update({ hidden: !row.getData().hidden });
                applyBeamVisibility();
              } },
@@ -1168,7 +1173,13 @@ function initializePointsTable(data, updatePointsCallback, success) {
             {title:"&lambda; (nm)", field:"wavelength", minWidth:92, align:"center", headerSort:false, visible: advancedMaterialsOn(),
              formatter: wavelengthCellFormatter, editor: wavelengthCellEditor, cellEdited: defaultEditFunction,
              editable: function (cell) { return cell.getRow().getData().type === "object"; } },
-            {title:"type",   field:"type",     width:72, align:"center", headerSort:false},
+            {title:"type",   field:"type",     width:78, align:"center", headerSort:false,
+             // click to change what kind of object this is (see openObjectTypeMenu in settings.js)
+             formatter: function (cell) {
+               var v = cell.getValue();
+               return drawsABeam(cell.getRow().getData()) ? escapeHTML(v) + " <span style=\"color:#6c757d;font-size:.75em;\">&#9662;</span>" : escapeHTML(v);
+             },
+             cellClick: function (e, cell) { openObjectTypeMenu(cell); } },
             //{title:"X1",     field:"X1",       width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" } },                  
             //{title:"Y1",     field:"Y1",       width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 3, emptyVal: "--" }, accessor: flipVal },
             {title:"X1",                          field:"X1", visible:false, width:100, editor:"input", headerSort:false, mutator:Number, formatter: decimalPlaces, formatterParams:{ precision: 6, emptyVal: "--" },  cellEdited:  defaultEditFunction, editable:editPointCheck },                  

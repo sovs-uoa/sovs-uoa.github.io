@@ -186,17 +186,18 @@ var SovsSettings = (function () {
 
   // the usual suspects - F, d and C are the three lines the Abbe number is defined from
   function defaultWavelengths () {
-    return [ { common: "Violet", name: "g",    nm: 435.8 },
-             { common: "Blue",   name: "F",    nm: 486.1, group: true },
-             { common: "Green",  name: "e",    nm: 546.1, group: true },
-             { common: "Yellow", name: "d",    nm: 587.6 },
-             { common: "Orange", name: "HeNe", nm: 632.8 },
-             { common: "Red",    name: "C",    nm: 656.3, group: true } ];
+    return [ { common: "Blue",         name: "g",    nm: 435.8, group: true },
+             { common: "Cyan",         name: "F",    nm: 486.1 },
+             { common: "Green",        name: "Ar+",  nm: 514.5, group: true },   // the argon-ion laser line: the white-light group's green
+             { common: "Yellow-green", name: "e",    nm: 546.1 },
+             { common: "Yellow",       name: "d",    nm: 587.6 },
+             { common: "Orange",       name: "HeNe", nm: 632.8 },
+             { common: "Red",          name: "C",    nm: 656.3, group: true } ];
   }
 
   var NOMINAL_NM = 587.6;       // the d line - what a new object, and the Summary, start on
 
-  var state = { advancedMaterials: false, wavelengths: defaultWavelengths(), summaryNm: NOMINAL_NM, additiveBeams: false, beamEdges: false, darkCanvas: false };
+  var state = { advancedMaterials: false, wavelengths: defaultWavelengths(), summaryNm: NOMINAL_NM, additiveBeams: false, beamEdges: false, darkCanvas: false, show: { labels: true, cardinalPoints: true, pupils: true, vertices: true } };
 
   function load () {
 
@@ -209,14 +210,28 @@ var SovsSettings = (function () {
             .filter(function (w) { return w && isFinite(w.nm) && w.nm > 0; })
             .map(function (w) { return { common: String(w.common || commonColorName(Number(w.nm))), name: String(w.name || ""), nm: Number(w.nm), group: !!w.group }; });
           // a list saved before white-light groups existed: the usual red, green and blue lines make up the group
-          if (!kept.some(function (w) { return w.group; })) {
-            kept.forEach(function (w) { w.group = [656.3, 546.1, 486.1].some(function (nm) { return Math.abs(nm - w.nm) < 0.05; }); });
+          var groupNms = kept.filter(function (w) { return w.group; }).map(function (w) { return w.nm; }).sort().join(",");
+          if (groupNms === "" || groupNms === "486.1,546.1,656.3" || groupNms === "435.8,546.1,656.3" || groupNms === "435.8,510,656.3") {
+            // a list saved with an earlier default white-light group: move to blue g (435.8), the argon-ion green (514.5) and red C
+            // (the e line is yellowish-green and tinted the sum red), with the names to match where they are still defaults
+            // (a 510 nm entry from an earlier default becomes the 514.5 line)
+            kept = kept.filter(function (w) { return !(Math.abs(w.nm - 510) < 0.05 && (w.name === "" || w.name === "510")); });
+            if (!kept.some(function (w) { return Math.abs(w.nm - 514.5) < 0.05; })) { kept.push({ common: "Green", name: "Ar+", nm: 514.5, group: false }); }
+            kept.sort(function (p, q) { return p.nm - q.nm; });
+            kept.forEach(function (w) {
+              w.group = [656.3, 514.5, 435.8].some(function (nm) { return Math.abs(nm - w.nm) < 0.05; });
+              if (Math.abs(w.nm - 546.1) < 0.05 && w.common === "Green")  { w.common = "Yellow-green"; }
+              if (Math.abs(w.nm - 486.1) < 0.05 && w.common === "Blue")   { w.common = "Cyan"; }
+              if (Math.abs(w.nm - 435.8) < 0.05 && w.common === "Violet") { w.common = "Blue"; }
+            });
           }
           if (kept.length > 0) { state.wavelengths = kept; }
         }
         state.additiveBeams = !!saved.additiveBeams;
         state.darkCanvas    = (saved.darkCanvas === undefined) ? !!saved.additiveBeams : !!saved.darkCanvas;   // additive used to imply dark
         state.beamEdges     = !!saved.beamEdges;
+        if (saved.show) { Object.keys(state.show).forEach(function (k) { state.show[k] = (saved.show[k] !== false); }); }
+        else if (saved.cardinalPoints === false) { state.show.cardinalPoints = false; }   // (an earlier build kept just this one)
         if (isFinite(saved.prescriptionNm) && saved.prescriptionNm > 0) { state.prescriptionNm = Number(saved.prescriptionNm); }
         if (isFinite(saved.summaryNm) && saved.summaryNm > 0) { state.summaryNm = Number(saved.summaryNm); }
       }
@@ -252,6 +267,10 @@ var SovsSettings = (function () {
     get beamEdges ()   { return state.beamEdges; },
     set beamEdges (v)  { state.beamEdges = !!v; save(); },
 
+    // which parts of the diagram the toolbar's Show menu has on: labels, cardinalPoints, pupils, vertices
+    showing (key)         { return state.show[key] !== false; },
+    setShowing (key, on)  { state.show[key] = !!on; save(); },
+
     // the diagram on a dark background (light lines and labels)
     get darkCanvas ()   { return state.darkCanvas; },
     set darkCanvas (v)  { state.darkCanvas = !!v; save(); },
@@ -262,7 +281,7 @@ var SovsSettings = (function () {
     // the wavelengths a "white light" group is made of (red, green and blue unless the Wavelengths dialog says otherwise)
     get groupWavelengths () {
       var nms = state.wavelengths.filter(function (w) { return w.group; }).map(function (w) { return w.nm; });
-      return nms.length > 0 ? nms : [656.3, 546.1, 486.1];
+      return nms.length > 0 ? nms : [656.3, 514.5, 435.8];
     },
 
     get wavelengths () { return state.wavelengths; },
