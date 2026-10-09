@@ -1,6 +1,11 @@
 /*--------------------------------------------
 
- LEGRAND RELAXED SCHEMATIC EYE 
+ Le Grand full theoretical eye: RELAXED (eye power 59.940 D, length 24.197 mm)
+
+ Source: TEVOI (Smith & Atchison, The Eye and Visual Optical Instruments, Cambridge University Press 1997), Appendix 3 'Schematic eyes', p. 784.
+ Surfaces R 7.8, 6.5, 10.2, -6.0 mm; n 1.3771, 1.3374, 1.4200, 1.3360; d 0.55, 3.05, 4.0 mm.
+ Only the published eye is here: the spectacle correction and the accommodating lens that used to sit in front of the cornea
+ have been taken out. The 4 mm stop (at the front of the lens) is the app's usual pupil.
 
 ----------------------------------------------*/
 {
@@ -8,7 +13,8 @@
 	"subcategory" : "Le Grand",
 	"keywords"    : [ "schematic eye", "Le Grand" ],
 	"shortName"   : "Relaxed",
-	"about"       : "The Le Grand relaxed schematic eye: cornea, aqueous humour, lens and vitreous, ending at the retina.",
+	"about"       : "The Le Grand full theoretical relaxed eye: cornea, aqueous humour, lens and vitreous, ending at the retina (eye power 59.94 D).",
+	"reference"   : "Smith G, Atchison DA (1997) The Eye and Visual Optical Instruments (TEVOI). Cambridge University Press. Appendix 3, Schematic eyes, p. 784",
 
 
 	"units" : "m",
@@ -31,54 +37,20 @@
 
 	"schematic" : { 	"model" : "eye",
 						"show"	: true,  
-						"map"   : { "anterior_cornea" : "0002",
-									"anterior_lens"   : "0006",
+						"map"   : { "anterior_cornea" : "0006",
+									"anterior_lens"   : "00010",
 									"retina" 		  : "0014" }},
 
 
 	/* LENS PRESCRITPION */
 
-	"title": "leGrand Relaxed Schematic eye",
+	"title": "Le Grand full theoretical eye relaxed",
     "prescription": [{
 		"id": "0001",
 		"type": "index",
 		"description": "air#1",
 		"args": {
 			"index": 1.000
-		}
-	}, {		
-		"id": "0002",
-		"type": "thin",
-		"description": "spectacle correction",
-		"args": {
-			"power": 6,
-			"height": 0.01,
-			"aperture": 0.005
-		}
-	}, {
-		"id": "0003",
-		"type": "index",
-		"description": "air#2",
-		"args": {
-			"index": 1.0,
-			"thickness": 0.0015
-		}
-	}, {		
-		"id": "0004",
-		"type": "thin",
-		"description": "accommodating lens",
-		"args": {
-			"power": -1.93,
-			"height": 0.01,
-			"aperture": 0.005
-		}
-	}, {
-		"id": "0005",
-		"type": "index",
-		"description": "air#3",
-		"args": {
-			"index": 1.0,
-			"thickness": 0.0
 		}
 	}, {		
 		"id": "0006",

@@ -4,8 +4,8 @@ Mystery reduced eye with accommodation (axial Rx 4.5D length 0.0262)
 
 ----------------------------------------------*/
 {
-	"category"    : "Schematic eyes",
-	"subcategory" : "Reduced eye",
+	"category"    : "Clinical models",
+	"subcategory" : "Mystery eyes",
 	"keywords"    : [ "schematic eye", "reduced eye", "mystery" ],
 	"shortName"   : "Mystery eye 1",
 	"about"       : "A mystery reduced eye. Work out what its refractive error is.",

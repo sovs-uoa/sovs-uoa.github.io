@@ -1,0 +1,135 @@
+/*--------------------------------------------
+ Le Grand simplified eye: ACCOMMODATED (7.034 D)
+
+ Source: TEVOI (Smith & Atchison, The Eye and Visual Optical Instruments, Cambridge University Press 1997), Appendix 3 'Schematic eyes', p. 787, Le Grand: Simplified accommodated.
+ One refracting cornea (R 8.0 mm, n 1.336), aqueous 1.336, a lens of ZERO thickness (R 6.0, -5.5 mm, n 1.426).
+ The iris plane is placed so the entrance pupil is where Le Grand's exact eye has it (3.6 mm from the cornea in the relaxed eye).
+ Eye power 67.665 D, length 24.192 mm. Nothing has been added to the published eye. The 4 mm stop is the app's usual pupil.
+----------------------------------------------*/
+{
+	"category": "Schematic eyes",
+	"subcategory": "Le Grand (simplified)",
+	"keywords": [
+		"schematic eye",
+		"Le Grand",
+		"simplified",
+		"accommodated"
+	],
+	"shortName": "Simplified, accommodated",
+	"about": "Le Grand's simplified eye accommodated by 7.03 D (eye power 67.67 D).",
+	"reference": "Smith G, Atchison DA (1997) The Eye and Visual Optical Instruments (TEVOI). Cambridge University Press. Appendix 3, Schematic eyes, p. 787",
+	"title": "Le Grand simplified eye accommodated",
+	"units": "m",
+	"visible": {
+		"radius": true,
+		"power": true,
+		"curvature": true,
+		"aperture": true
+	},
+	"viewBox": [
+		-0.0125,
+		0.00875,
+		0.05,
+		0.0175
+	],
+	"sources": [
+		{
+			"id": 1,
+			"type": "object",
+			"infinity": true,
+			"which": "object",
+			"beamwidth": 0.004,
+			"z": NaN,
+			"h": NaN,
+			"t": 10
+		}
+	],
+	"prescription": [
+		{
+			"id": "0001",
+			"type": "index",
+			"description": "air",
+			"args": {
+				"index": 1.0
+			}
+		},
+		{
+			"id": "0002",
+			"group": "cornea",
+			"type": "sphere",
+			"description": "cornea",
+			"args": {
+				"radius": 0.008,
+				"height": 0.012,
+				"aperture": 0.012
+			}
+		},
+		{
+			"id": "0003",
+			"type": "index",
+			"description": "aqueous",
+			"args": {
+				"index": 1.336,
+				"thickness": 0.0032
+			}
+		},
+		{
+			"id": "0004",
+			"type": "stop",
+			"description": "iris",
+			"args": {
+				"height": 0.012,
+				"aperture": 0.004
+			}
+		},
+		{
+			"id": "0005",
+			"type": "index",
+			"description": "aqueous",
+			"args": {
+				"index": 1.336,
+				"thickness": 0.00258
+			}
+		},
+		{
+			"id": "0006",
+			"group": "lens",
+			"type": "sphere",
+			"description": "anterior lens",
+			"args": {
+				"radius": 0.006,
+				"height": 9.5e-06,
+				"aperture": 9.5e-06
+			}
+		},
+		{
+			"id": "0007",
+			"group": "lens",
+			"type": "index",
+			"description": "lens (zero thickness)",
+			"args": {
+				"index": 1.426,
+				"thickness": 0.0
+			}
+		},
+		{
+			"id": "0008",
+			"group": "lens",
+			"type": "sphere",
+			"description": "posterior lens",
+			"args": {
+				"radius": -0.0055,
+				"height": 9.5e-06,
+				"aperture": 9.5e-06
+			}
+		},
+		{
+			"id": "0009",
+			"type": "index",
+			"description": "vitreous",
+			"args": {
+				"index": 1.336
+			}
+		}
+	]
+}

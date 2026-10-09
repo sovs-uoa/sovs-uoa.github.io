@@ -4,8 +4,8 @@ Mystery reduced eye with accommodation #2 (58D cornea)
 
 ----------------------------------------------*/
 {
-	"category"    : "Schematic eyes",
-	"subcategory" : "Reduced eye",
+	"category"    : "Clinical models",
+	"subcategory" : "Mystery eyes",
 	"keywords"    : [ "schematic eye", "reduced eye", "mystery" ],
 	"shortName"   : "Mystery eye 2",
 	"about"       : "A second mystery reduced eye. Work out what its refractive error is.",

@@ -343,3 +343,5 @@ body.has-sidebar #filename_display { background: #fff; }
 /* the optical axis (Show menu) */
 path.optical-axis { stroke: gray; stroke-opacity: 0.4; stroke-width: 1px; stroke-dasharray: none; fill: none; }
 #lens-container.dark-canvas path.optical-axis { stroke: #d0d4da; stroke-opacity: 0.35; }
+
+.pick-detail .pick-reference { color: #495057; margin: 6px 0; }

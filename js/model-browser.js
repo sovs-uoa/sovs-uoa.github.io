@@ -19,10 +19,11 @@ document.addEventListener("DOMContentLoaded", function () {
   if (!document.getElementById("modelModal")) { return; }
 
   // the order the headings come in (any a lens file adds go after these, in alphabetical order)
-  var CATEGORY_ORDER = ["Components", "Schematic eyes", "Instruments", "Assignments", "Miscellaneous"];
+  var CATEGORY_ORDER = ["Components", "Schematic eyes", "Clinical models", "Instruments", "Assignments", "Miscellaneous"];
   var SUB_ORDER = {
     "Components":     ["Thin lens", "Thick lens", "Prism", "Dispersion", "Mirror"],
-    "Schematic eyes": ["Reduced eye", "Le Grand", "Gullstrand"],
+    "Schematic eyes": ["Reduced eye", "Le Grand", "Le Grand (simplified)", "Gullstrand", "Gullstrand 2"],
+    "Clinical models": ["Laboratory eyes", "Mystery eyes", "Mystery lenses", "Presbyopia"],
     "Instruments":    ["Telescope", "Keratometer", "Vertometer"],
     "Assignments":    ["2024", "2023", "2022", "2021", "Earlier"]
   };
@@ -52,9 +53,9 @@ document.addEventListener("DOMContentLoaded", function () {
       var category = info.category || "Miscellaneous", sub = info.subcategory || "";
       var full  = m.title.replace(/\s+/g, " ");
       var title = info.shortName || full;
-      entries.push({ id: String(m.id), category: category, sub: sub, title: title, full: full, order: order, keywords: info.keywords || [], about: info.about || "", about: info.about || "",
+      entries.push({ id: String(m.id), category: category, sub: sub, title: title, full: full, order: order, keywords: info.keywords || [], about: info.about || "", reference: info.reference || "", about: info.about || "",
                      label: sub ? category + " \u00b7 " + sub : category,
-                     text: (title + " " + full + " " + category + " " + sub + " " + (info.keywords || []).join(" ") + " " + m.id + " " + (info.about || "")).toLowerCase() });
+                     text: (title + " " + full + " " + category + " " + sub + " " + (info.keywords || []).join(" ") + " " + m.id + " " + (info.about || "") + " " + (info.reference || "")).toLowerCase() });
     });
 
     // category -> sub -> entries, in the order the headings should come
@@ -111,6 +112,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (e.full !== e.title) { box.appendChild(el("p", "text-muted small", e.full)); }
     if (e.about) { box.appendChild(el("p", "pick-about", e.about)); }
     box.appendChild(el("p", "text-muted small", e.label));
+    if (e.reference) { var ref = el("p", "pick-reference small"); ref.appendChild(el("strong", "", "Source: ")); ref.appendChild(document.createTextNode(e.reference)); box.appendChild(ref); }
     var chips = el("div", "chips");
     e.keywords.forEach(function (k) {
       var chip = el("button", "chip", k); chip.type = "button";

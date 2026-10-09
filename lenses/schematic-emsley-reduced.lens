@@ -1,0 +1,75 @@
+/*--------------------------------------------
+ Emsley reduced eye (1952): one refracting surface, exactly 60 D
+
+ Source: TEVOI (Smith & Atchison, The Eye and Visual Optical Instruments, Cambridge University Press 1997), Appendix 3 'Schematic eyes', p. 790, Reduced eye (Emsley 1952).
+ R = 50/9 mm (5.556 mm), n = 4/3, length 22.222 mm. The surface is the aperture stop, 8 mm across (the entrance pupil of every eye in the appendix).
+ Nothing is added: no spectacle or accommodating lens.
+----------------------------------------------*/
+{
+	"category": "Schematic eyes",
+	"subcategory": "Reduced eye",
+	"keywords": [
+		"schematic eye",
+		"reduced eye",
+		"Emsley",
+		"60 D"
+	],
+	"shortName": "Emsley reduced eye (60 D)",
+	"about": "Emsley's reduced eye: a single refracting surface of 60 D in a medium of index 4/3, 22.22 mm long.",
+	"reference": "Smith G, Atchison DA (1997) The Eye and Visual Optical Instruments (TEVOI). Cambridge University Press. Appendix 3, Schematic eyes, p. 790",
+	"title": "Emsley reduced eye",
+	"units": "m",
+	"visible": {
+		"radius": true,
+		"power": true,
+		"curvature": true,
+		"aperture": true
+	},
+	"viewBox": [
+		-0.0125,
+		0.00875,
+		0.05,
+		0.0175
+	],
+	"sources": [
+		{
+			"id": 1,
+			"type": "object",
+			"infinity": true,
+			"which": "object",
+			"beamwidth": 0.004,
+			"z": NaN,
+			"h": NaN,
+			"t": 10
+		}
+	],
+	"prescription": [
+		{
+			"id": "0001",
+			"type": "index",
+			"description": "air",
+			"args": {
+				"index": 1.0
+			}
+		},
+		{
+			"id": "0002",
+			"type": "sphere",
+			"description": "refracting surface",
+			"args": {
+				"radius": 0.005555556,
+				"stop": true,
+				"height": 0.012,
+				"aperture": 0.008
+			}
+		},
+		{
+			"id": "0003",
+			"type": "index",
+			"description": "eye (n = 4/3)",
+			"args": {
+				"index": 1.3333333333333333
+			}
+		}
+	]
+}

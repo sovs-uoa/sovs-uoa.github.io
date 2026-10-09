@@ -4,11 +4,11 @@ Reduced eye with ametropia (Lab 4)
 
 ----------------------------------------------*/
 {
-	"category"    : "Schematic eyes",
-	"subcategory" : "Reduced eye",
+	"category"    : "Clinical models",
+	"subcategory" : "Laboratory eyes",
 	"keywords"    : [ "schematic eye", "reduced eye" ],
-	"shortName"   : "Reduced eye",
-	"about"       : "The reduced eye of Laboratory 4: a retina, a beam from infinity, and thin lenses in front for corrections.",
+	"shortName"   : "Reduced eye with correction slots",
+	"about"       : "The Lab 4 reduced eye with slots in front of the cornea for a correcting, an ametropia and an accommodating lens (all 0 D to start).",
 
 	"title": "Reduced eye (Lab 4)",
 	"visible": { 	"radius": true,
@@ -92,7 +92,7 @@ Reduced eye with ametropia (Lab 4)
 		"type": "sphere",
 		"description": "anterior cornea",
 		"args": {
-			"radius": 0.0055,
+			"radius": 0.00555,
 			"height": 0.01,
 			"aperture": 0.01
 		}
@@ -101,8 +101,8 @@ Reduced eye with ametropia (Lab 4)
 		"type": "index",
 		"description": "aqueous/vitreous",
 		"args": {
-			"index": 1.33,
-			"thickness": 0.02216666666
+			"index": 1.333,
+			"thickness": 0.02221666667
 		}
 	}, {
 		"id": "0010",

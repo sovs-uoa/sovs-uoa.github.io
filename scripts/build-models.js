@@ -15,6 +15,7 @@
       "shortName"   : "Relaxed eye",             optional: the name the picker shows (the title in config.json stays what
                                                  the page, the report and the tables use)
       "about"       : "One sentence about the model.",   optional: shown beside it in the picker when it is selected
+      "reference"   : "Where the numbers come from",     optional: shown as the model's source in the picker
 
   A model whose file says no category is listed under "Miscellaneous".
 
@@ -50,6 +51,8 @@ for (const model of config.models) {
   const entry = { category: field(text, 'category') || 'Miscellaneous', subcategory: field(text, 'subcategory'), keywords: [] };
   const shortName = field(text, 'shortName');
   if (shortName) entry.shortName = shortName;
+  const reference = field(text, 'reference');
+  if (reference) entry.reference = reference;
   const about = field(text, 'about');
   if (about) entry.about = about.replace(/\\"/g, '"');
   const list = text.match(/"keywords"\s*:\s*\[([^\]]*)\]/);

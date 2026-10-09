@@ -1,14 +1,15 @@
 /*--------------------------------------------
 
-Assignment: Telescope with reduced eye and ametropia  
+Galilean telescope with a reduced eye (Schwartz): objective +10 D, eyepiece -50 D, tube 80 mm (f1 + f2 = 100 - 20 mm).
+The eye is the reduced eye of chapter 7, emmetropic, with a slot for an ametropia lens (0 D to start).
 
 ----------------------------------------------*/
 {
 	"category"    : "Instruments",
 	"subcategory" : "Telescope",
-	"keywords"    : [ "instrument", "telescope" ],
-	"shortName"   : "Telescope and eye",
-	"about"       : "A telescope in front of a reduced eye with ametropia.",
+	"keywords"    : [ "instrument", "telescope", "Galilean", "eye" ],
+	"shortName"   : "Galilean with eye",
+	"about"       : "A Galilean telescope in front of the reduced eye: an upright image on the retina, with a slot for an ametropia lens.",
 
 	"title": "Telescope (Lab 5)",
 	"visible": { 	"radius": true,
@@ -92,7 +93,7 @@ Assignment: Telescope with reduced eye and ametropia
 		"type": "sphere",
 		"description": "anterior cornea",
 		"args": {
-			"radius": 0.0055,
+			"radius": 0.00555,
 			"height": 0.01,
 			"aperture": 0.01
 		}
@@ -101,8 +102,8 @@ Assignment: Telescope with reduced eye and ametropia
 		"type": "index",
 		"description": "aqueous/vitreous",
 		"args": {
-			"index": 1.33,
-			"thickness": 0.022167
+			"index": 1.333,
+			"thickness": 0.02221666667
 		}
 	},{
 		"id": "0009",

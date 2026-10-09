@@ -359,7 +359,6 @@
                       { id: "15", filename: "./lenses/mystery-eye-with-ametropia-2.lens", title: "Mystery eye #2" },
                       { id: "16", filename: "./lenses/telescope-with-reduced-eye-with-ametropia.lens", title: "Telescope" },
                       { id: "17", filename: "./lenses/reduced-eye-with-ametropia.lens", title: "Reduced eye with ametropia" },
-                      { id: "18", filename: "./lenses/telescope-with-reduced-eye-with-ametropia-no-retina.lens", title: "Telescope with no retina" },
                       { id: "19",  filename: "./lenses/assign-thick-lens.lens", title: "Thick Lens" },
                       { id: "20",  filename: "./lenses/assign-basic-eye.lens", title: "Eye Model" },
                       { id: "21",  filename: "./lenses/assign-telescope-myopia.lens", title: "Telescope" },
@@ -630,7 +629,7 @@ getConjuugateTo
                                           hidden: !!aPoint.hidden,   // beam switched off the diagram (the Hide column)
                                           draw: aPoint.draw,         // "rays": drawn element by element (see resolveObjectConstructionType)
                                           group: aPoint.group,   // objects sharing a number are linked together (see settings.js)
-                                          wavelength: aPoint.wavelength || (typeof SovsSettings !== "undefined" ? SovsSettings.NOMINAL_NM : 587.6),   // advanced materials mode
+                                          wavelength: aPoint.wavelength || ((typeof lensHasMaterials === "function" && !lensHasMaterials()) ? "custom" : (typeof SovsSettings !== "undefined" ? SovsSettings.NOMINAL_NM : 587.6)),   // advanced materials mode: no material named anywhere -> no particular wavelength
                                           pin: false, vig: false }]); // mutually exclusive - see setPinToApertureStop() and the Pin/Vig columns in prescription.js
 
 
@@ -797,6 +796,7 @@ getConjuugateTo
     lensTable = lens.table.getData();
     renderableLens = Optics.analyze(lensTable); // create matrices / we should have group caridnals in here as well
     if (typeof noteNominalLens === "function") { noteNominalLens(renderableLens); }   // objects at other wavelengths are analysed from this
+    if (typeof refreshIndexChip === "function") { refreshIndexChip(); }               // (the wavelength buttons only matter if a material is named)
 
     // The "Stop Flag" column's formatter (apertureStop() in prescription.js)
     // reads the freshly computed renderableLens.total.stopAuto/stopIndex to
@@ -1232,6 +1232,12 @@ getConjuugateTo
     else if (aPoint.type === "source")                       { aPoint.type = "object"; aPoint.infinity = false; }
 
     /* update the points table */
+
+     // no wavelength given: the d line if the lens names a material (so there is a wavelength to speak of), otherwise
+     // Custom - no particular wavelength (every index in the lens is a fixed one)
+     if (!aPoint.wavelength && typeof lensHasMaterials === "function") {
+       aPoint.wavelength = lensHasMaterials() ? SovsSettings.NOMINAL_NM : "custom";
+     }
 
      // the new object is traced through the lens at its own wavelength (advanced materials mode)
      var construction = inLensWavelength(aPoint.wavelength, function () {

@@ -117,6 +117,8 @@ function removeWidthGrip (c) {
 // The usual pale yellow - except in advanced materials mode, where each object's beam takes the colour of the
 // wavelength it is being traced at (see settings.js), so the diagram says which wavelength it is showing.
 function beamShadeColor () {
+    // a Custom object (no particular wavelength) is drawn in a neutral grey, whatever the colour of a line would be
+    if ((typeof SovsSettings !== "undefined") && SovsSettings.advancedMaterials && typeof currentBeamCustom !== "undefined" && currentBeamCustom) { return "#8a8f98"; }
     var coloured = (typeof SovsSettings !== "undefined") && SovsSettings.advancedMaterials &&
                    (typeof currentLensWavelength !== "undefined") && isFinite(currentLensWavelength);
     return coloured ? SovsSettings.entryFor(currentLensWavelength).color : "#ffee00";

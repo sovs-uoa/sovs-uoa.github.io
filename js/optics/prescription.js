@@ -374,7 +374,7 @@ function materialFormatter (cell) {
   // not been given a material, and it does not vary with wavelength.
   if (!material) {
     if (data.type === "thin" || data.type === "prism") { return "Custom <small class=\"text-muted\" title=\"Ideal element - power as typed, no dispersion\">fixed</small>"; }
-    return "<span title=\"Fixed index as typed - the same at every wavelength\">Custom</span>";
+    return "<span style=\"color:#6c757d;\" title=\"Fixed index as typed - the same at every wavelength\">Custom</span>";
   }
 
   // the index itself lives in its own Ref. Index column (the nominal, d line, value)
@@ -1181,7 +1181,8 @@ function initializePointsTable(data, updatePointsCallback, success) {
             // advanced materials mode only: the wavelength this object is traced at (see settings.js)
             {title:"&lambda; (nm)", field:"wavelength", minWidth:92, align:"center", headerSort:false, visible: advancedMaterialsOn(),
              formatter: wavelengthCellFormatter, editor: wavelengthCellEditor, cellEdited: defaultEditFunction,
-             editable: function (cell) { return cell.getRow().getData().type === "object"; } },
+             // (a lens with no material named anywhere has only fixed, Custom indices: no wavelength to choose)
+             editable: function (cell) { return cell.getRow().getData().type === "object" && typeof lensHasMaterials === "function" && lensHasMaterials(); } },
             {title:"type",   field:"type",     width:78, align:"center", headerSort:false,
              // click to change what kind of object this is (see openObjectTypeMenu in settings.js)
              formatter: function (cell) {

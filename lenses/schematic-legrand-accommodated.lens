@@ -1,0 +1,138 @@
+/*--------------------------------------------
+ Le Grand full theoretical eye: ACCOMMODATED (7.053 D)
+
+ Source: TEVOI (Smith & Atchison, The Eye and Visual Optical Instruments, Cambridge University Press 1997), Appendix 3 'Schematic eyes', p. 785, Le Grand full theoretical eye: Accommodated.
+ Surfaces 1-4: R 7.8, 6.5, 6.0, -5.5 mm; n 1.3771, 1.3374, 1.4270, 1.3360; d 0.55, 2.65, 4.5 mm. Eye power 67.677 D, length 24.197 mm.
+ The cornea, aqueous and vitreous are as the relaxed eye; the lens is thicker and steeper and moves forward.
+ Radii, thicknesses and indices are as published; nothing has been added (no retina is drawn: the appendix gives the eye length, 24.197 mm, not a retinal surface). The 4 mm stop is the app's usual pupil.
+----------------------------------------------*/
+{
+	"category": "Schematic eyes",
+	"subcategory": "Le Grand",
+	"keywords": [
+		"schematic eye",
+		"Le Grand",
+		"accommodated"
+	],
+	"shortName": "Accommodated",
+	"about": "The Le Grand full theoretical eye accommodated by 7.05 D (eye power 67.68 D).",
+	"reference": "Smith G, Atchison DA (1997) The Eye and Visual Optical Instruments (TEVOI). Cambridge University Press. Appendix 3, Schematic eyes, p. 785",
+	"title": "Le Grand full theoretical eye accommodated",
+	"units": "m",
+	"visible": {
+		"radius": true,
+		"power": true,
+		"curvature": true,
+		"aperture": true
+	},
+	"viewBox": [
+		-0.0125,
+		0.00875,
+		0.05,
+		0.0175
+	],
+	"sources": [
+		{
+			"id": 1,
+			"type": "object",
+			"infinity": true,
+			"which": "object",
+			"beamwidth": 0.004,
+			"z": NaN,
+			"h": NaN,
+			"t": 10
+		}
+	],
+	"prescription": [
+		{
+			"id": "0001",
+			"type": "index",
+			"description": "air",
+			"args": {
+				"index": 1.0
+			}
+		},
+		{
+			"id": "0002",
+			"group": "cornea",
+			"type": "sphere",
+			"description": "anterior cornea",
+			"args": {
+				"radius": 0.0078,
+				"height": 0.012,
+				"aperture": 0.012
+			}
+		},
+		{
+			"id": "0003",
+			"group": "cornea",
+			"type": "index",
+			"description": "cornea",
+			"args": {
+				"index": 1.3771,
+				"thickness": 0.00055
+			}
+		},
+		{
+			"id": "0004",
+			"group": "cornea",
+			"type": "sphere",
+			"description": "posterior cornea",
+			"args": {
+				"radius": 0.0065,
+				"height": 0.012,
+				"aperture": 0.012
+			}
+		},
+		{
+			"id": "0005",
+			"type": "index",
+			"description": "aqueous",
+			"args": {
+				"index": 1.3374,
+				"thickness": 0.00265
+			}
+		},
+		{
+			"id": "0006",
+			"group": "lens",
+			"type": "sphere",
+			"description": "anterior lens",
+			"args": {
+				"radius": 0.006,
+				"stop": true,
+				"height": 0.018201676,
+				"aperture": 0.004
+			}
+		},
+		{
+			"id": "0007",
+			"group": "lens",
+			"type": "index",
+			"description": "lens",
+			"args": {
+				"index": 1.427,
+				"thickness": 0.0045
+			}
+		},
+		{
+			"id": "0008",
+			"group": "lens",
+			"type": "sphere",
+			"description": "posterior lens",
+			"args": {
+				"radius": -0.0055,
+				"height": 0.018201676,
+				"aperture": 0.018201676
+			}
+		},
+		{
+			"id": "0009",
+			"type": "index",
+			"description": "vitreous",
+			"args": {
+				"index": 1.336
+			}
+		}
+	]
+}

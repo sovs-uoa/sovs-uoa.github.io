@@ -4,8 +4,8 @@ Emmetropic eye with presbyopia (FA=0) and spectacles (Lab 3)
 
 -------------------------------------------------------------*/
 {
-	"category"    : "Schematic eyes",
-	"subcategory" : "Reduced eye",
+	"category"    : "Clinical models",
+	"subcategory" : "Presbyopia",
 	"keywords"    : [ "schematic eye", "reduced eye", "mystery" ],
 	"shortName"   : "Presbyopic eye with spectacles",
 	"about"       : "An emmetropic eye with presbyopia and spectacles.",
@@ -92,7 +92,7 @@ Emmetropic eye with presbyopia (FA=0) and spectacles (Lab 3)
 		"type": "sphere",
 		"description": "anterior cornea",
 		"args": {
-			"radius": 0.0055,
+			"radius": 0.00555,
 			"height": 0.01,
 			"aperture": 0.01
 		}
@@ -101,8 +101,8 @@ Emmetropic eye with presbyopia (FA=0) and spectacles (Lab 3)
 		"type": "index",
 		"description": "aqueous/vitreous",
 		"args": {
-			"index": 1.33,
-			"thickness": 0.02216666666
+			"index": 1.333,
+			"thickness": 0.02221666667
 		}
 	}, {
 		"id": "0010",

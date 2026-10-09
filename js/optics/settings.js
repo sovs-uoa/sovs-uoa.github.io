@@ -35,11 +35,46 @@ function wavelengthChipHTML (nm) {
 }
 
 
+/* --- an object with no particular wavelength ------------------------------------------------------------------- */
+
+// An object's wavelength is a number of nm - or "custom": no particular wavelength. A custom object is traced through
+// the lens as it is typed (every fixed, Custom-material index as given; a named material at its design index, n_d)
+// and is drawn in the plain beam colour, claiming no spectral line. It is what an eye whose indices are textbook values
+// (1.333 for the aqueous...) should be lit with: those indices belong to no line in particular.
+function isCustomWavelength (v) { return typeof v === "string" && v.toLowerCase() === "custom"; }
+
+// the nm an object is traced at: undefined for a custom one
+function objectWavelength (v) { return isCustomWavelength(v) ? undefined : (Number(v) || SovsSettings.NOMINAL_NM); }
+
+// A wavelength can only be spoken of when the lens's media are all of one kind: every one either a named material
+// (whose index depends on wavelength) or air (n = 1, or -1 after a mirror). A fixed, Custom index for anything
+// else (water at 1.333, a glass given only as a number) belongs to no wavelength in particular, and mixing it with
+// named materials would trace part of the lens at one wavelength and part of it at none.
+function lensMediaKinds () {
+  var named = false, custom = false;
+  if (typeof renderableLens !== "undefined" && renderableLens && renderableLens.elem) {
+    renderableLens.elem.forEach(function (e) {
+      var row = e && e.elem;
+      if (!row) { return; }
+      if (row.material) { named = true; }
+      else if (row.type === "index" && Math.abs(Math.abs(Number(row.index)) - 1) > 1e-6) { custom = true; }
+    });
+  }
+  return { named: named, custom: custom };
+}
+
+// is there a wavelength to speak of? (some named material, and no Custom medium alongside it)
+function lensHasMaterials () { var k = lensMediaKinds(); return k.named && !k.custom; }
+
+// named materials and Custom media together: no wavelength can be expected
+function lensMixesMedia () { var k = lensMediaKinds(); return k.named && k.custom; }
+
 /* --- tracing at a wavelength --------------------------------------------------------------------------------- */
 
 var nominalLens        = null;   // the analysis of the table as typed - what the prescription draws
 var lensAnalysisCache  = {};     // wavelength (nm) -> analysis; emptied whenever the prescription changes
 var currentLensWavelength;       // the wavelength of whatever is being computed / drawn right now (undefined: none)
+var currentBeamCustom = false;   // ... and whether that is a Custom object (no particular wavelength): drawn in neutral grey
 
 // called by updatePrescriptionView() each time it has re-analysed the table
 function noteNominalLens (analysis) {
@@ -49,7 +84,7 @@ function noteNominalLens (analysis) {
 
 function lensAt (nm) {
 
-  if (!SovsSettings.advancedMaterials || isNominalWavelength(nm) || !nominalLens) { return nominalLens; }
+  if (!SovsSettings.advancedMaterials || isNominalWavelength(nm) || !nominalLens || !lensHasMaterials()) { return nominalLens; }
 
   var key = String(nm);
   if (!lensAnalysisCache[key]) {
@@ -71,15 +106,17 @@ function withLensAt (nm, fn, thisArg, args) {
 
   if (!SovsSettings.advancedMaterials || !nominalLens) { return fn.apply(thisArg, args || []); }
 
-  var savedLens = renderableLens;
-  var savedNm   = currentLensWavelength;
-  var useNm     = isFinite(nm) ? nm : savedNm;
+  var savedLens   = renderableLens;
+  var savedNm     = currentLensWavelength;
+  var savedCustom = currentBeamCustom;
+  var useNm       = isFinite(nm) ? nm : savedNm;
 
   currentLensWavelength = useNm;
+  if (isCustomWavelength(nm)) { currentBeamCustom = true; } else if (isFinite(nm)) { currentBeamCustom = false; }
   renderableLens        = lensAt(useNm);
 
   try     { return fn.apply(thisArg, args || []); }
-  finally { renderableLens = savedLens; currentLensWavelength = savedNm; }
+  finally { renderableLens = savedLens; currentLensWavelength = savedNm; currentBeamCustom = savedCustom; }
 }
 
 // Make every construction compute through its own wavelength's lens, however it is poked: its public methods
@@ -143,6 +180,14 @@ function wavelengthCellFormatter (cell, formatterParams, onRendered) {
 
   if (cell.getRow().getData().type !== "object") { return ""; }   // only objects have a wavelength
 
+  if (isCustomWavelength(cell.getValue())) {
+    var plain = cell.getElement();
+    plain.style.background = "#e9ecef";
+    plain.style.color      = "#343a40";
+    plain.title            = "Custom: no particular wavelength" + (lensHasMaterials() ? "" : " (this lens names no material, so every index is fixed and no wavelength can be expected)");
+    return "Custom";
+  }
+
   var nm = Number(cell.getValue()) || SovsSettings.NOMINAL_NM;
   var w  = SovsSettings.entryFor(nm);
 
@@ -161,7 +206,7 @@ function wavelengthCellFormatter (cell, formatterParams, onRendered) {
 function openWavelengthPalette (anchorEl, current, onPick, onClose) {
 
   // Order: the wavelengths the objects are using, in the order of the Objects and Images table; a divider; then
-  // Custom (any wavelength you type) and the rest of the list in numerical order.
+  // Other (any wavelength you type) and the rest of the list in numerical order; Custom (no wavelength) is at the top.
   var listed = SovsSettings.wavelengths.slice().sort(function (a, b) { return a.nm - b.nm; });
   function entryOf (nm) {
     var hit = listed.filter(function (w) { return Math.abs(w.nm - nm) < 0.05; })[0];
@@ -171,14 +216,14 @@ function openWavelengthPalette (anchorEl, current, onPick, onClose) {
   var used = [];
   if (typeof lens !== "undefined" && lens.pointsTable) {
     lens.pointsTable.getData().forEach(function (d) {
-      if (d.type !== "object") { return; }
+      if (d.type !== "object" || isCustomWavelength(d.wavelength)) { return; }
       var nm = Number(d.wavelength) || SovsSettings.NOMINAL_NM;
       if (!used.some(function (u) { return Math.abs(u - nm) < 0.05; })) { used.push(nm); }
     });
   }
   var usedEntries = used.map(entryOf);
   var rest = listed.filter(function (w) { return !used.some(function (u) { return Math.abs(u - w.nm) < 0.05; }); });
-  if (!used.length && !listed.some(function (w) { return Math.abs(w.nm - current) < 0.05; })) { usedEntries.push(entryOf(current)); }
+  if (!used.length && !isCustomWavelength(current) && !listed.some(function (w) { return Math.abs(w.nm - current) < 0.05; })) { usedEntries.push(entryOf(current)); }
 
   var palette = document.createElement("div");
   palette.className = "wavelength-palette";
@@ -219,13 +264,21 @@ function openWavelengthPalette (anchorEl, current, onPick, onClose) {
     tbody.appendChild(tr);
   }
 
+  // Custom: no particular wavelength (first, because that is what an eye with textbook indices wants)
+  var none = document.createElement("tr");
+  none.className = "custom-none" + (isCustomWavelength(current) ? " selected" : "");
+  none.innerHTML = "<td colspan=\"3\"><strong>Custom</strong> - no particular wavelength</td><td class=\"swatch\" style=\"background:#e9ecef;\"></td>";
+  none.addEventListener("mousedown", function (e) { e.preventDefault(); e.stopPropagation(); finish("custom"); });
+  tbody.appendChild(none);
+  addDivider();
+
   usedEntries.forEach(addEntry);
   if (usedEntries.length) { addDivider(); }
 
   // Custom: type any wavelength; the swatch previews its colour
   var custom = document.createElement("tr");
   custom.className = "custom";
-  custom.innerHTML = "<td colspan=\"2\">Custom</td><td class=\"nm\"><input type=\"text\" size=\"5\" placeholder=\"nm\"></td><td class=\"swatch\"></td>";
+  custom.innerHTML = "<td colspan=\"2\">Other (type nm)</td><td class=\"nm\"><input type=\"text\" size=\"5\" placeholder=\"nm\"></td><td class=\"swatch\"></td>";
   var box = custom.querySelector("input"), chip = custom.querySelector(".swatch");
   box.addEventListener("input", function () {
     var nm = parseFloat(box.value);
@@ -258,12 +311,12 @@ function openWavelengthPalette (anchorEl, current, onPick, onClose) {
 // Clicking the cell pops up that palette; the cell itself keeps showing the current chip meanwhile.
 function wavelengthCellEditor (cell, onRendered, success, cancel) {
 
-  var current = Number(cell.getValue()) || SovsSettings.NOMINAL_NM;
+  var current = isCustomWavelength(cell.getValue()) ? "custom" : (Number(cell.getValue()) || SovsSettings.NOMINAL_NM);
 
   var holder = document.createElement("div");
   holder.tabIndex = 0;
   holder.style.outline = "none";
-  holder.textContent = String(current);
+  holder.textContent = isCustomWavelength(current) ? "Custom" : String(current);
 
   onRendered(function () {
     holder.focus();
@@ -328,7 +381,8 @@ function refreshIndexChip () {
   if (!btn) { return; }
 
   var onPrescription = document.getElementById("prescription-nav").classList.contains("active");
-  btn.style.display = (SovsSettings.advancedMaterials && onPrescription) ? "" : "none";
+  // (with no material named anywhere in the lens every index is a fixed, Custom one: there is no wavelength to choose)
+  btn.style.display = (SovsSettings.advancedMaterials && onPrescription && lensHasMaterials()) ? "" : "none";
 
   var w = SovsSettings.entryFor(SovsSettings.prescriptionNm);
   btn.className = "btn btn-sm mr-2";
@@ -336,6 +390,18 @@ function refreshIndexChip () {
   btn.style.borderColor = w.color;
   btn.style.color       = readableTextColor(w.color);
   btn.innerHTML = "&lambda; " + escapeHTML(wavelengthText(w.nm)) + " nm &#9662;";
+
+  // named materials and Custom media together: say why there is no wavelength
+  var note = document.getElementById("prescription-mixed-note");
+  if (!note) {
+    note = document.createElement("span");
+    note.id = "prescription-mixed-note";
+    note.className = "badge badge-warning mr-2";
+    note.textContent = "mixed media";
+    note.title = "This lens names a material for some media and gives a fixed (Custom) index for others, so no wavelength can be expected: it is traced as typed, a named material at its design index.";
+    btn.parentNode.insertBefore(note, btn);
+  }
+  note.style.display = (SovsSettings.advancedMaterials && onPrescription && lensMixesMedia()) ? "" : "none";
 }
 
 function initIndexWavelengthButton () {
@@ -361,7 +427,7 @@ function initIndexWavelengthButton () {
 // the Summary pane is re-rendered from a template on every update, so its selector is put back each time
 function attachSummaryWavelengthBar (pane) {
 
-  if (!SovsSettings.advancedMaterials) { return; }
+  if (!SovsSettings.advancedMaterials || !lensHasMaterials()) { return; }
 
   var cur = SovsSettings.entryFor(SovsSettings.summaryNm);
 
@@ -414,6 +480,7 @@ function refreshModalIndexInput () {
 // something that every wavelength-dependent view shows has changed: re-trace and redraw them all
 function applyMaterialsChange () {
   if (typeof scheduleBeamEdgeTagging === "function") { scheduleBeamEdgeTagging(); }
+  refreshIndexChip();
 
   if (typeof lens !== "undefined" && lens.table && typeof updatePrescriptionView === "function") {
     updatePrescriptionView();     // re-analyses, refreshes every object at its own wavelength, redraws the Summary
@@ -480,7 +547,7 @@ function focusedWavelength () {
 
   var row = lens.pointsTable.getData().filter(function (d) { return d.id == focusedObjectId; })[0];
   if (!row || row.type !== "object") { return undefined; }
-  return Number(row.wavelength) || SovsSettings.NOMINAL_NM;
+  return objectWavelength(row.wavelength);
 }
 
 // Everything that describes the lens follows the beam in focus: the prescription's Ref. Index column, the
@@ -1027,6 +1094,7 @@ function tagBeamEdges () {
     // principal rays of a point object) is made of its lines: they are the diagram, not an outline of it.
     // (a construction with no wavelength of its own is traced at the nominal one, the d line)
     var beamNm = isFinite(Number(c.WavelengthNm)) && c.WavelengthNm !== null && c.WavelengthNm !== "" ? Number(c.WavelengthNm) : SovsSettings.NOMINAL_NM;
+    var colourByWavelength = SovsSettings.advancedMaterials && !isCustomWavelength(c.WavelengthNm);   // (a custom beam has no colour of its own)
 
     var shaded = c.cd_set.items.some(function (item) { return item.node && item.node.classList.contains("beam-shade"); });
 
@@ -1039,13 +1107,13 @@ function tagBeamEdges () {
         // a virtual (construction) line: in advanced materials mode it takes the colour of its own beam
         var stroke = node.getAttribute("stroke") || "";
         if (stroke.indexOf("url") === 0 || stroke === "none") { return; }
-        node.style.stroke = SovsSettings.advancedMaterials ? SovsSettings.entryFor(beamNm).color : "";
+        node.style.stroke = colourByWavelength ? SovsSettings.entryFor(beamNm).color : "";
         return;
       }
       if (node.getAttribute("stroke") === "none") { return; }
 
       // in advanced materials mode a beam's lines take the colour of its wavelength (the d line is the familiar yellow)
-      var lineColor = SovsSettings.advancedMaterials ? SovsSettings.entryFor(beamNm).color : "";
+      var lineColor = colourByWavelength ? SovsSettings.entryFor(beamNm).color : "";
       var solidStroke = node.getAttribute("stroke") || "";
       if (solidStroke.indexOf("url(#") === 0) {
         // a line that fades out towards infinity is stroked with a gradient: colour the stops of that gradient

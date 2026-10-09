@@ -9,6 +9,7 @@
 	"keywords"    : [ "schematic eye", "Le Grand" ],
 	"shortName"   : "Relaxed, no retina",
 	"about"       : "The Le Grand relaxed schematic eye with no retina drawn, so the image can fall where it falls.",
+	"reference"   : "Smith G, Atchison DA (1997) The Eye and Visual Optical Instruments (TEVOI). Cambridge University Press. Appendix 3, Schematic eyes, p. 784",
 
 
 	/* UNITS: this file's radii/thicknesses/viewBox/etc. are genuinely authored in
@@ -47,7 +48,7 @@
 
 	/* LENS PRESCRITPION */
 
-	"title": "Gullstrand 1 eye relaxed",
+	"title": "Le Grand full theoretical eye relaxed (no retina)",
     "prescription": [{
 		"id": "0001",
 		"type": "index",

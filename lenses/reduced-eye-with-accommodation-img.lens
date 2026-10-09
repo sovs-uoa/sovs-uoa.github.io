@@ -4,8 +4,8 @@ Reduced eye with accommodation
 
 ----------------------------------------------*/
 {
-	"category"    : "Schematic eyes",
-	"subcategory" : "Reduced eye",
+	"category"    : "Clinical models",
+	"subcategory" : "Laboratory eyes",
 	"keywords"    : [ "schematic eye", "reduced eye" ],
 	"shortName"   : "With accommodation",
 	"about"       : "A reduced eye (one refracting surface and a retina) that accommodates: see how the image moves as the eye focuses near.",

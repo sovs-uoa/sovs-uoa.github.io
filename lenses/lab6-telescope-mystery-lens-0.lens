@@ -4,10 +4,10 @@ Vertometer standard
 
 ----------------------------------------------*/
 {
-	"category"    : "Instruments",
-	"subcategory" : "Telescope",
+	"category"    : "Clinical models",
+	"subcategory" : "Mystery lenses",
 	"keywords"    : [ "instrument", "telescope" ],
-	"shortName"   : "Telescope, mystery lens",
+	"shortName"   : "Mystery lens in a telescope",
 	"about"       : "A telescope with a mystery lens in the system.",
 
 	"title": "Vertometer (Lab 6)",

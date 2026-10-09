@@ -14,6 +14,7 @@
 	"keywords"    : [ "schematic eye", "Gullstrand" ],
 	"shortName"   : "Relaxed",
 	"about"       : "Gullstrand's number 1 schematic eye, relaxed: cornea, aqueous humour, lens and vitreous.",
+	"reference"   : "Smith G, Atchison DA (1997) The Eye and Visual Optical Instruments (TEVOI). Cambridge University Press. Appendix 3, Schematic eyes, p. 779",
 
 	"title": "Gullstrand 1 eye relaxed",
 	"units" : "m",

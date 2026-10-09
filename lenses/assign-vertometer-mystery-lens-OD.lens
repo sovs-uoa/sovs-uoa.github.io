@@ -4,8 +4,8 @@ Vertometer standard
 
 ----------------------------------------------*/
 {
-	"category"    : "Instruments",
-	"subcategory" : "Vertometer",
+	"category"    : "Clinical models",
+	"subcategory" : "Mystery lenses",
 	"keywords"    : [ "instrument", "vertometer" ],
 	"shortName"   : "Mystery lens, right eye (OD)",
 	"about"       : "A vertometer with the mystery lens for the right eye (OD).",

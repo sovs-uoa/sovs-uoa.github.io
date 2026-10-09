@@ -4,8 +4,8 @@ Vertometer standard
 
 ----------------------------------------------*/
 {
-	"category"    : "Instruments",
-	"subcategory" : "Vertometer",
+	"category"    : "Clinical models",
+	"subcategory" : "Mystery lenses",
 	"keywords"    : [ "instrument", "vertometer" ],
 	"shortName"   : "Mystery lens 2",
 	"about"       : "A vertometer with a second mystery lens in place. Find its power.",

@@ -1,0 +1,90 @@
+/*--------------------------------------------
+ Reduced eye (Schwartz), bare
+
+ The reduced eye of Schwartz, Geometrical and Visual Optics: A Clinical Introduction, chapter 7 (Figure 7-1): one spherical refracting
+ surface, R = +5.55 mm, between air (n = 1.000) and aqueous (n' = 1.333). Power (1.333 - 1)/0.00555 = 60.00 D exactly; focal lengths
+ -16.67 and +22.22 mm (1.333/60 = 22.2167 mm, which the book rounds to 22.22), so the axial length is made 22.2167 mm and the eye is
+ exactly emmetropic. The nodal point is at the centre of curvature; the principal planes are on the surface. Nothing is in front of it.
+ (The curved retina is drawn for the diagram; the book gives only the axial length.)
+ The laboratory versions add slots for a correcting, an ametropia and an accommodating lens (they are in "Clinical models").
+ For another published reduced eye see Emsley's (R 5.556 mm, n = 4/3, from TEVOI).
+ The 5 mm stop is the one the laboratory versions use.
+----------------------------------------------*/
+{
+	"category": "Schematic eyes",
+	"subcategory": "Reduced eye",
+	"keywords": [
+		"schematic eye",
+		"reduced eye",
+		"bare",
+		"Schwartz"
+	],
+	"shortName": "Reduced eye (Schwartz)",
+	"about": "The reduced eye of Schwartz (chapter 7): one refracting surface, R 5.55 mm, n 1.333 (60 D), 22.22 mm long, with nothing in front.",
+	"reference": "Schwartz SH. Geometrical and Visual Optics: A Clinical Introduction, chapter 7, Figure 7-1",
+	"title": "Reduced eye (Schwartz)",
+	"units": "m",
+	"visible": {
+		"radius": true,
+		"power": true,
+		"curvature": true,
+		"aperture": true
+	},
+	"viewBox": [
+		-0.0125,
+		0.00875,
+		0.05,
+		0.0175
+	],
+	"sources": [
+		{
+			"id": 1,
+			"type": "object",
+			"infinity": true,
+			"which": "object",
+			"beamwidth": 0.004,
+			"z": NaN,
+			"h": NaN,
+			"t": 10
+		}
+	],
+	"prescription": [
+		{
+			"id": "0001",
+			"type": "index",
+			"description": "air",
+			"args": {
+				"index": 1.0
+			}
+		},
+		{
+			"id": "0002",
+			"type": "sphere",
+			"description": "anterior cornea",
+			"args": {
+				"radius": 0.00555,
+				"stop": true,
+				"height": 0.01,
+				"aperture": 0.005
+			}
+		},
+		{
+			"id": "0003",
+			"type": "index",
+			"description": "aqueous/vitreous",
+			"args": {
+				"index": 1.333,
+				"thickness": 0.02221666667
+			}
+		},
+		{
+			"id": "0004",
+			"type": "img",
+			"description": "retina",
+			"args": {
+				"radius": -0.01,
+				"height": 0.01
+			}
+		}
+	]
+}

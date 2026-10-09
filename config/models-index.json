@@ -91,7 +91,8 @@
    "Le Grand"
   ],
   "shortName": "Relaxed",
-  "about": "The Le Grand relaxed schematic eye: cornea, aqueous humour, lens and vitreous, ending at the retina."
+  "reference": "Smith G, Atchison DA (1997) The Eye and Visual Optical Instruments (TEVOI). Cambridge University Press. Appendix 3, Schematic eyes, p. 784",
+  "about": "The Le Grand full theoretical relaxed eye: cornea, aqueous humour, lens and vitreous, ending at the retina (eye power 59.94 D)."
  },
  "11": {
   "category": "Schematic eyes",
@@ -101,11 +102,12 @@
    "Le Grand"
   ],
   "shortName": "Relaxed, no retina",
+  "reference": "Smith G, Atchison DA (1997) The Eye and Visual Optical Instruments (TEVOI). Cambridge University Press. Appendix 3, Schematic eyes, p. 784",
   "about": "The Le Grand relaxed schematic eye with no retina drawn, so the image can fall where it falls."
  },
  "12": {
-  "category": "Schematic eyes",
-  "subcategory": "Reduced eye",
+  "category": "Clinical models",
+  "subcategory": "Laboratory eyes",
   "keywords": [
    "schematic eye",
    "reduced eye"
@@ -114,18 +116,18 @@
   "about": "A reduced eye (one refracting surface and a retina) that accommodates: see how the image moves as the eye focuses near."
  },
  "13": {
-  "category": "Schematic eyes",
-  "subcategory": "Reduced eye",
+  "category": "Clinical models",
+  "subcategory": "Laboratory eyes",
   "keywords": [
    "schematic eye",
    "reduced eye"
   ],
-  "shortName": "Emmetropic reduced eye",
-  "about": "A reduced eye with a retina and thin lenses in front of it for adding corrections."
+  "shortName": "Emmetropic reduced eye with correction slots",
+  "about": "The reduced eye with its three lens slots (correcting, ametropia, accommodating), emmetropic to start."
  },
  "14": {
-  "category": "Schematic eyes",
-  "subcategory": "Reduced eye",
+  "category": "Clinical models",
+  "subcategory": "Mystery eyes",
   "keywords": [
    "schematic eye",
    "reduced eye",
@@ -135,8 +137,8 @@
   "about": "A mystery reduced eye. Work out what its refractive error is."
  },
  "15": {
-  "category": "Schematic eyes",
-  "subcategory": "Reduced eye",
+  "category": "Clinical models",
+  "subcategory": "Mystery eyes",
   "keywords": [
    "schematic eye",
    "reduced eye",
@@ -150,31 +152,23 @@
   "subcategory": "Telescope",
   "keywords": [
    "instrument",
-   "telescope"
+   "telescope",
+   "Galilean",
+   "eye"
   ],
-  "shortName": "Telescope and eye",
-  "about": "A telescope in front of a reduced eye with ametropia."
+  "shortName": "Galilean with eye",
+  "about": "A Galilean telescope in front of the reduced eye: an upright image on the retina, with a slot for an ametropia lens."
  },
  "17": {
-  "category": "Schematic eyes",
-  "subcategory": "Reduced eye",
+  "category": "Clinical models",
+  "subcategory": "Laboratory eyes",
   "keywords": [
    "schematic eye",
    "reduced eye"
   ],
-  "shortName": "Emmetropic reduced eye",
-  "about": "A reduced eye with a retina and thin lenses in front of it for adding corrections.",
+  "shortName": "Emmetropic reduced eye with correction slots",
+  "about": "The reduced eye with its three lens slots (correcting, ametropia, accommodating), emmetropic to start.",
   "duplicateOf": "13"
- },
- "18": {
-  "category": "Instruments",
-  "subcategory": "Telescope",
-  "keywords": [
-   "instrument",
-   "telescope"
-  ],
-  "shortName": "Telescope and eye, no retina",
-  "about": "A telescope in front of a reduced eye with ametropia, with no retina drawn."
  },
  "19": {
   "category": "Assignments",
@@ -214,8 +208,8 @@
   "about": "A vertometer (lensmeter) with its standard lens in place."
  },
  "23": {
-  "category": "Instruments",
-  "subcategory": "Vertometer",
+  "category": "Clinical models",
+  "subcategory": "Mystery lenses",
   "keywords": [
    "instrument",
    "vertometer"
@@ -224,8 +218,8 @@
   "about": "A vertometer with a mystery lens in place. Find its power."
  },
  "24": {
-  "category": "Instruments",
-  "subcategory": "Vertometer",
+  "category": "Clinical models",
+  "subcategory": "Mystery lenses",
   "keywords": [
    "instrument",
    "vertometer"
@@ -234,18 +228,18 @@
   "about": "A vertometer with a second mystery lens in place. Find its power."
  },
  "25": {
-  "category": "Instruments",
-  "subcategory": "Telescope",
+  "category": "Clinical models",
+  "subcategory": "Mystery lenses",
   "keywords": [
    "instrument",
    "telescope"
   ],
-  "shortName": "Telescope, mystery lens",
+  "shortName": "Mystery lens in a telescope",
   "about": "A telescope with a mystery lens in the system."
  },
  "26": {
-  "category": "Instruments",
-  "subcategory": "Vertometer",
+  "category": "Clinical models",
+  "subcategory": "Mystery lenses",
   "keywords": [
    "instrument",
    "vertometer"
@@ -254,8 +248,8 @@
   "about": "A vertometer with the mystery lens for the left eye (OS)."
  },
  "27": {
-  "category": "Instruments",
-  "subcategory": "Vertometer",
+  "category": "Clinical models",
+  "subcategory": "Mystery lenses",
   "keywords": [
    "instrument",
    "vertometer"
@@ -264,13 +258,13 @@
   "about": "A vertometer with the mystery lens for the right eye (OD)."
  },
  "28": {
-  "category": "Instruments",
-  "subcategory": "Vertometer",
+  "category": "Clinical models",
+  "subcategory": "Mystery lenses",
   "keywords": [
    "instrument",
    "vertometer"
   ],
-  "shortName": "Vertometer (assignment lens)",
+  "shortName": "Mystery lens (assignment)",
   "about": "A vertometer with the lens from an assignment."
  },
  "29": {
@@ -504,8 +498,8 @@
   "about": "Two thick lenses in air, treated as one system."
  },
  "53": {
-  "category": "Schematic eyes",
-  "subcategory": "Reduced eye",
+  "category": "Clinical models",
+  "subcategory": "Mystery eyes",
   "keywords": [
    "schematic eye",
    "reduced eye",
@@ -515,8 +509,8 @@
   "about": "A third mystery reduced eye. Work out what its refractive error is."
  },
  "54": {
-  "category": "Schematic eyes",
-  "subcategory": "Reduced eye",
+  "category": "Clinical models",
+  "subcategory": "Presbyopia",
   "keywords": [
    "schematic eye",
    "reduced eye",
@@ -526,19 +520,19 @@
   "about": "An emmetropic eye with presbyopia and spectacles."
  },
  "55": {
-  "category": "Schematic eyes",
-  "subcategory": "Reduced eye",
+  "category": "Clinical models",
+  "subcategory": "Laboratory eyes",
   "keywords": [
    "schematic eye",
    "reduced eye"
   ],
-  "shortName": "Emmetropic reduced eye",
-  "about": "A reduced eye with a retina and thin lenses in front of it for adding corrections.",
+  "shortName": "Emmetropic reduced eye with correction slots",
+  "about": "The reduced eye with its three lens slots (correcting, ametropia, accommodating), emmetropic to start.",
   "duplicateOf": "13"
  },
  "56": {
-  "category": "Schematic eyes",
-  "subcategory": "Reduced eye",
+  "category": "Clinical models",
+  "subcategory": "Mystery eyes",
   "keywords": [
    "schematic eye",
    "reduced eye",
@@ -549,8 +543,8 @@
   "duplicateOf": "14"
  },
  "57": {
-  "category": "Schematic eyes",
-  "subcategory": "Reduced eye",
+  "category": "Clinical models",
+  "subcategory": "Mystery eyes",
   "keywords": [
    "schematic eye",
    "reduced eye",
@@ -561,14 +555,14 @@
   "duplicateOf": "15"
  },
  "58": {
-  "category": "Schematic eyes",
-  "subcategory": "Reduced eye",
+  "category": "Clinical models",
+  "subcategory": "Laboratory eyes",
   "keywords": [
    "schematic eye",
    "reduced eye"
   ],
-  "shortName": "Reduced eye",
-  "about": "The reduced eye of Laboratory 4: a retina, a beam from infinity, and thin lenses in front for corrections."
+  "shortName": "Reduced eye with correction slots",
+  "about": "The Lab 4 reduced eye with slots in front of the cornea for a correcting, an ametropia and an accommodating lens (all 0 D to start)."
  },
  "59": {
   "category": "Schematic eyes",
@@ -578,6 +572,7 @@
    "Gullstrand"
   ],
   "shortName": "Relaxed",
+  "reference": "Smith G, Atchison DA (1997) The Eye and Visual Optical Instruments (TEVOI). Cambridge University Press. Appendix 3, Schematic eyes, p. 779",
   "about": "Gullstrand's number 1 schematic eye, relaxed: cornea, aqueous humour, lens and vitreous."
  },
  "60": {
@@ -588,6 +583,7 @@
    "Gullstrand"
   ],
   "shortName": "Accommodated",
+  "reference": "Smith G, Atchison DA (1997) The Eye and Visual Optical Instruments (TEVOI). Cambridge University Press. Appendix 3, Schematic eyes, p. 781",
   "about": "Gullstrand's number 1 schematic eye accommodated for near."
  },
  "61": {
@@ -598,6 +594,7 @@
    "Gullstrand"
   ],
   "shortName": "Lens only",
+  "reference": "Smith G, Atchison DA (1997) The Eye and Visual Optical Instruments (TEVOI). Cambridge University Press. Appendix 3, Schematic eyes, p. 779",
   "about": "Gullstrand's crystalline lens on its own, built up from its cortex and nucleus layers."
  },
  "62": {
@@ -617,27 +614,6 @@
   ],
   "shortName": "10Δ base-down prism and lens",
   "about": "A 10 prism-dioptre base-down prism with a converging thin lens: the prism displaces the image the other way."
- },
- "65": {
-  "category": "Schematic eyes",
-  "subcategory": "Gullstrand",
-  "keywords": [
-   "schematic eye",
-   "Gullstrand"
-  ],
-  "shortName": "Relaxed, grouped beams",
-  "about": "The relaxed Gullstrand eye with its beams linked as a group, so they move together."
- },
- "66": {
-  "category": "Instruments",
-  "subcategory": "Telescope",
-  "keywords": [
-   "instrument",
-   "telescope",
-   "Keplerian"
-  ],
-  "shortName": "Keplerian, stop at the intermediate image",
-  "about": "A Keplerian telescope with a manual aperture stop placed at the intermediate image."
  },
  "67": {
   "category": "Components",
@@ -683,5 +659,107 @@
   ],
   "shortName": "Convex mirror, lens and screen",
   "about": "A convex mirror sends the light back diverging; a plus lens in the reflected beam focuses it onto a screen."
+ },
+ "71": {
+  "category": "Schematic eyes",
+  "subcategory": "Le Grand",
+  "keywords": [
+   "schematic eye",
+   "Le Grand",
+   "accommodated"
+  ],
+  "shortName": "Accommodated",
+  "reference": "Smith G, Atchison DA (1997) The Eye and Visual Optical Instruments (TEVOI). Cambridge University Press. Appendix 3, Schematic eyes, p. 785",
+  "about": "The Le Grand full theoretical eye accommodated by 7.05 D (eye power 67.68 D)."
+ },
+ "72": {
+  "category": "Schematic eyes",
+  "subcategory": "Le Grand (simplified)",
+  "keywords": [
+   "schematic eye",
+   "Le Grand",
+   "simplified",
+   "relaxed"
+  ],
+  "shortName": "Simplified, relaxed",
+  "reference": "Smith G, Atchison DA (1997) The Eye and Visual Optical Instruments (TEVOI). Cambridge University Press. Appendix 3, Schematic eyes, p. 786",
+  "about": "Le Grand's simplified eye: one cornea surface and a zero-thickness lens (eye power 59.95 D)."
+ },
+ "73": {
+  "category": "Schematic eyes",
+  "subcategory": "Le Grand (simplified)",
+  "keywords": [
+   "schematic eye",
+   "Le Grand",
+   "simplified",
+   "accommodated"
+  ],
+  "shortName": "Simplified, accommodated",
+  "reference": "Smith G, Atchison DA (1997) The Eye and Visual Optical Instruments (TEVOI). Cambridge University Press. Appendix 3, Schematic eyes, p. 787",
+  "about": "Le Grand's simplified eye accommodated by 7.03 D (eye power 67.67 D)."
+ },
+ "74": {
+  "category": "Schematic eyes",
+  "subcategory": "Gullstrand 2",
+  "keywords": [
+   "schematic eye",
+   "Gullstrand",
+   "simplified",
+   "relaxed"
+  ],
+  "shortName": "Simplified, relaxed",
+  "reference": "Smith G, Atchison DA (1997) The Eye and Visual Optical Instruments (TEVOI). Cambridge University Press. Appendix 3, Schematic eyes, p. 788",
+  "about": "Gullstrand's number 2 simplified eye: a cornea surface and a thick lens in 4/3 media (eye power 60.48 D)."
+ },
+ "75": {
+  "category": "Schematic eyes",
+  "subcategory": "Gullstrand 2",
+  "keywords": [
+   "schematic eye",
+   "Gullstrand",
+   "simplified",
+   "accommodated"
+  ],
+  "shortName": "Simplified, accommodated",
+  "reference": "Smith G, Atchison DA (1997) The Eye and Visual Optical Instruments (TEVOI). Cambridge University Press. Appendix 3, Schematic eyes, p. 789",
+  "about": "Gullstrand's number 2 simplified eye accommodated by 8.6 D (eye power 69.72 D)."
+ },
+ "76": {
+  "category": "Schematic eyes",
+  "subcategory": "Reduced eye",
+  "keywords": [
+   "schematic eye",
+   "reduced eye",
+   "Emsley",
+   "60 D"
+  ],
+  "shortName": "Emsley reduced eye (60 D)",
+  "reference": "Smith G, Atchison DA (1997) The Eye and Visual Optical Instruments (TEVOI). Cambridge University Press. Appendix 3, Schematic eyes, p. 790",
+  "about": "Emsley's reduced eye: a single refracting surface of 60 D in a medium of index 4/3, 22.22 mm long."
+ },
+ "77": {
+  "category": "Schematic eyes",
+  "subcategory": "Reduced eye",
+  "keywords": [
+   "schematic eye",
+   "reduced eye",
+   "bare",
+   "Schwartz"
+  ],
+  "shortName": "Reduced eye (Schwartz)",
+  "reference": "Schwartz SH. Geometrical and Visual Optics: A Clinical Introduction, chapter 7, Figure 7-1",
+  "about": "The reduced eye of Schwartz (chapter 7): one refracting surface, R 5.55 mm, n 1.333 (60 D), 22.22 mm long, with nothing in front."
+ },
+ "78": {
+  "category": "Instruments",
+  "subcategory": "Telescope",
+  "keywords": [
+   "instrument",
+   "telescope",
+   "Keplerian",
+   "eye"
+  ],
+  "shortName": "Keplerian with eye",
+  "about": "A Keplerian telescope in front of the reduced eye: an inverted image on the retina, with a slot for an ametropia lens."
  }
 }

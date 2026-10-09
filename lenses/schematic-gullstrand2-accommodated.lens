@@ -1,0 +1,117 @@
+/*--------------------------------------------
+ Gullstrand number 2 simplified eye: ACCOMMODATED (8.599 D)
+
+ Source: TEVOI (Smith & Atchison, The Eye and Visual Optical Instruments, Cambridge University Press 1997), Appendix 3 'Schematic eyes', p. 789, Gullstrand number 2 simplified eye: Accommodated.
+ Cornea R 7.8 mm; aqueous and vitreous n = 4/3; lens n 1.416, R 5.0 / -5.0 mm, 4.0 mm thick, 3.2 mm behind the cornea.
+ Eye power 69.721 D, length 23.896 mm. Nothing has been added to the published eye. The 4 mm stop (at the front of the lens) is the app's usual pupil.
+----------------------------------------------*/
+{
+	"category": "Schematic eyes",
+	"subcategory": "Gullstrand 2",
+	"keywords": [
+		"schematic eye",
+		"Gullstrand",
+		"simplified",
+		"accommodated"
+	],
+	"shortName": "Simplified, accommodated",
+	"about": "Gullstrand's number 2 simplified eye accommodated by 8.6 D (eye power 69.72 D).",
+	"reference": "Smith G, Atchison DA (1997) The Eye and Visual Optical Instruments (TEVOI). Cambridge University Press. Appendix 3, Schematic eyes, p. 789",
+	"title": "Gullstrand number 2 simplified eye accommodated",
+	"units": "m",
+	"visible": {
+		"radius": true,
+		"power": true,
+		"curvature": true,
+		"aperture": true
+	},
+	"viewBox": [
+		-0.0125,
+		0.00875,
+		0.05,
+		0.0175
+	],
+	"sources": [
+		{
+			"id": 1,
+			"type": "object",
+			"infinity": true,
+			"which": "object",
+			"beamwidth": 0.004,
+			"z": NaN,
+			"h": NaN,
+			"t": 10
+		}
+	],
+	"prescription": [
+		{
+			"id": "0001",
+			"type": "index",
+			"description": "air",
+			"args": {
+				"index": 1.0
+			}
+		},
+		{
+			"id": "0002",
+			"group": "cornea",
+			"type": "sphere",
+			"description": "cornea",
+			"args": {
+				"radius": 0.0078,
+				"height": 0.012,
+				"aperture": 0.012
+			}
+		},
+		{
+			"id": "0003",
+			"type": "index",
+			"description": "aqueous",
+			"args": {
+				"index": 1.3333333333333333,
+				"thickness": 0.0032
+			}
+		},
+		{
+			"id": "0004",
+			"group": "lens",
+			"type": "sphere",
+			"description": "anterior lens",
+			"args": {
+				"radius": 0.005,
+				"stop": true,
+				"height": 0.008,
+				"aperture": 0.004
+			}
+		},
+		{
+			"id": "0005",
+			"group": "lens",
+			"type": "index",
+			"description": "lens",
+			"args": {
+				"index": 1.416,
+				"thickness": 0.004
+			}
+		},
+		{
+			"id": "0006",
+			"group": "lens",
+			"type": "sphere",
+			"description": "posterior lens",
+			"args": {
+				"radius": -0.005,
+				"height": 0.008,
+				"aperture": 0.008
+			}
+		},
+		{
+			"id": "0007",
+			"type": "index",
+			"description": "vitreous",
+			"args": {
+				"index": 1.3333333333333333
+			}
+		}
+	]
+}

@@ -4,10 +4,10 @@ Vertometer standard
 
 ----------------------------------------------*/
 {
-	"category"    : "Instruments",
-	"subcategory" : "Vertometer",
+	"category"    : "Clinical models",
+	"subcategory" : "Mystery lenses",
 	"keywords"    : [ "instrument", "vertometer" ],
-	"shortName"   : "Vertometer (assignment lens)",
+	"shortName"   : "Mystery lens (assignment)",
 	"about"       : "A vertometer with the lens from an assignment.",
 
 	"title": "Vertometer (Lab 6)",

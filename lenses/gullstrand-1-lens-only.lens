@@ -20,6 +20,7 @@
 	"keywords"    : [ "schematic eye", "Gullstrand" ],
 	"shortName"   : "Lens only",
 	"about"       : "Gullstrand's crystalline lens on its own, built up from its cortex and nucleus layers.",
+	"reference"   : "Smith G, Atchison DA (1997) The Eye and Visual Optical Instruments (TEVOI). Cambridge University Press. Appendix 3, Schematic eyes, p. 779",
 
 	"title": "Gullstrand 1 eye — isolated lens",
 	"visible": { 	"radius": true,

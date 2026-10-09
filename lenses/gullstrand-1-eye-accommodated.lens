@@ -6,9 +6,10 @@
  convention used everywhere else in the app. As with the relaxed file,
  these were previously in millimetres.
 
- NOTE: this file's lens prescription (radii / thicknesses of the lens
- surfaces) is still a copy of the relaxed eye's, not the true
- accommodated Gullstrand No.1 values - see conversation history.
+ The lens is Gullstrand's number 1 exact eye ACCOMMODATED (about 10.9 D): the lens surfaces are steeper and the
+ lens thicker, and its front moves forward (aqueous 2.7 mm instead of 3.1 mm) - ant. lens R 5.333, ant. core R 2.655,
+ post. core R -2.655, post. lens R -5.333 mm; cortex 0.6725, core 2.655, cortex 0.6725 mm. The cornea, the media, the
+ back of the lens and the retina are the same as the relaxed eye.
 
 ----------------------------------------------*/
 {
@@ -17,6 +18,7 @@
 	"keywords"    : [ "schematic eye", "Gullstrand" ],
 	"shortName"   : "Accommodated",
 	"about"       : "Gullstrand's number 1 schematic eye accommodated for near.",
+	"reference"   : "Smith G, Atchison DA (1997) The Eye and Visual Optical Instruments (TEVOI). Cambridge University Press. Appendix 3, Schematic eyes, p. 781",
 
 	"title": "Gullstrand 1 eye accommodated",
 	"units" : "m",
@@ -76,16 +78,17 @@
 		"description": "aqueous",
 		"args": {
 			"index": 1.336,
-			"thickness": 0.0031
+			"thickness": 0.0027
 		}
 	}, {
 		"id": "0006",
 		"type": "sphere",
 		"description": "anterior lens",
 		"args": {
-			"radius": 0.01,
-			"height": 0.00957084543,
-			"aperture": 0.00957084543
+			"radius": 0.005333,
+			"stop": true,
+			"height": 0.00832634,
+			"aperture": 0.004
 		}
 	}, {
 		"id": "0007",
@@ -93,17 +96,17 @@
 		"description": "lens: cortex",
 		"args": {
 			"index": 1.386,
-			"thickness": 0.000546
+			"thickness": 0.0006725
 		}
 	}, {
 		"id": "0008",
 		"type": "sphere",
 		"description": "anterior core",
 		"args": {
-			"stop": true,
-			"radius": 0.007911,
-			"height": 0.00762138561,
-			"aperture": 0.00762138561
+			
+			"radius": 0.002655,
+			"height": 0.0045986,
+			"aperture": 0.0045986
 		}
 	}, {
 		"id": "0009",
@@ -111,16 +114,16 @@
 		"description": "lens: core",
 		"args": {
 			"index": 1.406,
-			"thickness": 0.002419
+			"thickness": 0.002655
 		}
 	}, {
 		"id": "0010",
 		"type": "sphere",
 		"description": "posterior core",
 		"args": {
-			"radius": -0.00576,
-			"height": 0.00762138561,
-			"aperture": 0.00762138561
+			"radius": -0.002655,
+			"height": 0.0045986,
+			"aperture": 0.0045986
 		}
 	}, {
 		"id": "0011",
@@ -128,16 +131,16 @@
 		"description": "lens: cortex",
 		"args": {
 			"index": 1.386,
-			"thickness": 0.000635
+			"thickness": 0.0006725
 		}
 	}, {
 		"id": "0012",
 		"type": "sphere",
 		"description": "posterior cortex",
 		"args": {
-			"radius": -0.006,
-			"height": 0.00957084543,
-			"aperture": 0.00957084543
+			"radius": -0.005333,
+			"height": 0.00832634,
+			"aperture": 0.00832634
 		}
 	}, {
 		"id": "0013",

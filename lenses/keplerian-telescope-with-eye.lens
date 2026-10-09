@@ -1,22 +1,23 @@
 /*--------------------------------------------
 
-Telescope with reduced eye and ametropia  (Lab 45
+Keplerian telescope with a reduced eye (Schwartz): objective +10 D, eyepiece +20 D, tube 150 mm (f1 + f2 = 100 + 50 mm).
+The eye is the reduced eye of chapter 7, emmetropic, with a slot for an ametropia lens (0 D to start).
 
 ----------------------------------------------*/
 {
 	"category"    : "Instruments",
 	"subcategory" : "Telescope",
-	"keywords"    : [ "instrument", "telescope" ],
-	"shortName"   : "Telescope and eye, no retina",
-	"about"       : "A telescope in front of a reduced eye with ametropia, with no retina drawn.",
+	"keywords"    : [ "instrument", "telescope", "Keplerian", "eye" ],
+	"shortName"   : "Keplerian with eye",
+	"about"       : "A Keplerian telescope in front of the reduced eye: an inverted image on the retina, with a slot for an ametropia lens.",
 
-	"title": "Telescope (Lab 5)",
+	"title": "Keplerian telescope with a reduced eye",
 	"visible": { 	"radius": true,
 				 	"power":true,
 				 	"curvature":true,
 				 	"aperture":true },	
 
-	"viewBox" : [ -0.03, 0.03, 0.20, 0.06 ],
+	"viewBox" : [ -0.03, 0.03, 0.24, 0.06 ],
 
 
 	"sources" : [ { "id" 		: 1, 
@@ -51,16 +52,16 @@ Telescope with reduced eye and ametropia  (Lab 45
 		"description": "tube length",
 		"args": {
 			"index":  1.000,
-			"thickness": 0.08
+			"thickness": 0.15
 		}
 	},{	
 		"id": "0003",
 		"type": "thin",
 		"description": "eyepiece lens",
 		"args": {
-			"power":  -50,
-			"height": 0.025,
-			"aperture": 0.0125
+			"power":  20,
+			"height": 0.05,
+			"aperture": 0.025
 		}
 	},{
 		"id": "0004",
@@ -92,7 +93,7 @@ Telescope with reduced eye and ametropia  (Lab 45
 		"type": "sphere",
 		"description": "anterior cornea",
 		"args": {
-			"radius": 0.0055,
+			"radius": 0.00555,
 			"height": 0.01,
 			"aperture": 0.01
 		}
@@ -101,8 +102,16 @@ Telescope with reduced eye and ametropia  (Lab 45
 		"type": "index",
 		"description": "aqueous/vitreous",
 		"args": {
-			"index": 1.33,
-			"thickness": 0.02217
+			"index": 1.333,
+			"thickness": 0.02221666667
+		}
+	},{
+		"id": "0009",
+		"type": "img",
+		"description": "retina",
+		"args" : {
+			"radius": -0.01,
+			"height": 0.01		
 		}
 	}]
 }
