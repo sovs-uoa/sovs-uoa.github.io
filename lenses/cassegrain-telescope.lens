@@ -1,0 +1,93 @@
+/*--------------------------------------------
+A Cassegrain reflecting telescope: a concave primary mirror and a convex secondary mirror.
+
+Light from a distant object (a beam from infinity, 3 degrees off the axis so the three legs can be told apart) arrives from the left
+and meets the primary mirror, a concave mirror with R = -200 mm (f = 100 mm). It is reflected back to the left, towards the primary's
+own focus 100 mm in front of it - but the convex secondary mirror (R = -100 mm, f = -50 mm) stands 60 mm in front of the primary and
+catches it first, sending it back to the right, through the (undrawn) hole in the primary, to a focus 140 mm behind the primary.
+
+The system's equivalent focal length is f1 f2 / (f1 + f2 - d) = 100 x (-50) / (100 - 50 - 60) = 500 mm (2 D): a 100 mm mirror
+behaving like a 500 mm telescope. I1 marks where the primary alone would have brought the light to a focus; the secondary cuts the light off before it gets
+there, so I1 is a virtual object for the secondary and is drawn dashed, with dashed lines from the secondary to it.
+
+Reflection is written with a NEGATIVE index after each mirror and NEGATIVE gaps while the light travels to the left; after the second
+mirror the index and the gap are positive again.
+----------------------------------------------*/
+{
+	"category"    : "Instruments",
+	"subcategory" : "Telescope",
+	"keywords"    : [ "instrument", "telescope", "Cassegrain", "reflecting", "mirror" ],
+	"shortName"   : "Cassegrain",
+	"about"       : "A concave primary and a convex secondary mirror folding the light back to a focus behind the primary: a 500 mm focal length in 60 mm of tube.",
+
+	"title": "Cassegrain Telescope",
+	"visible": { 	"radius": true,
+				 	"power":true,
+				 	"curvature":true,
+				 	"aperture":true },
+
+	"viewBox" : [ -0.14, 0.06, 0.32, 0.12 ],
+
+	"sources" : [ { "id" 		: 1,
+					"type" 		: "object",
+					"which"		: "object",
+					"infinity"	: true,
+					"draw"		: "rays",
+					"beamwidth" : 0.08,
+					"z"			: NaN,
+					"h"			: NaN,
+					"t"			: 3 } ],
+
+	"prescription": [{
+		"id": "0001",
+		"type": "index",
+		"description": "air (incoming)",
+		"args": {
+			"index": 1.000
+		}
+	}, {
+		"id": "0002",
+		"type": "sphere",
+		"description": "primary mirror (concave, R = -200 mm; the hole in its middle is not drawn)",
+		"args": {
+			"stop": true,
+			"intermediate": true,
+			"radius": -0.2,
+			"height": 0.1,
+			"aperture": 0.08
+		}
+	}, {
+		"id": "0003",
+		"type": "index",
+		"description": "air (reflected: negative index, distances run leftwards)",
+		"args": {
+			"index": -1,
+			"thickness": -0.06
+		}
+	}, {
+		"id": "0004",
+		"type": "sphere",
+		"description": "secondary mirror (convex, R = -100 mm)",
+		"args": {
+			"radius": -0.1,
+			"height": 0.04,
+			"aperture": 0.035
+		}
+	}, {
+		"id": "0005",
+		"type": "index",
+		"description": "air (reflected again: positive index, distances run rightwards)",
+		"args": {
+			"index": 1.000,
+			"thickness": 0.2
+		}
+	}, {
+		"id": "0006",
+		"type": "img",
+		"description": "focal plane (140 mm behind the primary)",
+		"args": {
+			"radius": Infinity,
+			"height": 0.05
+		}
+	}]
+}

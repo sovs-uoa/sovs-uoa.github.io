@@ -761,5 +761,18 @@
   ],
   "shortName": "Keplerian with eye",
   "about": "A Keplerian telescope in front of the reduced eye: an inverted image on the retina, with a slot for an ametropia lens."
+ },
+ "79": {
+  "category": "Instruments",
+  "subcategory": "Telescope",
+  "keywords": [
+   "instrument",
+   "telescope",
+   "Cassegrain",
+   "reflecting",
+   "mirror"
+  ],
+  "shortName": "Cassegrain",
+  "about": "A concave primary and a convex secondary mirror folding the light back to a focus behind the primary: a 500 mm focal length in 60 mm of tube."
  }
 }

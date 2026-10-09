@@ -362,6 +362,19 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
    }
 
 
+   // where the outermost traced rays meet after the last element (undefined if they do not, or the trace was cut short)
+   tracedFocus () {
+
+      var ray = this.raypath;
+      if (!ray || !ray.length || !renderableLens || ray.length !== renderableLens.elem.length) { return undefined; }
+      var last = ray[ray.length - 1], a = last[0], b = last[last.length - 1];
+      if (!a || !b || !(Math.abs(b.u - a.u) > 1e-12)) { return undefined; }
+      var z = (a.h - b.h + b.u * b.z - a.u * a.z) / (b.u - a.u);
+      var h = a.h + a.u * (z - a.z);
+      return (isFinite(z) && isFinite(h)) ? { z: z, h: h } : undefined;
+   }
+
+
    // Where this beam comes to a focus (a focal system; an afocal one has no image point). In advanced materials
    // mode each colour's focus has a ring in that colour.
    updateImagePoint () {
@@ -369,7 +382,11 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
       var hasImagePoint = isFinite(this.data.X2) && isFinite(this.data.Y2) && Math.abs(this.lens.F) > 0.0001;
       if (hasImagePoint) {
           this.imagePoint.show();
-          this.imagePoint.attr({ cx: this.data.X2, cy: this.data.Y2 });
+          // In this drawing the rays are traced element by element, so the focus is where THEY meet: the ball sits
+          // there, on the formed image, wherever the table's own figure for it would put it (the two agree only in
+          // air, where the index in front and behind is the same). Where nothing can be traced, the table's figure.
+          var focus = this.tracedFocus();
+          this.imagePoint.attr({ cx: focus ? focus.z : this.data.X2, cy: focus ? focus.h : this.data.Y2 });
           // an image point is cyan, as everywhere else; in advanced materials mode it wears its beam's colour as a ring
           // round it, so the foci of a white-light group can still be told apart
           var coloured = (typeof beamShadeColor === "function" && typeof SovsSettings !== "undefined" && SovsSettings.advancedMaterials);
@@ -599,6 +616,18 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
      // how far the beam is drawn out either side of the system. A system with no length at all (a lone prism, say)
      // would otherwise draw nothing: use the width of the view instead.
      var refLength = (Math.abs(lens.L) > 1e-9) ? 2*Math.abs(lens.L) : viewBoxWidth;
+
+     // A system with cardinal points (anything that is not afocal) has them marked on the diagram, and the incoming
+     // beam should run out past all of them - the front focal point of a Cassegrain is far in front of its tube. So the
+     // beam is drawn out to at least a quarter further than the furthest cardinal point from the system.
+     if (lens.cardinal && Math.abs(lens.F) > 1e-4) {
+       var reach = 0;
+       [ lens.cardinal.VF1, lens.cardinal.VP1, lens.cardinal.VN1,
+         lens.L + lens.cardinal.VF2, lens.L + lens.cardinal.VP2, lens.L + lens.cardinal.VN2 ].forEach(function (v) {
+         if (isFinite(v)) { reach = Math.max(reach, Math.abs(v)); }
+       });
+       refLength = Math.max(refLength, 1.25 * reach);
+     }
 
 
      console.log("Input rays");

@@ -140,25 +140,38 @@ function drawIntermediateImages (construction, ray, K, M) {
     // light travels towards +z in positive index, back towards -z after a reflection (negative index)
     var direction = 1;
     for (var j = k; j < rows.length; j++) { if (rows[j].elem && rows[j].elem.type === "index") { direction = (rows[j].elem.index < 0) ? -1 : 1; break; } }
-    var real = (z - a.z) * direction > 0;
+    var ahead = (z - a.z) * direction > 0;
+
+    // An image ahead of the element is only formed if nothing gets in the light's way first. If the next element
+    // lies between the element and the image (the secondary of a Cassegrain, which catches the light before the
+    // primary's focus), the light never gets there: the image is a virtual OBJECT for what follows, and the beam
+    // is drawn on to it as dashed lines from that next element.
+    var meets = null;
+    if (ahead) {
+      for (var n = k + 1; n < K; n++) {
+        if (Math.abs(ray[n][0].z - a.z) > 1e-9) { meets = ray[n]; break; }
+      }
+      if (meets && !((meets[0].z - z) * direction < -1e-9)) { meets = null; }     // (it arrives at or beyond the image)
+    }
+    var real = ahead && !meets;
 
     count++;
 
-    // a virtual image is where the light only seems to come from: show the lines it seems to come along
-    if (!real) {
-      [a, b].forEach(function (r) {
-        var back = paper.path(["M", r.z, r.h, "L", z, h]);
-        back.attr({ stroke: "#000000", "stroke-opacity": 0.5, "stroke-width": 1, "stroke-dasharray": "--" });
-        back.node.setAttribute("pointer-events", "none");
-        construction.cd_set.push(back);
-      });
-    }
+    // a virtual image is where the light only seems to come from: show the lines it seems to come along; an image
+    // the light is cut off from is the same, drawn on from the element that cuts it off
+    var from = ahead ? (meets ? [meets[0], meets[M-1]] : []) : [a, b];
+    from.forEach(function (r) {
+      var back = paper.path(["M", r.z, r.h, "L", z, h]);
+      back.attr({ stroke: "#000000", "stroke-opacity": 0.5, "stroke-width": 1, "stroke-dasharray": "--" });
+      back.node.setAttribute("pointer-events", "none");
+      construction.cd_set.push(back);
+    });
 
     var ring = paper.circle(z, h, kx * 5);
     ring.attr({ fill: "#ffffff", "fill-opacity": 0.7, stroke: "#000000", "stroke-width": 1 });
     if (!real) { ring.node.setAttribute("stroke-dasharray", "2,2"); }
     ring.node.setAttribute("class", "intermediate-image");
-    ring.node.setAttribute("title", real ? "Intermediate image (real)" : "Intermediate image (virtual)");
+    ring.node.setAttribute("title", real ? "Intermediate image (real)" : (ahead ? "Intermediate image (the light is cut off before it: a virtual object for the next element)" : "Intermediate image (virtual)"));
     RegisterWheelCallback({ type: "point", handle: ring });
 
     var label = drawText(z, h, "I" + count);

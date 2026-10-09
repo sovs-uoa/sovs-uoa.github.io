@@ -75,7 +75,8 @@
                       { "id": "75", "filename": "./lenses/schematic-gullstrand2-accommodated.lens", "title": "Gullstrand Number 2 Simplified Eye (Accommodated)" },
                       { "id": "76", "filename": "./lenses/schematic-emsley-reduced.lens", "title": "Emsley Reduced Eye (60 D)" },
                       { "id": "77", "filename": "./lenses/schematic-reduced-eye-bare.lens", "title": "Reduced Eye (Schwartz)" },
-                      { "id": "78", "filename": "./lenses/keplerian-telescope-with-eye.lens", "title": "Keplerian Telescope with Eye" }
+                      { "id": "78", "filename": "./lenses/keplerian-telescope-with-eye.lens", "title": "Keplerian Telescope with Eye" },
+                      { "id": "79", "filename": "./lenses/cassegrain-telescope.lens", "title": "Cassegrain Telescope" }
 
                   ],
 

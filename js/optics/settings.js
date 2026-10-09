@@ -1018,7 +1018,7 @@ function openObjectTypeMenu (cell) {
   // a beam from infinity can be drawn two ways
   var traces = [];
   if (data.type === "object" && data.infinity) {
-    var current = (data.draw === "rays" || afocal || reflects) ? "rays" : "planes";
+    var current = (data.draw === "planes" && !afocal && !reflects) ? "planes" : "rays";
     traces = [
       { draw: "planes", title: "principal planes", note: "three rays through the cardinal points and the equivalent lens - the elements are not drawn",
         unavailable: afocal ? "an afocal system has no principal planes" : (reflects ? "a mirror turns the light round: trace it surface by surface" : ""), on: current === "planes" },

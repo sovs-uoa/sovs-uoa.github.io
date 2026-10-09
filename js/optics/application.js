@@ -1158,8 +1158,9 @@ getConjuugateTo
   /* ----------------------------------------------------------------------------------------------------------------
 
       RESOLVEOBJECTCONSTRUCTIONTYPE  the unified "object" type collates source/beam/afocal: a finite
-      object always draws as a "source" (pencil of rays); an object at infinity draws as "afocal" if
-      the loaded system's equivalent power is zero, else "beam".
+      object always draws as a "source" (pencil of rays); an object at infinity draws surface by surface ("afocal"
+      - the construction that traces each element in turn, whatever the system's power) unless "planes" is asked for,
+      which draws it through the system's principal planes ("beam").
 
   ----------------------------------------------------------------------------------------------------------------   */
 
@@ -1179,11 +1180,10 @@ getConjuugateTo
 
     // a .lens source may ask for its rays to be drawn element by element ("draw": "rays") instead of through the
     // system's cardinal points - the only way a prism's bend shows up in a system that also has a lens
-    if (aPoint.draw === "rays") { return "afocal"; }
+    // A beam from infinity is drawn surface by surface (element by element) unless a file or the Type menu asks for the
+    // system's principal planes ("draw": "planes") - which only a system with a focal length can have.
     if (aPoint.draw === "planes" && renderableLens.total.F != 0) { return "beam"; }
-
-    var isafocal = (renderableLens.total.F == 0);
-    return isafocal ? "afocal" : "beam";
+    return "afocal";
 
   }
 
