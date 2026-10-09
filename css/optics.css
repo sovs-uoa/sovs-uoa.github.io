@@ -226,7 +226,7 @@ table, th, td, tr {
 /* additive view: the fading (incoming / outgoing) edge lines take the same light colour as the other rays,
    and the edge lines can be switched off together */
 #lens-container.dark-canvas .beam-edge-stop { stop-color: #e6e6e6; }
-#lens-container.additive-beams.beam-edges-off .beam-edge { stroke: none !important; }
+#lens-container.beam-edges-off .beam-edge { stroke: none !important; }
 
 .wavelength-palette tr.divider td { padding: 0; border-bottom: 2px solid #adb5bd; height: 0; }
 .wavelength-palette tr.custom td { font-style: italic; }
@@ -345,3 +345,6 @@ path.optical-axis { stroke: gray; stroke-opacity: 0.4; stroke-width: 1px; stroke
 #lens-container.dark-canvas path.optical-axis { stroke: #d0d4da; stroke-opacity: 0.35; }
 
 .pick-detail .pick-reference { color: #495057; margin: 6px 0; }
+
+/* the line under the model name on main.html */
+#model-subtitle { margin: 0 0 .75rem .15rem; font-size: .82rem; color: #6c757d; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

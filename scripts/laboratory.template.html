@@ -69,6 +69,7 @@
   <script src="js/optics/settings.js"></script>
   <script src="js/optics/renderer.js"></script>  
   <script src="js/optics/ruler.js"></script>
+  <script src="js/optics/export.js"></script>
   <script src="js/model-browser.js"></script>
   <script src="js/optics/RayConstruction.js"></script>    
   <script src="js/optics/prescription.js"></script>
@@ -134,30 +135,8 @@
 </div>
 <!--/SIDEBAR-->
 
-  <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+<!-- (a block of unused SVG pattern definitions used to sit here and left a band of empty space above the toolbar) -->
 
-  <svg width="100" height="100">
-        <pattern id="diagonalHatch" width="10" height="10" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
-            <line x1="0" y1="0" x2="0" y2="10" style="stroke:black; stroke-width:1" />
-        </pattern>  
-    </svg>
-
-
-  <defs>
-    <pattern id="smallGrid" width="8" height="8" patternUnits="userSpaceOnUse">
-      <path d="M 8 0 L 0 0 0 8" fill="none" stroke="gray" stroke-width="0.5"/>
-    </pattern>
-    <pattern id="grid" width="80" height="80" patternUnits="userSpaceOnUse">
-      <rect width="80" height="80" fill="url(#smallGrid)"/>
-      <path d="M 80 0 L 0 0 0 80" fill="none" stroke="gray" stroke-width="1"/>
-    </pattern>
-  </defs>
-
-<!--
-  <rect width="100%" height="100%" fill="url(#grid)" />
-
--->  
-</svg>
 
 <!-- Control the column width, and how they should appear on different devices -->
 
@@ -282,8 +261,8 @@
               <input class="form-check-input" type="checkbox" id="setting-beam-edges" onchange="setBeamEdges(this.checked);">
               <label class="form-check-label" for="setting-beam-edges">Beam edge lines</label>
               <small class="form-text text-muted">
-                A line along the edge of every beam &mdash; incoming, between the elements and outgoing alike. Off by default
-                (affects the Additive beams view).
+                A line along the edge of every shaded beam &mdash; incoming, between the elements and outgoing alike. Off by
+                default, on the light diagram as well as the dark: the beams are then just their shading.
               </small>
             </div>
 
@@ -458,6 +437,15 @@
                 <label class="dropdown-item" title="The first and last vertices of the lens"><input type="checkbox" id="show-vertices" checked onclick="setShowOption('vertices', this.checked);"> Vertices <small class="text-muted">V, V'</small></label>
                 <div class="dropdown-divider"></div>
                 <label class="dropdown-item" title="A dash-dot line along the optical axis"><input type="checkbox" id="show-axis" onclick="setShowOption('axis', this.checked);"> Optical axis</label>
+              </div>
+            </div>
+            <div class="dropright">
+              <button type="button" id="save-menu" class="rail-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Save the diagram as a picture">
+                <i class="fas fa-download"></i><span>Save image</span></button>
+              <div class="dropdown-menu show-menu" aria-labelledby="save-menu">
+                <button type="button" class="dropdown-item" onclick="saveDiagram('png');" title="A picture, twice the size of the screen">PNG <small class="text-muted">picture</small></button>
+                <button type="button" class="dropdown-item" onclick="saveDiagram('svg');" title="A drawing that can be edited and scaled">SVG <small class="text-muted">drawing</small></button>
+                <button type="button" class="dropdown-item" onclick="saveDiagram('pdf');" title="A picture on a page, for print">PDF <small class="text-muted">print</small></button>
               </div>
             </div>
             <button type="button" id="reset-view-button" class="rail-button" onclick="resetView();" title="Bring the diagram back to where it started (or double-click an empty part of it)">

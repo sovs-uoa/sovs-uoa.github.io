@@ -718,7 +718,7 @@ function initializePrescriptionTable(data, updatePrescriptionCallback, success) 
           // tick it to mark the image the system makes up to this element (e.g. the virtual image behind a mirror that
           // the next lens then works on): it is drawn on the diagram as a ringed point, I1, I2...
           {title:"Int. Image",    field:"intermediate",     minWidth:70, align:"center", headerSort:false, editable: editCheck, editor:"tickCross",
-           titleFormatter: function () { return '<span title="Mark the image formed up to this element (an intermediate image) on the diagram">Int. Image</span>'; },
+           headerTooltip: "Mark the image formed up to this element (an intermediate image) on the diagram",
            formatter: function (cell) { var d = cell.getRow().getData(); if (d.type === "index" || d.type === "img") { return ""; } return cell.getValue() === true ? "&#10003;" : ""; }}],
     });
 

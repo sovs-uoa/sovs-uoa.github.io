@@ -787,6 +787,9 @@ getConjuugateTo
     // read the lens table 
     console.log("Updating the PRESCRIPTION VIEW.");
 
+    // a lens with a Custom medium has only Custom materials (see settings.js)
+    if (typeof normaliseMixedMedia === "function") { normaliseMixedMedia(); }
+
 
     // Update the Optics Object 
 

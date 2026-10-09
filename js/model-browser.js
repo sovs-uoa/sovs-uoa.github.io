@@ -202,10 +202,29 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("status").textContent = words.length ? shown + (shown === 1 ? " model" : " models") + " found" : shown + " models";
   }
 
+  // the line under the model name: where it sits in the picker, and what it is
+  function updateSubtitle () {
+    var line = document.getElementById("model-subtitle");
+    if (!line) {
+      var group = document.querySelector(".input-group.mb-3");
+      if (!group) { return; }
+      line = document.createElement("div");
+      line.id = "model-subtitle";
+      group.classList.replace("mb-3", "mb-1");
+      group.insertAdjacentElement("afterend", line);
+    }
+    var e = entries.filter(function (x) { return x.id === currentModel; })[0];
+    if (!e) { line.textContent = ""; line.style.display = "none"; return; }
+    line.textContent = e.category + (e.sub ? " \u203a " + e.sub : "") + (e.about ? "  \u00b7  " + e.about : "");
+    line.title = e.reference ? "Source: " + e.reference : (e.full !== e.title ? e.full : "");
+    line.style.display = "";
+  }
+
   window.markCurrentModel = function (id) {
     currentModel = String(id);
     if (duplicates[currentModel] !== undefined) { currentModel = duplicates[currentModel]; }     // (on show through another lab's link)
     entries.forEach(function (e) { e.li.classList.toggle("current", e.id === currentModel); });
+    updateSubtitle();
   };
 
   function links () { return Array.prototype.slice.call(document.querySelectorAll("#groups li:not([hidden]) a")); }

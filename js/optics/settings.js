@@ -69,6 +69,67 @@ function lensHasMaterials () { var k = lensMediaKinds(); return k.named && !k.cu
 // named materials and Custom media together: no wavelength can be expected
 function lensMixesMedia () { var k = lensMediaKinds(); return k.named && k.custom; }
 
+// If a lens has a Custom medium, every material in it is Custom: a wavelength cannot be expected of part of a lens.
+// So the moment the prescription table holds both a named material and a Custom (fixed, not air) index, each named
+// material is turned into Custom - a medium keeps its design index n_d as the fixed index, a thin lens or prism just
+// loses its material. Returns how many were changed. (Only in advanced materials mode, where materials exist.)
+var normalisingMedia = false;
+function normaliseMixedMedia () {
+
+  if (normalisingMedia || !SovsSettings.advancedMaterials || typeof lens === "undefined" || !lens.table) { return 0; }
+
+  var rows = lens.table.getData(), named = false, custom = false;
+  rows.forEach(function (d) {
+    if (d.material) { named = true; }
+    else if (d.type === "index" && Math.abs(Math.abs(Number(d.index)) - 1) > 1e-6) { custom = true; }
+  });
+  if (!(named && custom)) { return 0; }
+
+  var changes = [];
+  rows.forEach(function (d) {
+    if (!d.material) { return; }
+    var change = { id: d.id, material: "" };
+    if (d.type === "index") {
+      var m = Materials.find(d.material);
+      var sign = (Number(d.index) < 0) ? -1 : 1;
+      if (m) { change.index = sign * m.nd; }
+    }
+    changes.push(change);
+  });
+
+  normalisingMedia = true;
+  try { lens.table.updateData(changes); } finally { normalisingMedia = false; }
+
+  // ... and the objects, which were lit at a wavelength the lens can no longer speak of, go Custom too
+  if (lens.pointsTable) {
+    var lit = lens.pointsTable.getData().filter(function (d) { return d.type === "object" && !isCustomWavelength(d.wavelength); })
+                .map(function (d) { return { id: d.id, wavelength: "custom" }; });
+    if (lit.length) { lens.pointsTable.updateData(lit); }
+  }
+
+  flashMixedNote(changes.length + (changes.length === 1 ? " material" : " materials") + " set to Custom: a lens with a Custom medium has no wavelength");
+  return changes.length;
+}
+
+// the amber note beside the prescription's wavelength button, for a few seconds
+function flashMixedNote (text) {
+  var btn = document.getElementById("prescription-wavelength-btn");
+  if (!btn) { return; }
+  var note = document.getElementById("prescription-mixed-note");
+  if (!note) {
+    note = document.createElement("span");
+    note.id = "prescription-mixed-note";
+    note.className = "badge badge-warning mr-2";
+    btn.parentNode.insertBefore(note, btn);
+  }
+  note.textContent = text;
+  note.title = text;
+  note.style.display = "";
+  clearTimeout(flashMixedNote.timer);
+  flashMixedNote.until = Date.now() + 7000;
+  flashMixedNote.timer = setTimeout(function () { flashMixedNote.until = 0; if (typeof refreshIndexChip === "function") { refreshIndexChip(); } }, 7000);
+}
+
 /* --- tracing at a wavelength --------------------------------------------------------------------------------- */
 
 var nominalLens        = null;   // the analysis of the table as typed - what the prescription draws
@@ -401,7 +462,12 @@ function refreshIndexChip () {
     note.title = "This lens names a material for some media and gives a fixed (Custom) index for others, so no wavelength can be expected: it is traced as typed, a named material at its design index.";
     btn.parentNode.insertBefore(note, btn);
   }
-  note.style.display = (SovsSettings.advancedMaterials && onPrescription && lensMixesMedia()) ? "" : "none";
+  var flashing = Date.now() < (flashMixedNote.until || 0);
+  if (!flashing) {
+    note.textContent = "mixed media";
+    note.title = "This lens names a material for some media and gives a fixed (Custom) index for others, so no wavelength can be expected: it is traced as typed, a named material at its design index.";
+  }
+  note.style.display = (SovsSettings.advancedMaterials && onPrescription && (lensMixesMedia() || flashing)) ? "" : "none";
 }
 
 function initIndexWavelengthButton () {
@@ -1257,10 +1323,9 @@ function syncAppearanceControls () {
   var radioLight = document.getElementById("setting-canvas-light");
   if (radioDark)  { radioDark.checked  = dark; }
   if (radioLight) { radioLight.checked = !dark; }
-  ["setting-additive-beams", "setting-beam-edges"].forEach(function (id) {
-    var box = document.getElementById(id);
-    if (box) { box.disabled = !dark; }
-  });
+  // (additive beams need the dark diagram; the edge lines are a choice on either)
+  var additive = document.getElementById("setting-additive-beams");
+  if (additive) { additive.disabled = !dark; }
 }
 
 function setAdditiveBeams (on) {

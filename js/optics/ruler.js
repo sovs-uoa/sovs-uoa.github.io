@@ -85,7 +85,7 @@ function rulerSnap (p) {
 function rulerReading (r) {
 
   var dx = r.b.x - r.a.x, dy = r.b.y - r.a.y;
-  var fmt = function (m) { return String(parseFloat(toDisplayDistance(m).toPrecision(3))); };
+  var fmt = function (m) { return toDisplayDistance(m).toFixed(4); };       // four decimal places, as the tables show them
   var level = Math.abs(dy) < 1e-9 * (1 + Math.abs(dx)), upright = Math.abs(dx) < 1e-9 * (1 + Math.abs(dy));
   var measure = level ? dx : upright ? Math.abs(dy) : Math.hypot(dx, dy);
   var number = fmt(measure);
