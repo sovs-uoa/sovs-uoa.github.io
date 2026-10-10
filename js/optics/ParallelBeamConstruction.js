@@ -361,11 +361,9 @@ function moveBeamImagePoint (dx, dy) {
       // Inverse of calculateConjugatePairFrom's IQ = zp * deg2rad(t) (paraxial,
       // linear - not zp * tan(deg2rad(t))), so recovering t from a dragged
       // image height is now a plain division, no atan() needed.
-      // the height of the focus per radian: the posterior focal length n2/F where the focus is drawn from the table's
-      // figure (the principal-planes drawing), the anterior one n1/F where it is where the traced rays meet (surface by
-      // surface); the same in air. A mirror's negative index is no change to the size.
-      var surfaceBySurface = thisPoint.parent && thisPoint.parent.constructor && thisPoint.parent.constructor.name === "AfocalBeamConstruction";
-      var zp = Math.abs(surfaceBySurface ? totalLens.n1 : totalLens.n2) / totalLens.F;
+      // the height of the focus per radian is the anterior focal length n1/F (see calculateConjugatePairFrom in optics.js);
+      // a mirror's negative index is no change to the size
+      var zp = Math.abs(totalLens.n1) / totalLens.F;
       var th = rad2deg(nowY / zp);
 
       var myPoint = { id: thisPoint.id, type: "beam", which: "object", t: th };

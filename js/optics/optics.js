@@ -1079,9 +1079,11 @@ function calculatePairFromObject (object, systemInfo) {
 
            //console.log (` - Object at Infinity (Angle = ${t})`);
 
-           // (after a mirror the medium has a negative index; the height of the image does not depend on the
-           // direction the light then travels, so its magnitude is what counts)
-           zp  = +Math.abs(n2)/curr.F;  // PF
+           // The height of the image of an object at infinity is the ANTERIOR focal length times the angle: n1/F, the
+           // distance from the nodal point to the image plane (16.67 mm for a 60 D eye). It was n2/F, the posterior focal
+           // length (22.2 mm), which made the retinal image n2 times too tall in an eye; the two are the same in air. Only
+           // the magnitude counts: after a mirror the index is negative, whichever way the light then travels.
+           zp  = +Math.abs(n1)/curr.F;  // PF
 
            // same prism correction as the finite-object branch above, using
            // VF2 (the image plane here) in place of zd

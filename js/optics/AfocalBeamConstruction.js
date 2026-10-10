@@ -383,8 +383,7 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
       if (hasImagePoint) {
           this.imagePoint.show();
           // In this drawing the rays are traced element by element, so the focus is where THEY meet: the ball sits
-          // there, on the formed image, wherever the table's own figure for it would put it (the two agree only in
-          // air, where the index in front and behind is the same). Where nothing can be traced, the table's figure.
+          // there, on the formed image (the table's figure for it agrees). Where nothing can be traced, the table's figure.
           var focus = this.tracedFocus();
           this.imagePoint.attr({ cx: focus ? focus.z : this.data.X2, cy: focus ? focus.h : this.data.Y2 });
           // an image point is cyan, as everywhere else; in advanced materials mode it wears its beam's colour as a ring

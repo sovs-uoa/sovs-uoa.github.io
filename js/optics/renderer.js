@@ -730,11 +730,23 @@ function drawAxis (panX, panY) {
           if (!isNonP) {
 
 
-            cp1 = drawPoint(v1 + vn1, y, "yellow");
-            cp2 = drawPoint(v2 + vn2, y, "yellow");
+            // The principal points P (yellow) and P' (blue), each with its dashed principal plane - the same dots and
+            // planes as where the nodal points coincide with them - and the nodal points N, N' (orange) apart from them.
+            var planeTop = y - h/2, planeBottom = y + h/2;
+            var pNear    = Math.abs(p1 - p2) < 14 * kx;
+            var principal = pNear ? [[Math.min(p1, p2), "yellow"]] : [[p1, "yellow"], [p2, "blue"]];
+            principal.forEach(function (pt) {
+              var dot   = drawPoint(pt[0], y, pt[1]);
+              var plane = paper.path( ["M", pt[0], planeTop, "L", pt[0], planeBottom ] ).attr({"fill": "gray", "stroke-opacity": 0.5, "stroke": "gray", "stroke-width": "1", "stroke-dasharray":"--"});
+              cp_set.push(dot, plane);
+              RegisterWheelCallback ({ type: "point", handle: dot });
+            });
+
+            cp1 = drawPoint(v1 + vn1, y, "orange");
+            cp2 = drawPoint(v2 + vn2, y, "orange");
             cp_set.push(cp1, cp2);
-            RegisterWheelCallback ({ type: "cardinal", handle: cp1 });
-            RegisterWheelCallback ({ type: "cardinal", handle: cp2 });
+            RegisterWheelCallback ({ type: "point", handle: cp1 });
+            RegisterWheelCallback ({ type: "point", handle: cp2 });
 
 
             // Labels sit LEFT of their points (so they never lie across the element's line or each other):
@@ -1214,6 +1226,36 @@ function drawAxis (panX, panY) {
     for (var k = 0; k <= n; k++) {
       var yi = y - h/2 + k*step;
       var c  = paper.path( ["M", x, yi, "L", x + side * d, yi + d] );
+      c.attr({ "stroke": "black", "stroke-width": "0.5" });
+      hatch.push(c);
+    }
+    return hatch;
+  }
+
+
+  // The same hatching along a curved image surface (a retina): the surface is drawn by drawSurface as an arc of radius R
+  // through (x, 0), as tall as drawSurface makes it. Each stroke leaves the arc by the same diagonal as the flat
+  // screen's - along the way the light is going and down the page - so it reads as the same hatching, bent.
+  function drawCurvedScreenHatching(x, R, h, travel) {
+
+    var hatch = paper.set();
+    var r     = Math.abs(R);
+    var hh    = Math.min(h, 0.9 * 2 * r);          // (the height drawSurface really draws)
+    var n     = 28;
+    var d     = h / 40;
+    var cx    = x + R;                             // the centre of the arc
+
+    for (var k = 0; k <= n; k++) {
+      var y  = -hh/2 + k * hh / n;
+      var px = (R < 0) ? cx + Math.sqrt(r*r - y*y) : cx - Math.sqrt(r*r - y*y);
+
+      // the normal that points the way the light is going, and the tangent that points down the page
+      var nx = (px - cx) / r, ny = y / r;
+      if (nx * travel < 0) { nx = -nx; ny = -ny; }
+      var tx = -ny, ty = nx;
+      if (ty < 0) { tx = -tx; ty = -ty; }
+
+      var c = paper.path( ["M", px, y, "L", px + d * (nx + tx), y + d * (ny + ty)] );
       c.attr({ "stroke": "black", "stroke-width": "0.5" });
       hatch.push(c);
     }
@@ -2163,10 +2205,16 @@ function drawAxis (panX, panY) {
 
           optics_set.push(l);
 
-          // a flat screen (infinite radius): hatched on its far side, diagonal NW to SE
-          if (!isFinite(R) && isFinite(h)) {
+          // the image surface is hatched on the side the light does not reach, diagonal NW to SE: a flat screen along
+          // its line, a curved one (a retina) along its arc, the same strokes
+          if (isFinite(h) && h > 0) {
             var before = (i > 0 && data.elem[i-1] && data.elem[i-1].elem) ? data.elem[i-1].elem.index : 1;
-            optics_set.push(drawScreenHatching(axialPosition, 0, h, before < 0 ? -1 : 1));      // (hatched on the side the light does not reach)
+            var travel = before < 0 ? -1 : 1;
+            if (!isFinite(R)) {
+              optics_set.push(drawScreenHatching(axialPosition, 0, h, travel));
+            } else if (R !== 0) {
+              optics_set.push(drawCurvedScreenHatching(axialPosition, R, h, travel));
+            }
           }
 
           console.log (`- ${curr.type} Z = ${axialPosition}, R = ${R}, h = ${h}`);          
