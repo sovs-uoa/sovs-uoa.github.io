@@ -33,6 +33,9 @@
 
     .lab { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 18px 18px 16px;
            display: flex; flex-direction: column; gap: 10px; box-shadow: 0 1px 2px rgba(0,0,0,.04); }
+    .lab .picture { display: block; margin: -4px -4px 0; }
+    .lab .picture img { display: block; width: 100%; aspect-ratio: 2 / 1; object-fit: cover; border-radius: 10px;
+                        border: 1px solid var(--line); background: #fff; }
     .lab h2 { margin: 0; font-size: 1.1rem; }
     .lab .kicker { font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
     .lab p { margin: 0; color: var(--muted); font-size: .92rem; }
@@ -73,24 +76,31 @@
 
   <script>
   /*
-     Each laboratory is a page (Laboratory1.html ...) that offers a handful of models, listed in config/config.json
-     under the profile of the same name. This page reads that file, so a model added to a profile appears here as a
-     chip with no further change; the chip opens the lab with that model loaded (?model=ID, see js/main.js).
+     Each card is a laboratory page (Laboratory1.html ...), shown with a picture drawn by the app itself (images/labs/).
+     The models of a laboratory are listed in config/config.json under the profile of the same name; they are reached
+     from the laboratory, or by searching all the models (main.html).
   */
   var LABS = [
-    { profile: "lab-1", page: "Laboratory1.html", kicker: "Laboratory 1", title: "Thin lenses",
+    { profile: "lab-1", page: "Laboratory1.html", kicker: "Laboratory 1", title: "Thin lenses", image: "images/labs/lab1-thin-lens.svg",
+      alt: "A thin lens forming a real image of an object, with the three principal rays",
       blurb: "Object and image from a thin lens, and a thin prism." },
-    { profile: "lab-2", page: "Laboratory2.html", kicker: "Laboratory 2", title: "Thick lens",
+    { profile: "lab-2", page: "Laboratory2.html", kicker: "Laboratory 2", title: "Thick lens", image: "images/labs/lab2-thick-lens.svg",
+      alt: "A thick lens with its principal planes and focal points marked",
       blurb: "Cardinal points, principal planes and the pupils of a thick lens." },
-    { profile: "lab-3", page: "Laboratory3.html", kicker: "Laboratory 3", title: "The emmetropic eye",
+    { profile: "lab-3", page: "Laboratory3.html", kicker: "Laboratory 3", title: "The emmetropic eye", image: "images/labs/lab3-emmetropic-eye.svg",
+      alt: "The reduced eye focusing a distant object exactly on the retina",
       blurb: "The reduced eye: where the image forms and how big it is." },
-    { profile: "lab-4", page: "Laboratory4.html", kicker: "Laboratory 4", title: "The ametropic eye",
+    { profile: "lab-4", page: "Laboratory4.html", kicker: "Laboratory 4", title: "The ametropic eye", image: "images/labs/lab4-ametropic-eye.svg",
+      alt: "A myopic reduced eye: the light comes to a focus in front of the retina",
       blurb: "Myopia and hyperopia, and the mystery eyes." },
-    { profile: "lab-6", page: "Laboratory6.html", kicker: "Laboratory 6", title: "Telescopes and low vision",
+    { profile: "lab-6", page: "Laboratory6.html", kicker: "Laboratory 6", title: "Telescopes and low vision", image: "images/labs/lab6-telescope.svg",
+      alt: "A Galilean telescope in front of an eye, an afocal system",
       blurb: "Afocal systems and angular magnification." },
-    { profile: "eye",   page: "eye.html",         kicker: "Supplementary", title: "Schematic eyes",
+    { profile: "eye",   page: "eye.html",         kicker: "Supplementary", title: "Schematic eyes", image: "images/labs/schematic-eye.svg",
+      alt: "The Gullstrand schematic eye: cornea, aqueous, lens and vitreous",
       blurb: "The LeGrand and Gullstrand schematic eyes." },
-    { profile: "test",  page: "Test.html",        kicker: "Demonstrations", title: "Test and demo models",
+    { profile: "test",  page: "Test.html",        kicker: "Demonstrations", title: "Test and demo models", image: "images/labs/demo-dispersion.svg",
+      alt: "White light spread into its colours by a prism and brought to a focus by a lens",
       blurb: "Dispersion through a prism in white light, advanced materials, and telescopes." }
   ];
 
@@ -117,20 +127,17 @@
         if (!profile) { return; }
 
         var card = el("section", "lab");
+
+        // a picture of the kind of thing the laboratory is about, linked to the laboratory
+        var picture = el("a", "picture");
+        picture.href = lab.page;
+        var img = el("img"); img.src = lab.image; img.alt = lab.alt || lab.title; img.loading = "lazy";
+        picture.appendChild(img);
+        card.appendChild(picture);
+
         card.appendChild(el("div", "kicker", lab.kicker));
         card.appendChild(el("h2", "", lab.title));
         card.appendChild(el("p", "", lab.blurb));
-
-        var chips = el("div", "chips");
-        profile.list.forEach(function (id, i) {
-          var model = models[id];
-          if (!model) { return; }
-          var chip = el("a", "chip" + (i === 0 ? " first" : ""), model.title);
-          chip.href = lab.page + "?model=" + encodeURIComponent(id);
-          chip.title = "Open this model in " + lab.title;
-          chips.appendChild(chip);
-        });
-        card.appendChild(chips);
 
         var open = el("a", "open", "Open laboratory");
         open.href = lab.page;

@@ -42,6 +42,8 @@ const PAGES = [
   { output: 'Test.html',        lensesMenu: 'test',  reportVersion: 'v2.1' },
   // the workbench: the Model button opens a slide-in, searchable list of every model
   { output: 'main.html',        lensesMenu: 'main',  reportVersion: 'v2.1', sidebar: true },
+  // the same, with the tables open for authoring: open and save .lens files on disk, and a debug window (js/manager.js)
+  { output: 'manager.html',     lensesMenu: 'main',  reportVersion: 'v2.1', sidebar: true, manager: true },
 ];
 
 // Browsers keep serving an old copy of a script or stylesheet for a while after it has changed (so an edited
@@ -74,7 +76,7 @@ function build () {
     const keep  = (html, tag) => html.replace(`<!--${tag}-->`, '').replace(`<!--/${tag}-->`, '');
     let body = keep(template, 'RAIL');
     body = page.sidebar ? keep(body, 'SIDEBAR') : strip(body, 'SIDEBAR');
-    if (page.sidebar) body = body.replace('<body>', '<body class="has-sidebar">');
+    if (page.sidebar) body = body.replace('<body>', '<body class="has-sidebar' + (page.manager ? ' has-manager' : '') + '">');
 
     const out = withCacheBusters(body
       .split('__LENSES_MENU__').join(page.lensesMenu)

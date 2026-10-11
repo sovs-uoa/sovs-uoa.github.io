@@ -1916,7 +1916,7 @@ getConjuugateTo
 
 
 
-      $.ajax({
+      var lensRequest = {
             url : found.filename,
             cache: false,           // always the lens file as it is now, not a copy the browser kept
             dataType: "text",
@@ -2102,10 +2102,11 @@ getConjuugateTo
             }
 
 
-      });
+      };
 
-
-
+      // a prescription opened from disk (manager.html) is already in hand: it goes the same way, without the request
+      if (id === "__local__" && window.__localLens) { lensRequest.success(window.__localLens.text); }
+      else                                          { $.ajax(lensRequest); }
 
     }
 

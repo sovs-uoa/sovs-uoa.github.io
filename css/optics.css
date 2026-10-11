@@ -348,3 +348,97 @@ path.optical-axis { stroke: gray; stroke-opacity: 0.4; stroke-width: 1px; stroke
 
 /* the line under the model name on main.html */
 #model-subtitle { margin: 0 0 .75rem .15rem; font-size: .82rem; color: #6c757d; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* manager.html: the debug window along the bottom, and the line of buttons under the model bar */
+#debug-panel { height: 100%; background: #fff; display: flex; flex-direction: column; min-height: 0; }
+#debug-panel .debug-head { display: flex; align-items: center; gap: 8px; padding: 6px 12px; border-bottom: 1px solid #e3e6ea; }
+#debug-panel .debug-head .btn:last-child { margin-left: auto; }
+#debug-list { flex: 1; overflow-y: auto; font: 12.5px/1.45 ui-monospace, Menlo, Consolas, monospace; padding: 4px 8px; }
+.debug-line { padding: 2px 4px; border-bottom: 1px solid #f1f3f5; white-space: pre-wrap; }
+.debug-time { color: #868e96; }
+.debug-level { font-weight: 700; text-transform: uppercase; font-size: 11px; }
+.debug-error .debug-level { color: #c92a2a; }
+.debug-warning .debug-level { color: #e67700; }
+.debug-info .debug-level { color: #1971c2; }
+.debug-source, .debug-row { color: #495057; }
+
+/* manager.html: no model bar (the model is chosen or opened from the buttons), and the description of the model */
+body.has-manager .input-group.mb-1, body.has-manager .input-group.mb-3, body.has-manager #model-subtitle { display: none; }
+#manager-meta { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px 10px; }
+#manager-meta .meta-field label { margin: 0; font-size: .72rem; letter-spacing: .04em; text-transform: uppercase; color: #6c757d; }
+#manager-meta .meta-about { grid-column: 1 / -1; }
+#manager-meta .meta-reference, #manager-meta .meta-keywords { grid-column: span 2; }
+@media (max-width: 900px) { #manager-meta { grid-template-columns: 1fr 1fr; } }
+
+/* the row menu of manager.html */
+.row-menu { position: absolute; z-index: 2000; background: #fff; border: 1px solid #adb5bd; border-radius: 6px; box-shadow: 0 4px 14px rgba(0,0,0,.2);
+            padding: 4px; min-width: 190px; font: 13px sans-serif; }
+.row-menu button { display: block; width: 100%; text-align: left; border: 0; background: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+.row-menu button:hover:not([disabled]) { background: #e7f1ff; }
+.row-menu button[disabled] { color: #adb5bd; cursor: default; }
+.row-menu .row-menu-danger { color: #c92a2a; }
+.row-menu .row-menu-head { padding: 4px 10px 2px; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: #6c757d; }
+
+
+/* manager.html: the diagram on top, the tables below (lens prescription | objects and images), and the drawer along
+   the bottom (debug, summary). The panes are separated by Split.js gutters (js/manager.js). */
+#mgr-shell { display: flex; flex-direction: column; min-height: 300px; }
+#mgr-shell > .mgr-pane { overflow: auto; min-height: 0; min-width: 0; background: #fff; border: 1px solid #dee2e6; border-radius: 4px; }
+#mgr-top, #mgr-tables { display: flex; flex-direction: row; overflow: hidden !important; border: 0 !important; background: none !important; }
+#mgr-top > .mgr-pane, #mgr-tables > .mgr-pane { overflow: auto; min-width: 0; min-height: 0; background: #fff; border: 1px solid #dee2e6; border-radius: 4px; padding: 0 8px 4px; }
+.gutter { background: #e9ecef; flex: none; border-radius: 3px; }
+.gutter:hover, .gutter.gutter-active { background: #339af0; }
+.gutter.gutter-vertical { cursor: row-resize; height: 8px; }
+.gutter.gutter-horizontal { cursor: col-resize; width: 8px; }
+#mgr-diagram > .row, #mgr-diagram > .row > .col { height: 100%; margin: 0; padding: 0; max-width: none; }
+body.has-manager #mgr-diagram #lens-container { height: 100%; min-height: 0; border: 0 !important; }
+body.has-manager #mgr-shell .tab-pane { display: block !important; opacity: 1 !important; }
+body.has-manager #mgr-shell #prescription-tab::before, body.has-manager #mgr-shell #objects-images-tab::before {
+  display: block; font-weight: 600; font-size: .9rem; margin: 6px 0 2px; color: #495057; }
+body.has-manager #prescription-tab::before   { content: "Lens prescription"; }
+body.has-manager #objects-images-tab::before { content: "Objects and images"; }
+body.has-manager #mgr-shell .container { max-width: none; padding: 0; }
+
+/* the drawer: Debug and Summary */
+#mgr-drawer { display: flex; flex-direction: column; }
+#mgr-drawer-tabs { display: flex; gap: 2px; padding: 3px 6px 0; border-bottom: 1px solid #dee2e6; flex: none; background: #f8f9fa; }
+#mgr-drawer-tabs button { border: 1px solid transparent; border-bottom: 0; background: none; padding: 3px 12px; font-size: .85rem;
+                          color: #1d6fdc; border-radius: 4px 4px 0 0; }
+#mgr-drawer-tabs button.active { border-color: #dee2e6; background: #fff; color: #495057; margin-bottom: -1px; }
+#mgr-drawer-body { flex: 1 1 0; min-height: 0; overflow: auto; }
+#mgr-drawer[data-view="debug"] #summary-tab { display: none !important; }
+#mgr-drawer[data-view="summary"] #debug-panel { display: none !important; }
+#mgr-drawer #summary-tab { padding: 6px 12px; }
+
+/* the selected row of the lens prescription */
+body.has-manager #lens-table .tabulator-row.tabulator-selected,
+body.has-manager #lens-table .tabulator-row.tabulator-selected:hover { background: #cfe5ff !important; box-shadow: inset 3px 0 0 #1d6fdc; }
+#manager-add-menu .row-menu-head { padding: 4px 16px 2px; }
+#manager-add-menu .dropdown-item { font-size: .85rem; padding: 3px 16px; }
+
+/* the description of the model is folded away to the title until Details is pressed */
+#manager-meta.meta-collapsed { grid-template-columns: 1fr; }
+#manager-meta.meta-collapsed .meta-field:not(.meta-title) { display: none; }
+
+/* the row tools at the head of the lens prescription and of the objects and images */
+#manager-rowbar, #manager-objbar { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; position: sticky; top: 0; z-index: 5;
+                  background: #fff; padding: 4px 0 6px; margin-bottom: 4px; border-bottom: 1px solid #e9ecef; }
+#manager-rowbar .dropdown, #manager-rowbar .btn-group, #manager-objbar .dropdown, #manager-objbar .btn-group { margin: 0 !important; }
+#manager-selected, #manager-obj-selected { flex: 1 1 140px; margin: 0 0 0 2px !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* the button that lets a window take over (and give back) the screen */
+#mgr-diagram, #mgr-summary, #mgr-prescription, #mgr-objects { position: relative; }
+.mgr-max { position: absolute; top: 4px; right: 6px; z-index: 30; width: 24px; height: 24px; padding: 0; line-height: 1; font-size: 12px;
+           border: 1px solid #ced4da; border-radius: 4px; background: rgba(255,255,255,.9); color: #495057; cursor: pointer; }
+.mgr-max:hover, .mgr-max.active { background: #1d6fdc; border-color: #1d6fdc; color: #fff; }
+#mgr-drawer-tabs .mgr-max { position: static; align-self: center; margin-bottom: 3px; }
+
+/* the summary beside the diagram */
+#mgr-top { flex-direction: row; overflow: hidden !important; border: 0 !important; background: none !important; }
+#mgr-top > #mgr-diagram { padding: 0; }
+#mgr-summary { padding: 0 10px 4px; }
+#mgr-summary::before { content: "Summary (read only)"; display: block; font-weight: 600; font-size: .9rem; margin: 6px 0 2px; color: #495057; }
+#mgr-summary #summary-tab { padding: 0; }
+#mgr-summary #summary-tab table { font-size: .82rem; margin-bottom: 0; }
+#mgr-summary #summary-tab td, #mgr-summary #summary-tab th { padding: .25rem .5rem; }
+#mgr-summary #summary-tab h1, #mgr-summary #summary-tab h2, #mgr-summary #summary-tab h3, #mgr-summary #summary-tab h4 { font-size: 1rem; margin: 0 0 4px; }

@@ -48,7 +48,10 @@ function diagramCopy () {
   var from = Array.prototype.slice.call(src.querySelectorAll("*")).filter(function (n) { return !n.matches(drop); });
   marked.forEach(function (node) { node.removeAttribute("data-export-skip"); });       // (the marks were only for the copy)
   var to   = Array.prototype.slice.call(copy.querySelectorAll("*"));
-  var scale = (typeof kx === "number" && isFinite(kx) && kx > 0) ? kx : 1;           // drawing units per screen pixel
+  // drawing units per screen pixel: read from the drawing's own transform, which is always the truth (the global kx is
+  // the app's idea of it and can lag behind a model switch)
+  var ctmNow = src.getScreenCTM();
+  var scale = (ctmNow && isFinite(ctmNow.a) && ctmNow.a > 0) ? 1 / ctmNow.a : ((typeof kx === "number" && isFinite(kx) && kx > 0) ? kx : 1);
 
   from.forEach(function (orig, i) {
     var node = to[i], cs = window.getComputedStyle(orig);

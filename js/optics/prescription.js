@@ -119,6 +119,20 @@ function lensTypeSelector(elem) {
  }
 
 
+// After rows of the prescription are moved, inserted or removed: number them again (the Id column and the element
+// ids follow the order, which is what the optics use) and trace the lens as it now is.
+function renumberLensRows () {
+  lens.table.getRows().forEach(function (r, i) {
+    var n = i + 1;
+    r.update({ id: n, tag_id: ("0000" + n).slice(-4) });
+  });
+}
+
+function afterLensRowsMoved () {
+  renumberLensRows();
+  if (typeof updatePrescriptionView === "function") { updatePrescriptionView(); }
+}
+
 function lensObjectSelector(elem) {
 
 
@@ -693,9 +707,14 @@ function initializePrescriptionTable(data, updatePrescriptionCallback, success) 
       data:lensTable,
       rowAdded:function(row){ updatePrescriptionColumns(); },     // Surf. R. / Base appear and go with the rows that use them
       rowDeleted:function(row){ updatePrescriptionColumns(); },
+      rowMoved:function(row){ afterLensRowsMoved(); },            // the optics follow the order of the rows
+      rowContext:function(e, row){                                // (manager.html) right-click: insert, duplicate, move, delete
+        if (typeof managerRowMenu === "function") { e.preventDefault(); managerRowMenu(e, row, "prescription"); }
+      },
             addRowPos:"bottom",
       layout:"fitColumns",
-      selectable:false, 
+      selectable: document.body.classList.contains("has-manager") ? 1 : false,   // (manager.html) one row is selected: the one new rows are put at
+      rowSelectionChanged:function(data, rows){ if (typeof managerSelectionChanged === "function") { managerSelectionChanged(); } },
       movableRows:true,
       columns:[
           Object.assign({rowHandle:true, formatter:"handle", headerSort:false, frozen:true, width:30, minWidth:30},
@@ -1095,7 +1114,10 @@ function initializePointsTable(data, updatePointsCallback, success) {
         data:data,
         addRowPos:"bottom",
         selectable:"highlight",   // rows are selected only through their tick box, never by clicking the row
-        movableRows:false,
+        movableRows: document.body.classList.contains("has-manager"),   // objects can be reordered in the manager
+        rowContext:function(e, row){                                    // (manager.html) right-click: duplicate, move, delete
+          if (typeof managerRowMenu === "function") { e.preventDefault(); managerRowMenu(e, row, "objects"); }
+        },
         layout:"fitColumns",
         rowFormatter:function(row){ applyFocusClass(row); },             // re-lit whenever the table redraws
         rowClick:function(e, row){ setFocusedObject(row.getData().id); },

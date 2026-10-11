@@ -169,6 +169,21 @@ function hslToRgb(h, s, l){
            paper = new Raphael(document.getElementById(canvasID), "100%", "100%");
            // paper = new Raphael(document.getElementById(canvasID), 640, 480);
 
+           // the pane can be made wider, taller or smaller (manager.html panes, a resized window): measure it again and
+           // lay the grid over the whole of it, or the grid ends where the pane used to
+           if (typeof ResizeObserver === "function") {
+             var resizeTimer = null;
+             new ResizeObserver(function () {
+               clearTimeout(resizeTimer);
+               resizeTimer = setTimeout(function () {
+                 if (!viewBoxWidth || !$("#" + canvasID).width()) { return; }
+                 setScaleFactor();
+                 lastAxisExtent = "";
+                 drawAxis();
+               }, 30);
+             }).observe(document.getElementById(canvasID));
+           }
+
 
           } else {
 
