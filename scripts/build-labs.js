@@ -4,7 +4,8 @@
   BUILD-LABS.JS
 
   Generates Laboratory1.html, Laboratory2.html, Laboratory3.html, Laboratory4.html,
-  Laboratory6.html and eye.html from a single shared template
+  Laboratory6.html, eye/index.html, Test.html, main.html, manager.html and the
+  assignments/assign<year>.html pages from a single shared template
   (scripts/laboratory.template.html), substituting the handful of values that
   actually differ per page.
 
@@ -38,12 +39,17 @@ const PAGES = [
   { output: 'Laboratory3.html', lensesMenu: 'lab-3', reportVersion: 'v2.0' },
   { output: 'Laboratory4.html', lensesMenu: 'lab-4', reportVersion: 'v2.1' },
   { output: 'Laboratory6.html', lensesMenu: 'lab-6', reportVersion: 'v2.1' },
-  { output: 'eye.html',         lensesMenu: 'eye',   reportVersion: 'v2.1' },
+  { output: 'eye/index.html',   lensesMenu: 'eye',   reportVersion: 'v2.1' },
   { output: 'Test.html',        lensesMenu: 'test',  reportVersion: 'v2.1' },
   // the workbench: the Model button opens a slide-in, searchable list of every model
   { output: 'main.html',        lensesMenu: 'main',  reportVersion: 'v2.1', sidebar: true },
   // the same, with the tables open for authoring: open and save .lens files on disk, and a debug window (js/manager.js)
   { output: 'manager.html',     lensesMenu: 'main',  reportVersion: 'v2.1', sidebar: true, manager: true },
+  // the assignments of each year: the same page with that year's models (profile "assignment-<year>")
+  { output: 'assignments/assign2021.html', lensesMenu: 'assignment-2021', reportVersion: 'v1.0' },
+  { output: 'assignments/assign2022.html', lensesMenu: 'assignment-2022', reportVersion: 'v1.0' },
+  { output: 'assignments/assign2023.html', lensesMenu: 'assignment-2023', reportVersion: 'v1.0' },
+  { output: 'assignments/assign2024.html', lensesMenu: 'assignment-2024', reportVersion: 'v2.0' },
 ];
 
 // Browsers keep serving an old copy of a script or stylesheet for a while after it has changed (so an edited
@@ -78,10 +84,22 @@ function build () {
     body = page.sidebar ? keep(body, 'SIDEBAR') : strip(body, 'SIDEBAR');
     if (page.sidebar) body = body.replace('<body>', '<body class="has-sidebar' + (page.manager ? ' has-manager' : '') + '">');
 
+    // a page in a sub-directory (eye/, assignments/) finds the scripts, models and templates of the site root through
+    // a <base> element, so none of the paths inside the page have to change. A link to "#..." would then resolve
+    // against the root, so those are kept on the page.
+    const depth = page.output.split('/').length - 1;
+    if (depth > 0) {
+      const prefix = '../'.repeat(depth);
+      body = body.replace('<meta charset="utf-8">',
+        '<meta charset="utf-8">\n  <base href="' + prefix + '">\n' +
+        '  <script>document.addEventListener("click", function (e) { var a = e.target.closest && e.target.closest(\'a[href^="#"]\'); if (a) { e.preventDefault(); } }, true);</script>');
+    }
+
     const out = withCacheBusters(body
       .split('__LENSES_MENU__').join(page.lensesMenu)
       .split('__REPORT_VERSION__').join(page.reportVersion));
 
+    fs.mkdirSync(path.dirname(path.join(ROOT, page.output)), { recursive: true });
     fs.writeFileSync(path.join(ROOT, page.output), out);
     console.log(`wrote ${page.output}  (lenses_menu: ${page.lensesMenu}, report: ${page.reportVersion})`);
   }

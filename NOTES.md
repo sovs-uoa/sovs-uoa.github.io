@@ -2,7 +2,7 @@ NOTES.md
 
 
 Laboratory1.html, Laboratory2.html, Laboratory3.html, Laboratory4.html,
-Laboratory6.html and eye.html are GENERATED from scripts/laboratory.template.html
+Laboratory6.html, Test.html, main.html, manager.html, eye/index.html and assignments/assign<year>.html are GENERATED from scripts/laboratory.template.html
 by scripts/build-labs.js - do not hand-edit them directly, edit the template
 (or the linked js/optics/*.js files) and run:
 
