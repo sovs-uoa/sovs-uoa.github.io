@@ -1827,7 +1827,24 @@ getConjuugateTo
 
 
 
-    function load (id) {
+    // "Hold Ctrl and scroll to zoom": shown for a moment when the wheel goes over the diagram without it
+var zoomHintTimer = null;
+function showZoomHint () {
+  var box = document.getElementById("lens-container");
+  if (!box) { return; }
+  var hint = document.getElementById("zoom-hint");
+  if (!hint) {
+    hint = document.createElement("div");
+    hint.id = "zoom-hint";
+    hint.textContent = "Hold Ctrl (\u2318 on a Mac) and scroll to zoom the diagram";
+    box.appendChild(hint);
+  }
+  hint.classList.add("show");
+  clearTimeout(zoomHintTimer);
+  zoomHintTimer = setTimeout(function () { hint.classList.remove("show"); }, 1400);
+}
+
+function load (id) {
 
 
       // load the mustache report 
@@ -1930,6 +1947,14 @@ getConjuugateTo
                   startDrawing("lens-container", response); // uses paper 
 
                   $(paper.canvas).bind('mousewheel', function(event) {
+
+                        // On a page that scrolls, the wheel scrolls the page: zooming the diagram needs Ctrl (or Cmd), which is
+                        // also what a trackpad pinch sends. (manager.html does not scroll, so the wheel zooms there.)
+                        var oe = event.originalEvent || event;
+                        if (!(oe.ctrlKey || oe.metaKey) && !document.body.classList.contains("has-manager")) {
+                          showZoomHint();
+                          return true;
+                        }
 
                         // cross-browser wheel delta
                         var e = window.event || e; // old IE support

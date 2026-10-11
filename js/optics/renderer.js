@@ -2371,6 +2371,7 @@ function drawAxis (panX, panY) {
 
 
         isMouseDown = true;
+        dX = 0; dY = 0;           // (a click with no drag moves nothing: dX and dY must not carry a previous drag, or be undefined)
         setGrabbingCursor(true);
 
         // console.log(e);
@@ -2437,8 +2438,11 @@ function drawAxis (panX, panY) {
 
         console.log("panEnd");
 
-        viewBox.X += dX;
-        viewBox.Y += dY;
+        if (isFinite(dX) && isFinite(dY)) {   // (undefined + number is NaN, which blanked the grid and the whole view)
+          viewBox.X += dX;
+          viewBox.Y += dY;
+        }
+        dX = 0; dY = 0;
         isMouseDown = false;
         setGrabbingCursor(false);
 
