@@ -105,6 +105,7 @@ function toggleDebug (open) {
   var on = (open === undefined) ? !showing : !!open;
   if (on) {
     showDrawer("debug");
+
     if (drawerSize() < 12) { var s = mgrSplitV.getSizes(); var take = 20 - s[2]; s[2] = 20; s[1] = Math.max(8, s[1] - take); mgrSplitV.setSizes(s); mgrRedraw(); }
   } else {
     var t = mgrSplitV.getSizes(); t[1] += t[2] - 4; t[2] = 4; mgrSplitV.setSizes(t); mgrRedraw();
@@ -604,13 +605,8 @@ document.addEventListener("DOMContentLoaded", function () {
   bar.className = "mb-2";
   bar.innerHTML =
     "<input type=\"file\" id=\"manager-file\" accept=\".lens,.json,.json5,.txt\" style=\"display:none;\">" +
-    "<button type=\"button\" class=\"btn btn-sm btn-outline-secondary mr-1\" id=\"manager-open\" title=\"Open a .lens prescription from the disk\"><i class=\"fas fa-folder-open\"></i> Open .lens&hellip;</button>" +
-    "<button type=\"button\" class=\"btn btn-sm btn-outline-secondary mr-1\" id=\"manager-save\" title=\"Save the prescription and objects on show as a .lens file\"><i class=\"fas fa-save\"></i> Save .lens</button>" +
-    "<button type=\"button\" class=\"btn btn-sm btn-outline-secondary mr-1\" id=\"manager-models\" title=\"Choose one of the models of the app to look at or change\"><i class=\"fas fa-search\"></i> Models&hellip;</button>" +
-    "<button type=\"button\" class=\"btn btn-sm btn-outline-secondary mr-1\" id=\"manager-new\" title=\"Start a new prescription\"><i class=\"fas fa-file\"></i> New</button>" +
-    "<button type=\"button\" class=\"btn btn-sm btn-outline-secondary mr-1\" id=\"manager-check\" title=\"Check the prescription for mistakes\"><i class=\"fas fa-check-circle\"></i> Check</button>" +
+    "<span class=\"dropdown d-inline-block mr-1\"><button type=\"button\" class=\"btn btn-sm btn-outline-secondary dropdown-toggle\" data-toggle=\"dropdown\">File</button><div class=\"dropdown-menu\"><button type=\"button\" class=\"dropdown-item\" id=\"manager-open\" ><i class=\"fas fa-folder-open\"></i> Open .lens&hellip;</button><button type=\"button\" class=\"dropdown-item\" id=\"manager-save\" ><i class=\"fas fa-save\"></i> Save .lens</button><div class=\"dropdown-divider\"></div><button type=\"button\" class=\"dropdown-item\" id=\"manager-new\" ><i class=\"fas fa-file\"></i> New</button><button type=\"button\" class=\"dropdown-item\" id=\"manager-models\" ><i class=\"fas fa-search\"></i> Models&hellip;</button></div></span>" + "<span class=\"dropdown d-inline-block mr-1\"><button type=\"button\" class=\"btn btn-sm btn-outline-secondary dropdown-toggle\" data-toggle=\"dropdown\">View</button><div class=\"dropdown-menu\"><button type=\"button\" class=\"dropdown-item\" id=\"manager-details\" ><i class=\"fas fa-info-circle\"></i> Description (details)</button><div class=\"dropdown-divider\"></div><div class=\"row-menu-head\" style=\"padding:4px 16px 2px;\">Proportions</div><button type=\"button\" class=\"dropdown-item\" data-preset=\"even\" ><i class=\"fas fa-th-large\"></i> Diagram and tables</button><button type=\"button\" class=\"dropdown-item\" data-preset=\"diagram\" ><i class=\"fas fa-th-large\"></i> Large diagram</button><button type=\"button\" class=\"dropdown-item\" data-preset=\"tables\" ><i class=\"fas fa-th-large\"></i> Large tables</button><button type=\"button\" class=\"dropdown-item\" data-preset=\"reset\" ><i class=\"fas fa-undo\"></i> Reset layout</button><div class=\"dropdown-divider\"></div><div class=\"row-menu-head\" style=\"padding:4px 16px 2px;\">Focus a window</div><button type=\"button\" class=\"dropdown-item\" data-focus=\"diagram\" ><i class=\"fas fa-expand-alt\"></i> Diagram</button><button type=\"button\" class=\"dropdown-item\" data-focus=\"summary\" ><i class=\"fas fa-expand-alt\"></i> Summary</button><button type=\"button\" class=\"dropdown-item\" data-focus=\"prescription\" ><i class=\"fas fa-expand-alt\"></i> Lens prescription</button><button type=\"button\" class=\"dropdown-item\" data-focus=\"objects\" ><i class=\"fas fa-expand-alt\"></i> Objects and images</button><button type=\"button\" class=\"dropdown-item\" data-focus=\"drawer\" ><i class=\"fas fa-expand-alt\"></i> Drawer</button><div class=\"dropdown-divider\"></div><div class=\"row-menu-head\" style=\"padding:4px 16px 2px;\">Drawer</div><button type=\"button\" class=\"dropdown-item\" data-drawer=\"debug\" ><i class=\"fas fa-bug\"></i> Debug</button><button type=\"button\" class=\"dropdown-item\" data-drawer=\"lens\" ><i class=\"fas fa-file-code\"></i> Lens file</button></div></span>" + "<span class=\"dropdown d-inline-block mr-1\"><button type=\"button\" class=\"btn btn-sm btn-outline-secondary dropdown-toggle\" data-toggle=\"dropdown\">Tools</button><div class=\"dropdown-menu\"><button type=\"button\" class=\"dropdown-item\" id=\"manager-check\" ><i class=\"fas fa-check-circle\"></i> Check the prescription</button><button type=\"button\" class=\"dropdown-item\" id=\"manager-recompile-item\" ><i class=\"fas fa-sync-alt\"></i> Recompile</button><div class=\"dropdown-divider\"></div><button type=\"button\" class=\"dropdown-item\" data-toggle=\"modal\" data-target=\"#settingsModal\"><i class=\"fas fa-cog\"></i> Settings</button></div></span>" +
     "<button type=\"button\" class=\"btn btn-sm btn-outline-primary mr-1\" id=\"manager-recompile\" title=\"Check the model is consistent, then build it again from the tables and show it\"><i class=\"fas fa-sync-alt\"></i> Recompile</button>" +
-    "<button type=\"button\" class=\"btn btn-sm btn-outline-secondary mr-1\" data-toggle=\"modal\" data-target=\"#settingsModal\" title=\"Settings\"><i class=\"fas fa-cog\"></i> Settings</button>" +
     "<span class=\"dropdown d-inline-block mr-1\"><button type=\"button\" class=\"btn btn-sm btn-outline-success dropdown-toggle\" data-toggle=\"dropdown\" title=\"Add a row to the lens prescription at the selected row\"><i class=\"fas fa-plus\"></i> Add row</button>" +
     "<div class=\"dropdown-menu\" id=\"manager-add-menu\">" +
     ["after", "before"].map(function (w) {
@@ -623,15 +619,6 @@ document.addEventListener("DOMContentLoaded", function () {
     "<button type=\"button\" class=\"btn btn-outline-secondary\" data-needs-row id=\"manager-up\" title=\"Move the selected row up\"><i class=\"fas fa-arrow-up\"></i></button>" +
     "<button type=\"button\" class=\"btn btn-outline-secondary\" data-needs-row id=\"manager-down\" title=\"Move the selected row down\"><i class=\"fas fa-arrow-down\"></i></button>" +
     "<button type=\"button\" class=\"btn btn-outline-danger\" data-needs-row id=\"manager-del\" title=\"Delete the selected row\"><i class=\"fas fa-trash\"></i></button></span>" +
-    "<span class=\"dropdown d-inline-block mr-1\"><button type=\"button\" class=\"btn btn-sm btn-outline-secondary dropdown-toggle\" data-toggle=\"dropdown\" title=\"How the diagram and the tables are tiled\"><i class=\"fas fa-th-large\"></i> Layout</button>" +
-    "<div class=\"dropdown-menu\" id=\"manager-layout-menu\">" +
-    "<div class=\"row-menu-head\" style=\"padding:4px 16px 2px;\">Proportions</div>" +
-    "<button type=\"button\" class=\"dropdown-item\" data-preset=\"even\">Diagram and tables</button>" +
-    "<button type=\"button\" class=\"dropdown-item\" data-preset=\"diagram\">Large diagram</button>" +
-    "<button type=\"button\" class=\"dropdown-item\" data-preset=\"tables\">Large tables</button>" +
-    "<div class=\"dropdown-divider\"></div>" +
-    "<button type=\"button\" class=\"dropdown-item\" data-preset=\"reset\">Reset layout</button>" +
-    "</div></span>" +
     "<button type=\"button\" class=\"btn btn-sm btn-outline-secondary\" id=\"manager-debug\" title=\"The debug window: what is wrong with the prescription\"><i class=\"fas fa-bug\"></i> Debug<span id=\"debug-badge\" class=\"badge badge-secondary ml-1\">0</span></button>";
   if (group) { group.insertAdjacentElement("afterend", bar); } else { document.body.insertBefore(bar, document.body.firstChild); }
 
@@ -643,7 +630,8 @@ document.addEventListener("DOMContentLoaded", function () {
     var control = f[2] === "area"
       ? "<textarea class=\"form-control form-control-sm\" rows=\"2\" data-meta=\"" + f[0] + "\"></textarea>"
       : "<input type=\"text\" class=\"form-control form-control-sm\" data-meta=\"" + f[0] + "\">";
-    return "<div class=\"meta-field meta-" + f[0] + "\"><label>" + f[1] + "</label>" + control + "</div>";
+    var extra = (f[0] === "title") ? " <a href=\"#\" id=\"manager-meta-toggle\" class=\"meta-toggle\" title=\"Show or hide the rest of the description\"></a>" : "";
+    return "<div class=\"meta-field meta-" + f[0] + "\"><label>" + f[1] + extra + "</label>" + control + "</div>";
   }).join("");
   panel0.innerHTML = fields;
   bar.insertAdjacentElement("afterend", panel0);
@@ -653,8 +641,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
   // --- the tiles: the diagram on top, the tables below, the drawer along the bottom (Split.js) ---
-  var LAYOUT_KEY = "sovs.manager.layout.v3";
-  var layout = { v: MGR_SIZES.v.slice(), h: MGR_SIZES.h.slice(), t: MGR_SIZES.t.slice(), metaOpen: false };
+  var LAYOUT_KEY = "sovs.manager.layout.v4";
+  var layout = { v: MGR_SIZES.v.slice(), h: MGR_SIZES.h.slice(), t: MGR_SIZES.t.slice(), metaOpen: true };
   try { var saved = JSON.parse(localStorage.getItem(LAYOUT_KEY)); if (saved) { layout = Object.assign(layout, saved); } } catch (e) {}
   function saveLayout () { try { localStorage.setItem(LAYOUT_KEY, JSON.stringify(layout)); } catch (e) {} }
   function nudge () { try { window.dispatchEvent(new Event("resize")); } catch (e) {} }
@@ -671,7 +659,7 @@ document.addEventListener("DOMContentLoaded", function () {
     "<div id=\"mgr-top\" class=\"mgr-pane\"><div id=\"mgr-diagram\" class=\"mgr-pane\"></div><div id=\"mgr-summary\" class=\"mgr-pane\"></div></div>" +
     "<div id=\"mgr-tables\" class=\"mgr-pane\"><div id=\"mgr-prescription\" class=\"mgr-pane\"></div><div id=\"mgr-objects\" class=\"mgr-pane\"></div></div>" +
     "<div id=\"mgr-drawer\" class=\"mgr-pane\" data-view=\"debug\">" +
-      "<div id=\"mgr-drawer-tabs\"><button type=\"button\" data-view=\"debug\" class=\"active\">Debug</button></div>" +
+      "<div id=\"mgr-drawer-tabs\"><button type=\"button\" data-view=\"debug\" class=\"active\">Debug</button><button type=\"button\" data-view=\"lens\">Lens file</button></div>" +
       "<div id=\"mgr-drawer-body\"></div></div>";
   if (container && diagramRow) { container.insertBefore(shell, diagramRow); }
 
@@ -684,7 +672,8 @@ document.addEventListener("DOMContentLoaded", function () {
   Array.prototype.forEach.call(shell.querySelectorAll("#mgr-drawer-tabs button"), function (t) {
     t.addEventListener("click", function () {
       showDrawer(t.getAttribute("data-view"));
-      if (drawerSize() < 12) { toggleDebug(true); }
+      if (drawerSize() < 12) { toggleDebug(true); showDrawer(t.getAttribute("data-view")); }
+      if (window.refreshLensText) { window.refreshLensText(); }
     });
   });
 
@@ -763,8 +752,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   // the layout menu: ready-made proportions
-  document.getElementById("manager-layout-menu").addEventListener("click", function (e) { e.stopPropagation(); });
-  Array.prototype.forEach.call(document.querySelectorAll("#manager-layout-menu [data-preset]"), function (b) {
+  Array.prototype.forEach.call(document.querySelectorAll("[data-preset]"), function (b) {
     b.addEventListener("click", function () {
       var presets = { even: [[46, 40, 14], [58, 42], [62, 38]], diagram: [[66, 26, 8], [58, 42], [72, 28]],
                       tables: [[26, 60, 14], [58, 42], [62, 38]], reset: [MGR_SIZES.v, MGR_SIZES.h, MGR_SIZES.t] };
@@ -777,7 +765,7 @@ document.addEventListener("DOMContentLoaded", function () {
   function applyLayout () { saveLayout(); }
 
   if (typeof ResizeObserver === "function") {
-    var watcher = new ResizeObserver(function () { lastShellHeight = -1; fitManagerHeights(); });
+    var watcher = new ResizeObserver(function () { requestAnimationFrame(function () { lastShellHeight = -1; fitManagerHeights(); }); });
     watcher.observe(bar); watcher.observe(panel0);
   }
   // the grids follow their panes: a table is laid out again whenever its pane changes size (a window pulled wide, a gutter dragged)
@@ -809,17 +797,17 @@ document.addEventListener("DOMContentLoaded", function () {
     wrap.appendChild(units);
     bar.insertBefore(wrap, document.getElementById("manager-debug"));
   }
-  var detailsBtn = document.createElement("button");
-  detailsBtn.type = "button"; detailsBtn.id = "manager-details"; detailsBtn.className = "btn btn-sm btn-outline-secondary ml-1";
-  detailsBtn.title = "Show or hide the description of the model (category, keywords, source, description)";
-  detailsBtn.innerHTML = "<i class=\"fas fa-info-circle\"></i> Details";
-  bar.insertBefore(detailsBtn, document.getElementById("manager-debug"));
+  var detailsBtn = document.getElementById("manager-details");
   function applyDetails () {
     panel0.classList.toggle("meta-collapsed", !layout.metaOpen);
-    detailsBtn.classList.toggle("active", !!layout.metaOpen);
+    if (detailsBtn) { detailsBtn.classList.toggle("active", !!layout.metaOpen); }
+    var tg = document.getElementById("manager-meta-toggle");
+    if (tg) { tg.textContent = layout.metaOpen ? "hide details" : "show details (category, keywords, source, description)"; }
     setTimeout(nudge, 50);
   }
-  detailsBtn.addEventListener("click", function () { layout.metaOpen = !layout.metaOpen; applyDetails(); applyLayout(); });
+  var inlineToggle = document.getElementById("manager-meta-toggle");
+  if (inlineToggle) { inlineToggle.addEventListener("click", function (e) { e.preventDefault(); layout.metaOpen = !layout.metaOpen; applyDetails(); applyLayout(); }); }
+  if (detailsBtn) detailsBtn.addEventListener("click", function () { layout.metaOpen = !layout.metaOpen; applyDetails(); applyLayout(); });
   applyDetails();
   var sel = document.createElement("span");
   sel.id = "manager-selected"; sel.className = "small text-muted ml-2";
@@ -891,7 +879,7 @@ document.addEventListener("DOMContentLoaded", function () {
     setTimeout(window.managerObjectFocusChanged, 1000);
   }
 
-  Array.prototype.forEach.call(document.querySelectorAll("#manager-add-menu [data-add]"), function (b) {
+  Array.prototype.forEach.call(document.querySelectorAll("[data-add]"), function (b) {
     b.addEventListener("click", function () { addAtSelection(b.getAttribute("data-add"), b.getAttribute("data-where")); });
   });
   function withSelected (fn) { return function () { var r = selectedLensRow(); if (r) { fn(r); } }; }
@@ -908,6 +896,20 @@ document.addEventListener("DOMContentLoaded", function () {
   setTimeout(managerSelectionChanged, 1000);
 
   document.getElementById("manager-recompile").addEventListener("click", recompileLens);
+
+  // the menu items that act through the buttons and windows already there
+  document.getElementById("manager-recompile-item").addEventListener("click", recompileLens);
+  Array.prototype.forEach.call(document.querySelectorAll("[data-focus]"), function (b) {
+    b.addEventListener("click", function () { maximise(b.getAttribute("data-focus")); });
+  });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-drawer]"), function (b) {
+    b.addEventListener("click", function () {
+      var view = b.getAttribute("data-drawer");
+      if (drawerSize() < 12) { toggleDebug(true); }
+      showDrawer(view);
+      if (window.refreshLensText) { window.refreshLensText(); }
+    });
+  });
   document.getElementById("manager-debug").addEventListener("click", function () { toggleDebug(); });
 
   // the debug window, along the bottom of the page
@@ -923,6 +925,47 @@ document.addEventListener("DOMContentLoaded", function () {
   var drawerBody = document.getElementById("mgr-drawer-body");
   if (drawerBody) { drawerBody.insertBefore(panel, drawerBody.firstChild); } else { document.body.appendChild(panel); }
   showDrawer("debug");
+
+  // the raw .lens file: the text that Save would write, which can be edited and applied
+  var lensPane = document.createElement("div");
+  lensPane.id = "mgr-lensfile";
+  lensPane.innerHTML =
+    "<div class=\"lensfile-head\">" +
+    "<button type=\"button\" class=\"btn btn-sm btn-primary\" id=\"lensfile-apply\" title=\"Check the text and load it as the model\">Apply</button>" +
+    "<button type=\"button\" class=\"btn btn-sm btn-outline-secondary\" id=\"lensfile-revert\" title=\"Throw away the edits: show what the tables describe\">Revert</button>" +
+    "<button type=\"button\" class=\"btn btn-sm btn-outline-secondary\" id=\"lensfile-copy\">Copy</button>" +
+    "<button type=\"button\" class=\"btn btn-sm btn-outline-secondary\" id=\"lensfile-save\">Save text&hellip;</button>" +
+    "<span id=\"lensfile-status\" class=\"small text-muted\"></span></div>" +
+    "<textarea id=\"lensfile-text\" spellcheck=\"false\" wrap=\"off\"></textarea>";
+  if (drawerBody) { drawerBody.appendChild(lensPane); }
+  var lensText = document.getElementById("lensfile-text");
+  var lensStatus = document.getElementById("lensfile-status");
+  var lensDirty = false;
+  function refreshLensText (force) {
+    if (!lensText || (lensDirty && !force)) { return; }
+    if (typeof lens === "undefined" || !lens.table) { return; }
+    try { lensText.value = lensFileText(); lensStatus.textContent = "as the tables describe it"; }
+    catch (e) { lensStatus.textContent = "could not be written: " + (e && e.message ? e.message : e); }
+  }
+  window.refreshLensText = refreshLensText;
+  lensText.addEventListener("input", function () { lensDirty = true; lensStatus.textContent = "edited: Apply to load it, Revert to discard"; });
+  document.getElementById("lensfile-apply").addEventListener("click", function () {
+    var title = (document.getElementById("filename_display") || {}).value || "Edited lens file";
+    if (openLensText(lensText.value, title)) { lensDirty = false; setTimeout(function () { refreshLensText(true); }, 900); }
+  });
+  document.getElementById("lensfile-revert").addEventListener("click", function () { lensDirty = false; refreshLensText(true); });
+  document.getElementById("lensfile-copy").addEventListener("click", function () { if (navigator.clipboard) { navigator.clipboard.writeText(lensText.value); } });
+  document.getElementById("lensfile-save").addEventListener("click", function () {
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([lensText.value], { type: "text/plain" }));
+    a.download = ((document.getElementById("filename_display") || {}).value || "lens").replace(/[^\w\- ]+/g, "").trim().replace(/\s+/g, "-").toLowerCase() + ".lens";
+    document.body.appendChild(a); a.click(); a.remove();
+  });
+  // refreshed when it is looked at, and as the tables change (not over the top of text being edited)
+  setInterval(function () {
+    var drawer = document.getElementById("mgr-drawer");
+    if (drawer && drawer.getAttribute("data-view") === "lens") { refreshLensText(); }
+  }, 1200);
   document.getElementById("debug-show").addEventListener("change", renderDebug);
   document.getElementById("debug-clear").addEventListener("click", function () { managerLog = []; renderDebug(); });
   document.getElementById("debug-close").addEventListener("click", function () { toggleDebug(false); });

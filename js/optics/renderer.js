@@ -101,8 +101,10 @@ function hslToRgb(h, s, l){
   function setScaleFactor() {
 
     // virtual unit / pixel unit
-    paperWidth  = $("#lens-container").width();
-    paperHeight = $("#lens-container").height();
+    var measuredWidth  = $("#lens-container").width();
+    var measuredHeight = $("#lens-container").height();
+    // a container with no size yet (a pane still being laid out) gives no scale: keep the last one
+    if (measuredWidth > 0 && measuredHeight > 0) { paperWidth = measuredWidth; paperHeight = measuredHeight; }
 
     // The SVG uses the default preserveAspectRatio ("meet"): it's scaled
     // UNIFORMLY to fit within the container (letterboxed on whichever axis has
@@ -176,7 +178,7 @@ function hslToRgb(h, s, l){
              new ResizeObserver(function () {
                clearTimeout(resizeTimer);
                resizeTimer = setTimeout(function () {
-                 if (!viewBoxWidth || !$("#" + canvasID).width()) { return; }
+                 if (!viewBoxWidth || !$("#" + canvasID).width() || !$("#" + canvasID).height()) { return; }
                  setScaleFactor();
                  lastAxisExtent = "";
                  drawAxis();
