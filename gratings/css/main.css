@@ -1,0 +1,16 @@
+html, body {
+    height: 100%;
+    background-color: gray;
+}
+
+
+.wrapper {
+    text-align: center;
+}
+
+
+.align {
+    position: absolute;
+    top: 50%;
+}
+
