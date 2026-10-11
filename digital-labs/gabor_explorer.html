@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gabor Patch Explorer</title>
+<style>
+  :root {
+    --bg: #eef0f3;
+    --panel: #ffffff;
+    --panel-2: #f5f6f8;
+    --border: #d7dbe0;
+    --text: #1b2027;
+    --text-dim: #5b6570;
+    --accent: #b5720a;
+    --accent-soft: rgba(181, 114, 10, 0.14);
+    --mono: ui-monospace, "SFMono-Regular", "JetBrains Mono", Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --radius: 5px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0d1117;
+      --panel: #161b22;
+      --panel-2: #12161c;
+      --border: #2a3138;
+      --text: #e6e9ed;
+      --text-dim: #8b95a1;
+      --accent: #e8a33d;
+      --accent-soft: rgba(232, 163, 61, 0.16);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #0d1117;
+    --panel: #161b22;
+    --panel-2: #12161c;
+    --border: #2a3138;
+    --text: #e6e9ed;
+    --text-dim: #8b95a1;
+    --accent: #e8a33d;
+    --accent-soft: rgba(232, 163, 61, 0.16);
+  }
+
+  :root[data-theme="light"] {
+    --bg: #eef0f3;
+    --panel: #ffffff;
+    --panel-2: #f5f6f8;
+    --border: #d7dbe0;
+    --text: #1b2027;
+    --text-dim: #5b6570;
+    --accent: #b5720a;
+    --accent-soft: rgba(181, 114, 10, 0.14);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+  }
+
+  .console {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 28px 20px 40px;
+  }
+
+  .console__eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 4px;
+  }
+
+  .console__title {
+    font-size: 22px;
+    font-weight: 650;
+    letter-spacing: -0.01em;
+    margin: 0 0 20px;
+    text-wrap: balance;
+  }
+
+  .formula-note {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-dim);
+    margin: -12px 0 18px;
+  }
+
+  .formula-note span { color: var(--accent); }
+
+  .displays {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 10px;
+    align-items: center;
+  }
+
+  @media (max-width: 700px) {
+    .displays { grid-template-columns: 1fr; }
+    .connector { padding: 2px 0; }
+  }
+
+  .scope {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+    height: 100%;
+  }
+
+  .scope__label {
+    font-size: 11px;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  .connector {
+    font-size: 22px;
+    font-weight: 300;
+    color: var(--text-dim);
+    text-align: center;
+  }
+
+  .canvas-wrap {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    border-radius: 3px;
+    overflow: hidden;
+    background: var(--panel-2);
+    position: relative;
+  }
+
+  canvas { display: block; width: 100%; height: 100%; }
+
+  .scope__formula {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-dim);
+    font-variant-numeric: tabular-nums;
+    min-height: 2.6em;
+  }
+
+  .rail {
+    margin-top: 16px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+  }
+
+  .rail-primary {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+
+  .rail-secondary {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  @media (max-width: 700px) {
+    .rail-primary { grid-template-columns: repeat(2, 1fr); }
+    .rail-secondary { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 420px) {
+    .rail-primary { grid-template-columns: 1fr; }
+  }
+
+  .control__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 8px;
+  }
+
+  .control label {
+    font-size: 12px;
+    letter-spacing: 0.03em;
+    color: var(--text-dim);
+  }
+
+  .control .unit {
+    color: var(--accent);
+    font-family: var(--mono);
+  }
+
+  .readout {
+    font-family: var(--mono);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    outline-offset: 6px;
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid var(--panel);
+    box-shadow: 0 0 0 1px var(--accent);
+    cursor: pointer;
+    margin-top: -6px;
+  }
+
+  input[type="range"]::-moz-range-thumb {
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid var(--panel);
+    box-shadow: 0 0 0 1px var(--accent);
+    cursor: pointer;
+  }
+
+  input[type="range"]::-moz-range-track {
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+  }
+
+  input:focus-visible { outline: 2px solid var(--accent); }
+
+  .stats {
+    margin-top: 16px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 22px;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--text-dim);
+  }
+
+  .stats strong { color: var(--text); font-weight: 600; }
+
+  .hint {
+    margin: 14px 2px 0;
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: var(--text-dim);
+    max-width: 68ch;
+  }
+
+  .canvas-wrap--draggable { cursor: grab; }
+  .canvas-wrap--draggable:active { cursor: grabbing; }
+</style>
+</head>
+<body>
+
+<div class="console">
+  <div class="console__eyebrow">OPTOM 263 &middot; Frequency-domain filtering</div>
+  <h1 class="console__title">Gabor Patch Explorer</h1>
+  <div class="formula-note">
+    g(x,y) = <span>amplitude</span> &middot; exp(&minus;r&sup2;/2&sigma;&sup2;) &middot; cos(2&pi;(f/N)&middot;x&prime; + &phi;),
+    &nbsp; x&prime; = x&middot;cos&theta; + y&middot;sin&theta;
+  </div>
+
+  <div class="displays">
+    <section class="scope" aria-label="Spatial-domain patch">
+      <div class="scope__label">Spatial domain &mdash; drag to move</div>
+      <div class="canvas-wrap canvas-wrap--draggable" id="patchCanvasWrap"><canvas id="patchCanvas"></canvas></div>
+      <div class="scope__formula" id="patchFormula"></div>
+    </section>
+
+    <div class="connector" aria-hidden="true">&#8646;</div>
+
+    <section class="scope" aria-label="Amplitude spectrum">
+      <div class="scope__label">Amplitude spectrum |F| (log, DC centred)</div>
+      <div class="canvas-wrap"><canvas id="specCanvas"></canvas></div>
+      <div class="scope__formula" id="specFormula"></div>
+    </section>
+  </div>
+
+  <div class="rail">
+    <div class="rail-primary">
+      <div class="control">
+        <div class="control__row">
+          <label for="freqSlider">Frequency <span class="unit">f</span></label>
+          <span class="readout" id="freqReadout">20</span>
+        </div>
+        <input type="range" id="freqSlider" min="0" max="48" step="1" value="20">
+      </div>
+
+      <div class="control">
+        <div class="control__row">
+          <label for="orientSlider">Orientation <span class="unit">&theta;</span></label>
+          <span class="readout" id="orientReadout">30&deg;</span>
+        </div>
+        <input type="range" id="orientSlider" min="0" max="179" step="1" value="30">
+      </div>
+
+      <div class="control">
+        <div class="control__row">
+          <label for="phaseSlider">Phase <span class="unit">&phi;</span></label>
+          <span class="readout" id="phaseReadout">0&deg;</span>
+        </div>
+        <input type="range" id="phaseSlider" min="-180" max="180" step="1" value="0">
+      </div>
+    </div>
+
+    <div class="rail-secondary">
+      <div class="control">
+        <div class="control__row">
+          <label for="sigmaSlider">Envelope &sigma; <span class="unit">px</span></label>
+          <span class="readout" id="sigmaReadout">14</span>
+        </div>
+        <input type="range" id="sigmaSlider" min="3" max="40" step="1" value="14">
+      </div>
+
+      <div class="control">
+        <div class="control__row">
+          <label for="ampSlider">Amplitude <span class="unit">contrast</span></label>
+          <span class="readout" id="ampReadout">0.42</span>
+        </div>
+        <input type="range" id="ampSlider" min="0.05" max="1" step="0.01" value="0.42">
+      </div>
+    </div>
+
+    <div class="rail-secondary">
+      <div class="control">
+        <div class="control__row">
+          <label for="xSlider">Position x <span class="unit">px</span></label>
+          <span class="readout" id="xReadout">0</span>
+        </div>
+        <input type="range" id="xSlider" min="-56" max="56" step="1" value="0">
+      </div>
+
+      <div class="control">
+        <div class="control__row">
+          <label for="ySlider">Position y <span class="unit">px</span></label>
+          <span class="readout" id="yReadout">0</span>
+        </div>
+        <input type="range" id="ySlider" min="-56" max="56" step="1" value="0">
+      </div>
+    </div>
+  </div>
+
+  <div class="stats">
+    <span>Carrier: <strong id="statCarrier">20 cyc/image</strong></span>
+    <span>Blob radius (&asymp; 1/(2&pi;&sigma;)&middot;N): <strong id="statBlob">&mdash;</strong></span>
+    <span>Mirror pair at: <strong id="statMirror">&mdash;</strong></span>
+    <span>Position: <strong id="statPosition">(0, 0) px</strong></span>
+  </div>
+
+  <p class="hint">
+    A localized patch is not a single spectral point but a small Gaussian blob centred on its
+    carrier frequency (at &theta; and &theta;+180&deg;, since a real-valued grating always has a
+    mirrored twin) &mdash; this is the same time&ndash;frequency uncertainty tradeoff behind the
+    gap between the low/high bands in the 4&times;4 Gabor grid lab. Narrowing &sigma; shrinks the
+    patch but spreads the blob; raising the frequency slides the blob pair further from DC.
+    Drag the patch (or use the position sliders) to move it around the canvas &mdash; by the
+    Fourier shift theorem this only rotates the <em>phase</em> spectrum; the amplitude spectrum
+    stays exactly the same.
+  </p>
+</div>
+
+<script>
+(function () {
+  var N = 128; // grid size, power of 2 for the FFT
+
+  var state = { freq: 20, orient: 30, phase: 0, sigma: 14, amp: 0.42, offX: 0, offY: 0 };
+  var POS_LIMIT = 56;
+
+  var patchCanvas = document.getElementById('patchCanvas');
+  var patchCanvasWrap = document.getElementById('patchCanvasWrap');
+  var specCanvas = document.getElementById('specCanvas');
+
+  var freqSlider = document.getElementById('freqSlider');
+  var orientSlider = document.getElementById('orientSlider');
+  var phaseSlider = document.getElementById('phaseSlider');
+  var sigmaSlider = document.getElementById('sigmaSlider');
+  var ampSlider = document.getElementById('ampSlider');
+  var xSlider = document.getElementById('xSlider');
+  var ySlider = document.getElementById('ySlider');
+
+  var freqReadout = document.getElementById('freqReadout');
+  var orientReadout = document.getElementById('orientReadout');
+  var phaseReadout = document.getElementById('phaseReadout');
+  var sigmaReadout = document.getElementById('sigmaReadout');
+  var ampReadout = document.getElementById('ampReadout');
+  var xReadout = document.getElementById('xReadout');
+  var yReadout = document.getElementById('yReadout');
+
+  var patchFormula = document.getElementById('patchFormula');
+  var specFormula = document.getElementById('specFormula');
+
+  var statCarrier = document.getElementById('statCarrier');
+  var statBlob = document.getElementById('statBlob');
+  var statMirror = document.getElementById('statMirror');
+  var statPosition = document.getElementById('statPosition');
+
+  // ------------------------------------------------------------------
+  // FFT core (same radix-2 implementation used in fourier_image_explorer.html)
+  // ------------------------------------------------------------------
+  function fft1d(re, im, invert) {
+    var n = re.length;
+    for (var i = 1, j = 0; i < n; i++) {
+      var bit = n >> 1;
+      for (; j & bit; bit >>= 1) j ^= bit;
+      j ^= bit;
+      if (i < j) {
+        var t = re[i]; re[i] = re[j]; re[j] = t;
+        t = im[i]; im[i] = im[j]; im[j] = t;
+      }
+    }
+    for (var len = 2; len <= n; len <<= 1) {
+      var ang = (invert ? 1 : -1) * 2 * Math.PI / len;
+      var wr = Math.cos(ang), wi = Math.sin(ang);
+      for (var i2 = 0; i2 < n; i2 += len) {
+        var curWr = 1, curWi = 0;
+        var half = len / 2;
+        for (var j2 = 0; j2 < half; j2++) {
+          var ur = re[i2 + j2], ui = im[i2 + j2];
+          var vr = re[i2 + j2 + half] * curWr - im[i2 + j2 + half] * curWi;
+          var vi = re[i2 + j2 + half] * curWi + im[i2 + j2 + half] * curWr;
+          re[i2 + j2] = ur + vr; im[i2 + j2] = ui + vi;
+          re[i2 + j2 + half] = ur - vr; im[i2 + j2 + half] = ui - vi;
+          var nextWr = curWr * wr - curWi * wi;
+          var nextWi = curWr * wi + curWi * wr;
+          curWr = nextWr; curWi = nextWi;
+        }
+      }
+    }
+  }
+
+  function fft2d(re, im, n) {
+    var rowR = new Float64Array(n), rowI = new Float64Array(n);
+    for (var y = 0; y < n; y++) {
+      for (var x = 0; x < n; x++) { rowR[x] = re[y * n + x]; rowI[x] = im[y * n + x]; }
+      fft1d(rowR, rowI, false);
+      for (var x2 = 0; x2 < n; x2++) { re[y * n + x2] = rowR[x2]; im[y * n + x2] = rowI[x2]; }
+    }
+    var colR = new Float64Array(n), colI = new Float64Array(n);
+    for (var x3 = 0; x3 < n; x3++) {
+      for (var y2 = 0; y2 < n; y2++) { colR[y2] = re[y2 * n + x3]; colI[y2] = im[y2 * n + x3]; }
+      fft1d(colR, colI, false);
+      for (var y3 = 0; y3 < n; y3++) { re[y3 * n + x3] = colR[y3]; im[y3 * n + x3] = colI[y3]; }
+    }
+  }
+
+  function fftshift2d(re, im, n) {
+    var half = n / 2;
+    for (var y = 0; y < half; y++) {
+      for (var x = 0; x < n; x++) {
+        var x2 = (x + half) % n, y2 = y + half;
+        var i1 = y * n + x, i2 = y2 * n + x2;
+        var t = re[i1]; re[i1] = re[i2]; re[i2] = t;
+        t = im[i1]; im[i1] = im[i2]; im[i2] = t;
+      }
+    }
+  }
+
+  function fitCanvas(canvas) {
+    var dpr = window.devicePixelRatio || 1;
+    var rect = canvas.getBoundingClientRect();
+    var w = Math.max(1, Math.round(rect.width * dpr));
+    var h = Math.max(1, Math.round(rect.height * dpr));
+    if (canvas.width !== w || canvas.height !== h) {
+      canvas.width = w;
+      canvas.height = h;
+    }
+    return { w: w, h: h };
+  }
+
+  // Renders an NxN grayscale field (values already in [0,1]) into canvas,
+  // nearest-neighbour scaled to fill it.
+  function drawField(canvas, field) {
+    var dims = fitCanvas(canvas);
+    var ctx = canvas.getContext('2d');
+    var off = document.createElement('canvas');
+    off.width = N; off.height = N;
+    var offCtx = off.getContext('2d');
+    var img = offCtx.createImageData(N, N);
+    for (var i = 0; i < N * N; i++) {
+      var g = Math.round(clamp(field[i], 0, 1) * 255);
+      img.data[i * 4] = g;
+      img.data[i * 4 + 1] = g;
+      img.data[i * 4 + 2] = g;
+      img.data[i * 4 + 3] = 255;
+    }
+    offCtx.putImageData(img, 0, 0);
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(off, 0, 0, dims.w, dims.h);
+  }
+
+  function clamp(v, lo, hi) { return Math.min(hi, Math.max(lo, v)); }
+
+  var drawScheduled = false;
+  function scheduleDraw() {
+    if (drawScheduled) return;
+    drawScheduled = true;
+    requestAnimationFrame(function () {
+      drawScheduled = false;
+      render();
+    });
+  }
+
+  function render() {
+    var thetaRad = state.orient * Math.PI / 180;
+    var phiRad = state.phase * Math.PI / 180;
+    var cx = N / 2 + state.offX, cy = N / 2 + state.offY;
+
+    var patch = new Float64Array(N * N);
+    var re = new Float64Array(N * N);
+    var im = new Float64Array(N * N);
+
+    for (var y = 0; y < N; y++) {
+      for (var x = 0; x < N; x++) {
+        var dx = x - cx, dy = y - cy;
+        var xr = dx * Math.cos(thetaRad) + dy * Math.sin(thetaRad);
+        var r2 = dx * dx + dy * dy;
+        var envelope = Math.exp(-r2 / (2 * state.sigma * state.sigma));
+        var carrier = Math.cos(2 * Math.PI * (state.freq / N) * xr + phiRad);
+        var v = state.amp * envelope * carrier;
+        var idx = y * N + x;
+        patch[idx] = 0.5 + v; // background 0.5, same as generate_gabor_grid.m
+        re[idx] = clamp(patch[idx], 0, 1);
+        im[idx] = 0;
+      }
+    }
+
+    drawField(patchCanvas, patch);
+
+    fft2d(re, im, N);
+    fftshift2d(re, im, N);
+
+    var amplitude = new Float64Array(N * N);
+    var maxLog = 0;
+    for (var i = 0; i < N * N; i++) {
+      var mag = Math.hypot(re[i], im[i]);
+      var logMag = Math.log(1 + mag);
+      amplitude[i] = logMag;
+      if (logMag > maxLog) maxLog = logMag;
+    }
+    var spec = new Float64Array(N * N);
+    for (var i2 = 0; i2 < N * N; i2++) {
+      spec[i2] = maxLog > 0 ? Math.pow(amplitude[i2] / maxLog, 0.5) : 0;
+    }
+    drawField(specCanvas, spec);
+
+    patchFormula.textContent =
+      state.amp.toFixed(2) + ' · exp(−r²/2·' + state.sigma + '²) · cos(2π(' +
+      state.freq + '/' + N + ')x′ + ' + Math.round(state.phase) + '°)';
+    specFormula.textContent =
+      'Two blobs at ±(' + state.freq + ' cyc/image, ' + Math.round(state.orient) + '°) — real image ⇒ conjugate-symmetric spectrum';
+
+    var blobRadius = 1 / (2 * Math.PI * state.sigma) * N;
+    statCarrier.textContent = state.freq + ' cyc/image @ ' + Math.round(state.orient) + '°';
+    statBlob.textContent = blobRadius.toFixed(1) + ' cyc/image';
+    statMirror.textContent = state.freq + ' cyc/image @ ' + Math.round((state.orient + 180) % 360) + '°';
+    statPosition.textContent = '(' + Math.round(state.offX) + ', ' + Math.round(state.offY) + ') px';
+  }
+
+  function sync() {
+    freqReadout.textContent = state.freq;
+    orientReadout.textContent = Math.round(state.orient) + '°';
+    phaseReadout.textContent = Math.round(state.phase) + '°';
+    sigmaReadout.textContent = state.sigma;
+    ampReadout.textContent = state.amp.toFixed(2);
+    xReadout.textContent = Math.round(state.offX);
+    yReadout.textContent = Math.round(state.offY);
+    scheduleDraw();
+  }
+
+  function setPosition(x, y) {
+    state.offX = clamp(Math.round(x), -POS_LIMIT, POS_LIMIT);
+    state.offY = clamp(Math.round(y), -POS_LIMIT, POS_LIMIT);
+    xSlider.value = state.offX;
+    ySlider.value = state.offY;
+    sync();
+  }
+
+  freqSlider.addEventListener('input', function (e) {
+    state.freq = parseFloat(e.target.value);
+    sync();
+  });
+  orientSlider.addEventListener('input', function (e) {
+    state.orient = parseFloat(e.target.value);
+    sync();
+  });
+  phaseSlider.addEventListener('input', function (e) {
+    state.phase = parseFloat(e.target.value);
+    sync();
+  });
+  sigmaSlider.addEventListener('input', function (e) {
+    state.sigma = parseFloat(e.target.value);
+    sync();
+  });
+  ampSlider.addEventListener('input', function (e) {
+    state.amp = parseFloat(e.target.value);
+    sync();
+  });
+  xSlider.addEventListener('input', function (e) {
+    setPosition(parseFloat(e.target.value), state.offY);
+  });
+  ySlider.addEventListener('input', function (e) {
+    setPosition(state.offX, parseFloat(e.target.value));
+  });
+
+  // Drag-to-move: convert pointer movement in CSS pixels to field pixels
+  // (N / displayed-width) and nudge the envelope centre.
+  var dragging = false, dragStartX = 0, dragStartY = 0, dragOffX = 0, dragOffY = 0;
+
+  patchCanvasWrap.addEventListener('pointerdown', function (e) {
+    dragging = true;
+    dragStartX = e.clientX;
+    dragStartY = e.clientY;
+    dragOffX = state.offX;
+    dragOffY = state.offY;
+    patchCanvasWrap.setPointerCapture(e.pointerId);
+  });
+  patchCanvasWrap.addEventListener('pointermove', function (e) {
+    if (!dragging) return;
+    var rect = patchCanvasWrap.getBoundingClientRect();
+    var scale = N / rect.width; // CSS px -> field px
+    var dx = (e.clientX - dragStartX) * scale;
+    var dy = (e.clientY - dragStartY) * scale;
+    setPosition(dragOffX + dx, dragOffY + dy);
+  });
+  patchCanvasWrap.addEventListener('pointerup', function (e) {
+    dragging = false;
+    patchCanvasWrap.releasePointerCapture(e.pointerId);
+  });
+  patchCanvasWrap.addEventListener('pointercancel', function () {
+    dragging = false;
+  });
+
+  window.addEventListener('resize', scheduleDraw);
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', scheduleDraw);
+  new MutationObserver(scheduleDraw).observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['data-theme']
+  });
+
+  sync();
+})();
+</script>
+</body>
+</html>

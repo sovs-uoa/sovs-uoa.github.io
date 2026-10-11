@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Digital labs</title>
+  <style>
+    :root { --bg:#f6f7f9; --card:#fff; --ink:#1f2933; --muted:#66727f; --line:#dfe3e8; --accent:#1d6fdc; }
+    @media (prefers-color-scheme: dark) { :root { --bg:#14171b; --card:#1d2228; --ink:#e8ecf0; --muted:#98a4b0; --line:#2c333b; --accent:#5b9dff; } }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
+    header { padding:48px 20px 24px; text-align:center; }
+    header h1 { margin:0 0 6px; font-size:clamp(1.7rem,4vw,2.4rem); }
+    header p { margin:2px 0; color:var(--muted); }
+    main { max-width:1000px; margin:0 auto; padding:0 16px 48px; display:grid; gap:16px; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px; display:flex; flex-direction:column; gap:8px; }
+    .card h2 { margin:0; font-size:1.05rem; }
+    .card p { margin:0; color:var(--muted); font-size:.92rem; }
+    .open { margin-top:auto; align-self:flex-start; padding:7px 14px; border-radius:8px; background:var(--accent); color:#fff; text-decoration:none; font-weight:600; font-size:.9rem; }
+    footer { text-align:center; color:var(--muted); font-size:.85rem; padding:0 16px 32px; }
+    footer a { color:var(--accent); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Digital labs</h1>
+    <p>OPTOM 263: interactive simulators for Fourier transforms and Gabor patches</p>
+    <p>School of Optometry and Vision Science, University of Auckland</p>
+  </header>
+  <main>
+    <section class="card"><h2>Gabor patch explorer</h2><p>Set the frequency, orientation, phase, envelope and position of a Gabor patch, and see its amplitude spectrum.</p><a class="open" href="gabor_explorer.html">Open</a></section>
+    <section class="card"><h2>Magnitude and phase</h2><p>A single co-sinusoid in real and imaginary parts, and in magnitude and phase.</p><a class="open" href="magnitude_phase.html">Open</a></section>
+    <section class="card"><h2>R, I &harr; magnitude, phase</h2><p>The same co-sinusoid with a play-phase-sweep control and the frequency in x and y.</p><a class="open" href="fourier_explorer.html">Open</a></section>
+    <section class="card"><h2>Fourier image explorer</h2><p>Load an image, see its magnitude and phase spectra, and apply ideal, Gaussian or Butterworth low-pass and high-pass filters.</p><a class="open" href="fourier_image_explorer.html">Open</a></section>
+    <section class="card"><h2>Hybrid image creator</h2><p>The Marilyn&ndash;Einstein illusion: blend the low frequencies of one image with the high frequencies of another.</p><a class="open" href="hybrid_image_creator.html">Open</a></section>
+    <section class="card"><h2>Lab pack</h2><p>The MATLAB scripts and sample images used with the labs (<code>lab-pack/</code>, with <code>resources.zip</code>).</p><a class="open" href="lab-pack/resources.zip">Download resources.zip</a></section>
+  </main>
+  <footer>The visual stimulus demonstrations (gratings, disks, moving Gabors) are at <a href="https://abi-eye-group.github.io/">abi-eye-group.github.io</a>. &middot; <a href="../index.html">SOVS Optics Bench</a></footer>
+</body>
+</html>
