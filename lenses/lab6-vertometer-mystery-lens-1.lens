@@ -25,7 +25,8 @@ Vertometer standard
 					"beamwidth" : 0.025,
 					"z"			: -0.039444444444444, 
 					"h"			: 0,
-					"t"			: 0 } ],
+					"t"			: 0 ,
+					"pin"		: true} ],
 
 
 	"prescription": [{
@@ -41,7 +42,7 @@ Vertometer standard
 		"description": "standard lens",
 		"args": {
 			"power":  30,
-			"stop": false,
+			"stop": true,
 			"aperture" : 0.025,
 			"height": 0.025			
 		}
@@ -112,7 +113,7 @@ Vertometer standard
 		"type": "thin",
 		"description": "eyepiece lens",
 		"args": {
-			"stop": true,
+			"stop": false,
 			"power":  -50,
 			"height": 0.01,
 			"aperture": 0.005

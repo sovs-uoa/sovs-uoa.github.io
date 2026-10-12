@@ -42,8 +42,8 @@ Assignment : Keratometer
 		"args": {
 			"intermediate": true,
 			"radius": 0.0078,
-			"height": 0.005,
-			"aperture": 0.005
+			"height": 0.015,
+			"aperture": 0.015
 		}
 	}, {
 		"id": "0003",
@@ -59,8 +59,8 @@ Assignment : Keratometer
 		"description": "thin lens",
 		"args": {
 			"power": 20,
-			"height": 0.05,
-			"aperture": 0.025
+			"height": 0.015,
+			"aperture": 0.015
 		}
 	}, {
 		"id": "0005",
@@ -77,8 +77,8 @@ Assignment : Keratometer
 		"args": {
 			"stop": true,
 			"power": 40,
-			"height": 0.05,
-			"aperture": 0.025
+			"height": 0.015,
+			"aperture": 0.015
 		}
 	}, {
 		"id": "0007",

@@ -4,7 +4,7 @@
   BUILD-LABS.JS
 
   Generates Laboratory1.html, Laboratory2.html, Laboratory3.html, Laboratory4.html,
-  Laboratory6.html, eye/index.html, Test.html, main.html, manager.html and the
+  Laboratory6.html, Vertometer.html, Keratometer.html, eye/index.html, Test.html, main.html, manager.html and the
   assignments/assign<year>.html pages from a single shared template
   (scripts/laboratory.template.html), substituting the handful of values that
   actually differ per page.
@@ -40,6 +40,8 @@ const PAGES = [
   { output: 'Laboratory4.html', lensesMenu: 'lab-4', reportVersion: 'v2.1' },
   { output: 'Laboratory6.html', lensesMenu: 'lab-6', reportVersion: 'v2.1' },
   { output: 'eye/index.html',   lensesMenu: 'eye',   reportVersion: 'v2.1' },
+  { output: 'Vertometer.html',  lensesMenu: 'vertometer',  reportVersion: 'v2.1' },
+  { output: 'Keratometer.html', lensesMenu: 'keratometer', reportVersion: 'v2.1' },
   { output: 'Test.html',        lensesMenu: 'test',  reportVersion: 'v2.1' },
   // the workbench: the Model button opens a slide-in, searchable list of every model
   { output: 'main.html',        lensesMenu: 'main',  reportVersion: 'v2.1', sidebar: true },

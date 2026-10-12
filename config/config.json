@@ -85,11 +85,13 @@
                    { "name" : "lab-2",  "main" : "0", "list" : [ "0", "1" ], "assignment" : false, "uploads": [ "BiConvex","BiConcave", "PlanoConvex", "PlanoConcave", "PlusMeniscus", "MinusMeniscus" ] },
                    { "name" : "lab-3",  "main" : "55", "list" : [ "55", "53", "54" ], "assignment" : false, "uploads": [ "Q4","Q8", "Q9" ]  },
                    { "name" : "lab-4",  "main" : "58", "list" : [ "58", "56", "57" ], "assignment" : false, "uploads": [ "Q3","Q4", "Q6", "Q7", "Q10", "Q12", "Q14" ] },        
-                   { "name" : "lab-6",  "main" : "16", "list" : [ "16" ], "assignment" : false, "uploads": [ "Q3" ] },
+                   { "name" : "lab-6",  "main" : "16", "list" : [ "16", "25" ], "assignment" : false, "uploads": [ "Q3" ] },
+                   { "name" : "vertometer",  "main" : "22", "list" : [ "22", "23", "24" ], "assignment" : false },
+                   { "name" : "keratometer", "main" : "30", "list" : [ "30", "29" ], "assignment" : false },
                    { "name" : "eye",    "main" : "10", "list" : [ "10", "71", "72", "73", "11", "59", "60", "61", "74", "75", "76", "77" ], "assignment" : false },
 
 
-                   { "name" : "assignment",       "main" : "19", "list" : [ "19", "20", "21", "28'" ], "assignment" : true }, 
+                   { "name" : "assignment",       "main" : "19", "list" : [ "19", "20", "21", "28" ], "assignment" : true }, 
                    { "name" : "assignment-2021",  "main" : "31", "list" : [ "31", "32", "33", "34", "35" ], "assignment" : true },
                    { "name" : "assignment-2022",  "main" : "36", "list" : [ "36", "37", "38", "39", "40", "41", "42" ], "assignment" : true },
                    { "name" : "assignment-2023",  "main" : "43", "list" : [ "43", "44", "45", "46", "47" ], "assignment" : true },
