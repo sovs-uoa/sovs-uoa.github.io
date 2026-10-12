@@ -822,6 +822,7 @@ class PointSourceConstruction { // create a ray construction using raphael.js
      // extrapolation to the virtual object point itself (drawn dashed
      // above, no light actually reaches there).
      if (virtualObjectEntryExtension && virtualObjectEntryExtension.end0 && virtualObjectEntryExtension.endM) {
+       drawRealVirtualBoundary(this.cd_set, virtualObjectEntryExtension.entry0[0], virtualObjectEntryExtension.entry0[1], virtualObjectEntryExtension.entryM[1]);
        var objEntryMid = [ (virtualObjectEntryExtension.entry0[0] + virtualObjectEntryExtension.entryM[0]) / 2,
                             (virtualObjectEntryExtension.entry0[1] + virtualObjectEntryExtension.entryM[1]) / 2 ];
        var objEndMid   = [ (virtualObjectEntryExtension.end0[0]  + virtualObjectEntryExtension.endM[0])  / 2,
@@ -999,6 +1000,7 @@ class PointSourceConstruction { // create a ray construction using raphael.js
               back.attr(virtual);
               this.cd_set.push(back);
             }, this);
+            drawRealVirtualBoundary(this.cd_set, ray[kPrev][0].z, ray[kPrev][0].h, ray[kPrev][M-1].h);
           }
           this.cd_set.toBack(); return;
         }
@@ -1064,6 +1066,7 @@ class PointSourceConstruction { // create a ray construction using raphael.js
               var p4 = paper.path( ["M", X1, Y1,  "L", XI, YI ]);         
               p4.attr(virtual);
               this.cd_set.push(p4);
+              if (i === 0) { drawRealVirtualBoundary(this.cd_set, ray[K-1][0].z, ray[K-1][0].h, ray[K-1][M-1].h); }
 
               // the extension part
               var dx  = + exitRefLength*direction;
@@ -1093,6 +1096,7 @@ class PointSourceConstruction { // create a ray construction using raphael.js
               var p4 = paper.path( ["M", X1, Y1,  "L", XI, YI ]);
               p4.attr(imageBeyondScreen ? virtual : real);       // (past the screen: the line is only where the rays would have met)
               this.cd_set.push(p4);
+              if (imageBeyondScreen && i === 0) { drawRealVirtualBoundary(this.cd_set, X1, ray[K-1][0].h, ray[K-1][M-1].h); }
               if (imageBeyondScreen || onScreen) { continue; }    // no light goes on past a screen: nothing is drawn beyond the img element
 
               // these are still real rays - continue them past the crossing point

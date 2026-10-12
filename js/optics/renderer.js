@@ -9,6 +9,26 @@
   var labelsVisible    = true;
   // the toolbar's Show menu (application.js): F, P, N and their dashed planes / the pupils E, E' / the vertices V, V'
   var cardinalPointsVisible = true;
+  // Where a beam stops being real light and its dashed construction lines begin (or the other way round: a virtual
+  // object's lines meeting the first element): a short-dashed line across the beam only, from edge to edge, in a darker
+  // shade of the beam's own colour. It belongs to the beam (it goes with it), not to the system.
+  function darkerShadeOf (hex, factor) {
+    var m = /^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(String(hex || ""));
+    if (!m) { return "#555555"; }
+    var c = [m[1], m[2], m[3]].map(function (h) { return Math.max(0, Math.min(255, Math.round(parseInt(h, 16) * factor))); });
+    return "#" + c.map(function (v) { return ("0" + v.toString(16)).slice(-2); }).join("");
+  }
+
+  function drawRealVirtualBoundary (set, z, h1, h2) {
+    if (!isFinite(z) || !isFinite(h1) || !isFinite(h2) || Math.abs(h1 - h2) < 1e-12) { return; }
+    var base = (typeof beamShadeColor === "function") ? beamShadeColor() : "#ffee00";
+    var line = paper.path(["M", z, h1, "L", z, h2]);
+    line.attr({ "stroke": darkerShadeOf(base, 0.5), "stroke-opacity": 1, "stroke-width": "1.5" });
+    line.node.setAttribute("stroke-dasharray", "3 3");      // short dashes (screen pixels), not the longer construction-line dashes
+    line.node.setAttribute("pointer-events", "none");
+    set.push(line);
+  }
+
   var cardinalSnapTargets = [];     // [{ label, x }]: V, V', F, F', P, P', N, N' of the system on show (set by drawCardinalPoints)
 
   // Hold a dragged point on a cardinal point: when the point is within 7 pixels of one, or has just gone past one

@@ -746,6 +746,7 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
            back.attr(virtual);
            this.cd_set.push(back);
          }, this);
+         drawRealVirtualBoundary(this.cd_set, ray[kLast][0].z, ray[kLast][0].h, ray[kLast][M-1].h);
        }
        this.cd_set.toFront(); placeWidthGrip(this, gripPairs); return;
      }
@@ -795,6 +796,7 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
 
                 p4.attr(virtual);
                 this.cd_set.push(p4);
+                if (i === 0) { drawRealVirtualBoundary(this.cd_set, X1, ray[K-1][0].h, ray[K-1][M-1].h); }
 
                 // extend the rays - real light continuing on past this
                 // (virtual) construction line, out towards "infinity"
@@ -820,6 +822,7 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
                 
                 if (imageBeyondScreen) {
                   p4.attr(virtual);          // the rays stop at the screen: the line on to the image is a construction
+                  if (i === 0) { drawRealVirtualBoundary(this.cd_set, X1, ray[K-1][0].h, ray[K-1][M-1].h); }
                 } else {
                   p4.hide ();
                   p4.attr(real);
