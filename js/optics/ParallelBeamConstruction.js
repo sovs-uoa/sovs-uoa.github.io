@@ -893,7 +893,12 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
 
 
 
-    if (ret.extend) { // extended rays
+    var screenLast = (typeof renderableLens !== "undefined" && renderableLens && renderableLens.elem) ? renderableLens.elem[renderableLens.elem.length - 1] : null;
+    var beamEndsOnScreen = !!(screenLast && screenLast.elem && screenLast.elem.type === "img");
+
+    if (beamEndsOnScreen) {
+      // the light is stopped by the screen: nothing is drawn beyond it
+    } else if (ret.extend) { // extended rays
 
       var X = P2 + refLength;
       var dx  = X - P2; // 1x refLength past the (virtual) image point
@@ -932,6 +937,10 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
       // there. Same construction as the extension above, just continued from the
       // crossing point onward instead of projected back from it.
 
+      // light does not go on past a screen: when the system ends on an img element nothing is drawn beyond it
+      var lastEl = (typeof renderableLens !== "undefined" && renderableLens && renderableLens.elem) ? renderableLens.elem[renderableLens.elem.length - 1] : null;
+      var endsOnScreen = !!(lastEl && lastEl.elem && lastEl.elem.type === "img");
+      if (!endsOnScreen) {
       var X = X2 + refLength;
       var dx  = X - P2; // 1x refLength (measured from P2) past the image point
 
@@ -961,6 +970,7 @@ class ParallelBeamConstruction { // create a ray construction using raphael.js
       fadeRayStroke(p7, realFadeFrom, realFadeTo);
       fadeRayStroke(p8, realFadeFrom, realFadeTo);
 
+      }
     }
 
     this.cd_set.toFront();

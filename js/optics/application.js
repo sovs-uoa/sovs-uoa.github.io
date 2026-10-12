@@ -2079,6 +2079,18 @@ function load (id) {
                                                 addConstruction (eachPoint);
                                           });
 
+                                          // an object that a lens file says is pinned ("pin": true: the beam is held to the system's aperture stop,
+                                          // as a vertometer's is) gets Pin switched on once its row is in the table
+                                          var pinned = points.filter(function (p) { return p.pin === true && p.type !== "point"; });
+                                          if (pinned.length) {
+                                            setTimeout(function () {
+                                              pinned.forEach(function (p) {
+                                                var row = lens.pointsTable.getRow(p.id);
+                                                if (row && typeof applyPinVigMode === "function" && !row.getData().pin) { applyPinVigMode(row, row.getData(), "pin"); }
+                                              });
+                                            }, 150);
+                                          }
+
 
 
                                           /* ------------------------------------------

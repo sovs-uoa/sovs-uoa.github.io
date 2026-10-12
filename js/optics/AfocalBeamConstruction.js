@@ -735,7 +735,23 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
      var endsOnScreen = !!(lastRow && lastRow.elem && lastRow.elem.type === "img");
      var imageAhead  = !isFinite(this.data.X2) || ((this.data.X2 - ray[K-1][0].z) * travel > -1e-9);
      var virtualImage = (travel < 0) ? !imageAhead : (lens.VI < -etol);
-     if (endsOnScreen && !imageAhead) { this.cd_set.toFront(); placeWidthGrip(this, gripPairs); return; }
+     if (endsOnScreen && !imageAhead) {
+       // a virtual image (behind the last surface, the rays still spreading at the screen): dashed construction lines
+       // from that surface back to the image tie the point to the beam
+       var kLast = -1;
+       for (var kq = K - 2; kq >= 0; kq--) { if ((ray[kq][0].z - ray[K-1][0].z) * travel < -1e-9) { kLast = kq; break; } }
+       if (kLast >= 0 && isFinite(this.data.X2) && isFinite(this.data.Y2) && (this.data.X2 - ray[kLast][0].z) * travel < -1e-9) {
+         [0, M-1].forEach(function (ri) {
+           var back = paper.path(["M", ray[kLast][ri].z, ray[kLast][ri].h, "L", this.data.X2, this.data.Y2]);
+           back.attr(virtual);
+           this.cd_set.push(back);
+         }, this);
+       }
+       this.cd_set.toFront(); placeWidthGrip(this, gripPairs); return;
+     }
+
+     // an image formed BEYOND the screen the beam ends on is only where the rays would have met: dashed, and not shaded
+     var imageBeyondScreen = endsOnScreen && isFinite(this.data.X2) && ((this.data.X2 - ray[K-1][0].z) * travel > Math.max(1e-5, 2 * kx));
 
      if (Math.abs(lens.F) > 0.0001) {   // focal system 
 
@@ -802,9 +818,12 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
 
                 // JT: STOP PLOTTING OF THIS POINT
                 
-                p4.hide ();
-
-                p4.attr(real);
+                if (imageBeyondScreen) {
+                  p4.attr(virtual);          // the rays stop at the screen: the line on to the image is a construction
+                } else {
+                  p4.hide ();
+                  p4.attr(real);
+                }
                 this.cd_set.push(p4);
             }
 
@@ -819,8 +838,8 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
             fadeRayStroke(extP_0, extFadeFrom, extFadeTo);
             fadeRayStroke(extP_M, extFadeFrom, extFadeTo);
           } else {
-            // both ends real and finite (the actual focal point) - solid fill
-            shadeBoundedBeamRegion(this.cd_set, [[finalX1_0,finalY1[0]],[this.data.X2,this.data.Y2],[finalX1_M,finalY1[M-1]]]);
+            // both ends real and finite (the actual focal point) - solid fill (not past a screen: no light is there)
+            if (!imageBeyondScreen) { shadeBoundedBeamRegion(this.cd_set, [[finalX1_0,finalY1[0]],[this.data.X2,this.data.Y2],[finalX1_M,finalY1[M-1]]]); }
             gripPairs.push({ a:[finalX1_0,finalY1[0],this.data.X2,this.data.Y2], b:[finalX1_M,finalY1[M-1],this.data.X2,this.data.Y2] });
           }
 

@@ -252,6 +252,7 @@ function sourcesFromTable () {
     if (d.group) { s.group = d.group; }
     if (d.hidden) { s.hidden = true; }
     if (d.draw) { s.draw = d.draw; }
+    if (d.pin) { s.pin = true; }                       // (held to the aperture stop: see "pin" in application.js)
     return s;
   });
 }

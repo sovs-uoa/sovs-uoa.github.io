@@ -1108,6 +1108,8 @@ function initializePointsTable(data, updatePointsCallback, success) {
 
       }
 
+      window.applyPinVigMode = applyPinVigMode;       // (a lens file's "pin": true is applied after the objects are added: application.js)
+
 
       //Build Tabulator
       lens.pointsTable = new Tabulator("#lens-points", {

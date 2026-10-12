@@ -68,6 +68,9 @@ function moveConstruction (dx, dy) {
       nowX = Math.round(nowX / gridSnapSize) * gridSnapSize;
       nowY = Math.round(nowY / gridSnapSize) * gridSnapSize;
 
+      // held on V, V', F, F', P, P', N or N' as the drag reaches or passes it (Alt turns that off)
+      nowX = snapDraggedX(this, nowX);
+
       // update the point 
       this.attr({ cx: nowX, cy: nowY });
 
@@ -107,6 +110,7 @@ function moveConstruction (dx, dy) {
       // storing original coordinates
       this.ox = this.attr("cx");
       this.oy = this.attr("cy");
+      this.lastX = this.ox;
 
       setGrabbingCursor(true);
 

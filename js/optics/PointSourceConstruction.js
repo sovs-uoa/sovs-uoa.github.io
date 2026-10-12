@@ -35,6 +35,9 @@ function movePointSource (dx, dy) {
       nowX = Math.round(nowX / gridSnapSize) * gridSnapSize;
       nowY = Math.round(nowY / gridSnapSize) * gridSnapSize;
 
+      // held on V, V', F, F', P, P', N or N' as the drag reaches or passes it (Alt turns that off)
+      nowX = snapDraggedX(this, nowX);
+
       // update the point 
       this.attr({ cx: nowX, cy: nowY });
 
@@ -75,6 +78,7 @@ function movePointSource (dx, dy) {
       // storing original coordinates
       this.ox = this.attr("cx");
       this.oy = this.attr("cy");
+      this.lastX = this.ox;
 
       setGrabbingCursor(true);
 
@@ -857,7 +861,14 @@ class PointSourceConstruction { // create a ray construction using raphael.js
      // forwards (also drawn dashed, in the initial-rays loop above) - not
      // real either, so the envelope must not reach back to it.
      var shadeDirection   = Math.sign(lens.n2);
-     var isRealImagePath  = isFinite(this.data.X2) && (this.data.X2*shadeDirection > V2*shadeDirection);
+     // A beam that ends on a screen (the last element is an "img") whose image is formed BEYOND the screen cannot
+     // get there: the light stops at the screen. Everything from the screen on to that image is a construction
+     // (dashed, virtual), and no shading is laid over it. An image on the screen itself still counts as real.
+     var screenTravel     = (lens.n2 < 0) ? -1 : 1;
+     var screenRow        = (typeof renderableLens !== "undefined" && renderableLens && renderableLens.elem) ? renderableLens.elem[renderableLens.elem.length - 1] : null;
+     var imageBeyondScreen = !!(screenRow && screenRow.elem && screenRow.elem.type === "img" && isFinite(this.data.X2) &&
+                                ((this.data.X2 - ray[K-1][0].z) * screenTravel > Math.max(1e-5, 2 * kx)));
+     var isRealImagePath  = isFinite(this.data.X2) && (this.data.X2*shadeDirection > V2*shadeDirection) && !imageBeyondScreen;
      var isRealObjectPath = isFinite(this.data.X1) && (this.data.X1 <= V1);
 
      // EXPERIMENTAL: shade the whole object->image envelope (bounded at both
@@ -974,7 +985,29 @@ class PointSourceConstruction { // create a ray construction using raphael.js
         var travelDir   = (lens.n2 < 0) ? -1 : 1;
         var lastElement = (typeof renderableLens !== "undefined" && renderableLens && renderableLens.elem) ? renderableLens.elem[renderableLens.elem.length - 1] : null;
         var onScreen    = !!(lastElement && lastElement.elem && lastElement.elem.type === "img");
-        if (onScreen && isFinite(XI) && (XI - ray[K-1][0].z) * travelDir < -1e-9) { this.cd_set.toBack(); return; }
+        if (onScreen && isFinite(XI) && (XI - ray[K-1][0].z) * travelDir < -1e-9) {
+          // The focus is behind the screen. If it is still AHEAD of the last surface the light crossed over before the
+          // screen (a real image in front of it): the beam is already drawn right down to the screen, nothing to add.
+          // If it is behind the last surface the rays are still spreading as they reach the screen and the image is
+          // virtual: its dashed construction lines run from that last surface back to the image, which ties the point
+          // to the beam (the light itself ends on the screen).
+          var kPrev = -1;
+          for (var kk = K - 2; kk >= 0; kk--) { if ((ray[kk][0].z - ray[K-1][0].z) * travelDir < -1e-9) { kPrev = kk; break; } }
+          if (kPrev >= 0 && isFinite(YI) && (XI - ray[kPrev][0].z) * travelDir < -1e-9) {
+            [0, M-1].forEach(function (ri) {
+              var back = paper.path(["M", ray[kPrev][ri].z, ray[kPrev][ri].h, "L", XI, YI]);
+              back.attr(virtual);
+              this.cd_set.push(back);
+            }, this);
+          }
+          this.cd_set.toBack(); return;
+        }
+
+        // An image that falls ON the screen (lv' exactly 0, or within a pixel or two of it) is where the beam ends: the
+        // light is stopped there, so there is nothing to draw beyond it - no virtual-image line, and no extension of
+        // the rays "diverging again" past the screen. (An image exactly on the vertex used to be taken for a virtual
+        // one, whose rays are carried on past the surface.)
+        if (onScreen && isFinite(XI) && Math.abs(XI - ray[K-1][0].z) <= Math.max(1e-5, 2 * kx)) { this.cd_set.toBack(); return; }
          var realImageExtension = null; // envelope corners for the post-crossing fade, filled in below
          var virtualImageExitExtension = null; // envelope corners for the post-exit fade (virtual image case), filled in below
          var collimatedExtension = null; // envelope corners for the post-exit fade (collimated/image-at-infinity case), filled in below
@@ -1058,8 +1091,9 @@ class PointSourceConstruction { // create a ray construction using raphael.js
               // real image
 
               var p4 = paper.path( ["M", X1, Y1,  "L", XI, YI ]);
-              p4.attr(real);
+              p4.attr(imageBeyondScreen ? virtual : real);       // (past the screen: the line is only where the rays would have met)
               this.cd_set.push(p4);
+              if (imageBeyondScreen || onScreen) { continue; }    // no light goes on past a screen: nothing is drawn beyond the img element
 
               // these are still real rays - continue them past the crossing point
               // (diverging again beyond focus) rather than stopping exactly at the

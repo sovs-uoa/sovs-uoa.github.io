@@ -9,6 +9,39 @@
   var labelsVisible    = true;
   // the toolbar's Show menu (application.js): F, P, N and their dashed planes / the pupils E, E' / the vertices V, V'
   var cardinalPointsVisible = true;
+  var cardinalSnapTargets = [];     // [{ label, x }]: V, V', F, F', P, P', N, N' of the system on show (set by drawCardinalPoints)
+
+  // Hold a dragged point on a cardinal point: when the point is within 7 pixels of one, or has just gone past one
+  // between two mouse events (a quick drag would otherwise step over it), return that point's position instead.
+  // from = where the point was, to = where the pointer would put it. Returns { x, label } or null.
+  function snapToCardinal (from, to) {
+    var capture = 7 * kx, best = null, bestDist = Infinity;
+    cardinalSnapTargets.forEach(function (t) {
+      var inside  = Math.abs(to - t.x) <= capture;
+      var crossed = isFinite(from) && ((from < t.x && to > t.x) || (from > t.x && to < t.x));
+      if (!inside && !crossed) { return; }
+      var d = crossed ? 0 : Math.abs(to - t.x);
+      if (d < bestDist) { bestDist = d; best = t; }
+    });
+    return best ? { x: best.x, label: best.label } : null;
+  }
+
+  // For the drag handlers of the object and image points: the x the point should take for this mouse move. `handle`
+  // keeps the x it had at the last move (handle.lastX, set when the drag started). Alt turns the snapping off.
+  function snapDraggedX (handle, nowX) {
+    var x = nowX;
+    // a drag that is (still) only up or down is not looking for a plane: it must leave the point's position along the
+    // axis alone, however near a cardinal plane the point happens to sit. Snapping starts once the drag has moved
+    // a few pixels along the axis.
+    var movedAlongAxis = isFinite(handle.ox) ? Math.abs(nowX - handle.ox) > 4 * kx : true;
+    if (movedAlongAxis && !(window.event && window.event.altKey)) {
+      var snapped = snapToCardinal(handle.lastX, nowX);
+      if (snapped) { x = snapped.x; }
+    }
+    handle.lastX = x;
+    return x;
+  }
+
   var pupilsVisible         = true;
   var verticesVisible       = true;
   var axisVisible           = false;     // the optical axis, a dash-dot line along y = 0 (off unless asked for)
@@ -539,6 +572,21 @@ function drawAxis (panX, panY) {
 
     var v1 = x + 0;                   // front vertex 
     var v2 = x + systemPoints.L;
+
+    // where a dragged object or image point is held on its way past: V, V' and the cardinal points that are showing
+    // (a person dragging a point is usually looking for exactly these)
+    cardinalSnapTargets = [];
+    (function () {
+      var c = systemPoints.cardinal;
+      if (!c) { return; }
+      var add = function (label, pos) { if (isFinite(pos)) { cardinalSnapTargets.push({ label: label, x: pos }); } };
+      if (displayOptions.showVertices) { add("V", v1); add("V'", v2); }
+      if (displayOptions.showCardinalPoints) {
+        if (displayOptions.showFocalPoints) { add("F", v1 + c.VP1 + c.PF1); add("F'", v2 + c.VP2 + c.PF2); }
+        if (displayOptions.showPrincipalPoints) { add("P", v1 + c.VP1); add("P'", v2 + c.VP2); }
+        if (displayOptions.showNodalPoints) { add("N", v1 + c.VN1); add("N'", v2 + c.VN2); }
+      }
+    })();
 
 
     // how tall the dashed bars through the cardinal points are: a little taller than the tallest element (it was a
