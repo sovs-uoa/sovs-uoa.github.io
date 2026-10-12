@@ -12,18 +12,29 @@
   // Where a beam stops being real light and its dashed construction lines begin (or the other way round: a virtual
   // object's lines meeting the first element): a short-dashed line across the beam only, from edge to edge, in a darker
   // shade of the beam's own colour. It belongs to the beam (it goes with it), not to the system.
-  function darkerShadeOf (hex, factor) {
+  // The beam's colour as a line, one step darker than its shading. The shading is the colour at a quarter strength
+  // over the page, so the colour itself is far too strong (a grey beam's line reads as black, a red one's as solid
+  // red) - and a pale colour like the usual yellow needs darkening, not lightening. So the line takes the beam's own
+  // hue at a fixed mid-light tone: darkened if the colour is lighter than that, mixed with white if it is darker.
+  function darkerShadeOf (hex) {
     var m = /^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(String(hex || ""));
-    if (!m) { return "#555555"; }
-    var c = [m[1], m[2], m[3]].map(function (h) { return Math.max(0, Math.min(255, Math.round(parseInt(h, 16) * factor))); });
-    return "#" + c.map(function (v) { return ("0" + v.toString(16)).slice(-2); }).join("");
+    if (!m) { return "#b0b4ba"; }
+    var rgb = [m[1], m[2], m[3]].map(function (h) { return parseInt(h, 16); });
+    var lum = function (c) { return (0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]) / 255; };
+    var TARGET = 0.68, L = lum(rgb), out;
+    if (L > TARGET) { out = rgb.map(function (v) { return v * TARGET / L; }); }
+    else {
+      var w = (L >= 1) ? 0 : (TARGET - L) / (1 - L);
+      out = rgb.map(function (v) { return v * (1 - w) + 255 * w; });
+    }
+    return "#" + out.map(function (v) { return ("0" + Math.max(0, Math.min(255, Math.round(v))).toString(16)).slice(-2); }).join("");
   }
 
   function drawRealVirtualBoundary (set, z, h1, h2) {
     if (!isFinite(z) || !isFinite(h1) || !isFinite(h2) || Math.abs(h1 - h2) < 1e-12) { return; }
     var base = (typeof beamShadeColor === "function") ? beamShadeColor() : "#ffee00";
     var line = paper.path(["M", z, h1, "L", z, h2]);
-    line.attr({ "stroke": darkerShadeOf(base, 0.5), "stroke-opacity": 1, "stroke-width": "1.5" });
+    line.attr({ "stroke": darkerShadeOf(base), "stroke-opacity": 1, "stroke-width": "1.4" });
     line.node.setAttribute("stroke-dasharray", "3 3");      // short dashes (screen pixels), not the longer construction-line dashes
     line.node.setAttribute("pointer-events", "none");
     set.push(line);
