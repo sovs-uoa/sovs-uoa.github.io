@@ -67,14 +67,14 @@
   <!-- Other -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/json5/0.5.1/json5.js"></script>
   <script src="js/optics/optics.js?v=1791526534"></script>
-  <script src="js/optics/materials.js?v=1791501656"></script>
-  <script src="js/optics/settings.js?v=1791526087"></script>
+  <script src="js/optics/materials.js?v=1791920327"></script>
+  <script src="js/optics/settings.js?v=1791920327"></script>
   <script src="js/optics/renderer.js?v=1791766240"></script>  
   <script src="js/optics/ruler.js?v=1791515764"></script>
   <script src="js/optics/export.js?v=1791677300"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/split.js/1.6.5/split.min.js"></script>
-  <script src="js/manager.js?v=1791762724"></script>
-  <script src="js/model-browser.js?v=1791514048"></script>
+  <script src="js/manager.js?v=1791919755"></script>
+  <script src="js/model-browser.js?v=1791919572"></script>
   <script src="js/optics/RayConstruction.js?v=1773822656"></script>    
   <script src="js/optics/prescription.js?v=1791762744"></script>
   <script src="js/optics/raphael.export.js?v=1773822656"></script>
@@ -82,7 +82,7 @@
   <script src="js/optics/PrincipalRayConstruction.js?v=1791762387"></script>  
   <script src="js/optics/ParallelBeamConstruction.js?v=1791763762"></script>  
   <script src="js/optics/AfocalBeamConstruction.js?v=1791765869"></script>    
-  <script src="js/optics/PointSourceConstruction.js?v=1791765869"></script>    
+  <script src="js/optics/PointSourceConstruction.js?v=1791770369"></script>    
   <script src="js/optics/DataTableHandler.js?v=1791017730"></script>      
   <script src="js/utils.js?v=1773822656"></script>  
   <script src="js/main.js?v=1791497430"></script>  
@@ -123,6 +123,12 @@
 
     <div class="input-group mb-3">
       <div class="input-group-prepend">
+
+      <!-- Home: back to the list of laboratories -->
+        <a class="btn btn-outline-secondary home-link" href="index.html" title="Home: all the laboratories" aria-label="Home"><i class="fas fa-home"></i></a>
+
+      <!-- Settings (advanced materials mode, wavelengths, appearance) -->
+        <button type="button" class="btn btn-outline-secondary" data-toggle="modal" data-target="#settingsModal" title="Settings" aria-label="Settings"><i class="fas fa-cog"></i></button>
 
       <!-- Buttons -->
         <button class="btn btn-secondary dropdown-toggle float-left" type="button" id="importer" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Model</button>
@@ -182,9 +188,11 @@
        <i class="fas fa-download"></i>Report
     </button>
 
-    <!-- Settings (advanced materials mode, wavelengths) -->
-    <button type="button" class="btn btn-outline-secondary float-right" style="margin-right: 8px;" data-toggle="modal" data-target="#settingsModal" title="Settings" aria-label="Settings">
-       <i class="fas fa-cog"></i>
+    <!-- (Settings is on the left, beside Home) -->
+
+    <!-- Light / dark diagram: a sun or a moon (the icon is the one you will switch to) -->
+    <button type="button" class="btn btn-outline-secondary float-right theme-toggle" style="margin-right: 8px;" title="Switch to the dark diagram" aria-label="Switch between the light and dark diagram">
+       <i class="fas fa-moon"></i>
     </button>
 
     <!-- Point labels (E, F, N, P, V...) can overlap when several land close
@@ -1004,7 +1012,7 @@
 
   <!-- main application -->
   <script>installLensWavelengthWrappers();</script>
-  <script src="js/optics/application.js?v=1791762715"></script>  
+  <script src="js/optics/application.js?v=1791919614"></script>  
 
 
 </html>

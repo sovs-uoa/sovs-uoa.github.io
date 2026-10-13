@@ -1301,6 +1301,7 @@ function applyCanvasTheme () {
     }
   });
   scheduleBeamEdgeTagging();
+  updateThemeToggles();
 }
 
 function applyAdditiveBeams () { applyCanvasTheme(); }
@@ -1315,6 +1316,22 @@ function setDarkCanvas (dark) {
   syncAppearanceControls();
   applyCanvasTheme();
 }
+
+// The sun / moon switches (the top bar of a lab page, the bar of manager.html): the icon is the diagram you will get
+// by pressing it - a sun while the diagram is dark, a moon while it is light.
+function updateThemeToggles () {
+  var dark = SovsSettings.darkCanvas;
+  Array.prototype.forEach.call(document.querySelectorAll(".theme-toggle"), function (b) {
+    var icon = b.querySelector("i");
+    if (icon) { icon.className = dark ? "fas fa-sun" : "fas fa-moon"; }
+    b.setAttribute("title", dark ? "Switch to the light diagram" : "Switch to the dark diagram");
+    b.setAttribute("aria-pressed", dark ? "true" : "false");
+  });
+}
+document.addEventListener("click", function (e) {
+  var b = e.target && e.target.closest ? e.target.closest(".theme-toggle") : null;
+  if (b) { setDarkCanvas(!SovsSettings.darkCanvas); }
+});
 
 // additive beams need the dark canvas: the tick boxes under Appearance follow that
 function syncAppearanceControls () {

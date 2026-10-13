@@ -1812,7 +1812,7 @@ getConjuugateTo
                                 console.log("reloaded a prescription ...");       
 
                                 // We can update the filename now !!
-                                $("#filename_display").val(found.title);
+                                showModelLabel(found);
 
 
                                 // trigger a summary re-write and also a construction refresh
@@ -1842,6 +1842,22 @@ function showZoomHint () {
   hint.classList.add("show");
   clearTimeout(zoomHintTimer);
   zoomHintTimer = setTimeout(function () { hint.classList.remove("show"); }, 1400);
+}
+
+// The model's name in the top bar, short: "Gullstrand \u2013 Relaxed" rather than "Gullstrand Schematic Eye (Relaxed)",
+// from the lens file's own subcategory and short name (the topic is left out when the short name already says it).
+// The full title stays in the box's tooltip and in data-title.
+function showModelLabel (found) {
+  var box = document.getElementById("filename_display");
+  if (!box) { return; }
+  var full = found.title, label = full;
+  if (typeof response === "object" && response && response.shortName) {
+    var s = String(response.shortName), sub = response.subcategory ? String(response.subcategory) : "";
+    label = (!sub || sub === "Earlier" || s.toLowerCase().indexOf(sub.toLowerCase()) >= 0) ? s : sub + " \u2013 " + s;
+  }
+  box.value = label;
+  box.setAttribute("data-title", full);
+  if (label !== full) { box.setAttribute("title", full); }
 }
 
 function load (id) {
@@ -1990,7 +2006,7 @@ function load (id) {
                         function () {  // success !!! 
 
                                 console.log("Load the lens prescription.");       
-                                $("#filename_display").val(found.title);
+                                showModelLabel(found);
 
                                 updatePrescriptionView();            
 

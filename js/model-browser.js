@@ -220,11 +220,37 @@ document.addEventListener("DOMContentLoaded", function () {
     line.style.display = "";
   }
 
+  // The label in the top bar: short, "Gullstrand \u2013 Relaxed" rather than "Gullstrand Schematic Eye (Relaxed)". It is the
+  // topic and the short name; the topic is left out when the short name already says it. The full title is the tooltip.
+  function barLabel (e) {
+    var s = e.title, sub = e.sub || "";
+    if (!sub || sub === "Earlier" || s.toLowerCase().indexOf(sub.toLowerCase()) >= 0) { return s; }
+    return sub + " \u2013 " + s;
+  }
+
+  // the label for a model id (the page calls this when a model has loaded); the full title if the list is not ready
+  window.modelLabelFor = function (id, fullTitle) {
+    var cur = String(id);
+    if (duplicates[cur] !== undefined) { cur = duplicates[cur]; }
+    var e = entries.filter(function (x) { return x.id === cur; })[0];
+    return e ? barLabel(e) : fullTitle;
+  };
+
+  function showBarLabel () {
+    var box = document.getElementById("filename_display");
+    var e = entries.filter(function (x) { return x.id === currentModel; })[0];
+    if (!box || !e || document.activeElement === box) { return; }
+    box.value = barLabel(e);
+    box.setAttribute("data-title", e.full);
+    box.setAttribute("title", e.full + " (type to search the models; press / from anywhere)");
+  }
+
   window.markCurrentModel = function (id) {
     currentModel = String(id);
     if (duplicates[currentModel] !== undefined) { currentModel = duplicates[currentModel]; }     // (on show through another lab's link)
     entries.forEach(function (e) { e.li.classList.toggle("current", e.id === currentModel); });
     updateSubtitle();
+    showBarLabel();
   };
 
   function links () { return Array.prototype.slice.call(document.querySelectorAll("#groups li:not([hidden]) a")); }
@@ -266,7 +292,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     var currentTitle = function () {
       var e = entries.filter(function (x) { return x.id === currentModel; })[0];
-      return e ? e.title : titleBox.value;
+      return e ? barLabel(e) : titleBox.value;
     };
 
     // best first: every word must be found; a title that starts with the words, then one with them at the start of
@@ -338,7 +364,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   Promise.all([ fetch("config/config.json", { cache: "no-cache" }).then(function (r) { return r.json(); }),
                 fetch("config/models-index.json", { cache: "no-cache" }).then(function (r) { return r.ok ? r.json() : {}; }).catch(function () { return {}; }) ])
-    .then(function (both) { build(both[0], both[1]); if (currentModel !== null) { var cur = entries.filter(function (x) { return x.id === currentModel; })[0]; if (cur) { showDetail(cur); } } })
+    .then(function (both) { build(both[0], both[1]); showBarLabel(); if (currentModel !== null) { var cur = entries.filter(function (x) { return x.id === currentModel; })[0]; if (cur) { showDetail(cur); } } })
     .catch(function () {
       var none = document.getElementById("none"); none.hidden = false;
       none.innerHTML = 'The model list could not be loaded. Try the <a href="index.classic.html">classic index</a>.';
