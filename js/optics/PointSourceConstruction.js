@@ -867,9 +867,13 @@ class PointSourceConstruction { // create a ray construction using raphael.js
      // (dashed, virtual), and no shading is laid over it. An image on the screen itself still counts as real.
      var screenTravel     = (lens.n2 < 0) ? -1 : 1;
      var screenRow        = (typeof renderableLens !== "undefined" && renderableLens && renderableLens.elem) ? renderableLens.elem[renderableLens.elem.length - 1] : null;
-     var imageBeyondScreen = !!(screenRow && screenRow.elem && screenRow.elem.type === "img" && isFinite(this.data.X2) &&
-                                ((this.data.X2 - ray[K-1][0].z) * screenTravel > Math.max(1e-5, 2 * kx)));
-     var isRealImagePath  = isFinite(this.data.X2) && (this.data.X2*shadeDirection > V2*shadeDirection) && !imageBeyondScreen;
+     // an image so far away that it is "at infinity" for the drawing (the object at, or almost at, the front focal point)
+     var imageAtInfinity  = !isFinite(this.data.X2) || Math.abs(this.data.X2 - V2) > 30 * fadeDistance;
+     var endsOnImg        = !!(screenRow && screenRow.elem && screenRow.elem.type === "img");
+     var imageBeyondScreen = endsOnImg && isFinite(this.data.X2) && !imageAtInfinity &&
+                             ((this.data.X2 - ray[K-1][0].z) * screenTravel > Math.max(1e-5, 2 * kx));
+     var isRealImagePath  = isFinite(this.data.X2) && (this.data.X2*shadeDirection > V2*shadeDirection) && !imageBeyondScreen &&
+                            !(endsOnImg && imageAtInfinity);
      var isRealObjectPath = isFinite(this.data.X1) && (this.data.X1 <= V1);
 
      // EXPERIMENTAL: shade the whole object->image envelope (bounded at both
@@ -1002,6 +1006,33 @@ class PointSourceConstruction { // create a ray construction using raphael.js
             }, this);
             drawRealVirtualBoundary(this.cd_set, ray[kPrev][0].z, ray[kPrev][0].h, ray[kPrev][M-1].h);
           }
+          this.cd_set.toBack(); return;
+        }
+
+        // An image at infinity (the object at the front focal point) on a beam that ends on a screen: the light arrives
+        // collimated and goes no further. The image is virtual, "at infinity" - shown as the rays' back-projections, a
+        // collimated virtual beam running back from the last surface (dashed, fading out), and a boundary line at that
+        // surface. Nothing is drawn beyond the screen.
+        if (onScreen && imageAtInfinity) {
+          var kPar = -1;
+          for (var kp = K - 2; kp >= 0; kp--) { if ((ray[kp][0].z - ray[K-1][0].z) * travelDir < -1e-9) { kPar = kp; break; } }
+          if (kPar < 0) { kPar = K - 1; }
+          var backLen = fadeDistance * travelDir;
+          var backEnds = [];
+          [0, M-1].forEach(function (ri) {
+            var pk = ray[kPar][ri];
+            var z0 = pk.z - backLen, h0 = pk.h - pk.u * backLen;
+            var back = paper.path(["M", pk.z, pk.h, "L", z0, h0]);
+            back.attr(virtual);
+            this.cd_set.push(back);
+            backEnds.push([z0, h0, back]);
+          }, this);
+          if (kPar !== K - 1) { drawRealVirtualBoundary(this.cd_set, ray[kPar][0].z, ray[kPar][0].h, ray[kPar][M-1].h); }
+          // the virtual beam fades out away from the surface, as a real diverging one does
+          var fromMid = [ray[kPar][0].z, (ray[kPar][0].h + ray[kPar][M-1].h) / 2];
+          var toMid   = [(backEnds[0][0] + backEnds[1][0]) / 2, (backEnds[0][1] + backEnds[1][1]) / 2];
+          fadeRayStroke(backEnds[0][2], fromMid, toMid);
+          fadeRayStroke(backEnds[1][2], fromMid, toMid);
           this.cd_set.toBack(); return;
         }
 
