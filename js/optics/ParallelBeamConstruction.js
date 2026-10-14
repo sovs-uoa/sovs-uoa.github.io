@@ -138,7 +138,7 @@ function shadeBoundedBeamRegion (cd_set, pts) {
 
 // fadeFromXY/fadeToXY: the userSpace points the fade gradient runs between -
 // opaque at fadeFromXY, transparent at fadeToXY (the "infinity" end)
-function shadeFadingBeamRegion (cd_set, pts, fadeFromXY, fadeToXY) {
+function shadeFadingBeamRegion (cd_set, pts, fadeFromXY, fadeToXY, holdFrac) {
 
     var defs = paper.canvas.querySelector("defs");
     if (!defs) {
@@ -165,6 +165,12 @@ function shadeFadingBeamRegion (cd_set, pts, fadeFromXY, fadeToXY) {
     stop2.setAttribute("stop-opacity", "0");
 
     grad.appendChild(stop1);
+    // (holdFrac: the first part of the way is held at full tint, so a beam does not look dimmer just past where it starts)
+    if (holdFrac > 0 && holdFrac < 1) {
+      var stopH = stop1.cloneNode(false);
+      stopH.setAttribute("offset", String(holdFrac));
+      grad.appendChild(stopH);
+    }
     grad.appendChild(stop2);
     defs.appendChild(grad);
 
@@ -190,7 +196,7 @@ function shadeFadingBeamRegion (cd_set, pts, fadeFromXY, fadeToXY) {
 // between the two rays, so a diverging ray reads as fading out consistently
 // with the shaded region it borders instead of staying solid all the way to
 // its (somewhat arbitrary) drawn endpoint.
-function fadeRayStroke (pathEl, fadeFromXY, fadeToXY) {
+function fadeRayStroke (pathEl, fadeFromXY, fadeToXY, holdFrac) {
 
     var defs = paper.canvas.querySelector("defs");
     if (!defs) {
@@ -220,6 +226,11 @@ function fadeRayStroke (pathEl, fadeFromXY, fadeToXY) {
     stop2.setAttribute("class", "beam-edge-stop");
 
     grad.appendChild(stop1);
+    if (holdFrac > 0 && holdFrac < 1) {
+      var stopH = stop1.cloneNode(false);
+      stopH.setAttribute("offset", String(holdFrac));
+      grad.appendChild(stopH);
+    }
     grad.appendChild(stop2);
     defs.appendChild(grad);
 
@@ -357,6 +368,10 @@ function moveBeamImagePoint (dx, dy) {
 
       var thisPoint = this.data("data-attr");
       totalLens     = renderableLens.total;
+
+      // The image of a beam from infinity is on the focal plane: that is what it is the image of. It can be moved up and
+      // down along the plane (that changes the angle of the beam) and no other way - pulling it along the axis does nothing.
+      // (An object that is a finite point stays a finite point: see clampFarObjectPair, PointSourceConstruction.js.)
 
       // Inverse of calculateConjugatePairFrom's IQ = zp * deg2rad(t) (paraxial,
       // linear - not zp * tan(deg2rad(t))), so recovering t from a dragged

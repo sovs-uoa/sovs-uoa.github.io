@@ -597,12 +597,17 @@ getConjuugateTo
 */
 
 
+      // an object held a very large distance away because its image is on the back focal plane is at infinity: its
+      // distance l (and so its vergence, 1/l) is shown as that - the finite value is only for the drawing; lv is the
+      // object position that linked white-light objects copy, so it stays the finite one
+      var farSide = pairData.atInfinity ? pairData.atInfinity : 0;
       lens.pointsTableHandler.updateData([ {  id: id, 
                                       X1: pairData.X1, Y1: pairData.Y1,
                                       X2: pairData.X2, Y2: pairData.Y2,
-                                      l:  pairData.PO, ld: pairData.PI,                                            
+                                      l:  farSide ? farSide * Infinity : pairData.PO, ld: pairData.PI,                                            
                                       to: pairData.T1, ti: pairData.T2,                                                                                              
-                                      zo: pairData.VO, zi: pairData.VI, 
+                                      zo: pairData.VO, zi: pairData.VI,    // (not infinity: linked objects take this value)
+ 
                                       ho: pairData.OQ, hi: pairData.IQ }]);
 
   };
@@ -1275,7 +1280,9 @@ getConjuugateTo
 
   var lastFiniteObject = {};      // id -> where a row's object last was, as a finite point (for flicking back from infinity)
 
-  function setObjectInfinity (id, makeInfinite) {
+  // angleDeg: (optional) the beam's angle, in the table's signs. forgetFinite: do not keep the finite position as the place
+  // to come back to (it was absurd). finitePos: { z, h } (the drawing's own coordinates): put the finite object there.
+  function setObjectInfinity (id, makeInfinite, angleDeg, forgetFinite, finitePos) {
 
     var row = lens.pointsTable.getRow(id);
     if (!row) { return; }
@@ -1292,14 +1299,23 @@ getConjuugateTo
     // (or, if it has only ever been a beam, a little way out along the line that angle makes).
     var finite = isFinite(current.zo) && isFinite(current.ho);
     if (makeInfinite) {
-      if (finite) { lastFiniteObject[id] = { z: Number(current.zo), h: Number(current.ho) }; }
-      aPoint.t = isFinite(current.to) ? Number(current.to)
-               : (finite && current.zo !== 0 ? rad2deg(current.ho / current.zo) : 0);
+      if (finite && !forgetFinite) { lastFiniteObject[id] = { z: Number(current.zo), h: Number(current.ho) }; }
+      if (forgetFinite) { delete lastFiniteObject[id]; }
+      if (isFinite(angleDeg)) {
+        // an angle given outright (an image dragged on to the focal plane): in the table's signs, so put it through the
+        // same conversion as the rest of the row
+        var asRow = lens.pointsTableHandler.convertRowData([ Object.assign({}, d, { to: Number(angleDeg) }) ])[0];
+        aPoint.t = Number(asRow.to);
+      } else {
+        aPoint.t = isFinite(current.to) ? Number(current.to)
+                 : (finite && current.zo !== 0 ? rad2deg(current.ho / current.zo) : 0);
+      }
     } else {
       var before = lastFiniteObject[id];
       aPoint.z = isFinite(current.zo) ? Number(current.zo) : (before ? before.z : -4 * size);
       aPoint.h = isFinite(current.ho) ? Number(current.ho) : (before ? before.h
                : (isFinite(current.to) ? deg2rad(Number(current.to)) * aPoint.z : -0.25 * size));
+      if (finitePos && isFinite(finitePos.z) && isFinite(finitePos.h)) { aPoint.z = Number(finitePos.z); aPoint.h = Number(finitePos.h); }
     }
 
     deleteConstruction(id);
@@ -1456,6 +1472,9 @@ getConjuugateTo
             inLensWavelength(elem.WavelengthNm, function () {
               totalLens  = renderableLens.total;
               pairData   = Optics.calculateConjugatePairFrom(aPoint, totalLens);
+              if (aPoint.which === "image" && typeof clampFarObjectPair === "function") {
+                pairData = clampFarObjectPair(aPoint.id, pairData, totalLens);       // an image typed in on the focal plane
+              }
               updatePointsTable(aPoint.id, pairData);
               elem.setPairData (pairData);                  // update the positions  
               elem.refresh ();

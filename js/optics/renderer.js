@@ -54,20 +54,39 @@
       var d = crossed ? 0 : Math.abs(to - t.x);
       if (d < bestDist) { bestDist = d; best = t; }
     });
+    // V' and F' of a relaxed eye are under a micrometre apart (a pixel or less): there the optically meaningful one is
+    // F' (the image of an object at infinity: object vergence 0), so it is the one that is held
+    // (not for a point that is leaving F': V' lies just beyond it, and putting it back on F' would hold it there)
+    if (best && best.label === "V'") {
+      cardinalSnapTargets.forEach(function (t) {
+        if (t.label === "F'" && Math.abs(t.x - best.x) <= 2 * kx && !(isFinite(from) && Math.abs(from - t.x) < 1e-9)) { best = t; }
+      });
+    }
     return best ? { x: best.x, label: best.label } : null;
+  }
+
+  // Is x on the cardinal point of that name (as drawn)? Returns the target or null.
+  function snapTargetAt (x, label, tolerance) {
+    var tol = isFinite(tolerance) ? tolerance : 1e-9;
+    for (var i = 0; i < cardinalSnapTargets.length; i++) {
+      var t = cardinalSnapTargets[i];
+      if (t.label === label && Math.abs(t.x - x) <= tol) { return t; }
+    }
+    return null;
   }
 
   // For the drag handlers of the object and image points: the x the point should take for this mouse move. `handle`
   // keeps the x it had at the last move (handle.lastX, set when the drag started). Alt turns the snapping off.
   function snapDraggedX (handle, nowX) {
     var x = nowX;
+    handle.snappedTo = null;
     // a drag that is (still) only up or down is not looking for a plane: it must leave the point's position along the
     // axis alone, however near a cardinal plane the point happens to sit. Snapping starts once the drag has moved
     // a few pixels along the axis.
     var movedAlongAxis = isFinite(handle.ox) ? Math.abs(nowX - handle.ox) > 4 * kx : true;
     if (movedAlongAxis && !(window.event && window.event.altKey)) {
       var snapped = snapToCardinal(handle.lastX, nowX);
-      if (snapped) { x = snapped.x; }
+      if (snapped) { x = snapped.x; handle.snappedTo = snapped.label; }
     }
     handle.lastX = x;
     return x;

@@ -20,7 +20,34 @@ CONSTRUCTION EVENT HANDLERS
 ---------------------------------------------------------- */
 
 
-function movePointSource (dx, dy) {
+/* An image on the back focal plane (F': the retina of an emmetropic eye) belongs to an object at infinity, and a finite object
+   that far off has no sensible position or height: dragged, or typed in exactly, its numbers run away (to 10^14 m
+   from rounding) and the beam is lost. So an object that would be farther than farLimit is kept at that distance, on the
+   side it is on (sideHint when it is exactly at infinity), at the height that gives the image height asked for. The
+   image then sits within micrometres of the plane. Returns the pair data to use (the one given when it is fine). */
+function clampFarObjectPair (id, pairData, totalLens, sideHint, forceSide) {
+
+  if (!pairData || !totalLens || !totalLens.F || !isFinite(totalLens.F)) { return pairData; }
+  // far enough that the image is within about 0.02 micrometres of the plane (offset = f'^2 / distance), but no further
+  // than the drawing copes with: 100 km for an eye, up to 10,000 km for a weak system
+  var focal    = 1 / Math.abs(totalLens.F);
+  var farLimit = Math.min(1e7, Math.max(1e5, focal * focal / 2e-8));            // metres
+  var objZ = pairData.X1;
+  if (isFinite(objZ) && Math.abs(objZ) <= farLimit) { return pairData; }
+
+  var side  = forceSide || (isFinite(objZ) ? (objZ < 0 ? -1 : 1) : (sideHint || -1));
+  var farZ  = side * farLimit;
+  var probe = Optics.calculateConjugatePairFrom({ id: id, which: "object", z: farZ, h: 1e-3 }, totalLens);
+  if (!probe || !isFinite(probe.Y2) || Math.abs(probe.Y2) < 1e-15 || !isFinite(pairData.Y2)) { return pairData; }
+
+  var farH = 1e-3 * (pairData.Y2 / probe.Y2);
+  var far  = Optics.calculateConjugatePairFrom({ id: id, which: "object", z: farZ, h: farH }, totalLens);
+  if (far && isFinite(far.X2) && isFinite(far.Y2)) { far.atInfinity = side; return far; }     // (the table shows it as at infinity)
+  return pairData;
+}
+
+
+function movePointSource (dx, dy, pointerX, pointerY) {
 
       ////console.log("--- called construction move point id = " + this.id);  
 
@@ -59,11 +86,26 @@ function movePointSource (dx, dy) {
                                                         which  : thisPoint.type,
                                                         z      : zLocal,
                                                         h      : nowY }, totalLens);
+
+      // (an image dragged on to the back focal plane: the object is kept a large but finite distance away; see above)
+      if (thisPoint.type === "image") {
+        // an object that is finite remembers which side of the lens it is on; held exactly on F' (where the sign of the
+        // far distance is only rounding) it stays on that side, so it does not jump across to a virtual object
+        if (isFinite(pairData.X1) && Math.abs(pairData.X1) < 1e4) { this.nearSide = pairData.X1 < 0 ? -1 : 1; }
+        var clamped = clampFarObjectPair(thisPoint.id, pairData, totalLens, this.farSide,
+                                         this.snappedTo === "F'" ? this.nearSide : 0);
+        if (clamped !== pairData) {
+          this.farSide = isFinite(pairData.X1) ? (pairData.X1 < 0 ? -1 : 1) : this.farSide;
+          pairData = clamped;
+          nowX = pairData.X2; nowY = pairData.Y2;
+          this.attr({ cx: nowX, cy: nowY });        // the image point sits where the (far) object really puts it
+        }
+      }
+
       updateInterface (thisPoint, pairData);  // update table (and conjugate points / will remove) 
       thisPoint.parent.setPairData(pairData);
       thisPoint.parent.updateRays();
       thisPoint.parent.draw(); // drawRayConstruction ();
-
 
       // redraw depends on type of object 
       // update the location of the rays !!!!
@@ -722,6 +764,11 @@ class PointSourceConstruction { // create a ray construction using raphael.js
 
      var X1 = this.data.X1;
      var Y1 = this.data.Y1;
+     // An object so far off (its image on the back focal plane) that the drawing cannot reach it - past the page
+     // by a factor of millions, where the fills and lines break up. Its rays come in collimated: they are drawn from
+     // the system back a stretch, fading out (as for a virtual object), with dashed continuations on towards infinity.
+     var farObject = isFinite(X1) && Math.abs(V1 - X1) > 1000 * fadeDistance;      // (on either side: a virtual object this far off is the same collimated beam)
+     var farObjectEntry = null;
      var virtualObjectEntryExtension = null; // envelope corners for the pre-entry fade (virtual object case), filled in below
 
      console.warn (`X1 = ${X1}`);
@@ -760,12 +807,20 @@ class PointSourceConstruction { // create a ray construction using raphael.js
         } else if (X1 > V1) {
 
             // var X2 = X1 + dX; var Y2 = Y1 + dX*u1;
-            var p4 = paper.path( ["M", X1, Y1,  "L", X2, Y2 ]);
-            p4.attr(virtual);
+            var u1 = this.inputRays[i].u;
+            var p4;
+            if (farObject) {
+              // a virtual object this far off (the image on the back focal plane): the construction goes on forwards from the
+              // surface, in the beam's colour, towards the object at +infinity - a collimated beam, not a line to a point
+              var farLen = 3 * fadeDistance;
+              p4 = paper.path( ["M", X2, Y2,  "L", X2 + farLen, Y2 + farLen * u1 ]);
+              p4.attr(virtual);                                           // the same style as the line to a nearer virtual object
+            } else {
+              p4 = paper.path( ["M", X1, Y1,  "L", X2, Y2 ]);
+              p4.attr(virtual);
+            }
             this.cd_set.push(p4);
 
-
-            var u1 = this.inputRays[i].u;
             // fade the real entry beam out over fadeDistance (see above),
             // mirroring the exit-side fades below.
             var entryDx = -fadeDistance;
@@ -795,7 +850,23 @@ class PointSourceConstruction { // create a ray construction using raphael.js
             console.warn (`X1=${X1} Y1=${Y1}`);
             console.warn (`X2=${X2} Y2=${Y2}`);
 
-            if (isFinite(X1)) { 
+            if (farObject) {
+
+              var uFar = this.inputRays[i].u;
+              var XE   = X2 - fadeDistance, YE = Y2 - fadeDistance * uFar;           // end of the solid, fading, stretch
+              var pS   = paper.path( ["M", X2, Y2, "L", XE, YE ]);
+              pS.attr(real);
+              this.cd_set.push(pS);
+              // the construction towards the object at +infinity: on forwards from the surface, in the style of the line to
+              // a nearer virtual object (never backwards)
+              var pD   = paper.path( ["M", X2, Y2, "L", X2 + 3 * fadeDistance, Y2 + 3 * fadeDistance * uFar ]);
+              pD.attr(virtual);
+              this.cd_set.push(pD);
+              if (!farObjectEntry) { farObjectEntry = { }; }
+              if (i === 0)   { farObjectEntry.entry0 = [X2, Y2]; farObjectEntry.end0 = [XE, YE]; farObjectEntry.el0 = pS; }
+              if (i === M-1) { farObjectEntry.entryM = [X2, Y2]; farObjectEntry.endM = [XE, YE]; farObjectEntry.elM = pS; }
+
+            } else if (isFinite(X1)) { 
 
             // var X2 = X1 + dX; var Y2 = Y1 + dX*u1;
             var p4 = paper.path( ["M", X1, Y1,  "L", X2, Y2 ]); 
@@ -821,8 +892,16 @@ class PointSourceConstruction { // create a ray construction using raphael.js
      // object side), fading towards infinity - never the forward
      // extrapolation to the virtual object point itself (drawn dashed
      // above, no light actually reaches there).
+     if (farObjectEntry && farObjectEntry.end0 && farObjectEntry.endM) {
+       var fEntryMid = [ (farObjectEntry.entry0[0] + farObjectEntry.entryM[0]) / 2, (farObjectEntry.entry0[1] + farObjectEntry.entryM[1]) / 2 ];
+       var fEndMid   = [ (farObjectEntry.end0[0]   + farObjectEntry.endM[0])   / 2, (farObjectEntry.end0[1]   + farObjectEntry.endM[1])   / 2 ];
+       shadeFadingBeamRegion(this.cd_set, [farObjectEntry.entry0, farObjectEntry.end0, farObjectEntry.endM, farObjectEntry.entryM], fEntryMid, fEndMid, 0.6);
+       fadeRayStroke(farObjectEntry.el0, fEntryMid, fEndMid, 0.6);
+       fadeRayStroke(farObjectEntry.elM, fEntryMid, fEndMid, 0.6);
+     }
+
      if (virtualObjectEntryExtension && virtualObjectEntryExtension.end0 && virtualObjectEntryExtension.endM) {
-       drawRealVirtualBoundary(this.cd_set, virtualObjectEntryExtension.entry0[0], virtualObjectEntryExtension.entry0[1], virtualObjectEntryExtension.entryM[1]);
+       if (!farObject) { drawRealVirtualBoundary(this.cd_set, virtualObjectEntryExtension.entry0[0], virtualObjectEntryExtension.entry0[1], virtualObjectEntryExtension.entryM[1]); }
        var objEntryMid = [ (virtualObjectEntryExtension.entry0[0] + virtualObjectEntryExtension.entryM[0]) / 2,
                             (virtualObjectEntryExtension.entry0[1] + virtualObjectEntryExtension.entryM[1]) / 2 ];
        var objEndMid   = [ (virtualObjectEntryExtension.end0[0]  + virtualObjectEntryExtension.endM[0])  / 2,
@@ -831,12 +910,13 @@ class PointSourceConstruction { // create a ray construction using raphael.js
          this.cd_set,
          [virtualObjectEntryExtension.entry0, virtualObjectEntryExtension.end0, virtualObjectEntryExtension.endM, virtualObjectEntryExtension.entryM],
          objEntryMid,
-         objEndMid
+         objEndMid,
+         0.6
        );
        // the bounding rays themselves should fade out along with the region
        // they border, rather than staying solid all the way to their endpoint
-       fadeRayStroke(virtualObjectEntryExtension.el0, objEntryMid, objEndMid);
-       fadeRayStroke(virtualObjectEntryExtension.elM, objEntryMid, objEndMid);
+       fadeRayStroke(virtualObjectEntryExtension.el0, objEntryMid, objEndMid, 0.6);
+       fadeRayStroke(virtualObjectEntryExtension.elM, objEntryMid, objEndMid, 0.6);
      }
 
 
@@ -874,7 +954,7 @@ class PointSourceConstruction { // create a ray construction using raphael.js
                              ((this.data.X2 - ray[K-1][0].z) * screenTravel > Math.max(1e-5, 2 * kx));
      var isRealImagePath  = isFinite(this.data.X2) && (this.data.X2*shadeDirection > V2*shadeDirection) && !imageBeyondScreen &&
                             !(endsOnImg && imageAtInfinity);
-     var isRealObjectPath = isFinite(this.data.X1) && (this.data.X1 <= V1);
+     var isRealObjectPath = isFinite(this.data.X1) && (this.data.X1 <= V1) && !farObject;
 
      // EXPERIMENTAL: shade the whole object->image envelope (bounded at both
      // ends, so a plain solid fill - no fade needed) in one shape, using the
