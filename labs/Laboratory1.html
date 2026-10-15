@@ -17,6 +17,8 @@
 <head>
   <title>SOVS ray-tracer</title>
   <meta charset="utf-8">
+  <base href="../">
+  <script>document.addEventListener("click", function (e) { var a = e.target.closest && e.target.closest('a[href^="#"]'); if (a) { e.preventDefault(); } }, true);</script>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
 
@@ -77,13 +79,14 @@
   <script src="js/optics/prescription.js?v=1791762744"></script>
   <script src="js/optics/raphael.export.js?v=1773822656"></script>
   <script src="js/optics/AnglePicker.js?v=1791494256"></script>  
+  <script src="js/optics/Construction.js?v=1792102684"></script>
   <script src="js/optics/PrincipalRayConstruction.js?v=1791762387"></script>  
   <script src="js/optics/ParallelBeamConstruction.js?v=1792011012"></script>  
   <script src="js/optics/AfocalBeamConstruction.js?v=1791765869"></script>    
-  <script src="js/optics/PointSourceConstruction.js?v=1792011012"></script>    
+  <script src="js/optics/PointSourceConstruction.js?v=1792102684"></script>    
   <script src="js/optics/DataTableHandler.js?v=1791017730"></script>      
   <script src="js/utils.js?v=1773822656"></script>  
-  <script src="js/main.js?v=1791497430"></script>  
+  <script src="js/main.js?v=1792102427"></script>  
   
 
   <link rel="stylesheet" type="text/css" href="css/optics.css?v=1791746545">
@@ -99,8 +102,8 @@
    /* configuration for lab-1  */
 
    var config = { summary_template: 'mustache/lab5_report_tables_html.mustache', 
-                  download_report_template : 'mustache/optics_report_template_v2.1.mustache.htm',
-                  lenses_menu: 'test' };
+                  download_report_template : 'mustache/optics_report_template_v2.0.mustache.htm',
+                  lenses_menu: 'lab-1' };
 
     /* see main.js for initialization */
 

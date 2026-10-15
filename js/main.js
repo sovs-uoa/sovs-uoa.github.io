@@ -75,7 +75,7 @@
 
               initializeApp ();
 
-              // a link such as  Laboratory2.html?model=1  opens that model (the index page's chips use this)
+              // a link such as  labs/Laboratory2.html?model=1  opens that model (the index page's chips use this)
               var wanted  = new URLSearchParams(window.location.search).get('model');
               var startId = (wanted !== null && fileList.some(function (m) { return m.id == wanted; })) ? wanted : main_profile.main;
 

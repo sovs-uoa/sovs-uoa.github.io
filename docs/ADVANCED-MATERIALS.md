@@ -72,7 +72,7 @@ Examples: `lenses/dispersion-thick-lens-bk7.lens`, `lenses/dispersion-thin-lens-
 
 ## Pages are generated
 
-Laboratory1-4, 6, eye and Test are generated from `scripts/laboratory.template.html`: edit the template and run
+The pages under `labs/`, `eye/` and `assignments/` (and `main.html`, `manager.html`) are generated from `scripts/laboratory.template.html`: edit the template and run
 `node scripts/build-labs.js`. The build also tags each local script and stylesheet with its modified time so
 browsers pick up new files.
 

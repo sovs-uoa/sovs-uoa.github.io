@@ -17,6 +17,34 @@ The application is written in Javascript/HTML5 but has only be tested using Chro
 The program takes as input a .lens prescription file (some of which are "canned") already and displays the lens prescription and details of the system.  Rays can be traced through the system as well.
 
 
+## How the site is laid out
+
+| Where | What |
+|---|---|
+| `index.html` | The front page: a card for each laboratory and instrument. |
+| `labs/` | The laboratory pages: `Laboratory1-4`, `Laboratory6`, `Vertometer`, `Keratometer`, `Test`. |
+| `eye/` | The schematic-eye workbench. |
+| `assignments/` | The assignment pages, one per year. |
+| `main.html`, `manager.html`, `models.html` | The workbench with the model side bar, the authoring version of it, and the model gallery. |
+| `lenses/`, `config/` | The `.lens` model files, and `config.json` (which models each menu profile lists). |
+| `js/`, `css/`, `mustache/` | The application, its styles and the report templates, shared by every page. |
+| `digital-labs/`, `demo/` | The Fourier, Gabor and hybrid-image simulators. |
+| `docs/` | Notes: [docs/ADVANCED-MATERIALS.md](docs/ADVANCED-MATERIALS.md). |
+
+**The lab pages are generated.** Every page under `labs/`, `eye/` and `assignments/`, and `main.html` and `manager.html`,
+is built from one template (`scripts/laboratory.template.html`) by `scripts/build-labs.js`. Do not edit them by hand:
+edit the template (or the files in `js/optics/`) and run, from the repository root,
+
+    node scripts/build-labs.js
+
+The only things that differ between pages are the model menu (`lenses_menu`, a profile in `config/config.json`) and the
+report template version; both are listed at the top of `build-labs.js`. The build also adds each script's and
+stylesheet's modified time to its address (`?v=...`) so a browser always picks up a changed file.
+
+**Old addresses.** Pages that have moved (`Laboratory3.html` is now `labs/Laboratory3.html`, `assign2024.html` is now
+`assignments/assign2024.html`) leave a small redirect at the old address that keeps `?model=...`. They are listed in
+`MOVED` in `build-labs.js`; remove an entry, and the file, once nothing links to it.
+
 ## Advanced materials, wavelengths and white light
 
 An optional mode (Settings > Advanced materials) gives each medium a named material, each object its own colour

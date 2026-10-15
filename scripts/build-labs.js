@@ -3,8 +3,8 @@
 
   BUILD-LABS.JS
 
-  Generates Laboratory1.html, Laboratory2.html, Laboratory3.html, Laboratory4.html,
-  Laboratory6.html, Vertometer.html, Keratometer.html, eye/index.html, Test.html, main.html, manager.html and the
+  Generates labs/Laboratory1.html ... labs/Laboratory6.html, labs/Vertometer.html, labs/Keratometer.html,
+  labs/Test.html, eye/index.html, main.html, manager.html and the
   assignments/assign<year>.html pages from a single shared template
   (scripts/laboratory.template.html), substituting the handful of values that
   actually differ per page.
@@ -34,15 +34,15 @@ const TEMPLATE = path.join(__dirname, 'laboratory.template.html');
 // lensesMenu   must match a "profiles[].name" entry in config/config.json
 // reportVersion must match an existing mustache/optics_report_template_<version>.mustache.htm
 const PAGES = [
-  { output: 'Laboratory1.html', lensesMenu: 'lab-1', reportVersion: 'v2.0' },
-  { output: 'Laboratory2.html', lensesMenu: 'lab-2', reportVersion: 'v2.0' },
-  { output: 'Laboratory3.html', lensesMenu: 'lab-3', reportVersion: 'v2.0' },
-  { output: 'Laboratory4.html', lensesMenu: 'lab-4', reportVersion: 'v2.1' },
-  { output: 'Laboratory6.html', lensesMenu: 'lab-6', reportVersion: 'v2.1' },
+  { output: 'labs/Laboratory1.html', lensesMenu: 'lab-1', reportVersion: 'v2.0' },
+  { output: 'labs/Laboratory2.html', lensesMenu: 'lab-2', reportVersion: 'v2.0' },
+  { output: 'labs/Laboratory3.html', lensesMenu: 'lab-3', reportVersion: 'v2.0' },
+  { output: 'labs/Laboratory4.html', lensesMenu: 'lab-4', reportVersion: 'v2.1' },
+  { output: 'labs/Laboratory6.html', lensesMenu: 'lab-6', reportVersion: 'v2.1' },
   { output: 'eye/index.html',   lensesMenu: 'eye',   reportVersion: 'v2.1' },
-  { output: 'Vertometer.html',  lensesMenu: 'vertometer',  reportVersion: 'v2.1' },
-  { output: 'Keratometer.html', lensesMenu: 'keratometer', reportVersion: 'v2.1' },
-  { output: 'Test.html',        lensesMenu: 'test',  reportVersion: 'v2.1' },
+  { output: 'labs/Vertometer.html',  lensesMenu: 'vertometer',  reportVersion: 'v2.1' },
+  { output: 'labs/Keratometer.html', lensesMenu: 'keratometer', reportVersion: 'v2.1' },
+  { output: 'labs/Test.html',        lensesMenu: 'test',  reportVersion: 'v2.1' },
   // the workbench: the Model button opens a slide-in, searchable list of every model
   { output: 'main.html',        lensesMenu: 'main',  reportVersion: 'v2.1', sidebar: true },
   // the same, with the tables open for authoring: open and save .lens files on disk, and a debug window (js/manager.js)
@@ -53,6 +53,22 @@ const PAGES = [
   { output: 'assignments/assign2023.html', lensesMenu: 'assignment-2023', reportVersion: 'v1.0' },
   { output: 'assignments/assign2024.html', lensesMenu: 'assignment-2024', reportVersion: 'v2.0' },
 ];
+
+// Where a page used to be: a small redirect is left at the old address (it keeps ?model=... and #...), so a link in
+// course material or a bookmark still works. Delete an entry here (and its file) once nothing links to it any more.
+const MOVED = {
+  'Laboratory1.html': 'labs/Laboratory1.html',
+  'Laboratory2.html': 'labs/Laboratory2.html',
+  'Laboratory3.html': 'labs/Laboratory3.html',
+  'Laboratory4.html': 'labs/Laboratory4.html',
+  'Laboratory6.html': 'labs/Laboratory6.html',
+  'Vertometer.html':  'labs/Vertometer.html',
+  'Keratometer.html': 'labs/Keratometer.html',
+  'assign2021.html':  'assignments/assign2021.html',
+  'assign2022.html':  'assignments/assign2022.html',
+  'assign2023.html':  'assignments/assign2023.html',
+  'assign2024.html':  'assignments/assign2024.html',
+};
 
 // Browsers keep serving an old copy of a script or stylesheet for a while after it has changed (so an edited
 // file can look "unfixed"). Tag each local js/ and css/ file with its own last-modified time: the address
@@ -107,4 +123,18 @@ function build () {
   }
 }
 
+function writeMovedStubs () {
+  Object.keys(MOVED).forEach(function (from) {
+    const to = MOVED[from];
+    fs.writeFileSync(path.join(ROOT, from),
+      '<!DOCTYPE html>\n<html lang="en"><head><meta charset="utf-8"><title>Moved</title>\n' +
+      '<script>location.replace("' + to + '" + location.search + location.hash);</script>\n' +
+      '<meta http-equiv="refresh" content="0; url=' + to + '">\n' +
+      '<link rel="canonical" href="' + to + '"></head>\n' +
+      '<body><p>This page has moved to <a href="' + to + '">' + to + '</a>.</p></body></html>\n');
+    console.log('wrote ' + from + '  (redirect to ' + to + ')');
+  });
+}
+
 build();
+writeMovedStubs();
