@@ -1,0 +1,94 @@
+# Advanced materials, wavelengths and linked objects
+
+An educational model of dispersion, not an optical-design catalogue. Everything is off until **Settings
+(the gear) > Advanced materials** is ticked; with it off the program behaves exactly as it always has.
+
+## The model
+
+* A **material** is just two numbers students already meet: the refractive index at the d line, `n_d`
+  (587.6 nm), and the Abbe number `V_d = (n_d - 1) / (n_F - n_C)`.
+* The index at any wavelength comes from a two-term Cauchy fit through those two numbers,
+  `n(lambda) = A + B / lambda^2`, chosen so it reproduces `n_d` and `n_F - n_C` exactly (`js/optics/materials.js`).
+* Materials: Air, Water, Ocular media, Fused silica, PMMA, CR-39, BK7, Crown 1.523, Trivex, Polycarbonate,
+  High index 1.60 / 1.67 / 1.74, F2 flint, SF11 dense flint. The picker also shows the six-digit glass code.
+* **Custom** (the default for any row with no material) is the fixed, non-dispersive index typed in the table
+  - the textbook value - and is the same at every wavelength.
+* Surfaces need nothing: their power follows from the radius and the media either side. A **thin lens** with a
+  material scales its power by `(n - 1) / (n_d - 1)`; a **thin prism** with a material scales its deviation the
+  same way. Radii and powers typed in are for the d line.
+
+## Where the wavelength comes from
+
+There is no single "system wavelength". Each **object** has its own (the lambda column of the Objects and Images
+table) and its rays are traced through the lens at that wavelength. Whatever describes the lens follows the beam
+**in focus** - the one you last dragged or clicked, or whose wavelength you edited (its row is highlighted):
+
+* the Ref. Index column of the Lens Prescription table,
+* the Summary,
+* the pupils and cardinal points drawn on the diagram.
+
+The wavelength buttons (beside the units box on the prescription tab, and beside the Summary heading) can show
+any other wavelength until another object is picked. The stored prescription, and what is saved, always stays at
+the d line.
+
+Wavelength pickers list the wavelengths in use (in table order), a divider, then *Custom* (type any nm, 200-3000)
+and the rest of the list in numerical order. The list itself (colour name, line, nm, and whether it belongs to the
+white-light group) is edited in **Settings > Wavelengths...**.
+
+## Linked objects and white light
+
+Objects can be **linked**: they then share their position / angle / beam width / Pin / Vig and move as one,
+while keeping their own wavelength. Tick the box in the link column of two objects of the same kind (both at
+infinity, or both finite) to link them; click the link badge to unlink one. Deleting one deletes the group.
+**New > white-light group** adds three linked objects, one per wavelength of the white-light group (red, green
+and blue by default).
+
+## Appearance (Settings)
+
+* **Light / dark diagram.** *Additive beams* (needs the dark diagram) lets overlapping beams add like light, so
+  red + green + blue shows as white. *Beam edge lines* draws a line along the edge of every beam (off by default).
+* Reset view (button, or double-click an empty part of the diagram) undoes panning and zooming.
+
+## .lens file additions
+
+All optional, and a file without them loads exactly as before.
+
+* `"material": "BK7"` in the `args` of an `index`, `thin` or `prism` element. An `index` element may omit
+  `index` when it names a material.
+* Sources (`"sources"`) may carry:
+  * `"wavelength": 486.1` - the nm this source is traced at;
+  * `"group": 1` - sources sharing a number are linked;
+  * `"white": true` - shorthand for a linked group with one copy of the source per wavelength of the
+    white-light group (the copies get fresh ids). `"white": [435.8, 514.5, 656.3]` names the wavelengths instead;
+  * `"hidden": true` - start with this beam switched off the diagram (the Visible column of the Objects table is then unticked);
+  * `"draw": "rays"` (or `"planes"`) - for a beam from infinity: how it is drawn. `"rays"` draws the rays element by element through the system, instead of
+    the three-ray construction through the cardinal points. In a system with a lens the construction only shows
+    the equivalent lens, so a prism's bend (and the colours it separates) would not be drawn.
+* `"settings": { "advancedMaterials": true, "darkCanvas": true, "additiveBeams": true }` - what the file needs
+  switched on to make its point. These are applied (and remembered) when the file loads.
+
+Examples: `lenses/components/dispersion-thick-lens-bk7.lens`, `lenses/components/dispersion-thin-lens-polycarbonate.lens` and
+`lenses/components/test-prism-dispersion.lens` (the default on Test.html: white light through a dispersive prism).
+
+## Pages are generated
+
+The pages under `labs/`, `eye/` and `assignments/` (and `main.html`, `manager.html`) are generated from `scripts/laboratory.template.html`: edit the template and run
+`node scripts/build-labs.js`. The build also tags each local script and stylesheet with its modified time so
+browsers pick up new files.
+
+## Hiding prescription columns from a .lens file
+
+`"visible" : { "stop": false, "aperture": false }` hides the Stop Flag and Ap. Diameter columns (the keys are
+`power`, `thickness`, `aperture` and `stop`). `"cardinalPoints": false` leaves the cardinal points (F, P, N, V and
+their labels) off the diagram. Only a column is hidden - the data stay, so a prism's aperture still
+shapes its drawing. Radius and Base already appear and disappear with the rows that use them.
+
+## Two ways to trace a beam from infinity
+
+* **Principal planes** (`"draw": "planes"`, the default for a focal system): three rays through the cardinal points and the
+  equivalent lens - the elements themselves are not drawn.
+* **Surface by surface** (`"draw": "rays"`, and always for an afocal system): the rays are traced through each element in turn.
+  A prism's bend, each surface's refraction and the colours separating inside glass only show this way.
+
+Click the **type** cell of an object from infinity in the Objects table to switch between them. A finite *point* is always the
+principal-plane construction, and a finite *object* is always surface by surface.

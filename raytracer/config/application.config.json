@@ -1,0 +1,12 @@
+{ "fileList" : [ 	  { "id": "0",  "filename": "./lenses/components/thick-lens-positive.lens", 					 "title": "Thick Lens in Air (Positive Power)" }, 
+                      { "id": "1",  "filename": "./lenses/components/thick-lens-negative.lens", 					 "title": "Thick Lens in Air (Negative Power)" },
+                      { "id": "2",  "filename": "./lenses/components/thin-lens-positive.lens", 					 "title": "Thin Lens in Air (Positive)"  },
+                      { "id": "3",  "filename": "./lenses/components/thin-lens-negative.lens", 					 "title": "Thin Lens in Air (Negative)"  },
+                      { "id": "4",  "filename": "./lenses/components/two-thin-lenses-positive.lens", 				 "title": "Two Thin Lenses in Air (Nominal Positive Power)"  },   
+                      { "id": "5",  "filename": "./lenses/components/two-thin-lenses-negative.lens", 				 "title": "Two Thin Lenses in Air (Nominal Negative Power)"  },
+                      { "id": "6",  "filename": "./lenses/instruments/keplerian-telescope.lens", 					 "title": "Keplerian Telescope"  },
+                      { "id": "7",  "filename": "./lenses/instruments/galilean-telescope.lens", 					 "title": "Galilean Telescope"  },                    
+                      { "id": "10", "filename": "./lenses/eyes/legrand-relaxed-schematic-eye.lens", 			 "title": "LeGrand Relaxed Schematic Eye (Relaxed)" },
+                      { "id": "11", "filename": "./lenses/eyes/legrand-relaxed-schematic-eye-no-retina.lens", "title": "LeGrand Relaxed Schematic Eye (Relaxed / No Retina)" }]
+}
+

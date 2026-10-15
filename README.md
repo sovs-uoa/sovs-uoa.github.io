@@ -19,40 +19,51 @@ The program takes as input a .lens prescription file (some of which are "canned"
 
 ## How the site is laid out
 
+The root of the repository is the address of the site. `index.html` there is the front page of the ray-tracer (a card for
+each laboratory and instrument); the ray-tracer itself lives in `raytracer/`. For how to *use* the ray-tracer see
+[raytracer/docs/USER-GUIDE.md](raytracer/docs/USER-GUIDE.md) (the site shows it as `raytracer/docs/guide.html`, made from it with
+`npm run build:guide`; that needs `pandoc`).
+
 | Where | What |
 |---|---|
-| `index.html` | The front page: a card for each laboratory and instrument. |
-| `labs/` | The laboratory pages: `Laboratory1-4`, `Laboratory6`, `Vertometer`, `Keratometer`, `Test`. |
-| `eye/` | The schematic-eye workbench. |
-| `assignments/` | The assignment pages, one per year. |
-| `main.html`, `manager.html`, `models.html` | The workbench with the model side bar, the authoring version of it, and the model gallery. |
-| `lenses/`, `config/` | The `.lens` model files, and `config.json` (which models each menu profile lists). |
-| `js/optics/` | The optics: ray and cardinal-point maths (`optics.js`) and materials / wavelengths (`materials.js`). |
-| `js/constructions/` | The drawings of an object and its image: `Construction` (the superclass: dragging, snapping), `BeamConstruction` (in the same file) and the point-source, parallel-beam, afocal-beam and principal-ray constructions, plus the angle picker. |
-| `js/app/` | The page itself: `application` (objects and their rows), `renderer`, `settings`, the prescription table, `manager`, the model browser, export and the ruler. |
-| `js/vendor/` | Small third-party scripts kept in the repo (`raphael.export.js`, `mustache-wax.js`). |
-| `css/`, `mustache/` | The stylesheet and the report templates, shared by every page. |
-| `digital-labs/`, `demo/` | The Fourier, Gabor and hybrid-image simulators. |
-| `docs/` | Notes: [docs/ADVANCED-MATERIALS.md](docs/ADVANCED-MATERIALS.md). |
+| `index.html` | The front page: a card for each laboratory and instrument. It carries `<base href="raytracer/">`, so everything it links to or loads is in `raytracer/`. |
+| `raytracer/labs/` | The laboratory pages: `Laboratory1-4`, `Laboratory6`, `Vertometer`, `Keratometer`, `Test`. |
+| `raytracer/eye/` | The schematic-eye workbench. |
+| `raytracer/assignments/` | The assignment pages, one per year. |
+| `raytracer/main.html`, `manager.html`, `models.html` | The workbench with the model side bar, the authoring version of it, and the model gallery. |
+| `raytracer/lenses/` | The `.lens` model files: `eyes/`, `components/` (thin and thick lenses, prisms, mirrors), `instruments/` (telescopes, vertometer, keratometer), `assignments/<year>/` and `assignments/general/`. `_unused/` holds files nothing loads any more. |
+| `raytracer/config/` | `config.json`: the model list and which models each menu profile (lab, eye, assignment-year) shows. |
+| `raytracer/js/optics/` | The optics: ray and cardinal-point maths (`optics.js`) and materials / wavelengths (`materials.js`). |
+| `raytracer/js/constructions/` | The drawings of an object and its image: `Construction` (the superclass: dragging, snapping), `BeamConstruction` (in the same file) and the point-source, parallel-beam, afocal-beam and principal-ray constructions, plus the angle picker. |
+| `raytracer/js/app/` | The page itself: `application` (objects and their rows), `renderer`, `settings`, the prescription table, `manager`, the model browser, export and the ruler. |
+| `raytracer/js/vendor/` | Small third-party scripts kept in the repo (`raphael.export.js`, `mustache-wax.js`). |
+| `raytracer/css/`, `mustache/`, `images/` | The stylesheet, the report templates and the pictures, shared by every page. |
+| `raytracer/scripts/` | The page generator (`build-labs.js`) and its template. |
+| `raytracer/docs/` | The user guide and notes. |
+| `digital-labs/` | The Fourier, Gabor and hybrid-image simulators (`demo/` redirects to it). |
+| `fish/` | Redirects to the stimulus demonstrations on the abi-eye-group site. |
 
-**The lab pages are generated.** Every page under `labs/`, `eye/` and `assignments/`, and `main.html` and `manager.html`,
-is built from one template (`scripts/laboratory.template.html`) by `scripts/build-labs.js`. Do not edit them by hand:
-edit the template (or the scripts under `js/`) and run, from the repository root,
+**The lab pages are generated.** Every page under `raytracer/labs/`, `eye/` and `assignments/`, and `main.html` and
+`manager.html`, is built from one template (`raytracer/scripts/laboratory.template.html`) by
+`raytracer/scripts/build-labs.js`. Do not edit them by hand: edit the template (or the scripts under `raytracer/js/`)
+and run, from the repository root,
 
-    node scripts/build-labs.js
+    node raytracer/scripts/build-labs.js        (or: npm run build:labs)
 
-The only things that differ between pages are the model menu (`lenses_menu`, a profile in `config/config.json`) and the
-report template version; both are listed at the top of `build-labs.js`. The build also adds each script's and
-stylesheet's modified time to its address (`?v=...`) so a browser always picks up a changed file.
+The only things that differ between pages are the model menu (`lenses_menu`, a profile in
+`raytracer/config/config.json`) and the report template version; both are listed at the top of `build-labs.js`. The
+build also adds each script's and stylesheet's modified time to its address (`?v=...`) so a browser always picks up a
+changed file.
 
-**Old addresses.** Pages that have moved (`Laboratory3.html` is now `labs/Laboratory3.html`, `assign2024.html` is now
-`assignments/assign2024.html`) leave a small redirect at the old address that keeps `?model=...`. They are listed in
-`MOVED` in `build-labs.js`; remove an entry, and the file, once nothing links to it.
+**Old addresses.** The ray-tracer used to sit at the root of the site. Each old address (`Laboratory3.html`,
+`assign2024.html`, `eye/`, `main.html`, `manager.html`, `models.html`, `index.classic.html`) leaves a small redirect at the
+old place that keeps `?model=...`. They are listed in `MOVED` in `build-labs.js`; remove an entry, and the file, once
+nothing links to it.
 
 ## Advanced materials, wavelengths and white light
 
 An optional mode (Settings > Advanced materials) gives each medium a named material, each object its own colour
-(wavelength) and lets objects be linked. See [docs/ADVANCED-MATERIALS.md](docs/ADVANCED-MATERIALS.md), which also lists
+(wavelength) and lets objects be linked. See [raytracer/docs/ADVANCED-MATERIALS.md](raytracer/docs/ADVANCED-MATERIALS.md), which also lists
 the extra keys a .lens file may use (`material`, `wavelength`, `group`, `white`, `settings`).
 
 
