@@ -12,9 +12,36 @@
 
   The handlers are closures over the construction (no lookup through the dragged point, no globals of their own).
   What is still read from the page: the scale (kx, ky), the grid step, the lens being drawn (renderableLens) and the
-  helpers snapDraggedX / clampFarObjectPair / updateInterface. They are the next things to pass in explicitly.
+  helpers snapDraggedX and updatePointsTable. They are the next things to pass in explicitly.
 
 --------------------------------------------------------------------------------------------------------------- */
+
+/* An image on the back focal plane (F': the retina of an emmetropic eye) belongs to an object at infinity, and a finite object
+   that far off has no sensible position or height: dragged, or typed in exactly, its numbers run away (to 10^14 m
+   from rounding) and the beam is lost. So an object that would be farther than farLimit is kept at that distance, on the
+   side it is on (sideHint when it is exactly at infinity), at the height that gives the image height asked for. The
+   image then sits within micrometres of the plane. Returns the pair data to use (the one given when it is fine). */
+function clampFarObjectPair (id, pairData, totalLens, sideHint, forceSide) {
+
+  if (!pairData || !totalLens || !totalLens.F || !isFinite(totalLens.F)) { return pairData; }
+  // far enough that the image is within about 0.02 micrometres of the plane (offset = f'^2 / distance), but no further
+  // than the drawing copes with: 100 km for an eye, up to 10,000 km for a weak system
+  var focal    = 1 / Math.abs(totalLens.F);
+  var farLimit = Math.min(1e7, Math.max(1e5, focal * focal / 2e-8));            // metres
+  var objZ = pairData.X1;
+  if (isFinite(objZ) && Math.abs(objZ) <= farLimit) { return pairData; }
+
+  var side  = forceSide || (isFinite(objZ) ? (objZ < 0 ? -1 : 1) : (sideHint || -1));
+  var farZ  = side * farLimit;
+  var probe = Optics.calculateConjugatePairFrom({ id: id, which: "object", z: farZ, h: 1e-3 }, totalLens);
+  if (!probe || !isFinite(probe.Y2) || Math.abs(probe.Y2) < 1e-15 || !isFinite(pairData.Y2)) { return pairData; }
+
+  var farH = 1e-3 * (pairData.Y2 / probe.Y2);
+  var far  = Optics.calculateConjugatePairFrom({ id: id, which: "object", z: farZ, h: farH }, totalLens);
+  if (far && isFinite(far.X2) && isFinite(far.Y2)) { far.atInfinity = side; return far; }     // (the table shows it as at infinity)
+  return pairData;
+}
+
 
 class Construction {
 
@@ -86,7 +113,7 @@ class Construction {
     let pair = this.conjugateFor(point, x, y, dot, total);
 
     // (an image dragged on to the back focal plane: the object is kept a large but finite distance away)
-    if (point.type === "image") {
+    if (point.type === "image" && this.clampsFarObject()) {
       // an object that is finite remembers which side of the lens it is on; held exactly on F' (where the sign of the
       // far distance is only rounding) it stays on that side, so it does not jump across to a virtual object
       if (isFinite(pair.X1) && Math.abs(pair.X1) < 1e4) { dot.nearSide = pair.X1 < 0 ? -1 : 1; }
@@ -98,11 +125,15 @@ class Construction {
       }
     }
 
-    updateInterface(point, pair);        // the table (and so the conjugate point)
+    updatePointsTable(point.id, pair);   // the table (and so the conjugate point)
     this.setPairData(pair);
-    this.updateRays();
+    if (typeof this.updateRays === "function") { this.updateRays(); }
     this.draw();
   }
+
+  // Whether an image dragged on to the back focal plane keeps its object a large but finite distance away (see
+  // clampFarObjectPair). A construction that cannot draw an object that far off says no.
+  clampsFarObject () { return true; }
 
   // The conjugate pair for an object or image dragged to (x, y), in the laboratory frame.
   // calculateConjugatePairFrom wants an "object" z relative to the front vertex (which is at the origin, so x as it

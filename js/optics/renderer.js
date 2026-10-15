@@ -46,21 +46,20 @@
   // between two mouse events (a quick drag would otherwise step over it), return that point's position instead.
   // from = where the point was, to = where the pointer would put it. Returns { x, label } or null.
   function snapToCardinal (from, to) {
-    var capture = 7 * kx, best = null, bestDist = Infinity;
+    var capture = 7 * kx, best = null, bestDist = Infinity, bestInside = false;
     cardinalSnapTargets.forEach(function (t) {
       var inside  = Math.abs(to - t.x) <= capture;
       var crossed = isFinite(from) && ((from < t.x && to > t.x) || (from > t.x && to < t.x));
       if (!inside && !crossed) { return; }
       var d = crossed ? 0 : Math.abs(to - t.x);
-      if (d < bestDist) { bestDist = d; best = t; }
+      if (d < bestDist) { bestDist = d; best = t; bestInside = inside; }
     });
     // V' and F' of a relaxed eye are under a micrometre apart (a pixel or less): there the optically meaningful one is
-    // F' (the image of an object at infinity: object vergence 0), so it is the one that is held
-    // (not for a point that is leaving F': V' lies just beyond it, and putting it back on F' would hold it there)
-    if (best && best.label === "V'") {
-      cardinalSnapTargets.forEach(function (t) {
-        if (t.label === "F'" && Math.abs(t.x - best.x) <= 2 * kx && !(isFinite(from) && Math.abs(from - t.x) < 1e-9)) { best = t; }
-      });
+    // F' (the image of an object at infinity: object vergence 0), so it is the one that is held while the point is
+    // near them. (Not when V' is only being stepped over on the way out past it: putting the point back on F' there
+    // would hold it for ever.)
+    if (best && best.label === "V'" && bestInside) {
+      cardinalSnapTargets.forEach(function (t) { if (t.label === "F'" && Math.abs(t.x - best.x) <= 2 * kx) { best = t; } });
     }
     return best ? { x: best.x, label: best.label } : null;
   }

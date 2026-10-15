@@ -17,113 +17,7 @@ var changed         = { "stroke" : "blue", "stroke-width": 1, "stroke-dasharray"
 var globalElem;
 
 
-/*   -------------------------------------------------
-
-UPDATECONJUGATETO Update conjugate point in table and on-screen 
-
- - Should be called on change to point
-
------------------------------------------------------- */
-
-
-function updateInterface (myPoint, pairData) {
-
-      // lens is global !
-      switch (myPoint.type) {
-
-          case "object" : // update the conjugate [point]
-            updatePointsTable(myPoint.id, pairData);
-            break;
-
-          case "image" :
-            updatePointsTable(myPoint.id, pairData);
-
-            break;
-
-          default:
-            error("unknown draggable");
-
-      }
-}
-
-/* ------------------------------------------------------
-
-CONSTRUCTION EVENT HANDLERS 
-
----------------------------------------------------------- */
-
-
-function moveConstruction (dx, dy) {
-
-      //console.log("--- called construction move point id = " + this.id);  
-
-
-      // update the appropriate point 
-      dx = kx*dx; 
-      dy = ky*dy;
-
-      nowX = this.ox + dx;
-      nowY = this.oy + dy;
-
-      nowX = Math.round(nowX / gridSnapSize) * gridSnapSize;
-      nowY = Math.round(nowY / gridSnapSize) * gridSnapSize;
-
-      // held on V, V', F, F', P, P', N or N' as the drag reaches or passes it (Alt turns that off)
-      nowX = snapDraggedX(this, nowX);
-
-      // update the point 
-      this.attr({ cx: nowX, cy: nowY });
-
-      // update the conjugate
-      var thisPoint = this.data("data-attr");
-
-      //console.log(thisPoint);
-
-      totalLens = renderableLens.total;  // I should make this local if I can
-
-      // nowX is in the laboratory (paper) frame. calculateConjugatePairFrom expects an
-      // "object" z relative to the front vertex (which sits at the global origin, so no
-      // conversion needed) but an "image" z relative to the BACK vertex - without
-      // subtracting that offset here, dragging the image point jumps it away from the
-      // cursor by roughly the system length.
-      var zLocal = (thisPoint.type === "image") ? (nowX - (totalLens.Z + totalLens.L)) : nowX;
-
-      pairData  = Optics.calculateConjugatePairFrom({   id     : thisPoint.id,
-                                                        which  : thisPoint.type,
-                                                        z      : zLocal,
-                                                        h      : nowY }, totalLens);
-      updateInterface (thisPoint, pairData);  // update table (and conjugate points / will remove)
-      thisPoint.parent.setPairData(pairData);
-      thisPoint.parent.draw(); // drawRayConstruction ();
-
-
-      // redraw depends on type of object 
-      // update the location of the rays !!!!
-      // updatePointsView ();
-   }
-
-  
-  function startConstruction () {
-
-      //console.log("--- called construction start point id = " + this.id);
-
-      // storing original coordinates
-      this.ox = this.attr("cx");
-      this.oy = this.attr("cy");
-      this.lastX = this.ox;
-
-      setGrabbingCursor(true);
-
-  }
-
-
-  function upConstruction () {
-
-      //console.log("--- called construction up point id = " + this.id);
-
-      setGrabbingCursor(false);
-
-  }
+// (dragging the object or image point is Construction.dragMove, in Construction.js)
 
 
 /* -------------------------------------------------------------------------------
@@ -133,10 +27,12 @@ MAIN
  ---------------------------------------------------------------------------------- */
 
 
-class PrincipalRayConstruction { // create a ray construction using raphael.js
+class PrincipalRayConstruction extends Construction { // create a ray construction using raphael.js
 
 
 	 constructor(lens, data) {
+
+       super();
 
 	 	   // global paper 
        this.cd_set = paper.set();
@@ -176,6 +72,9 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
 
    }
 
+
+    // (this construction draws an object only a finite distance away: no clamp of a far one)
+    clampsFarObject () { return false; }
 
     setPairData (data) {
       this.data = data;
@@ -252,32 +151,9 @@ class PrincipalRayConstruction { // create a ray construction using raphael.js
         var X1 = this.data.X1; var X2 = this.data.X2;        
         var Y1 = this.data.Y1; var Y2 = this.data.Y2;
 
-        // draggable construction points s
-        this.objectPoint = drawPoint(X1, Y1, "red");  // object
-        this.objectPoint.drag (moveConstruction, startConstruction, upConstruction);
-        this.objectPoint.attr({ cursor: "grab" });
-        this.objectPoint.id = "point-" + this.data.id + "-object";
-        this.objectPoint.data("data-attr", {  "element_id"   : "point-" + this.data.id + "-object",
-                                              "conjugate_id" : "point-" + this.data.id + "-image",
-                                              "id"           : this.data.id, 
-                                              "type"         : "object", 
-                                              "parent"       : this });
-
-
-        this.imagePoint  = drawPoint(X2, Y2, "cyan"); // image
-        this.imagePoint.drag (moveConstruction, startConstruction, upConstruction);
-        this.imagePoint.attr({ cursor: "grab" });
-        this.imagePoint.id = "point-" + this.data.id + "-image";
-        this.imagePoint.data("data-attr", {  "element_id"     : "point-" + this.data.id + "-image",
-                                              "conjugate_id"  : "point-" + this.data.id + "-object",
-                                              "id"            : this.data.id, 
-                                              "type"          : "image",
-                                              "parent"        : this });
-
-
-        // register these points 
-        RegisterWheelCallback({ type: "point", handle: this.objectPoint });
-        RegisterWheelCallback({ type: "point", handle: this.imagePoint });
+        // the two points that can be picked up and moved (see Construction.makeHandle)
+        this.objectPoint = this.makeHandle(X1, Y1, "red",  "object");
+        this.imagePoint  = this.makeHandle(X2, Y2, "cyan", "image");
 
 
         // this.imagePoint.data("data-attr", { "element-id" : "point-" + this.data.id + "-image", "id" : this.data.id, "type" : "image"});

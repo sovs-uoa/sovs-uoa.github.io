@@ -20,34 +20,7 @@ CONSTRUCTION EVENT HANDLERS
 ---------------------------------------------------------- */
 
 
-/* An image on the back focal plane (F': the retina of an emmetropic eye) belongs to an object at infinity, and a finite object
-   that far off has no sensible position or height: dragged, or typed in exactly, its numbers run away (to 10^14 m
-   from rounding) and the beam is lost. So an object that would be farther than farLimit is kept at that distance, on the
-   side it is on (sideHint when it is exactly at infinity), at the height that gives the image height asked for. The
-   image then sits within micrometres of the plane. Returns the pair data to use (the one given when it is fine). */
-function clampFarObjectPair (id, pairData, totalLens, sideHint, forceSide) {
-
-  if (!pairData || !totalLens || !totalLens.F || !isFinite(totalLens.F)) { return pairData; }
-  // far enough that the image is within about 0.02 micrometres of the plane (offset = f'^2 / distance), but no further
-  // than the drawing copes with: 100 km for an eye, up to 10,000 km for a weak system
-  var focal    = 1 / Math.abs(totalLens.F);
-  var farLimit = Math.min(1e7, Math.max(1e5, focal * focal / 2e-8));            // metres
-  var objZ = pairData.X1;
-  if (isFinite(objZ) && Math.abs(objZ) <= farLimit) { return pairData; }
-
-  var side  = forceSide || (isFinite(objZ) ? (objZ < 0 ? -1 : 1) : (sideHint || -1));
-  var farZ  = side * farLimit;
-  var probe = Optics.calculateConjugatePairFrom({ id: id, which: "object", z: farZ, h: 1e-3 }, totalLens);
-  if (!probe || !isFinite(probe.Y2) || Math.abs(probe.Y2) < 1e-15 || !isFinite(pairData.Y2)) { return pairData; }
-
-  var farH = 1e-3 * (pairData.Y2 / probe.Y2);
-  var far  = Optics.calculateConjugatePairFrom({ id: id, which: "object", z: farZ, h: farH }, totalLens);
-  if (far && isFinite(far.X2) && isFinite(far.Y2)) { far.atInfinity = side; return far; }     // (the table shows it as at infinity)
-  return pairData;
-}
-
-
-// (dragging an object or image point of a point source is Construction.dragMove, in Construction.js)
+// (dragging an object or image point is Construction.dragMove, in Construction.js)
 
 
 /* -------------------------------------------------------------------------------
