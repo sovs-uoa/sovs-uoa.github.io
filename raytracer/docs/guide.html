@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>SOVS optics bench: user guide</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      white-space: pre-wrap;
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <style>
+    :root { --bg:#f6f7f9; --card:#fff; --ink:#1f2933; --muted:#66727f; --line:#dfe3e8; --accent:#1d6fdc; }
+    @media (prefers-color-scheme: dark) { :root { --bg:#14171b; --card:#1d2228; --ink:#e8ecf0; --muted:#98a4b0; --line:#2c333b; --accent:#5b9dff; } }
+    * { box-sizing: border-box; }
+    html { background: var(--bg); }
+    body { max-width: 860px; margin: 0 auto; padding: 24px 20px 70px; background:var(--bg); color:var(--ink); font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; hyphens: manual; }
+    h1 { font-size: clamp(1.7rem, 4vw, 2.2rem); margin: .4em 0 .4em; }
+    .back { display:inline-block; color: var(--accent); text-decoration:none; }
+    h2 { margin-top: 2.2em; padding-top: .4em; border-top: 1px solid var(--line); }
+    h3 { margin-top: 1.6em; }
+    a { color: var(--accent); }
+    code { background: var(--card); border: 1px solid var(--line); border-radius: 5px; padding: 0 5px; font-size: .92em; }
+    pre { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; overflow-x: auto; }
+    pre code { border: 0; padding: 0; background: none; }
+    table { border-collapse: collapse; width: 100%; margin: 1em 0; background: var(--card); }
+    th, td { border: 1px solid var(--line); padding: 7px 10px; text-align: left; vertical-align: top; }
+    th { background: color-mix(in srgb, var(--line) 40%, var(--card)); }
+    hr { border: 0; border-top: 1px solid var(--line); margin: 2.5em 0 1em; }
+    #TOC, nav#TOC { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 8px 18px; margin: 20px auto; }
+    img { max-width: 100%; height: auto; border: 1px solid var(--line); border-radius: 8px; display: block; margin: 1.2em auto .4em; }
+    p > em:only-child { display: block; color: var(--muted); font-size: .92em; text-align: center; margin-bottom: 1.4em; }
+  </style>
+</head>
+<body>
+<a class="back" href="../../index.html">&larr; SOVS Optics Bench</a>
+<h1 id="sovs-optics-bench-user-guide">SOVS optics bench: user guide</h1>
+<p>An interactive paraxial ray-tracer for the OPTOM 263 Essential Optics
+course (School of Optometry and Vision Science, University of Auckland).
+You build or load an optical system (a lens, a telescope, a schematic
+eye, an instrument), place objects in front of it, and see where the
+images form, drag things about, and read the numbers.</p>
+<p>It uses paraxial (small-angle) optics and the sign conventions used
+in optometry. It is a teaching tool: the rays are exact for the paraxial
+model and say nothing about aberrations.</p>
+<h2 id="contents">Contents</h2>
+
+<ul>
+<li><a href="#what-it-does">1. What it does</a></li>
+<li><a href="#opening-it">2. Opening it</a></li>
+<li><a href="#the-screen">3. The screen</a></li>
+<li><a href="#objects-and-images">4. Objects and images</a>
+<ul>
+<li><a href="#what-the-columns-mean">4.1 What the columns mean</a></li>
+<li><a href="#real-virtual-and-the-colours">4.2 Real, virtual and the
+colours</a></li>
+</ul></li>
+<li><a href="#moving-things-on-the-diagram">5. Moving things on the
+diagram</a>
+<ul>
+<li><a href="#snapping-to-the-cardinal-points">5.1 Snapping to the
+cardinal points</a></li>
+<li><a href="#grid">5.2 Grid</a></li>
+</ul></li>
+<li><a href="#reading-the-diagram">6. Reading the diagram</a></li>
+<li><a href="#the-tables">7. The tables</a>
+<ul>
+<li><a href="#lens-prescription">7.1 Lens Prescription</a></li>
+<li><a href="#summary">7.2 Summary</a></li>
+<li><a href="#hiding-columns">7.3 Hiding columns</a></li>
+</ul></li>
+<li><a href="#settings-wavelengths-and-white-light">8. Settings,
+wavelengths and white light</a>
+<ul>
+<li><a href="#the-settings-dialog">8.1 The Settings dialog</a></li>
+<li><a href="#advanced-materials">8.2 Advanced materials</a></li>
+<li><a href="#the-wavelengths-dialog">8.3 The Wavelengths
+dialog</a></li>
+<li><a href="#white-light-groups">8.4 White-light groups</a></li>
+</ul></li>
+<li><a href="#saving-and-reporting">9. Saving and reporting</a></li>
+<li><a href="#choosing-and-authoring-models">10. Choosing and authoring
+models</a></li>
+<li><a href="#tips">11. Tips</a></li>
+</ul>
+<hr />
+<h2 id="what-it-does">1. What it does</h2>
+
+<ul>
+<li>Draws a <strong>lens system</strong> (thin lenses, thick lenses,
+surfaces, mirrors, prisms, an "img" screen such as a retina) from a
+table of its elements, with its <strong>cardinal points</strong> (focal
+F and F', principal P and P', nodal N and N'), its
+<strong>pupils</strong> (E and E') and its <strong>vertices</strong> (V
+and V').</li>
+<li>Places <strong>objects</strong> in front of it: a point at a finite
+distance, or a beam from infinity at an angle. For each it traces the
+rays through every element and shows the <strong>image</strong>: real or
+virtual, where it is, how big, which way up.</li>
+<li>Lets you <strong>drag</strong> the object, the image or the beam
+angle on the diagram and watches the table follow, or <strong>type
+numbers</strong> into the table and watches the diagram follow.</li>
+<li>Optionally models <strong>dispersion</strong>: give each medium a
+material and each object a wavelength, and watch different colours focus
+at different places (white light, chromatic aberration).</li>
+</ul>
+<p><a href="#contents">↑ Contents</a></p>
+<h2 id="opening-it">2. Opening it</h2>
+
+<p>The front page (<code>index.html</code>) has a card for each
+laboratory and instrument:</p>
+<table>
+<thead>
+<tr>
+<th>Card</th>
+<th>What you get</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Laboratory 1 to 4, 6</td>
+<td>The lab models for OPTOM 263 (thin lenses, thick lens, emmetropic
+and ametropic eye, telescopes and low vision).</td>
+</tr>
+<tr>
+<td>The vertometer, the keratometer</td>
+<td>The instruments, with their standard and mystery models.</td>
+</tr>
+<tr>
+<td>The workbench (<code>main.html</code>)</td>
+<td>Any model, chosen from a searchable list.</td>
+</tr>
+<tr>
+<td>The eye (<code>eye/</code>)</td>
+<td>The schematic eyes (Le Grand, Gullstrand, Emsley, reduced eyes) to
+explore.</td>
+</tr>
+<tr>
+<td>The assignment pages</td>
+<td>One per year, with that year's questions as models.</td>
+</tr>
+<tr>
+<td>The gallery (<code>models.html</code>)</td>
+<td>Pictures of every model; click one to open it.</td>
+</tr>
+</tbody>
+</table>
+<p>A card may also offer <strong>model chips</strong> (for example "Plus
+lens", "Minus lens"): click one to open that lab with that model loaded.
+A link such as <code>.../labs/Laboratory2.html?model=1</code> opens
+model 1 directly.</p>
+<p>The page needs a current browser (Chrome is the one it is tested in)
+and an internet connection for a few libraries.</p>
+<p><a href="#what-it-does">← 1. What it does</a> · <a href="#contents">↑
+Contents</a></p>
+<h2 id="the-screen">3. The screen</h2>
+
+<p>Top bar, left to right: <strong>Home</strong> (back to the front
+page), <strong>Settings</strong> (the cog), the <strong>Model</strong>
+button and the current model's name, the light / dark switch, and the
+<strong>Report</strong> button.</p>
+<p><img src="images/screen-overview.jpg"
+alt="The workbench: the top bar, the diagram with its tool rail, the tabs and the Objects and Images table" /></p>
+<p><em>Figure 1. The eye workbench. The top bar is above; the diagram
+with its tool rail sits below it; the tabs (Lens Prescription, Objects
+and Images, Summary) and the Objects and Images table are at the
+bottom.</em></p>
+<p>The <strong>diagram</strong> is the large drawing. The system is
+drawn with the light travelling left to right. A small <strong>tool
+rail</strong> sits at its top left:</p>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pointer</td>
+<td>Grab and drag things on the diagram (the default).</td>
+</tr>
+<tr>
+<td>Ruler</td>
+<td>Drag across the diagram to measure a distance.</td>
+</tr>
+<tr>
+<td>Eye (show menu)</td>
+<td>Choose what is drawn: labels, cardinal points, pupils, vertices, the
+optical axis.</td>
+</tr>
+<tr>
+<td>Save</td>
+<td>Save the diagram as PNG, SVG (editable) or PDF (print).</td>
+</tr>
+<tr>
+<td>Reset view</td>
+<td>Bring the diagram back to where it started (double-clicking an empty
+part does the same).</td>
+</tr>
+</tbody>
+</table>
+<p><img src="images/show-menu.png"
+alt="The Show menu, listing labels, cardinal points, pupils, vertices and the optical axis" /></p>
+<p><em>Figure 2. The Show menu (the eye in the tool rail).</em></p>
+<p>Below the diagram are tabs:</p>
+<ul>
+<li><strong>Lens Prescription</strong>: the table of elements of the
+system (surfaces, thin lenses, prisms, stops, screens).</li>
+<li><strong>Objects and Images</strong>: one row for each object you
+have placed, with its image.</li>
+<li><strong>Summary</strong>: the system's overall numbers (power, focal
+lengths, cardinal point positions, pupils, magnification).</li>
+</ul>
+<p>The mouse wheel zooms the diagram; you can drag the background to
+pan.</p>
+<p><a href="#opening-it">← 2. Opening it</a> · <a href="#contents">↑
+Contents</a></p>
+<h2 id="objects-and-images">4. Objects and images</h2>
+
+<p>Every object has a row in <strong>Objects and Images</strong> and a
+drawing on the diagram. There are two kinds:</p>
+<ul>
+<li><strong>A point at a finite distance</strong> (the infinity box
+<code>∞</code> is <strong>not</strong> ticked). Rays leave the point and
+spread through the system. You give its position (<code>l</code>, or
+<code>lv</code>) and height (<code>h</code>). The image is a point (real
+or virtual).</li>
+<li><strong>A beam from infinity</strong> (<code>∞</code>
+<strong>ticked</strong>). Parallel rays arriving at an angle
+<code>θ</code>. Only the angle and the beam width matter; the image
+forms on the back focal plane (F') at a height set by the angle.</li>
+</ul>
+<p>To add one use the <strong>New</strong> menu under the table (point,
+object, white-light group, or the older source / beam / afocal beam
+entries), or load a model that already has them. To remove one, tick its
+row and press <strong>Delete Selected</strong>; <strong>Clear</strong>
+removes them all and <strong>Reset</strong> puts back the ones the model
+came with.</p>
+<p>A finite object has a red dot (the object) and a cyan dot (its
+image). A beam has a cyan dot (its image on F') and a small handle at
+the lens (the <strong>angle picker</strong>) that you turn to change the
+angle.</p>
+<h3 id="what-the-columns-mean">4.1 What the columns mean</h3>
+
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>∞</code></td>
+<td>Tick for a beam from infinity; untick for a point at a finite
+distance.</td>
+</tr>
+<tr>
+<td>Type</td>
+<td><code>object</code> (rays from a point, or a beam) or
+<code>point</code> (just the three principal rays through the cardinal
+points). Click to change.</td>
+</tr>
+<tr>
+<td>λ (nm)</td>
+<td>The wavelength of this object (only with Advanced materials
+on).</td>
+</tr>
+<tr>
+<td>Group</td>
+<td>Link objects together (see <a
+href="#settings-wavelengths-and-white-light">white light</a>).</td>
+</tr>
+<tr>
+<td><code>l</code>, <code>l'</code></td>
+<td>Object and image distances, measured from the principal planes P and
+P'.</td>
+</tr>
+<tr>
+<td><code>lv</code>, <code>lv'</code></td>
+<td>Object and image distances, measured from the vertices V and
+V'.</td>
+</tr>
+<tr>
+<td><code>h</code>, <code>h'</code></td>
+<td>Object and image heights.</td>
+</tr>
+<tr>
+<td><code>θ</code>, <code>θ'</code></td>
+<td>The beam angle (object side) and the image-space angle.</td>
+</tr>
+<tr>
+<td>beam width</td>
+<td>The width of the beam entering the system.</td>
+</tr>
+<tr>
+<td>Pin</td>
+<td>Fix the beam width so it just fills the <strong>aperture
+stop</strong>.</td>
+</tr>
+<tr>
+<td>Vig</td>
+<td>Use <em>your</em> beam width, and let whichever elements vignette it
+clip the beam.</td>
+</tr>
+<tr>
+<td>Hide</td>
+<td>Switch the beam off the diagram (the row stays).</td>
+</tr>
+</tbody>
+</table>
+<p>Distances are in the unit chosen in the box beside the tabs (mm by
+default); <strong>powers are always dioptres</strong>. An empty cell or
+<code>--</code> means "not defined here", for example the image of an
+object at the front focal point is at infinity.</p>
+<h3 id="real-virtual-and-the-colours">4.2 Real, virtual and the colours</h3>
+
+<ul>
+<li><strong>Solid lines</strong> are real light. <strong>Dashed
+lines</strong> are construction: where the rays <em>would</em> meet (a
+virtual image or a virtual object) or where a beam goes on to an object
+at infinity.</li>
+<li>A short dashed <strong>boundary line</strong> marks the place where
+real light turns into construction.</li>
+<li>A beam's shading fades out towards infinity.</li>
+<li>With <strong>Advanced materials</strong> on, each object's beam
+takes the colour of its wavelength (grey for a Custom object).</li>
+</ul>
+<p><img src="images/virtual-image.jpg"
+alt="A thick plus lens with the object inside the focal length: a virtual image, with dashed lines back to it" /></p>
+<p><em>Figure 3. A plus lens with the object inside the focal point F.
+The rays leave diverging, so the image (cyan) is virtual: it is where
+they seem to come from, reached along dashed lines. The red dot is the
+object.</em></p>
+<p><a href="#the-screen">← 3. The screen</a> · <a href="#contents">↑
+Contents</a></p>
+<h2 id="moving-things-on-the-diagram">5. Moving things on the diagram</h2>
+
+<p>Use the <strong>Pointer</strong> tool and drag:</p>
+<ul>
+<li><strong>The red dot (object).</strong> Moves a finite object; the
+image and the table follow.</li>
+<li><strong>The cyan dot (image).</strong> Moves the image; the object
+is recalculated to match. For a <strong>beam from infinity</strong> the
+cyan dot moves only up and down the focal plane, which changes the
+angle.</li>
+<li><strong>The angle picker</strong> (beams). Turn it to change the
+angle <code>θ</code>.</li>
+<li><strong>A beam's edge</strong> (the incoming edges of a beam). Drag
+it towards or away from the centre to make the beam narrower or wider.
+(Not while <strong>Pin</strong> fixes the width.)</li>
+</ul>
+<h3 id="snapping-to-the-cardinal-points">5.1 Snapping to the cardinal points</h3>
+
+<p>A dragged point is <strong>held</strong> on V, V', F, F', P, P', N or
+N' when it is within a few pixels of one, or passes one. Pull past it to
+carry on. Hold <strong>Alt</strong> to turn the snapping off. A drag
+that is purely up and down never snaps along the axis.</p>
+<p>The back focal plane F' is special: <strong>an image on F' belongs to
+an object at infinity</strong>. Drag an image there and the object is
+held a very large distance away, <code>l</code> shows as infinite
+(<code>--</code>), and the beam is drawn collimated, with dashed
+construction lines on to the object at infinity. For the relaxed eye F'
+lies just in front of the retina (V'), and the snap prefers F'.</p>
+<p><img src="images/object-at-infinity.jpg"
+alt="The beam converging on F&#39; with dashed lines running on, to the object at infinity" /></p>
+<p><em>Figure 4. An image dragged on to F' (the retina of the relaxed
+eye). The object is at infinity: the rays arrive parallel, and the
+dashed lines run on, in the direction they came from, to the object at
+infinity.</em></p>
+<h3 id="grid">5.2 Grid</h3>
+
+<p>Positions you drag to are rounded to a small grid (0.025 mm), so the
+numbers stay tidy.</p>
+<p><a href="#objects-and-images">← 4. Objects and images</a> · <a
+href="#contents">↑ Contents</a></p>
+<h2 id="reading-the-diagram">6. Reading the diagram</h2>
+
+<ul>
+<li><strong>V, V'</strong> the first and last vertices of the system.
+<strong>F, F'</strong> the focal points. <strong>P, P'</strong> the
+principal points. <strong>N, N'</strong> the nodal points. <strong>E,
+E'</strong> the entrance and exit pupils. The dashed vertical lines
+through the cardinal points are the planes. Turn any of these off in the
+<strong>show</strong> menu. <img src="images/cardinal-points.jpg"
+alt="A thick lens with its cardinal points and pupils labelled: F, F&#39;, P/N, P&#39;/N&#39;, V, V&#39; and E/E&#39;" /></li>
+</ul>
+<p><em>Figure 5. A thick plus lens with its labelled points: the focal
+points F and F', the principal / nodal points P/N and P'/N', the
+vertices V and V', and the entrance and exit pupils E/E'. The dashed
+vertical lines are the planes through the focal points.</em></p>
+<ul>
+<li>A <strong>screen</strong> ("img" element, for example a retina)
+stops the light: nothing is drawn beyond it except the dashed
+construction to an image behind it.</li>
+<li><strong>Intermediate images</strong> inside a system (for example in
+a telescope) are marked <code>I1</code>, <code>I2</code> ...</li>
+</ul>
+<p><a href="#moving-things-on-the-diagram">← 5. Moving things on the
+diagram</a> · <a href="#contents">↑ Contents</a></p>
+<h2 id="the-tables">7. The tables</h2>
+
+<h3 id="lens-prescription">7.1 Lens Prescription</h3>
+
+<p>One row per element: type (surface, thin lens, thick lens, prism,
+stop, mirror, screen), the refractive index after it, the radius, the
+thickness to the next element, the power, the aperture diameter and a
+<strong>Stop Flag</strong>. Edit a cell and the diagram redraws. The
+buttons under the table add a refractive index (a medium), thin lens,
+thick lens, spherical surface or thin prism; <strong>Delete
+Selected</strong>, <strong>Clear</strong> and <strong>Reset</strong>
+remove elements or put back the model's own. The wavelength button
+beside the unit box shows which wavelength the <strong>Ref.
+Index</strong> column is for (with Advanced materials on).</p>
+<p><img src="images/lens-prescription.jpg"
+alt="The Lens Prescription table of the Le Grand eye: elements, indices, radii, powers and thicknesses" /></p>
+<p><em>Figure 6. The Lens Prescription tab for the Le Grand relaxed eye:
+one row per element.</em></p>
+<h3 id="summary">7.2 Summary</h3>
+
+<p>The paraxial properties of the whole system, in a set of small
+tables:</p>
+<table>
+<thead>
+<tr>
+<th>Table</th>
+<th>Contents</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Summary</strong></td>
+<td>The refractive index in front of (<code>n</code>) and behind
+(<code>n'</code>) the system, and its length VV'.</td>
+</tr>
+<tr>
+<td><strong>Powers (D)</strong></td>
+<td>The equivalent power F, and the front and back vertex powers
+F<sub>v</sub> and F<sub>v'</sub>.</td>
+</tr>
+<tr>
+<td><strong>Distances (mm)</strong></td>
+<td>The focal lengths (PF, P'F'), the vertex focal lengths (VF, V'F'),
+and the positions of the principal points (VP, V'P') and nodal points
+(VN, V'N'), front and back.</td>
+</tr>
+<tr>
+<td><strong>Pupils (mm)</strong></td>
+<td>The entrance and exit pupils: position (VE, VE') and
+magnification.</td>
+</tr>
+<tr>
+<td><strong>System matrix</strong></td>
+<td>The ABCD ray-transfer matrix of the whole system (<code>A</code>,
+<code>B</code>, <code>C</code>, <code>D</code>).</td>
+</tr>
+</tbody>
+</table>
+<p>The small copy button beside a value puts it on the clipboard. With
+Advanced materials on, the Summary is for the wavelength of the object
+in focus (the wavelength button beside the unit box says which); the
+pupils and cardinal points drawn on the diagram are for the same
+wavelength.</p>
+<p><img src="images/summary.jpg"
+alt="The Summary tab: system, powers, distances and pupils tables" /></p>
+<p><em>Figure 7. The Summary tab for a thick plus lens (power 10
+D).</em></p>
+<h3 id="hiding-columns">7.3 Hiding columns</h3>
+
+<p>A <code>.lens</code> file can hide prescription columns; see <a
+href="https://github.com/sovs-uoa/sovs-uoa.github.io/blob/master/raytracer/docs/ADVANCED-MATERIALS.md">ADVANCED-MATERIALS.md</a>.</p>
+<p><a href="#reading-the-diagram">← 6. Reading the diagram</a> · <a
+href="#contents">↑ Contents</a></p>
+<h2 id="settings-wavelengths-and-white-light">8. Settings, wavelengths and white light</h2>
+
+<p>Everything that changes how the bench behaves, rather than what is on
+the bench, is in <strong>Settings</strong>: the cog in the top bar. The
+options take effect at once and are remembered in your browser;
+<strong>Done</strong> closes the dialog.</p>
+<h3 id="the-settings-dialog">8.1 The Settings dialog</h3>
+
+<p><img src="images/settings.jpg"
+alt="The Settings dialog: Advanced materials, appearance, additive beams, beam edge lines and the Wavelengths button" /></p>
+<p><em>Figure 8. The Settings dialog.</em></p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>What it does</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Advanced materials</strong></td>
+<td>Turns on materials and wavelengths (see <a
+href="#advanced-materials">8.2</a>). Off, the program behaves as a plain
+paraxial ray-tracer with the indices you type.</td>
+<td>Off</td>
+</tr>
+<tr>
+<td><strong>Light diagram / Dark diagram</strong></td>
+<td>The colour of the diagram. The sun / moon switch in the top bar does
+the same.</td>
+<td>Light</td>
+</tr>
+<tr>
+<td><strong>Additive beams</strong></td>
+<td>Overlapping beams add up like light: red, green and blue together
+come out white. Needs the dark diagram (it is greyed out on the light
+one).</td>
+<td>Off</td>
+</tr>
+<tr>
+<td><strong>Beam edge lines</strong></td>
+<td>Draws a line along the edge of every shaded beam (incoming, between
+the elements and outgoing). Off, a beam is just its shading. Works on
+either diagram.</td>
+<td>Off</td>
+</tr>
+<tr>
+<td><strong>Wavelengths...</strong></td>
+<td>Opens the list of wavelengths the program offers (see <a
+href="#the-wavelengths-dialog">8.3</a>).</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>Other controls you may be looking for are not in the dialog: the
+<strong>distance unit</strong> box beside the tabs (µm, mm, cm, m;
+powers stay in dioptres), the <strong>Show</strong> menu and tool rail
+on the diagram, and the <strong>Model</strong> button.</p>
+<h3 id="advanced-materials">8.2 Advanced materials</h3>
+
+<p>Off, every refractive index is the fixed number typed into the
+prescription table, at every wavelength: the textbook model. Switched
+on:</p>
+<ul>
+<li>The <strong>Material</strong> column appears in the Lens
+Prescription table. Name a material for a medium (and for a thin lens or
+prism) instead of typing an index. The materials are Air, Water, Ocular
+media, Fused silica, PMMA, CR-39, BK7, Crown 1.523, Trivex,
+Polycarbonate, High index 1.60 / 1.67 / 1.74, F2 flint and SF11 dense
+flint. <strong>Custom</strong> keeps whatever fixed index you type.</li>
+<li>Each object gets a <strong>wavelength</strong> (the lambda column of
+Objects and Images) and is traced through the index its materials have
+at that wavelength, so blue and red light focus in different
+places.</li>
+<li>A <strong>link</strong> column appears, for linking objects into a
+group (see <a href="#white-light-groups">8.4</a>).</li>
+<li>A wavelength button appears beside the unit box and beside the
+Summary: it shows which wavelength the Ref. Index column and the Summary
+are for, and follows the object in focus.</li>
+<li>Each object's beam is drawn in the colour of its wavelength (grey
+for Custom).</li>
+</ul>
+<p>The index at a wavelength comes from a two-term Cauchy fit through
+the material's refractive index at the d line and its Abbe number; radii
+and powers you type are for the d line (587.6 nm). The full description,
+and the extra keys a <code>.lens</code> file may use, are in <a
+href="https://github.com/sovs-uoa/sovs-uoa.github.io/blob/master/raytracer/docs/ADVANCED-MATERIALS.md">ADVANCED-MATERIALS.md</a>.</p>
+<p><img src="images/dispersion.jpg"
+alt="White light through a prism and a lens, split into its colours" /></p>
+<p><em>Figure 9. With Advanced materials on, each wavelength is traced
+through the index it has: white light through an SF11 prism and a lens
+separates into its colours.</em></p>
+<h3 id="the-wavelengths-dialog">8.3 The Wavelengths dialog</h3>
+
+<p><img src="images/wavelengths.jpg"
+alt="The Wavelengths dialog: the named spectral lines with their wavelength and group ticks" /></p>
+<p><em>Figure 10. The Wavelengths dialog (Settings &gt;
+Wavelengths...).</em></p>
+<p>It lists the wavelengths the program offers when you give an object a
+wavelength:</p>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Colour</strong></td>
+<td>A name for the colour (blue, cyan, green, ...).</td>
+</tr>
+<tr>
+<td><strong>Line</strong></td>
+<td>The name of the spectral line (g, F, d, C, ...).</td>
+</tr>
+<tr>
+<td><strong>Wavelength (nm)</strong></td>
+<td>The wavelength itself. The colour swatch beside it is worked out
+from this.</td>
+</tr>
+<tr>
+<td><strong>Group</strong></td>
+<td>Tick it to include the wavelength in the <strong>white-light
+group</strong>.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Add wavelength</strong> adds a row, the <strong>x</strong>
+deletes one, <strong>Reset to defaults</strong> puts the standard list
+back, <strong>Cancel</strong> discards your changes and
+<strong>Done</strong> keeps them. F (486.1), d (587.6) and C (656.3) are
+the lines that the Abbe number is defined from.</p>
+<h3 id="white-light-groups">8.4 White-light groups</h3>
+
+<p>A group is a set of linked objects, one for each wavelength of the
+white-light group (by default blue 435.8 nm, green 514.5 nm and red
+656.3 nm):</p>
+<ul>
+<li>Choose <strong>New &gt; white-light group</strong> on the Objects
+and Images tab. A copy of the object is made at each wavelength in the
+group. (Or tick the <strong>link</strong> boxes of two objects to link
+them.)</li>
+<li>The members are <strong>linked</strong>: drag one, or change its
+position, height or angle, and the others follow. You see the dispersion
+of one scene.</li>
+<li>The group is made from the ticked <strong>Group</strong> wavelengths
+in the Wavelengths dialog, so you can choose another set.</li>
+</ul>
+<p><a href="#the-tables">← 7. The tables</a> · <a href="#contents">↑
+Contents</a></p>
+<h2 id="saving-and-reporting">9. Saving and reporting</h2>
+
+<ul>
+<li><strong>Save</strong> (tool rail): the diagram as a PNG, SVG or
+PDF.</li>
+<li><strong>Report</strong> (top bar): downloads a report of the model
+and its objects and images, filled in from a template for that lab or
+assignment. Use it for the lab write-up.</li>
+<li>The <strong>workbench manager</strong> (<code>manager.html</code>)
+can also <strong>open and save <code>.lens</code> files</strong> on your
+computer.</li>
+</ul>
+<p><a href="#settings-wavelengths-and-white-light">← 8. Settings,
+wavelengths and white light</a> · <a href="#contents">↑ Contents</a></p>
+<h2 id="choosing-and-authoring-models">10. Choosing and authoring models</h2>
+
+<ul>
+<li>The <strong>Model</strong> button opens a searchable list of every
+model, grouped by topic (components, eyes, instruments, assignments by
+year). Click to preview, double-click or press Enter to load it.</li>
+<li>A model is a plain-text <strong><code>.lens</code> file</strong>
+(JSON5) listing the elements of the system, the objects, and optional
+settings. Examples are in <code>raytracer/lenses/</code>. To try your
+own, open <code>manager.html</code> and use <strong>File &gt;
+Open</strong>; the tables are editable there and the diagram updates,
+and you can save the result.</li>
+<li>Which models appear in which lab is set in
+<code>raytracer/config/config.json</code> (a "profile" per page).</li>
+</ul>
+<p><a href="#saving-and-reporting">← 9. Saving and reporting</a> · <a
+href="#contents">↑ Contents</a></p>
+<h2 id="tips">11. Tips</h2>
+
+<ul>
+<li><strong>Start with the cardinal points.</strong> Drag the object to
+F and watch the image run to infinity; drag it to 2F and the image comes
+to 2F'.</li>
+<li><strong>Type exact numbers</strong> into <code>l</code>,
+<code>h</code> or <code>θ</code> when you need an exact value; drag when
+you want to explore.</li>
+<li><strong>Dashed means "would".</strong> If you cannot see how the
+light gets there, it probably does not: it is a construction.</li>
+<li><strong>Untick Pin and tick Vig</strong> to see how an aperture or a
+lens edge clips an oblique beam.</li>
+<li>If a page looks stale after an update, refresh with the cache
+cleared (hard refresh).</li>
+</ul>
+<p><a href="#choosing-and-authoring-models">← 10. Choosing and authoring
+models</a> · <a href="#contents">↑ Contents</a></p>
+<hr />
+<p><em>Where the code is and how the pages are built: see the repository
+<a
+href="https://github.com/sovs-uoa/sovs-uoa.github.io/blob/master/README.md">README</a>.</em></p>
+</body>
+</html>
