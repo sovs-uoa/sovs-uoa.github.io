@@ -113,3 +113,87 @@ class Construction {
     return Optics.calculateConjugatePairFrom({ id: point.id, which: point.type, z: z, h: y }, total);
   }
 }
+
+
+/* ---------------------------------------------------------------------------------------------------------------
+
+  BeamConstruction - a beam from infinity (the parallel-beam and the afocal constructions).
+
+  Such a beam has no position, only an angle, and so only two ways of being moved:
+    - the angle picker is turned (dragAngle)
+    - its image point, on the back focal plane, is moved up or down (the height is turned back into the angle);
+      moving it along the axis does nothing.
+  A subclass that has to do more when the angle changes overrides beamAngleChanged().
+
+--------------------------------------------------------------------------------------------------------------- */
+
+class BeamConstruction extends Construction {
+
+  // The image point is picked up at its present height; only the height is followed.
+  dragStart (dot) {
+    dot.oy = dot.attr("cy");
+    setGrabbingCursor(true);
+  }
+
+  moveHandle (dot, dx, dy) {
+
+    let y = dot.oy + ky * dy;
+    y = Math.round(y / gridSnapSize) * gridSnapSize;
+
+    const point = dot.data("data-attr");
+    const total = renderableLens.total;
+
+    // (An object that is a finite point stays a finite point: see clampFarObjectPair, PointSourceConstruction.js.)
+    // Inverse of calculateConjugatePairFrom's IQ = zp * deg2rad(t) (paraxial, linear - not zp * tan(deg2rad(t))),
+    // so recovering t from a dragged image height is a plain division, no atan() needed.
+    // The height of the focus per radian is the anterior focal length n1/F (see calculateConjugatePairFrom in
+    // optics.js); a mirror's negative index is no change to the size.
+    const zp = Math.abs(total.n1) / total.F;
+    const t  = rad2deg(y / zp);
+
+    const request = { id: point.id, type: "beam", which: "object", t: t };
+    const pair    = Optics.calculateConjugatePairFrom(request, total);
+    updatePointsTable(request.id, pair);
+
+    this.setPairData(pair);
+    this.beamAngleChanged(pair);
+    this.refresh();       // also re-anchors/re-angles the angle-picker handle, keeping it in sync with this drag
+  }
+
+  // The angle picker is turned to `th` (its own geometric angle, in degrees).
+  dragAngle (th) {
+
+    this.inOwnLens(() => {
+
+      // the handle is drawn perpendicular to the ray (so it doesn't lie along the rays it controls): convert its own
+      // geometric angle back to the ray angle. "th + 90" is the true geometric angle of the ray, not the paraxial
+      // field angle T1 (the ray is drawn with the linear slope deg2rad(T1), whose true angle is atan(deg2rad(T1));
+      // they coincide only for a small T1) - see fieldAngleToGeometricAngle / geometricAngleToFieldAngle.
+      let geometricAngle = th + 90;
+
+      // keep the GEOMETRIC angle away from +-90 (tan is infinite there); dragging the image point can only recover
+      // an angle in that same range, since it inverts the image height by a plain division
+      geometricAngle = Math.max(-89.9, Math.min(89.9, geometricAngle));
+      let T1 = geometricAngleToFieldAngle(geometricAngle);
+
+      // T1 = tan(geometricAngle) blows up long before that clamp is reached, and paraxial theory only describes
+      // small angles anyway, so T1 is clamped too and the handle's angle re-derived from it: the handle "sticks"
+      // once T1 saturates rather than rotating on past where T1 can follow.
+      T1 = Math.max(-89.9, Math.min(89.9, T1));
+      this.anglePicker.setAngle(fieldAngleToGeometricAngle(T1) - 90);
+
+      // the graphic and the table
+      const request = { id: this.getId(), type: "beam", which: "object", t: T1 };
+      const pair    = Optics.calculateConjugatePairFrom(request, renderableLens.total);
+      this.setPairData(pair);
+      updatePointsTable(request.id, pair);
+      this.beamAngleChanged(pair);
+
+      this.remove();
+      this.draw();
+    });
+  }
+
+  // (called with the new pair data once the beam's angle has changed; the rays are redrawn afterwards)
+  beamAngleChanged (pair) {}
+}

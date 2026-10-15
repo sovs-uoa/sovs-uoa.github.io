@@ -14,183 +14,6 @@ var changed         = { "stroke": "blue", "stroke-width": 1, "stroke-dasharray":
 var globalElem;
 
 
-/*   -------------------------------------------------
-
-These functions are called as the picker is dragged 
-
------------------------------------------------------- */
-
-function onAfocalStart ()   { console.log("onstart picker"); };
-
-function onAfocalMove (th)  {
-
-      // this => AnglePicker
-      //console.log("angle picker passed angle = " + th);
-
-      // th is the handle's own TRUE geometric angle (AnglePicker.setAngle is a
-      // real polar-to-cartesian rotation) - not the paraxial field angle T1
-      // itself, since the ray is drawn with the linear slope deg2rad(T1),
-      // whose true geometric angle is atan(deg2rad(T1)), not T1 (they
-      // coincide only for a small T1). Clamp away from +-90 deg first (tan()
-      // of exactly +-90 is infinite), matching ParallelBeamConstruction's
-      // onmove().
-      // The handle is drawn perpendicular to the ray (its angle is the ray's - 90, so it points up, like the focal beam's handle in
-      // ParallelBeamConstruction), so it never lies along the beam it controls: convert back to the ray angle first.
-      th = th + 90;
-      th = Math.max(-89.9, Math.min(89.9, th));
-      var T1 = geometricAngleToFieldAngle(th);
-
-      // T1 = tan(th), so T1 itself blows up (thousands of degrees) as th
-      // merely APPROACHES 90 deg, long before reaching the clamp above -
-      // paraxial theory only ever describes a small angle in the first
-      // place, so there is no sense in which a huge T1 is "more correct".
-      // Clamp T1 itself too, and re-set the handle's own geometric angle
-      // from that clamped T1 (movePicker's own drag handling already moved
-      // it to the raw th before calling us) so the two stay consistent -
-      // the handle visually "sticks" once T1 saturates.
-      T1 = Math.max(-89.9, Math.min(89.9, T1));
-      this.setAngle(fieldAngleToGeometricAngle(T1) - 90);
-
-      // update the graphic + associated table
-      myPoint   = { id:this.parent.getId(), type: "beam", which: "object", t: T1 };
-      totalLens = renderableLens.total;    
-      PairData  = Optics.calculateConjugatePairFrom(myPoint, totalLens); 
-      this.parent.setPairData(PairData);
-
-
-      updatePointsTable(myPoint.id, PairData);
-
-
-      // this should update afocalbeamconstruction rays 
-      this.parent.setInputRays(PairData.T1);
-      this.parent.remove(); 
-      this.parent.draw();
-
-
-
-
-};
-
-function onAfocalUp ()      { console.log("onup picker"); };
-
-
-/*   -----------------------------------------------------------------
-
-UPDATE BEAM CONJUGATE Update conjugate point in table and on-screen 
-
---------------------------------------------------------------------- */
-/*
-
-function updateBeamConjugate (info, myPoint) {
-
-      // lens is global !
-      console.log("beam conjugate");
-      console.log(d);
-
-      id     = info.conjugate_id; // conugate point 
-      mytype = info.type;
-
-
-
-
-      myPoint   = { id:, type:, which: , t: };
-      totalLens = renderableLens.total;    
-      pairData  = Optics.calculateConjugatePairFrom(myPoint, totalLens); 
-      
-
-      switch (mytype) {
-
-          case "object" : // update the conjugate [point]
-            
-            // update the lens table
-            lens.pointsTable.updateData([ { "id": myPoint.id, "to": myPoint.T1 } ]);
-            pairData = getConjTo (d.type, { id:0, zo:-Infinity, to: myPoint.T1 }); // this only works in the forward direction
-            lens.pointsTable.updateData([ { "id": myPoint.id, "zi": pairData.X2, "hi": pairData.Y2 } ]); // not afocal 
-
-            c = paper.getById(id);
-            c.attr({ cx: pairData.X2, cy: pairData.Y2 }); // update the image point 
-            break;
-
-          case "image" :
-            error("error!");
-            lens.pointsTable.updateData([ { "id": id, "ti": myPoint.T1 } ]);
-            pairData = getConjTo (d.type, { id:0, zi:+Infinity, ti:myPoint.T1 }); // this only works in the forward direction
-            lens.pointsTable.updateData([ { "id": myPoint.id, "zo": pairData.X1, "ho": pairData.Y1 } ]); // not afocal 
-            c = paper.getById(id);
-            c.attr({ cx: pt.X1, cy: pt.Y1 }); // update the object point 
-            break;
-
-          default:
-            error("unknown draggable");
-
-      }
-
-
-    return pairData;
-}
-*/
-
-/* ------------------------------------------------------
-
-UNUSED - A BEAM IS NOT DRAGGABLE !!!!
-
----------------------------------------------------------- */
-/*
-
-function moveBeam (dx, dy) {
-
-      console.log("--- called beam move point id = " + this.id);  
-
-
-      // update the appropriate point 
-      dx = kx*dx; 
-      dy = ky*dy;
-
-      nowX = this.ox + dx;
-      nowY = this.oy + dy;
-
-      nowX = Math.round(nowX / gridSnapSize) * gridSnapSize;
-      nowY = Math.round(nowY / gridSnapSize) * gridSnapSize;
-
-      // update the point 
-      this.attr({ cx: nowX, cy: nowY });
-
-      // 4pairDescription = getConjugateTo("object", eachPoint, totalLens); // only works in fwd direction 
-
-      // update the conjugate 
-      var thisPoint = this.data("data-attr");
-      pairData = updateBeamConjugate (thisPoint);  // update the Raphael paper + lens table + return a pairData object
-      thisPoint.parent.setPairData(pairData);
-      thisPoint.parent.setOrientation(nowX, nowY);
-      thisPoint.parent.remove ();      
-      thisPoint.parent.drawBeamConstruction ();
-
-
-      // redraw depends on type of object 
-      // update the location of the rays !!!!
-      // updatePointsView ();
-   }
-
-  
-  function startBeam () {
-
-      console.log("--- called beam start point id = " + this.id);  
-
-      // storing original coordinates
-      this.ox = this.attr("cx");
-      this.oy = this.attr("cy");
-
-  }
-
-  
-  function upBeam () {
-
-      console.log("--- called beam up point id = " + this.id);  
-
-  }
-
-*/
-
 /* -------------------------------------------------------------------------------
 
 MAIN 
@@ -198,10 +21,12 @@ MAIN
  ---------------------------------------------------------------------------------- */
 
 
-class AfocalBeamConstruction { // create a ray construction using raphael.js
+class AfocalBeamConstruction extends BeamConstruction { // create a ray construction using raphael.js
 
 
 	 constructor(lens, data, beamwidth) {
+
+       super();
 
 	 	   // global paper 
        this.cd_set = paper.set();
@@ -240,6 +65,11 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
     Generic functions 
 
    --------------------------------------------------------------------------------------------------------------- */
+
+    // a new angle for the beam: its rays have to be set again from it
+    beamAngleChanged (pair) {
+      this.setInputRays(pair.T1);
+    }
 
     getId () {
       return this.data.id;
@@ -520,26 +350,10 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
         console.log ('DRAW POINT DATA');
         console.log (this.data);
 
-        this.imagePoint    = drawPoint(X2, Y2, "cyan"); // image  
-        this.imagePoint.id = "point-" + this.data.id + "-image";
-        this.imagePoint.data("data-attr", {  "element_id"     : "point-" + this.data.id + "-image",
-                                              "id"            : this.data.id, 
-                                              "type"          : "image",
-                                              "parent"        : this });
-
-         
-        this.updateImagePoint();     // shown only where there is a focus
-        // the focus can be dragged up and down to tilt the beam, as the focus of a beam in the other construction can
-        // (the same handlers: the height it is dragged to is turned back into the beam's angle)
-        this.imagePoint.drag(moveBeamImagePoint, startBeamImagePoint, upBeamImagePoint);
-        this.imagePoint.attr({ cursor: "grab" });
-
-
-
-
-        // register these points 
-        RegisterWheelCallback({ type: "point", handle: this.imagePoint });
-        
+        // the focus can be dragged up and down to tilt the beam (the height it is dragged to is turned back into the
+        // beam's angle: see BeamConstruction); it is shown only where there is a focus
+        this.imagePoint = this.makeHandle(X2, Y2, "cyan", "image");
+        this.updateImagePoint();
 
         //. default beam anchor 
         var lens = this.lens;
@@ -555,7 +369,7 @@ class AfocalBeamConstruction { // create a ray construction using raphael.js
                                                    "type"          : "object",
                                                    "parent"        : this });
         this.anglePicker.parent = this;
-        this.anglePicker.drag(onAfocalMove, onAfocalStart, onAfocalUp);
+        this.anglePicker.drag((th) => this.dragAngle(th), () => {}, () => {});
 
         // this.imagePoint.data("data-attr", { "element-id" : "point-" + this.data.id + "-image", "id" : this.data.id, "type" : "image"});
         //this.imagePoint.data("data-attr");

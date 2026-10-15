@@ -269,48 +269,6 @@ function clearBeamFadeGradients () {
 }
 
 
-/*   -----------------------------------------------------------------
-
-THE IMAGE POINT of a beam from infinity. The image of a beam always forms on the back focal plane (that is what it is
-the image of), so only the height means anything: it is converted to the equivalent incoming angle by the relationship
-calculateConjugatePairFrom uses to go the other way (IQ = (n2/F)*tan(angle)), then the beam is redrawn exactly as
-dragging the angle picker does. Pulling the point along the axis does nothing.
-
-The drag itself belongs to ParallelBeamConstruction (dragStart / moveHandle). moveBeamImageDot is kept as a function
-because AfocalBeamConstruction, which has not moved onto the Construction superclass yet, drags its image point the
-same way through the three plain functions below.
-
---------------------------------------------------------------------- */
-
-function moveBeamImageDot (dot, dy) {
-
-      var nowY = dot.oy + ky * dy;
-      nowY = Math.round(nowY / gridSnapSize) * gridSnapSize;
-
-      var thisPoint = dot.data("data-attr");
-      var total     = renderableLens.total;
-
-      // (An object that is a finite point stays a finite point: see clampFarObjectPair, PointSourceConstruction.js.)
-      // Inverse of calculateConjugatePairFrom's IQ = zp * deg2rad(t) (paraxial, linear - not zp * tan(deg2rad(t))),
-      // so recovering t from a dragged image height is a plain division, no atan() needed.
-      // The height of the focus per radian is the anterior focal length n1/F (see calculateConjugatePairFrom in
-      // optics.js); a mirror's negative index is no change to the size.
-      var zp = Math.abs(total.n1) / total.F;
-      var th = rad2deg(nowY / zp);
-
-      var myPoint = { id: thisPoint.id, type: "beam", which: "object", t: th };
-      var pair    = Optics.calculateConjugatePairFrom(myPoint, total);
-      updatePointsTable(myPoint.id, pair);
-
-      thisPoint.parent.setPairData(pair);
-      thisPoint.parent.refresh();    // also re-anchors/re-angles the angle-picker handle, keeping it in sync with this drag
-}
-
-function startBeamImagePoint ()       { this.oy = this.attr("cy"); setGrabbingCursor(true); }
-function moveBeamImagePoint (dx, dy)  { moveBeamImageDot(this, dy); }
-function upBeamImagePoint ()          { setGrabbingCursor(false); }
-
-
 /* -------------------------------------------------------------------------------
 
 MAIN 
@@ -318,7 +276,7 @@ MAIN
  ---------------------------------------------------------------------------------- */
 
 
-class ParallelBeamConstruction extends Construction { // create a ray construction using raphael.js
+class ParallelBeamConstruction extends BeamConstruction { // create a ray construction using raphael.js
 
 
 	 constructor(lens, data, BeamWidth) {
@@ -458,53 +416,6 @@ class ParallelBeamConstruction extends Construction { // create a ray constructi
    --------------------------------------------------------------------------------------------------------------- */
 
 
-    // The cyan image point is picked up at its present height; only the height is followed.
-    dragStart (dot) {
-      dot.oy = dot.attr("cy");
-      setGrabbingCursor(true);
-    }
-
-    moveHandle (dot, dx, dy) {
-      moveBeamImageDot(dot, dy);
-    }
-
-    // The angle picker is turned to `th` (its own geometric angle, in degrees).
-    dragAngle (th) {
-
-      this.inOwnLens(() => {
-
-        const picker = this.anglePicker;
-
-        // the handle itself is drawn perpendicular to the ray (see addBeamConstruction/refresh) so it doesn't overlap
-        // the rays it controls - convert its own (raw) geometric angle back to the ray angle here. "th + 90" is the
-        // true geometric angle of the ray, not the paraxial field angle T1 (the ray is drawn with the linear slope
-        // deg2rad(T1), whose true angle is atan(deg2rad(T1)); they coincide only for a small T1) - see
-        // fieldAngleToGeometricAngle / geometricAngleToFieldAngle.
-        let geometricAngle = th + 90;
-
-        // Keep the GEOMETRIC angle away from +-90 (tan is infinite there) - dragging the image point can only ever
-        // recover an angle in that same range, since it inverts the image height by a plain division.
-        geometricAngle = Math.max(-89.9, Math.min(89.9, geometricAngle));
-        let T1 = geometricAngleToFieldAngle(geometricAngle);
-
-        // T1 = tan(geometricAngle) blows up long before the clamp above is reached, and paraxial theory only
-        // describes small angles anyway, so T1 is clamped too and the handle's angle re-derived from the clamped value:
-        // the handle "sticks" once T1 saturates rather than rotating on past where T1 can follow.
-        T1 = Math.max(-89.9, Math.min(89.9, T1));
-        picker.setAngle(fieldAngleToGeometricAngle(T1) - 90);
-
-        // the graphic and the table
-        const point = { id: this.getId(), type: "beam", which: "object", t: T1 };
-        const pair  = Optics.calculateConjugatePairFrom(point, renderableLens.total);
-        this.setPairData(pair);
-        updatePointsTable(point.id, pair);
-
-        this.remove();
-        this.draw();
-      });
-    }
-
-
     addBeamConstruction () {
 
 
@@ -518,7 +429,7 @@ class ParallelBeamConstruction extends Construction { // create a ray constructi
         //var N1 = this.data.N1; var T2 = this.data.N2;
 
 
-        // the image point: it can only be moved up and down the focal plane (see dragStart / moveHandle below)
+        // the image point: it can only be moved up and down the focal plane (see BeamConstruction)
         this.imagePoint = this.makeHandle(X2, Y2, "cyan", "image");
 
 

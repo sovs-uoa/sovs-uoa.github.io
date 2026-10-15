@@ -181,9 +181,8 @@ function withLensAt (nm, fn, thisArg, args) {
 }
 
 // Make every construction compute through its own wavelength's lens, however it is poked: its public methods
-// are wrapped here, and the drag handlers (free functions that compute straight from renderableLens before
-// calling the construction) are wrapped to find the construction they belong to. Installed once, after all the
-// construction scripts have loaded and before application.js starts using them.
+// are wrapped here. (Dragging is not wrapped: Construction.inOwnLens does that for the drag handlers.) Installed
+// once, after all the construction scripts have loaded and before application.js starts using them.
 function installLensWavelengthWrappers () {
 
   var classes = [];
@@ -205,31 +204,6 @@ function installLensWavelengthWrappers () {
         return withLensAt(this.WavelengthNm, original, this, arguments);
       };
     });
-  });
-
-  // the construction a drag handler is acting on: an AnglePicker has .parent, a dragged point carries it in its data
-  function constructionOf (thing) {
-    if (!thing) { return null; }
-    if (thing.parent && typeof thing.parent.getId === "function") { return thing.parent; }
-    if (typeof thing.data === "function") {
-      var info = thing.data("data-attr") || thing.data("data-attr-info");
-      if (info && info.parent && typeof info.parent.getId === "function") { return info.parent; }
-    }
-    return null;
-  }
-
-  [ "onmove", "onAfocalMove", "movePointSource", "moveBeamImagePoint", "moveBeam" ].forEach(function (name) {
-
-    var original = window[name];
-    if (typeof original !== "function" || original.__lensWrapped) { return; }
-
-    var wrapped = function () {
-      var owner = constructionOf(this);
-      if (owner && typeof owner.getId === "function") { setFocusedObject(owner.getId()); }   // the row of what is being dragged
-      return withLensAt(owner ? owner.WavelengthNm : undefined, original, this, arguments);
-    };
-    wrapped.__lensWrapped = true;
-    window[name] = wrapped;
   });
 }
 
