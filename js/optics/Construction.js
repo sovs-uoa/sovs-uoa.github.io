@@ -57,12 +57,15 @@ class Construction {
   // dx, dy: how far the pointer has moved since the point was picked up, in pixels
   dragMove (dot, dx, dy) {
 
-    // the object being dragged is the one in focus, and it is traced through the lens at its own wavelength
-    if (typeof setFocusedObject === "function") { setFocusedObject(this.getId()); }
+    this.inOwnLens(() => this.moveHandle(dot, dx, dy));
+  }
 
-    const move = () => this.moveHandle(dot, dx, dy);
-    if (typeof withLensAt === "function") { withLensAt(this.WavelengthNm, move, this, []); }
-    else                                  { move(); }
+  // Run fn as this construction: the object being dragged is the one in focus, and it is traced through the lens
+  // at its own wavelength.
+  inOwnLens (fn) {
+    if (typeof setFocusedObject === "function") { setFocusedObject(this.getId()); }
+    if (typeof withLensAt === "function") { withLensAt(this.WavelengthNm, fn, this, []); }
+    else                                  { fn(); }
   }
 
   moveHandle (dot, dx, dy) {
