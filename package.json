@@ -7,7 +7,7 @@
     "doc": "docs"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node --test raytracer/tests/optics.test.js",
     "build:labs": "node raytracer/scripts/build-labs.js",
     "build:guide": "pandoc raytracer/docs/USER-GUIDE.md -f gfm -t html5 -s --metadata pagetitle=\"SOVS optics bench: user guide\" -H raytracer/docs/guide-style.html -B raytracer/docs/guide-before.html -o raytracer/docs/guide.html"
   },
