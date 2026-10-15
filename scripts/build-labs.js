@@ -45,7 +45,7 @@ const PAGES = [
   { output: 'labs/Test.html',        lensesMenu: 'test',  reportVersion: 'v2.1' },
   // the workbench: the Model button opens a slide-in, searchable list of every model
   { output: 'main.html',        lensesMenu: 'main',  reportVersion: 'v2.1', sidebar: true },
-  // the same, with the tables open for authoring: open and save .lens files on disk, and a debug window (js/manager.js)
+  // the same, with the tables open for authoring: open and save .lens files on disk, and a debug window (js/app/manager.js)
   { output: 'manager.html',     lensesMenu: 'main',  reportVersion: 'v2.1', sidebar: true, manager: true },
   // the assignments of each year: the same page with that year's models (profile "assignment-<year>")
   { output: 'assignments/assign2021.html', lensesMenu: 'assignment-2021', reportVersion: 'v1.0' },

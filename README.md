@@ -27,13 +27,17 @@ The program takes as input a .lens prescription file (some of which are "canned"
 | `assignments/` | The assignment pages, one per year. |
 | `main.html`, `manager.html`, `models.html` | The workbench with the model side bar, the authoring version of it, and the model gallery. |
 | `lenses/`, `config/` | The `.lens` model files, and `config.json` (which models each menu profile lists). |
-| `js/`, `css/`, `mustache/` | The application, its styles and the report templates, shared by every page. |
+| `js/optics/` | The optics: ray and cardinal-point maths (`optics.js`) and materials / wavelengths (`materials.js`). |
+| `js/constructions/` | The drawings of an object and its image: `Construction` (the superclass: dragging, snapping), `BeamConstruction` (in the same file) and the point-source, parallel-beam, afocal-beam and principal-ray constructions, plus the angle picker. |
+| `js/app/` | The page itself: `application` (objects and their rows), `renderer`, `settings`, the prescription table, `manager`, the model browser, export and the ruler. |
+| `js/vendor/` | Small third-party scripts kept in the repo (`raphael.export.js`, `mustache-wax.js`). |
+| `css/`, `mustache/` | The stylesheet and the report templates, shared by every page. |
 | `digital-labs/`, `demo/` | The Fourier, Gabor and hybrid-image simulators. |
 | `docs/` | Notes: [docs/ADVANCED-MATERIALS.md](docs/ADVANCED-MATERIALS.md). |
 
 **The lab pages are generated.** Every page under `labs/`, `eye/` and `assignments/`, and `main.html` and `manager.html`,
 is built from one template (`scripts/laboratory.template.html`) by `scripts/build-labs.js`. Do not edit them by hand:
-edit the template (or the files in `js/optics/`) and run, from the repository root,
+edit the template (or the scripts under `js/`) and run, from the repository root,
 
     node scripts/build-labs.js
 
